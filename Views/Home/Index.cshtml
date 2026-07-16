@@ -1,8 +1,333 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model GloryLikeWebApp.Models.Dashboard.CandidateDashboardViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Candidate Dashboard";
+    var initials = string.Join(
+        "",
+        Model.DisplayName
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Take(2)
+            .Select(x => x[0].ToString().ToUpperInvariant()));
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link rel="stylesheet" href="~/css/candidate-dashboard.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="dashboard-shell">
+        <aside class="sidebar" id="dashboardSidebar">
+            <a class="brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark">ϟ</span>
+                <span>SkillMatch</span>
+            </a>
+
+            <nav class="nav-menu" aria-label="Candidate navigation">
+                <a class="nav-link active" asp-controller="Home" asp-action="Index">
+                    <span class="nav-icon">⌂</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <span class="nav-icon">⌕</span>
+                    <span>Jobs</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <span class="nav-icon">▣</span>
+                    <span>Applications</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <span class="nav-icon">✦</span>
+                    <span>Skills</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <span class="nav-icon">○</span>
+                    <span>Profile</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="growth-card">
+                    <span class="growth-icon">✦</span>
+                    <strong>Grow your profile</strong>
+                    <p>Verify more skills to unlock stronger matches.</p>
+                    <a href="#">View skill passport</a>
+                </div>
+
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="signout-button">
+                        <span>↪</span>
+                        <span>Sign out</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-area">
+            <header class="topbar">
+                <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-label="Open menu">☰</button>
+
+                <div class="topbar-search">
+                    <span>⌕</span>
+                    <input type="search" placeholder="Search jobs, companies or skills" />
+                </div>
+
+                <div class="topbar-actions">
+                    <button class="icon-button" type="button" aria-label="Notifications">
+                        ♢
+                        <span class="notification-dot"></span>
+                    </button>
+
+                    <div class="account-chip">
+                        <div class="avatar">@initials</div>
+                        <div class="account-copy">
+                            <strong>@Model.DisplayName</strong>
+                            <span>Candidate</span>
+                        </div>
+                        <span class="chevron">⌄</span>
+                    </div>
+                </div>
+            </header>
+
+            <section class="page-content">
+                <div class="welcome-row">
+                    <div>
+                        <p class="eyebrow">CANDIDATE DASHBOARD</p>
+                        <h1>Welcome back, @Model.DisplayName.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()</h1>
+                        <p class="page-subtitle">Track your readiness, strengthen your profile and discover your best opportunities.</p>
+                    </div>
+
+                    <button class="primary-button" type="button">
+                        <span>＋</span>
+                        Add evidence
+                    </button>
+                </div>
+
+                <section class="hero-grid">
+                    <article class="readiness-card panel">
+                        <div class="panel-heading">
+                            <div>
+                                <span class="section-kicker">CAREER READINESS</span>
+                                <h2>Your profile is getting stronger</h2>
+                            </div>
+                            <a href="#">View details</a>
+                        </div>
+
+                        <div class="readiness-layout">
+                            <div class="score-ring" style="--score:@Model.OverallScore">
+                                <div class="score-ring-inner">
+                                    <strong>@Model.OverallScore</strong>
+                                    <span>/100</span>
+                                </div>
+                            </div>
+
+                            <div class="score-summary">
+                                <span class="status-pill positive">Strong profile</span>
+                                <h3>@Model.StrongestRole</h3>
+                                <p>@Model.StrongestRoleSubtitle</p>
+
+                                <div class="profile-progress-row">
+                                    <div>
+                                        <span>Profile completeness</span>
+                                        <strong>@Model.ProfileCompletion%</strong>
+                                    </div>
+                                    <div class="progress-track">
+                                        <span style="width:@Model.ProfileCompletion%"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
+                            @foreach (var stat in Model.Stats)
+                            {
+                                <div class="stat-item">
+                                    <strong>@stat.Value</strong>
+                                    <span>@stat.Label</span>
+                                    <small>@stat.Caption</small>
+                                </div>
+                            }
+                        </div>
+                    </article>
+
+                    <article class="profile-card panel">
+                        <div class="profile-card-head">
+                            <div class="profile-avatar">@initials</div>
+                            <span class="open-pill">Open to work</span>
+                        </div>
+
+                        <h2>@Model.DisplayName</h2>
+                        <p>Senior Product Designer</p>
+
+                        <div class="profile-meta">
+                            <span>⌖ Almaty, KZ</span>
+                            <span>Hybrid</span>
+                        </div>
+
+                        <div class="profile-card-progress">
+                            <div>
+                                <span>Profile</span>
+                                <strong>@Model.ProfileCompletion%</strong>
+                            </div>
+                            <div class="progress-track">
+                                <span style="width:@Model.ProfileCompletion%"></span>
+                            </div>
+                        </div>
+
+                        <button class="secondary-button" type="button">Edit profile</button>
+                    </article>
+                </section>
+
+                <section class="content-grid">
+                    <div class="content-column">
+                        <section class="section-block">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-kicker">YOUR PIPELINE</span>
+                                    <h2>Active applications</h2>
+                                </div>
+                                <a href="#">See all</a>
+                            </div>
+
+                            <div class="application-list panel">
+                                @if (Model.Applications.Count == 0)
+                                {
+                                    <div class="empty-state">
+                                        <strong>No active applications yet</strong>
+                                        <span>Your applications will appear here.</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    @foreach (var application in Model.Applications)
+                                    {
+                                        <div class="application-row">
+                                            <div class="company-logo">@application.Company[..Math.Min(2, application.Company.Length)].ToUpperInvariant()</div>
+                                            <div class="application-main">
+                                                <strong>@application.Role</strong>
+                                                <span>@application.Company</span>
+                                            </div>
+                                            <span class="application-status @application.StatusClass">@application.Status</span>
+                                            <span class="application-updated">@application.UpdatedText</span>
+                                            <button type="button" class="row-action">›</button>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </section>
+
+                        <section class="section-block">
+                            <div class="section-header">
+                                <div>
+                                    <span class="section-kicker">OPPORTUNITIES</span>
+                                    <h2>Recommended for you</h2>
+                                </div>
+                                <a href="#">Browse jobs</a>
+                            </div>
+
+                            <div class="job-grid">
+                                @foreach (var job in Model.RecommendedJobs)
+                                {
+                                    <article class="job-card panel">
+                                        <div class="job-top">
+                                            <div class="company-logo large">@job.CompanyInitials</div>
+                                            <div>
+                                                <span class="job-company">@job.Company</span>
+                                                <h3>@job.Role</h3>
+                                                <p>@job.Meta</p>
+                                            </div>
+                                            <button class="bookmark-button" type="button">♡</button>
+                                        </div>
+
+                                        <div class="job-tags">
+                                            @foreach (var tag in job.Tags)
+                                            {
+                                                <span>@tag</span>
+                                            }
+                                        </div>
+
+                                        <div class="job-bottom">
+                                            <div class="match-badge">
+                                                <strong>@job.MatchScore%</strong>
+                                                <span>match</span>
+                                            </div>
+                                            <button class="view-job-button" type="button">View role</button>
+                                        </div>
+                                    </article>
+                                }
+                            </div>
+                        </section>
+                    </div>
+
+                    <aside class="right-column">
+                        <section class="section-block">
+                            <div class="section-header compact">
+                                <div>
+                                    <span class="section-kicker">SKILL PASSPORT</span>
+                                    <h2>Top skills</h2>
+                                </div>
+                                <a href="#">View all</a>
+                            </div>
+
+                            <div class="skills-list">
+                                @foreach (var skill in Model.Skills)
+                                {
+                                    <article class="skill-card panel">
+                                        <div class="skill-head">
+                                            <div>
+                                                <h3>@skill.Name</h3>
+                                                <span class="skill-category">@skill.Category</span>
+                                            </div>
+                                            <div class="skill-score">@skill.Score</div>
+                                        </div>
+
+                                        <span class="skill-status @skill.StatusClass">@skill.Status</span>
+
+                                        <div class="skill-metric">
+                                            <div>
+                                                <span>Knowledge</span>
+                                                <strong>@skill.Knowledge</strong>
+                                            </div>
+                                            <div class="metric-track">
+                                                <span style="width:@skill.Knowledge%"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="skill-metric">
+                                            <div>
+                                                <span>Experience</span>
+                                                <strong>@skill.Experience</strong>
+                                            </div>
+                                            <div class="metric-track secondary">
+                                                <span style="width:@skill.Experience%"></span>
+                                            </div>
+                                        </div>
+                                    </article>
+                                }
+                            </div>
+                        </section>
+
+                        <section class="next-step-card panel">
+                            <span class="next-step-icon">✦</span>
+                            <div>
+                                <span class="section-kicker">NEXT BEST STEP</span>
+                                <h3>Verify one more core skill</h3>
+                                <p>Verified evidence can improve the quality of your role matches.</p>
+                            </div>
+                            <button type="button" class="secondary-button full">View recommendation</button>
+                        </section>
+                    </aside>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <script src="~/js/candidate-dashboard.js" asp-append-version="true"></script>
+</body>
+</html>

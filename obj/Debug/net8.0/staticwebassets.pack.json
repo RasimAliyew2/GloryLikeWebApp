@@ -5,12 +5,20 @@
       "PackagePath": "staticwebassets\\GloryLikeWebApp.cbkm1gt154.bundle.scp.css"
     },
     {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\candidate-dashboard.css",
+      "PackagePath": "staticwebassets\\css\\candidate-dashboard.css"
+    },
+    {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\site.css",
       "PackagePath": "staticwebassets\\css\\site.css"
     },
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\candidate-dashboard.js",
+      "PackagePath": "staticwebassets\\js\\candidate-dashboard.js"
     },
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\site.js",

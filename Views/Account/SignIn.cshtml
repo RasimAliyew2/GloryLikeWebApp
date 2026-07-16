@@ -1,17 +1,383 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+@model GloryLikeWebApp.Models.Auth.LoginViewModel
 @{
+    Layout = null;
+    ViewData["Title"] = "Log in";
 }
-@model UserInfo
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <style>
+        :root {
+            --blue: #4f86f7;
+            --blue-dark: #356fe4;
+            --text: #111827;
+            --muted: #98a2b3;
+            --line: #e4e7ec;
+            --surface: #ffffff;
+            --page: #f8fafc;
+            --navy: #111827;
+            --danger: #d92d20;
+        }
 
+        * { box-sizing: border-box; }
 
-<form method="post" asp-controller="Account" asp-action="SignIn">
+        html, body { min-height: 100%; }
 
-    <label asp-for="UserName">First name:</label>
-    <input type="text" asp-for="UserName">
+        body {
+            margin: 0;
+            font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            background: var(--page);
+        }
 
-    <label asp-for="Password">Password</label>
-    <input asp-for="Password" type="password" />
-    <button type="submit">Daxil ol</button>
-</form>
+        button, input { font: inherit; }
+
+        .topbar {
+            height: 64px;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border-bottom: 1px solid #eef1f5;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #101828;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            color: white;
+            background: linear-gradient(145deg, #5b95ff, #3f7cf1);
+            box-shadow: 0 8px 18px rgba(79, 134, 247, .26);
+            font-size: 17px;
+        }
+
+        .top-login {
+            color: #98a2b3;
+            font-size: 15px;
+        }
+
+        .top-login a {
+            margin-left: 10px;
+            color: #3676ee;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .page-shell {
+            min-height: calc(100vh - 64px);
+            padding: 54px 20px 64px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .auth-card {
+            width: min(520px, 100%);
+            background: var(--surface);
+            border: 1px solid #dfe4ea;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(16, 24, 40, .05);
+        }
+
+        .tabs {
+            height: 64px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid #eaecf0;
+        }
+
+        .tab {
+            position: relative;
+            display: grid;
+            place-items: center;
+            color: #98a2b3;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .tab.active { color: #3676ee; }
+
+        .tab.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            background: #4f86f7;
+        }
+
+        .card-body { padding: 34px 38px 32px; }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 27px;
+            line-height: 1.2;
+            letter-spacing: -.03em;
+        }
+
+        .subtitle {
+            margin: 0 0 26px;
+            color: #98a2b3;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .section-label,
+        .field-label {
+            display: block;
+            color: #667085;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .02em;
+        }
+
+        .section-label { margin-bottom: 14px; }
+        .field-label { margin: 0 0 9px; }
+
+        .social-stack {
+            display: grid;
+            gap: 12px;
+        }
+
+        .social-button {
+            width: 100%;
+            min-height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 13px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: default;
+        }
+
+        .google {
+            color: #1d2939;
+            background: #fff;
+            border: 1px solid #d9dee6;
+        }
+
+        .apple {
+            color: white;
+            background: #111827;
+            border: 1px solid #111827;
+        }
+
+        .social-icon {
+            width: 22px;
+            text-align: center;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .google .social-icon { color: #4285f4; }
+
+        .divider {
+            margin: 24px 0;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 14px;
+            align-items: center;
+            color: #98a2b3;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            height: 1px;
+            background: #dfe4ea;
+        }
+
+        .field { margin-bottom: 20px; }
+
+        .input {
+            width: 100%;
+            height: 52px;
+            padding: 0 15px;
+            color: #344054;
+            background: #fff;
+            border: 1px solid #d9dee6;
+            border-radius: 14px;
+            outline: none;
+            transition: border-color .15s ease, box-shadow .15s ease;
+        }
+
+        .input::placeholder { color: #98a2b3; }
+
+        .input:focus {
+            border-color: #6a9af6;
+            box-shadow: 0 0 0 4px rgba(79, 134, 247, .12);
+        }
+
+        .validation-summary {
+            margin: 0 0 18px;
+            padding: 12px 14px;
+            color: var(--danger);
+            background: #fff4f2;
+            border: 1px solid #fecdca;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .validation-summary:empty,
+        .validation-summary.validation-summary-valid { display: none; }
+
+        .field-error {
+            display: block;
+            margin-top: 7px;
+            color: var(--danger);
+            font-size: 13px;
+        }
+
+        .field-error:empty { display: none; }
+
+        .forgot-row {
+            margin: -3px 0 22px;
+            text-align: right;
+        }
+
+        .forgot-row a,
+        .create-row a {
+            color: #3676ee;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .forgot-row a { font-size: 14px; }
+
+        .submit-button {
+            width: 100%;
+            height: 54px;
+            border: 0;
+            border-radius: 14px;
+            color: white;
+            background: linear-gradient(135deg, #5590fa, #477ff0);
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(79, 134, 247, .22);
+            transition: transform .15s ease, filter .15s ease;
+        }
+
+        .submit-button:hover {
+            filter: brightness(.98);
+            transform: translateY(-1px);
+        }
+
+        .create-row {
+            margin-top: 22px;
+            text-align: center;
+            color: #98a2b3;
+            font-size: 14px;
+        }
+
+        @@media (max-width: 620px) {
+            .topbar { padding: 0 18px; }
+            .top-login span { display: none; }
+            .page-shell { padding: 26px 14px 40px; }
+            .card-body { padding: 28px 22px 26px; }
+            h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="/">
+            <span class="brand-mark">ϟ</span>
+            <span>SkillMatch</span>
+        </a>
+
+        <div class="top-login">
+            <span>Already have an account?</span>
+            <a href="/SignIn">Log in</a>
+        </div>
+    </header>
+
+    <main class="page-shell">
+        <section class="auth-card" aria-labelledby="login-title">
+            <div class="tabs">
+                <a class="tab" href="#" onclick="return false;">Registration</a>
+                <a class="tab active" href="/SignIn">Login</a>
+            </div>
+
+            <div class="card-body">
+                <h1 id="login-title">Log in to your account</h1>
+                <p class="subtitle">Enter your email, username or phone and password, or log in via social media.</p>
+
+                <div class="section-label">LOG IN WITH</div>
+
+                <div class="social-stack">
+                    <button class="social-button google" type="button" title="Google login is not connected yet">
+                        <span class="social-icon">G</span>
+                        <span>Sign in with Google</span>
+                    </button>
+
+                    <button class="social-button apple" type="button" title="Apple login is not connected yet">
+                        <span class="social-icon">●</span>
+                        <span>Sign in with Apple</span>
+                    </button>
+                </div>
+
+                <div class="divider">or</div>
+
+                <form asp-controller="Account" asp-action="SignIn" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                    <div class="field">
+                        <label asp-for="Login" class="field-label">EMAIL, USERNAME OR PHONE</label>
+                        <input
+                            asp-for="Login"
+                            class="input"
+                            autocomplete="username"
+                            placeholder="you@example.com" />
+                        <span asp-validation-for="Login" class="field-error"></span>
+                    </div>
+
+                    <div class="field">
+                        <label asp-for="Password" class="field-label">PASSWORD</label>
+                        <input
+                            asp-for="Password"
+                            class="input"
+                            type="password"
+                            autocomplete="current-password"
+                            placeholder="••••••••" />
+                        <span asp-validation-for="Password" class="field-error"></span>
+                    </div>
+
+                    <div class="forgot-row">
+                        <a href="#" onclick="return false;">Forgot your password?</a>
+                    </div>
+
+                    <button class="submit-button" type="submit">Log in</button>
+                </form>
+
+                <div class="create-row">
+                    Don't have an account?
+                    <a href="#" onclick="return false;">Create a profile</a>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

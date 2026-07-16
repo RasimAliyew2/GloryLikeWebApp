@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "E2+Q/cRN2t1Gg7x5cnILMBPBdwKpmF1xkhSdL5n6jVc=",
+  "Hash": "52UWwTsFuPNm+3EjeytUmi2ql6mAS72emcxTIZpey1g=",
   "Source": "GloryLikeWebApp",
   "BasePath": "_content/GloryLikeWebApp",
   "Mode": "Default",
@@ -59,6 +59,27 @@
       "OriginalItemSpec": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\GloryLikeWebApp.bundle.scp.css"
     },
     {
+      "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\candidate-dashboard.css",
+      "SourceId": "GloryLikeWebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\",
+      "BasePath": "_content/GloryLikeWebApp",
+      "RelativePath": "css/candidate-dashboard#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "0fxe13uqke",
+      "Integrity": "rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\candidate-dashboard.css"
+    },
+    {
       "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\site.css",
       "SourceId": "GloryLikeWebApp",
       "SourceType": "Discovered",
@@ -99,6 +120,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\favicon.ico"
+    },
+    {
+      "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\candidate-dashboard.js",
+      "SourceId": "GloryLikeWebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\",
+      "BasePath": "_content/GloryLikeWebApp",
+      "RelativePath": "js/candidate-dashboard#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "dg5ndr0dty",
+      "Integrity": "o8s0O2sshLfap2fTqr4HoDe+hlyDAFqJ/3Q9mFGi90U=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\candidate-dashboard.js"
     },
     {
       "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\site.js",
@@ -1321,6 +1363,88 @@
   ],
   "Endpoints": [
     {
+      "Route": "css/candidate-dashboard.0fxe13uqke.css",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\candidate-dashboard.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "16884"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 15 Jul 2026 21:48:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "0fxe13uqke"
+        },
+        {
+          "Name": "label",
+          "Value": "css/candidate-dashboard.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c="
+        }
+      ]
+    },
+    {
+      "Route": "css/candidate-dashboard.css",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\candidate-dashboard.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "16884"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 15 Jul 2026 21:48:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c="
+        }
+      ]
+    },
+    {
       "Route": "css/site.c2tiyv64ts.css",
       "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\site.css",
       "Selectors": [],
@@ -1645,6 +1769,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-WAF8IwJNdm9lxlxhYGyR5PNuVTt0esKSFVBAS4K9DEw="
+        }
+      ]
+    },
+    {
+      "Route": "js/candidate-dashboard.dg5ndr0dty.js",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\candidate-dashboard.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "673"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"o8s0O2sshLfap2fTqr4HoDe+hlyDAFqJ/3Q9mFGi90U=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 15 Jul 2026 21:48:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "dg5ndr0dty"
+        },
+        {
+          "Name": "label",
+          "Value": "js/candidate-dashboard.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-o8s0O2sshLfap2fTqr4HoDe+hlyDAFqJ/3Q9mFGi90U="
+        }
+      ]
+    },
+    {
+      "Route": "js/candidate-dashboard.js",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\candidate-dashboard.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "673"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"o8s0O2sshLfap2fTqr4HoDe+hlyDAFqJ/3Q9mFGi90U=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 15 Jul 2026 21:48:20 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-o8s0O2sshLfap2fTqr4HoDe+hlyDAFqJ/3Q9mFGi90U="
         }
       ]
     },

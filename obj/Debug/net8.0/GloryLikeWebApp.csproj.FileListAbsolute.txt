@@ -32,3 +32,4 @@ C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\ref
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.pdb
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.genruntimeconfig.cache
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\ref\GloryLikeWebApp.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.sourcelink.json
