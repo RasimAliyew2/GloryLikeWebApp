@@ -2,48 +2,85 @@
 @{
     Layout = null;
     ViewData["Title"] = "Skills";
+
     var initials = string.Join(
         "",
         Model.DisplayName
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Split(
+                ' ',
+                StringSplitOptions.RemoveEmptyEntries)
             .Take(2)
-            .Select(x => x[0].ToString().ToUpperInvariant()));
+            .Select(
+                x => x[0]
+                    .ToString()
+                    .ToUpperInvariant()));
 }
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
     <title>@ViewData["Title"] - SkillMatch</title>
-    <link rel="stylesheet" href="~/css/candidate-dashboard.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/skills-page.css" asp-append-version="true" />
+
+    <link
+        rel="stylesheet"
+        href="~/css/candidate-dashboard.css"
+        asp-append-version="true" />
+
+    <link
+        rel="stylesheet"
+        href="~/css/skills-page.css"
+        asp-append-version="true" />
 </head>
+
 <body>
     <div class="dashboard-shell">
-        <aside class="sidebar" id="dashboardSidebar">
-            <a class="brand" asp-controller="Home" asp-action="Index">
+        <aside
+            class="sidebar"
+            id="dashboardSidebar">
+
+            <a
+                class="brand"
+                asp-controller="Home"
+                asp-action="Index">
                 <span class="brand-mark">ϟ</span>
                 <span>SkillMatch</span>
             </a>
 
-            <nav class="nav-menu" aria-label="Candidate navigation">
-                <a class="nav-link" asp-controller="Home" asp-action="Index">
+            <nav
+                class="nav-menu"
+                aria-label="Candidate navigation">
+
+                <a
+                    class="nav-link"
+                    asp-controller="Home"
+                    asp-action="Index">
                     <span class="nav-icon">⌂</span>
                     <span>Dashboard</span>
                 </a>
+
                 <a class="nav-link" href="#">
                     <span class="nav-icon">⌕</span>
                     <span>Jobs</span>
                 </a>
+
                 <a class="nav-link" href="#">
                     <span class="nav-icon">▣</span>
                     <span>Applications</span>
                 </a>
-                <a class="nav-link active" asp-controller="Skills" asp-action="SkillsPage">
+
+                <a
+                    class="nav-link active"
+                    asp-controller="Skills"
+                    asp-action="SkillsPage">
                     <span class="nav-icon">✦</span>
                     <span>Skills</span>
                 </a>
+
                 <a class="nav-link" href="#">
                     <span class="nav-icon">○</span>
                     <span>Profile</span>
@@ -54,13 +91,24 @@
                 <div class="growth-card">
                     <span class="growth-icon">✦</span>
                     <strong>Skill passport</strong>
-                    <p>Your verified skills and work evidence are loaded from the same backend used by Mobile App.</p>
-                    <a asp-controller="Skills" asp-action="SkillsPage">Refresh passport</a>
+                    <p>
+                        Skills and experience are synchronized
+                        with the same SQL profile used by Mobile App.
+                    </p>
+
+                    <a
+                        asp-controller="Skills"
+                        asp-action="SkillsPage">
+                        Refresh passport
+                    </a>
                 </div>
 
                 <form method="post" action="/SignOut">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="signout-button">
+
+                    <button
+                        type="submit"
+                        class="signout-button">
                         <span>↪</span>
                         <span>Sign out</span>
                     </button>
@@ -74,26 +122,38 @@
                     class="mobile-menu-button"
                     id="mobileMenuButton"
                     type="button"
-                    aria-label="Open menu">☰</button>
+                    aria-label="Open menu">
+                    ☰
+                </button>
 
                 <div class="skills-breadcrumb">
-                    <a asp-controller="Home" asp-action="Index">Dashboard</a>
+                    <a
+                        asp-controller="Home"
+                        asp-action="Index">
+                        Dashboard
+                    </a>
+
                     <span>›</span>
                     <strong>Skills</strong>
                 </div>
 
                 <div class="topbar-actions">
-                    <button class="icon-button" type="button" aria-label="Notifications">
+                    <button
+                        class="icon-button"
+                        type="button"
+                        aria-label="Notifications">
                         ♢
                         <span class="notification-dot"></span>
                     </button>
 
                     <div class="account-chip">
                         <div class="avatar">@initials</div>
+
                         <div class="account-copy">
                             <strong>@Model.DisplayName</strong>
                             <span>Candidate</span>
                         </div>
+
                         <span class="chevron">⌄</span>
                     </div>
                 </div>
@@ -102,22 +162,65 @@
             <section class="skills-page-content">
                 <div class="skills-hero">
                     <div class="skills-hero-copy">
-                        <span class="skills-eyebrow">SKILL PASSPORT</span>
+                        <span class="skills-eyebrow">
+                            SKILL PASSPORT
+                        </span>
+
                         <h1>Skills</h1>
-                        <p>Add skills and tie them to work experience. Verified evidence increases the strength of your profile.</p>
+
+                        <p>
+                            Add skills that belong to your selected Job
+                            and connect them with your professional experience.
+                        </p>
+
+                        @if (Model.HasCurrentJob)
+                        {
+                            <span class="current-job-pill">
+                                Job: @Model.CurrentJobName
+                            </span>
+                        }
                     </div>
 
                     <div class="skills-hero-actions">
-                        <button type="button" class="skills-secondary-button">Upload evidence</button>
-                        <button type="button" class="skills-primary-button">＋ Add skill</button>
+                        <button
+                            type="button"
+                            class="skills-secondary-button"
+                            data-open-panel="experience">
+                            ＋ Add experience
+                        </button>
+
+                        <button
+                            type="button"
+                            class="skills-primary-button"
+                            data-open-panel="skill"
+                            disabled="@(!Model.HasAvailableSkills)">
+                            ＋ Add skill
+                        </button>
                     </div>
                 </div>
 
+                @if (Model.HasSuccess)
+                {
+                    <div class="skills-alert success">
+                        <strong>Saved</strong>
+                        <span>@Model.SuccessMessage</span>
+                    </div>
+                }
+
                 @if (Model.HasError)
                 {
-                    <div class="skills-alert">
-                        <strong>Skills could not be loaded</strong>
+                    <div class="skills-alert error">
+                        <strong>Operation failed</strong>
                         <span>@Model.ErrorMessage</span>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(
+                    Model.JobFilterMessage))
+                {
+                    <div class="skills-alert info">
+                        <strong>Skill filter</strong>
+                        <span>@Model.JobFilterMessage</span>
                     </div>
                 }
 
@@ -143,29 +246,36 @@
                     <article class="skills-summary-card">
                         <span>Experience records</span>
                         <strong>@Model.WorkExperiences.Count</strong>
-                        <small>Linked to your profile</small>
+                        <small>Saved in SQL</small>
                     </article>
                 </section>
 
                 <section class="skills-section">
                     <div class="skills-section-heading">
                         <div>
-                            <span class="skills-eyebrow">YOUR CAPABILITIES</span>
+                            <span class="skills-eyebrow">
+                                YOUR CAPABILITIES
+                            </span>
                             <h2>Skills</h2>
                         </div>
 
-                        <span class="skills-count">@Model.Skills.Count skill(s)</span>
+                        <span class="skills-count">
+                            @Model.Skills.Count skill(s)
+                        </span>
                     </div>
 
-                    @if (!Model.HasSkills && !Model.HasError)
+                    @if (!Model.HasSkills)
                     {
                         <div class="skills-empty-state">
                             <span class="skills-empty-icon">✦</span>
                             <h3>No skills saved yet</h3>
-                            <p>Skills selected and assessed in Mobile App will appear here after they are saved to SQL.</p>
+                            <p>
+                                Add a skill from the filtered list.
+                                Only skills related to your Job are shown.
+                            </p>
                         </div>
                     }
-                    else if (Model.HasSkills)
+                    else
                     {
                         <div class="skill-card-grid">
                             @foreach (var skill in Model.Skills)
@@ -179,20 +289,33 @@
                                             <p>@skill.UsedInText</p>
                                         </div>
 
-                                        <button class="skill-remove-button" type="button" aria-label="More options">⋯</button>
+                                        <button
+                                            class="skill-remove-button"
+                                            type="button"
+                                            aria-label="More options">
+                                            ⋯
+                                        </button>
                                     </div>
 
                                     <div class="skill-status-row">
-                                        <span class="web-skill-status @skill.StatusClass">@skill.StatusText</span>
+                                        <span class="web-skill-status @skill.StatusClass">
+                                            @skill.StatusText
+                                        </span>
 
-                                        @if (!string.IsNullOrWhiteSpace(skill.SeniorityName))
+                                        @if (!string.IsNullOrWhiteSpace(
+                                            skill.SeniorityName))
                                         {
-                                            <span class="skill-meta-pill">@skill.SeniorityName</span>
+                                            <span class="skill-meta-pill">
+                                                @skill.SeniorityName
+                                            </span>
                                         }
 
-                                        @if (!string.IsNullOrWhiteSpace(skill.SkillComplexity))
+                                        @if (!string.IsNullOrWhiteSpace(
+                                            skill.SkillComplexity))
                                         {
-                                            <span class="skill-meta-pill">@skill.SkillComplexity</span>
+                                            <span class="skill-meta-pill">
+                                                @skill.SkillComplexity
+                                            </span>
                                         }
                                     </div>
 
@@ -202,6 +325,7 @@
                                                 <span>Knowledge</span>
                                                 <strong>@skill.KnowledgeDisplay</strong>
                                             </div>
+
                                             <div class="web-progress-track">
                                                 <span style="width:@skill.KnowledgeDisplay%"></span>
                                             </div>
@@ -212,6 +336,7 @@
                                                 <span>Experience</span>
                                                 <strong>@skill.ExperienceDisplay</strong>
                                             </div>
+
                                             <div class="web-progress-track">
                                                 <span style="width:@skill.ExperienceDisplay%"></span>
                                             </div>
@@ -222,6 +347,7 @@
                                                 <span>Depth</span>
                                                 <strong>@skill.DepthDisplay</strong>
                                             </div>
+
                                             <div class="web-progress-track">
                                                 <span style="width:@skill.DepthDisplay%"></span>
                                             </div>
@@ -234,7 +360,9 @@
                                             <strong>@skill.CredibilityDisplay</strong>
                                         </div>
 
-                                        <button type="button" class="assess-depth-button">
+                                        <button
+                                            type="button"
+                                            class="assess-depth-button">
                                             <span>⚡</span>
                                             Assess depth
                                         </button>
@@ -248,28 +376,41 @@
                 <section class="skills-section experience-section">
                     <div class="skills-section-heading">
                         <div>
-                            <span class="skills-eyebrow">WORK EVIDENCE</span>
+                            <span class="skills-eyebrow">
+                                WORK EVIDENCE
+                            </span>
                             <h2>Experience</h2>
                         </div>
 
-                        <button type="button" class="skills-primary-button compact">＋ Add experience</button>
+                        <button
+                            type="button"
+                            class="skills-primary-button compact"
+                            data-open-panel="experience">
+                            ＋ Add experience
+                        </button>
                     </div>
 
-                    @if (!Model.HasExperiences && !Model.HasError)
+                    @if (!Model.HasExperiences)
                     {
                         <div class="skills-empty-state">
                             <span class="skills-empty-icon">▣</span>
                             <h3>No experience records yet</h3>
-                            <p>Work experience saved from Mobile App will appear in this section.</p>
+                            <p>
+                                Add work experience and it will be
+                                synchronized with Mobile App through SQL.
+                            </p>
                         </div>
                     }
-                    else if (Model.HasExperiences)
+                    else
                     {
                         <div class="experience-list">
-                            @foreach (var experience in Model.WorkExperiences)
+                            @foreach (var experience in
+                                Model.WorkExperiences)
                             {
                                 <article class="experience-card">
-                                    <div class="experience-logo">@experience.CompanyInitial</div>
+                                    <div class="experience-logo">
+                                        @experience.CompanyInitial
+                                    </div>
 
                                     <div class="experience-copy">
                                         <div class="experience-title-row">
@@ -278,15 +419,20 @@
                                                 <p>@experience.PositionName</p>
                                             </div>
 
-                                            <span class="experience-period">@experience.PeriodText</span>
+                                            <span class="experience-period">
+                                                @experience.PeriodText
+                                            </span>
                                         </div>
 
                                         <div class="experience-footer">
                                             <span>Work experience</span>
 
-                                            @if (!string.IsNullOrWhiteSpace(experience.FileName))
+                                            @if (!string.IsNullOrWhiteSpace(
+                                                experience.FileName))
                                             {
-                                                <span class="evidence-file">▣ @experience.FileName</span>
+                                                <span class="evidence-file">
+                                                    ▣ @experience.FileName
+                                                </span>
                                             }
                                         </div>
                                     </div>
@@ -299,8 +445,211 @@
         </main>
     </div>
 
-    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <div
+        class="skills-panel-backdrop"
+        data-panel-backdrop>
+    </div>
 
-    <script src="~/js/candidate-dashboard.js" asp-append-version="true"></script>
+    <aside
+        class="skills-side-panel"
+        data-panel="skill"
+        aria-hidden="true">
+
+        <div class="skills-panel-header">
+            <div>
+                <span class="skills-eyebrow">
+                    ADD CAPABILITY
+                </span>
+                <h2>Add skill</h2>
+                <p>
+                    The list is filtered by
+                    <strong>@(Model.HasCurrentJob
+                        ? Model.CurrentJobName
+                        : "your Job")</strong>.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="panel-close-button"
+                data-close-panel>
+                ×
+            </button>
+        </div>
+
+        <form
+            method="post"
+            asp-controller="Skills"
+            asp-action="AddSkill"
+            class="skills-form">
+
+            @Html.AntiForgeryToken()
+
+            <label asp-for="AddSkill.SelectionKey">
+                Skill
+            </label>
+
+            <select
+                asp-for="AddSkill.SelectionKey"
+                disabled="@(!Model.HasAvailableSkills)">
+                <option value="">Choose a skill</option>
+
+                @foreach (var skill in Model.AvailableSkills)
+                {
+                    <option value="@skill.SelectionKey">
+                        @skill.DisplayName
+                    </option>
+                }
+            </select>
+
+            <span
+                asp-validation-for="AddSkill.SelectionKey"
+                class="field-error">
+            </span>
+
+            <div class="form-note">
+                <strong>Filtering rule</strong>
+                <span>
+                    Skills are loaded from Backend SQL taxonomy
+                    and only the selected Job family is displayed.
+                </span>
+            </div>
+
+            <div class="skills-form-actions">
+                <button
+                    type="button"
+                    class="cancel-button"
+                    data-close-panel>
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="skills-primary-button"
+                    disabled="@(!Model.HasAvailableSkills)">
+                    Add skill
+                </button>
+            </div>
+        </form>
+    </aside>
+
+    <aside
+        class="skills-side-panel"
+        data-panel="experience"
+        aria-hidden="true">
+
+        <div class="skills-panel-header">
+            <div>
+                <span class="skills-eyebrow">
+                    ADD WORK EVIDENCE
+                </span>
+                <h2>Add experience</h2>
+                <p>
+                    The record will be saved in SQL
+                    and loaded by both Web and Mobile App.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="panel-close-button"
+                data-close-panel>
+                ×
+            </button>
+        </div>
+
+        <form
+            method="post"
+            asp-controller="Skills"
+            asp-action="AddExperience"
+            class="skills-form">
+
+            @Html.AntiForgeryToken()
+
+            <label asp-for="AddExperience.CompanyName">
+                Company
+            </label>
+            <input
+                asp-for="AddExperience.CompanyName"
+                placeholder="Company name" />
+            <span
+                asp-validation-for="AddExperience.CompanyName"
+                class="field-error">
+            </span>
+
+            <label asp-for="AddExperience.PositionName">
+                Position
+            </label>
+            <input
+                asp-for="AddExperience.PositionName"
+                placeholder="Position title" />
+            <span
+                asp-validation-for="AddExperience.PositionName"
+                class="field-error">
+            </span>
+
+            <div class="form-columns">
+                <div>
+                    <label asp-for="AddExperience.StartYear">
+                        From
+                    </label>
+                    <input
+                        asp-for="AddExperience.StartYear"
+                        placeholder="2023" />
+                    <span
+                        asp-validation-for="AddExperience.StartYear"
+                        class="field-error">
+                    </span>
+                </div>
+
+                <div>
+                    <label asp-for="AddExperience.EndYear">
+                        Ending
+                    </label>
+                    <input
+                        asp-for="AddExperience.EndYear"
+                        placeholder="Present" />
+                </div>
+            </div>
+
+            <label asp-for="AddExperience.FileName">
+                Evidence file name
+                <span class="optional-label">optional</span>
+            </label>
+            <input
+                asp-for="AddExperience.FileName"
+                placeholder="certificate.pdf" />
+
+            <div class="skills-form-actions">
+                <button
+                    type="button"
+                    class="cancel-button"
+                    data-close-panel>
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="skills-primary-button">
+                    Add experience
+                </button>
+            </div>
+        </form>
+    </aside>
+
+    <div
+        class="sidebar-backdrop"
+        id="sidebarBackdrop">
+    </div>
+
+    <script
+        src="~/js/candidate-dashboard.js"
+        asp-append-version="true">
+    </script>
+
+    <script
+        src="~/js/skills-page.js"
+        asp-append-version="true">
+    </script>
 </body>
 </html>

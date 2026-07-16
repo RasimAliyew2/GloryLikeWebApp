@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "M5aZTHI2+a/oyIYvgIRJBCM+GAFx+jAehckYSpOg8RY=",
+  "Hash": "q7dp5Hn/Wb1/ilJT80u4OXREg2Fy4EBJzcxx503O91U=",
   "Source": "GloryLikeWebApp",
   "BasePath": "_content/GloryLikeWebApp",
   "Mode": "Default",
@@ -115,8 +115,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "qxfu5i77o5",
-      "Integrity": "0nYB1Tt8H9bHt/viJZ8J3qX0O52vrPAt+hK+f+Q0ebQ=",
+      "Fingerprint": "xwrqic3y16",
+      "Integrity": "Lz4FrAeV+TaQeGiUtlmdylkpByiWZRLVU/IynIpZ8k8=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\skills-page.css"
@@ -183,6 +183,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\site.js"
+    },
+    {
+      "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\skills-page.js",
+      "SourceId": "GloryLikeWebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\",
+      "BasePath": "_content/GloryLikeWebApp",
+      "RelativePath": "js/skills-page#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "1vswhruu1i",
+      "Integrity": "40jd4flBwNCno1ctTs3OoIrBwH5oxviQd9tFTRtE9LE=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\skills-page.js"
     },
     {
       "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.css",
@@ -1558,7 +1579,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "8641"
+          "Value": "12479"
         },
         {
           "Name": "Content-Type",
@@ -1566,11 +1587,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"0nYB1Tt8H9bHt/viJZ8J3qX0O52vrPAt+hK+f+Q0ebQ=\""
+          "Value": "\"Lz4FrAeV+TaQeGiUtlmdylkpByiWZRLVU/IynIpZ8k8=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 16 Jul 2026 08:23:38 GMT"
+          "Value": "Thu, 16 Jul 2026 09:01:52 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1580,12 +1601,12 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-0nYB1Tt8H9bHt/viJZ8J3qX0O52vrPAt+hK+f+Q0ebQ="
+          "Value": "sha256-Lz4FrAeV+TaQeGiUtlmdylkpByiWZRLVU/IynIpZ8k8="
         }
       ]
     },
     {
-      "Route": "css/skills-page.qxfu5i77o5.css",
+      "Route": "css/skills-page.xwrqic3y16.css",
       "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\skills-page.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -1595,7 +1616,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "8641"
+          "Value": "12479"
         },
         {
           "Name": "Content-Type",
@@ -1603,11 +1624,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"0nYB1Tt8H9bHt/viJZ8J3qX0O52vrPAt+hK+f+Q0ebQ=\""
+          "Value": "\"Lz4FrAeV+TaQeGiUtlmdylkpByiWZRLVU/IynIpZ8k8=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 16 Jul 2026 08:23:38 GMT"
+          "Value": "Thu, 16 Jul 2026 09:01:52 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1617,7 +1638,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "qxfu5i77o5"
+          "Value": "xwrqic3y16"
         },
         {
           "Name": "label",
@@ -1625,7 +1646,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-0nYB1Tt8H9bHt/viJZ8J3qX0O52vrPAt+hK+f+Q0ebQ="
+          "Value": "sha256-Lz4FrAeV+TaQeGiUtlmdylkpByiWZRLVU/IynIpZ8k8="
         }
       ]
     },
@@ -2036,6 +2057,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-hRQyftXiu1lLX2P9Ly9xa4gHJgLeR1uGN5qegUobtGo="
+        }
+      ]
+    },
+    {
+      "Route": "js/skills-page.1vswhruu1i.js",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\skills-page.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1706"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"40jd4flBwNCno1ctTs3OoIrBwH5oxviQd9tFTRtE9LE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 16 Jul 2026 09:01:50 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "1vswhruu1i"
+        },
+        {
+          "Name": "label",
+          "Value": "js/skills-page.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-40jd4flBwNCno1ctTs3OoIrBwH5oxviQd9tFTRtE9LE="
+        }
+      ]
+    },
+    {
+      "Route": "js/skills-page.js",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\skills-page.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1706"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"40jd4flBwNCno1ctTs3OoIrBwH5oxviQd9tFTRtE9LE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 16 Jul 2026 09:01:50 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-40jd4flBwNCno1ctTs3OoIrBwH5oxviQd9tFTRtE9LE="
         }
       ]
     },
