@@ -17,14 +17,9 @@ public class HomeController : Controller
         _logger = logger;
     }
 
+    [Authorize]
     public IActionResult Index()
     {
-
-         if (User.Identity?.IsAuthenticated == false)
-             return RedirectToAction("Account", "SignIn");
-
-
-
         var firstName = User.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
         var surname = User.FindFirstValue(ClaimTypes.Surname) ?? string.Empty;
         var userName = User.FindFirstValue("username") ?? string.Empty;
