@@ -1,0 +1,306 @@
+@model GloryLikeWebApp.Models.SkillsPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Skills";
+    var initials = string.Join(
+        "",
+        Model.DisplayName
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Take(2)
+            .Select(x => x[0].ToString().ToUpperInvariant()));
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link rel="stylesheet" href="~/css/candidate-dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/skills-page.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="dashboard-shell">
+        <aside class="sidebar" id="dashboardSidebar">
+            <a class="brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark">ϟ</span>
+                <span>SkillMatch</span>
+            </a>
+
+            <nav class="nav-menu" aria-label="Candidate navigation">
+                <a class="nav-link" asp-controller="Home" asp-action="Index">
+                    <span class="nav-icon">⌂</span>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <span class="nav-icon">⌕</span>
+                    <span>Jobs</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <span class="nav-icon">▣</span>
+                    <span>Applications</span>
+                </a>
+                <a class="nav-link active" asp-controller="Skills" asp-action="SkillsPage">
+                    <span class="nav-icon">✦</span>
+                    <span>Skills</span>
+                </a>
+                <a class="nav-link" href="#">
+                    <span class="nav-icon">○</span>
+                    <span>Profile</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="growth-card">
+                    <span class="growth-icon">✦</span>
+                    <strong>Skill passport</strong>
+                    <p>Your verified skills and work evidence are loaded from the same backend used by Mobile App.</p>
+                    <a asp-controller="Skills" asp-action="SkillsPage">Refresh passport</a>
+                </div>
+
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="signout-button">
+                        <span>↪</span>
+                        <span>Sign out</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-area skills-main-area">
+            <header class="topbar">
+                <button
+                    class="mobile-menu-button"
+                    id="mobileMenuButton"
+                    type="button"
+                    aria-label="Open menu">☰</button>
+
+                <div class="skills-breadcrumb">
+                    <a asp-controller="Home" asp-action="Index">Dashboard</a>
+                    <span>›</span>
+                    <strong>Skills</strong>
+                </div>
+
+                <div class="topbar-actions">
+                    <button class="icon-button" type="button" aria-label="Notifications">
+                        ♢
+                        <span class="notification-dot"></span>
+                    </button>
+
+                    <div class="account-chip">
+                        <div class="avatar">@initials</div>
+                        <div class="account-copy">
+                            <strong>@Model.DisplayName</strong>
+                            <span>Candidate</span>
+                        </div>
+                        <span class="chevron">⌄</span>
+                    </div>
+                </div>
+            </header>
+
+            <section class="skills-page-content">
+                <div class="skills-hero">
+                    <div class="skills-hero-copy">
+                        <span class="skills-eyebrow">SKILL PASSPORT</span>
+                        <h1>Skills</h1>
+                        <p>Add skills and tie them to work experience. Verified evidence increases the strength of your profile.</p>
+                    </div>
+
+                    <div class="skills-hero-actions">
+                        <button type="button" class="skills-secondary-button">Upload evidence</button>
+                        <button type="button" class="skills-primary-button">＋ Add skill</button>
+                    </div>
+                </div>
+
+                @if (Model.HasError)
+                {
+                    <div class="skills-alert">
+                        <strong>Skills could not be loaded</strong>
+                        <span>@Model.ErrorMessage</span>
+                    </div>
+                }
+
+                <section class="skills-summary-grid">
+                    <article class="skills-summary-card">
+                        <span>Total skills</span>
+                        <strong>@Model.Skills.Count</strong>
+                        <small>Saved in SQL</small>
+                    </article>
+
+                    <article class="skills-summary-card">
+                        <span>Verified</span>
+                        <strong>@Model.VerifiedSkillsCount</strong>
+                        <small>Trusted evidence</small>
+                    </article>
+
+                    <article class="skills-summary-card">
+                        <span>Average credibility</span>
+                        <strong>@Model.AverageCredibility</strong>
+                        <small>Out of 100</small>
+                    </article>
+
+                    <article class="skills-summary-card">
+                        <span>Experience records</span>
+                        <strong>@Model.WorkExperiences.Count</strong>
+                        <small>Linked to your profile</small>
+                    </article>
+                </section>
+
+                <section class="skills-section">
+                    <div class="skills-section-heading">
+                        <div>
+                            <span class="skills-eyebrow">YOUR CAPABILITIES</span>
+                            <h2>Skills</h2>
+                        </div>
+
+                        <span class="skills-count">@Model.Skills.Count skill(s)</span>
+                    </div>
+
+                    @if (!Model.HasSkills && !Model.HasError)
+                    {
+                        <div class="skills-empty-state">
+                            <span class="skills-empty-icon">✦</span>
+                            <h3>No skills saved yet</h3>
+                            <p>Skills selected and assessed in Mobile App will appear here after they are saved to SQL.</p>
+                        </div>
+                    }
+                    else if (Model.HasSkills)
+                    {
+                        <div class="skill-card-grid">
+                            @foreach (var skill in Model.Skills)
+                            {
+                                <article class="web-skill-card">
+                                    <div class="web-skill-card-head">
+                                        <div class="skill-symbol">✦</div>
+
+                                        <div class="skill-title-copy">
+                                            <h3>@skill.SkillName</h3>
+                                            <p>@skill.UsedInText</p>
+                                        </div>
+
+                                        <button class="skill-remove-button" type="button" aria-label="More options">⋯</button>
+                                    </div>
+
+                                    <div class="skill-status-row">
+                                        <span class="web-skill-status @skill.StatusClass">@skill.StatusText</span>
+
+                                        @if (!string.IsNullOrWhiteSpace(skill.SeniorityName))
+                                        {
+                                            <span class="skill-meta-pill">@skill.SeniorityName</span>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(skill.SkillComplexity))
+                                        {
+                                            <span class="skill-meta-pill">@skill.SkillComplexity</span>
+                                        }
+                                    </div>
+
+                                    <div class="skill-progress-list">
+                                        <div class="skill-progress-item">
+                                            <div>
+                                                <span>Knowledge</span>
+                                                <strong>@skill.KnowledgeDisplay</strong>
+                                            </div>
+                                            <div class="web-progress-track">
+                                                <span style="width:@skill.KnowledgeDisplay%"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="skill-progress-item">
+                                            <div>
+                                                <span>Experience</span>
+                                                <strong>@skill.ExperienceDisplay</strong>
+                                            </div>
+                                            <div class="web-progress-track">
+                                                <span style="width:@skill.ExperienceDisplay%"></span>
+                                            </div>
+                                        </div>
+
+                                        <div class="skill-progress-item">
+                                            <div>
+                                                <span>Depth</span>
+                                                <strong>@skill.DepthDisplay</strong>
+                                            </div>
+                                            <div class="web-progress-track">
+                                                <span style="width:@skill.DepthDisplay%"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="skill-card-footer">
+                                        <div class="credibility-copy">
+                                            <span>CREDIBILITY</span>
+                                            <strong>@skill.CredibilityDisplay</strong>
+                                        </div>
+
+                                        <button type="button" class="assess-depth-button">
+                                            <span>⚡</span>
+                                            Assess depth
+                                        </button>
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    }
+                </section>
+
+                <section class="skills-section experience-section">
+                    <div class="skills-section-heading">
+                        <div>
+                            <span class="skills-eyebrow">WORK EVIDENCE</span>
+                            <h2>Experience</h2>
+                        </div>
+
+                        <button type="button" class="skills-primary-button compact">＋ Add experience</button>
+                    </div>
+
+                    @if (!Model.HasExperiences && !Model.HasError)
+                    {
+                        <div class="skills-empty-state">
+                            <span class="skills-empty-icon">▣</span>
+                            <h3>No experience records yet</h3>
+                            <p>Work experience saved from Mobile App will appear in this section.</p>
+                        </div>
+                    }
+                    else if (Model.HasExperiences)
+                    {
+                        <div class="experience-list">
+                            @foreach (var experience in Model.WorkExperiences)
+                            {
+                                <article class="experience-card">
+                                    <div class="experience-logo">@experience.CompanyInitial</div>
+
+                                    <div class="experience-copy">
+                                        <div class="experience-title-row">
+                                            <div>
+                                                <h3>@experience.CompanyName</h3>
+                                                <p>@experience.PositionName</p>
+                                            </div>
+
+                                            <span class="experience-period">@experience.PeriodText</span>
+                                        </div>
+
+                                        <div class="experience-footer">
+                                            <span>Work experience</span>
+
+                                            @if (!string.IsNullOrWhiteSpace(experience.FileName))
+                                            {
+                                                <span class="evidence-file">▣ @experience.FileName</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                    }
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <script src="~/js/candidate-dashboard.js" asp-append-version="true"></script>
+</body>
+</html>

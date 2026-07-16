@@ -39,7 +39,7 @@
                     <span class="nav-icon">▣</span>
                     <span>Applications</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link" asp-controller="Skills" asp-action="SkillsPage">
                     <span class="nav-icon">✦</span>
                     <span>Skills</span>
                 </a>
@@ -54,7 +54,7 @@
                     <span class="growth-icon">✦</span>
                     <strong>Grow your profile</strong>
                     <p>Verify more skills to unlock stronger matches.</p>
-                    <a href="#">View skill passport</a>
+                    <a asp-controller="Skills" asp-action="SkillsPage">View skill passport</a>
                 </div>
 
                 <form method="post" action="/SignOut">
@@ -270,7 +270,7 @@
                                     <span class="section-kicker">SKILL PASSPORT</span>
                                     <h2>Top skills</h2>
                                 </div>
-                                <a href="#">View all</a>
+                                <a asp-controller="Skills" asp-action="SkillsPage">View all</a>
                             </div>
 
                             <div class="skills-list">
