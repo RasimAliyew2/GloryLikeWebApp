@@ -1,4 +1,5 @@
 wwwroot\css\candidate-dashboard.css
+wwwroot\css\profile-page.css
 wwwroot\css\site.css
 wwwroot\css\skills-page.css
 wwwroot\favicon.ico

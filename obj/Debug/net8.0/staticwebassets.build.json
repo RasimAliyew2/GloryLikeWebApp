@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "q7dp5Hn/Wb1/ilJT80u4OXREg2Fy4EBJzcxx503O91U=",
+  "Hash": "5LbHPVSMck0dd4egAt4VMThPI2d4yx5okygwPSbWeJQ=",
   "Source": "GloryLikeWebApp",
   "BasePath": "_content/GloryLikeWebApp",
   "Mode": "Default",
@@ -78,6 +78,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\candidate-dashboard.css"
+    },
+    {
+      "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\profile-page.css",
+      "SourceId": "GloryLikeWebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\",
+      "BasePath": "_content/GloryLikeWebApp",
+      "RelativePath": "css/profile-page#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "g7dgbn3ktz",
+      "Integrity": "JIKiqu7V+x2F42lLJl94bqqL6LxR0ez9hPo8AHGtB/8=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\profile-page.css"
     },
     {
       "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\site.css",
@@ -1483,6 +1504,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c="
+        }
+      ]
+    },
+    {
+      "Route": "css/profile-page.css",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\profile-page.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11961"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"JIKiqu7V+x2F42lLJl94bqqL6LxR0ez9hPo8AHGtB/8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 16 Jul 2026 09:26:05 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-JIKiqu7V+x2F42lLJl94bqqL6LxR0ez9hPo8AHGtB/8="
+        }
+      ]
+    },
+    {
+      "Route": "css/profile-page.g7dgbn3ktz.css",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\profile-page.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11961"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"JIKiqu7V+x2F42lLJl94bqqL6LxR0ez9hPo8AHGtB/8=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 16 Jul 2026 09:26:05 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "g7dgbn3ktz"
+        },
+        {
+          "Name": "label",
+          "Value": "css/profile-page.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-JIKiqu7V+x2F42lLJl94bqqL6LxR0ez9hPo8AHGtB/8="
         }
       ]
     },
