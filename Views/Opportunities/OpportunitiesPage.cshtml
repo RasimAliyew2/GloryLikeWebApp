@@ -1,0 +1,534 @@
+@model GloryLikeWebApp.Models.OpportunitiesPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Opportunities";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SkillMatch</title>
+
+    <link
+        rel="stylesheet"
+        href="~/css/candidate-dashboard.css"
+        asp-append-version="true" />
+
+    <link
+        rel="stylesheet"
+        href="~/css/opportunities-page.css"
+        asp-append-version="true" />
+</head>
+
+<body>
+    <div class="dashboard-shell">
+        <aside
+            class="sidebar"
+            id="dashboardSidebar">
+
+            <a
+                class="brand"
+                asp-controller="Home"
+                asp-action="Index">
+                <span class="brand-mark">ϟ</span>
+                <span>SkillMatch</span>
+            </a>
+
+            <nav
+                class="nav-menu"
+                aria-label="Candidate navigation">
+
+                <a
+                    class="nav-link"
+                    asp-controller="Home"
+                    asp-action="Index">
+                    <span class="nav-icon">⌂</span>
+                    <span>Dashboard</span>
+                </a>
+
+                <a
+                    class="nav-link active"
+                    asp-controller="Opportunities"
+                    asp-action="OpportunitiesPage">
+                    <span class="nav-icon">⌕</span>
+                    <span>Jobs</span>
+                </a>
+
+                <a class="nav-link" href="#">
+                    <span class="nav-icon">▣</span>
+                    <span>Applications</span>
+                </a>
+
+                <a
+                    class="nav-link"
+                    asp-controller="Skills"
+                    asp-action="SkillsPage">
+                    <span class="nav-icon">✦</span>
+                    <span>Skills</span>
+                </a>
+
+                <a
+                    class="nav-link"
+                    asp-controller="Profile"
+                    asp-action="ProfilePage">
+                    <span class="nav-icon">○</span>
+                    <span>Profile</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="growth-card">
+                    <span class="growth-icon">⌕</span>
+                    <strong>Job matching</strong>
+                    <p>
+                        Only SQL JobOffers that belong to your
+                        current Job are displayed.
+                    </p>
+
+                    <a
+                        asp-controller="Skills"
+                        asp-action="SkillsPage">
+                        Review Job and skills
+                    </a>
+                </div>
+
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+
+                    <button
+                        type="submit"
+                        class="signout-button">
+                        <span>↪</span>
+                        <span>Sign out</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-area opportunities-main-area">
+            <header class="topbar">
+                <button
+                    class="mobile-menu-button"
+                    id="mobileMenuButton"
+                    type="button"
+                    aria-label="Open menu">
+                    ☰
+                </button>
+
+                <div class="opportunities-breadcrumb">
+                    <a
+                        asp-controller="Home"
+                        asp-action="Index">
+                        Dashboard
+                    </a>
+
+                    <span>›</span>
+                    <strong>Opportunities</strong>
+                </div>
+
+                <div class="topbar-actions">
+                    <button
+                        class="icon-button"
+                        type="button"
+                        aria-label="Notifications">
+                        ♢
+                        <span class="notification-dot"></span>
+                    </button>
+
+                    <div class="account-chip">
+                        <div class="avatar">
+                            @Model.Initials
+                        </div>
+
+                        <div class="account-copy">
+                            <strong>@Model.DisplayName</strong>
+                            <span>Candidate</span>
+                        </div>
+
+                        <span class="chevron">⌄</span>
+                    </div>
+                </div>
+            </header>
+
+            <section class="opportunities-content">
+                <section class="opportunities-hero">
+                    <div>
+                        <span class="opportunities-eyebrow">
+                            SQL-MATCHED ROLES
+                        </span>
+
+                        <h1>Opportunities</h1>
+
+                        <p>
+                            JobOffers are loaded from SQL, filtered by
+                            your current Job and ranked with the same
+                            weighted skill-readiness logic used by
+                            Mobile App.
+                        </p>
+
+                        @if (Model.HasCurrentJob)
+                        {
+                            <span class="current-job-pill">
+                                Current Job: @Model.CurrentJobName
+                            </span>
+                        }
+                    </div>
+
+                    <div class="hero-result-card">
+                        <span>Available now</span>
+                        <strong>@Model.Opportunities.Count</strong>
+                        <small>@Model.RolesCountText</small>
+                    </div>
+                </section>
+
+                <section class="opportunity-toolbar">
+                    <form
+                        class="opportunity-search"
+                        method="get"
+                        asp-controller="Opportunities"
+                        asp-action="OpportunitiesPage">
+
+                        <span>⌕</span>
+
+                        <input
+                            type="search"
+                            name="search"
+                            value="@Model.SearchText"
+                            placeholder="Search matching roles or skills"
+                            autocomplete="off" />
+
+                        @if (!string.IsNullOrWhiteSpace(
+                            Model.SearchText))
+                        {
+                            <a
+                                class="clear-search"
+                                asp-controller="Opportunities"
+                                asp-action="OpportunitiesPage">
+                                Clear
+                            </a>
+                        }
+
+                        <button type="submit">
+                            Search
+                        </button>
+                    </form>
+
+                    <div
+                        class="score-filters"
+                        aria-label="Match score filters">
+
+                        <button
+                            type="button"
+                            class="score-filter active"
+                            data-score-filter="all">
+                            All
+                        </button>
+
+                        <button
+                            type="button"
+                            class="score-filter"
+                            data-score-filter="85">
+                            85%+
+                        </button>
+
+                        <button
+                            type="button"
+                            class="score-filter"
+                            data-score-filter="70">
+                            70%+
+                        </button>
+
+                        <button
+                            type="button"
+                            class="score-filter"
+                            data-score-filter="50">
+                            50%+
+                        </button>
+                    </div>
+                </section>
+
+                @if (Model.HasError)
+                {
+                    <section class="opportunity-state error">
+                        <span class="state-icon">!</span>
+                        <div>
+                            <strong>
+                                Opportunities could not be loaded
+                            </strong>
+                            <p>@Model.ErrorMessage</p>
+                        </div>
+                    </section>
+                }
+                else if (Model.HasNoOpportunities)
+                {
+                    <section class="opportunity-state">
+                        <span class="state-icon">⌕</span>
+                        <div>
+                            <strong>No matching roles</strong>
+                            <p>@Model.EmptyMessage</p>
+
+                            <a
+                                asp-controller="Skills"
+                                asp-action="SkillsPage">
+                                Review Job and skills
+                            </a>
+                        </div>
+                    </section>
+                }
+                else
+                {
+                    <div class="opportunities-heading">
+                        <div>
+                            <span class="opportunities-eyebrow">
+                                FOR YOUR JOB
+                            </span>
+                            <h2>@Model.RolesCountText</h2>
+                        </div>
+
+                        <p>
+                            Unrelated Job families are removed before
+                            any match score is calculated.
+                        </p>
+                    </div>
+
+                    <div
+                        class="opportunities-list"
+                        id="opportunitiesList">
+
+                        @foreach (var opportunity in
+                            Model.Opportunities)
+                        {
+                            <article
+                                class="opportunity-card"
+                                data-opportunity-card
+                                data-opportunity-id="@opportunity.Id"
+                                data-score="@opportunity.Score"
+                                data-expanded="@opportunity.IsExpanded.ToString().ToLowerInvariant()">
+
+                                <div class="opportunity-summary">
+                                    <div class="opportunity-logo">
+                                        @opportunity.LogoLetter
+                                    </div>
+
+                                    <div class="opportunity-title">
+                                        <span class="job-family-label">
+                                            @opportunity.Company
+                                        </span>
+
+                                        <h3>@opportunity.Title</h3>
+
+                                        <div class="opportunity-meta">
+                                            <span>@opportunity.Level</span>
+                                            <span>•</span>
+                                            <span>
+                                                @opportunity.Salary
+                                            </span>
+                                            <span>•</span>
+                                            <span>
+                                                @opportunity.Location
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="match-score @opportunity.ScoreClass"
+                                        style="--score-color:@opportunity.ScoreColor">
+                                        <strong>
+                                            @opportunity.Score%
+                                        </strong>
+                                        <span>match</span>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        class="opportunity-bookmark"
+                                        data-bookmark
+                                        aria-label="Save opportunity"
+                                        title="Save opportunity">
+                                        ♡
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="opportunity-toggle"
+                                        data-toggle-opportunity
+                                        aria-label="Expand opportunity">
+                                        <span data-toggle-label>
+                                            @(opportunity.IsExpanded
+                                                ? "Hide"
+                                                : "Details")
+                                        </span>
+                                        <span
+                                            class="toggle-chevron">
+                                            ⌄
+                                        </span>
+                                    </button>
+                                </div>
+
+                                <div class="opportunity-preview">
+                                    <p>@opportunity.AboutRole</p>
+
+                                    <div class="opportunity-tag-row">
+                                        @foreach (var skill in
+                                            opportunity.RequiredSkillItems
+                                                .Take(5))
+                                        {
+                                            <span>@skill</span>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="opportunity-details"
+                                    data-opportunity-details>
+
+                                    <div class="opportunity-detail-grid">
+                                        <section class="detail-block">
+                                            <span class="detail-label">
+                                                ABOUT THE ROLE
+                                            </span>
+                                            <p>@opportunity.AboutRole</p>
+                                        </section>
+
+                                        <section class="detail-block">
+                                            <span class="detail-label">
+                                                REQUIRED SKILLS
+                                            </span>
+
+                                            <ul>
+                                                @foreach (
+                                                    var responsibility
+                                                    in opportunity
+                                                        .ResponsibilityItems)
+                                                {
+                                                    <li>
+                                                        @responsibility
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </section>
+                                    </div>
+
+                                    <div class="skill-match-grid">
+                                        <section class="matched-skill-box">
+                                            <span class="detail-label">
+                                                MATCHED SKILLS
+                                            </span>
+
+                                            <div class="detail-tags matched">
+                                                @if (opportunity
+                                                    .MatchedSkillItems
+                                                    .Count == 0)
+                                                {
+                                                    <span class="empty-tag">
+                                                        No matched skills yet
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    @foreach (
+                                                        var skill
+                                                        in opportunity
+                                                            .MatchedSkillItems)
+                                                    {
+                                                        <span>
+                                                            @skill
+                                                        </span>
+                                                    }
+                                                }
+                                            </div>
+                                        </section>
+
+                                        <section class="missing-skill-box">
+                                            <span class="detail-label">
+                                                MISSING SKILLS
+                                            </span>
+
+                                            <div class="detail-tags missing">
+                                                @if (opportunity
+                                                    .MissingSkillItems
+                                                    .Count == 0)
+                                                {
+                                                    <span class="empty-tag">
+                                                        No missing required skills
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    @foreach (
+                                                        var skill
+                                                        in opportunity
+                                                            .MissingSkillItems)
+                                                    {
+                                                        <span>
+                                                            @skill
+                                                        </span>
+                                                    }
+                                                }
+                                            </div>
+                                        </section>
+                                    </div>
+
+                                    <div class="match-note">
+                                        <span>✦</span>
+                                        <p>@opportunity.MatchNote</p>
+                                    </div>
+
+                                    <div class="opportunity-actions">
+                                        <a
+                                            class="secondary-role-button"
+                                            asp-controller="Skills"
+                                            asp-action="SkillsPage">
+                                            Improve matching skills
+                                        </a>
+
+                                        <button
+                                            type="button"
+                                            class="apply-role-button"
+                                            data-apply-role
+                                            data-role-title="@opportunity.Title">
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                    </div>
+
+                    <section
+                        class="client-filter-empty"
+                        id="clientFilterEmpty"
+                        hidden>
+                        <strong>
+                            No roles in this score range
+                        </strong>
+                        <p>
+                            Select another score filter.
+                        </p>
+                    </section>
+                }
+            </section>
+        </main>
+    </div>
+
+    <div
+        class="sidebar-backdrop"
+        id="sidebarBackdrop">
+    </div>
+
+    <script
+        src="~/js/candidate-dashboard.js"
+        asp-append-version="true">
+    </script>
+
+    <script
+        src="~/js/opportunities-page.js"
+        asp-append-version="true">
+    </script>
+</body>
+</html>

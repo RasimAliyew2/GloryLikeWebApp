@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "20kVUr3P0uxJ33ugWqiIT4YFdhd54/s757q4utOR8nQ=",
+  "Hash": "Q/pVRBZ6crsPHdevoS7FPe7lH+eKM87X/Cz9cdQza6U=",
   "Source": "GloryLikeWebApp",
   "BasePath": "_content/GloryLikeWebApp",
   "Mode": "Default",
@@ -73,11 +73,32 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "adawwxg5ez",
-      "Integrity": "gn+Tg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE=",
+      "Fingerprint": "2wy6azkj0t",
+      "Integrity": "3lMGmQAfCeaThcxpztjLB/24VKHKocjJq0upM+z38EQ=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\candidate-dashboard.css"
+    },
+    {
+      "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\opportunities-page.css",
+      "SourceId": "GloryLikeWebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\",
+      "BasePath": "_content/GloryLikeWebApp",
+      "RelativePath": "css/opportunities-page#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "ughbfhufjt",
+      "Integrity": "LiA++pxXZ7IZoU7P+rsmd4GPbgwsKKM3ksL+0ZDhplw=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\opportunities-page.css"
     },
     {
       "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\profile-page.css",
@@ -183,6 +204,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\candidate-dashboard.js"
+    },
+    {
+      "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\opportunities-page.js",
+      "SourceId": "GloryLikeWebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\",
+      "BasePath": "_content/GloryLikeWebApp",
+      "RelativePath": "js/opportunities-page#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "1w7od691nh",
+      "Integrity": "D+1wNTAwGXjysAsYRDf10RrnjMBoZvV84+TYTRgk6QI=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\opportunities-page.js"
     },
     {
       "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\site.js",
@@ -1426,7 +1468,7 @@
   ],
   "Endpoints": [
     {
-      "Route": "css/candidate-dashboard.adawwxg5ez.css",
+      "Route": "css/candidate-dashboard.2wy6azkj0t.css",
       "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\candidate-dashboard.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -1436,7 +1478,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "18391"
+          "Value": "18589"
         },
         {
           "Name": "Content-Type",
@@ -1444,11 +1486,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"gn+Tg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE=\""
+          "Value": "\"3lMGmQAfCeaThcxpztjLB/24VKHKocjJq0upM+z38EQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 16 Jul 2026 09:59:28 GMT"
+          "Value": "Thu, 16 Jul 2026 10:17:54 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1458,7 +1500,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "adawwxg5ez"
+          "Value": "2wy6azkj0t"
         },
         {
           "Name": "label",
@@ -1466,7 +1508,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-gn+Tg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE="
+          "Value": "sha256-3lMGmQAfCeaThcxpztjLB/24VKHKocjJq0upM+z38EQ="
         }
       ]
     },
@@ -1481,7 +1523,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "18391"
+          "Value": "18589"
         },
         {
           "Name": "Content-Type",
@@ -1489,11 +1531,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"gn+Tg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE=\""
+          "Value": "\"3lMGmQAfCeaThcxpztjLB/24VKHKocjJq0upM+z38EQ=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 16 Jul 2026 09:59:28 GMT"
+          "Value": "Thu, 16 Jul 2026 10:17:54 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1503,7 +1545,89 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-gn+Tg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE="
+          "Value": "sha256-3lMGmQAfCeaThcxpztjLB/24VKHKocjJq0upM+z38EQ="
+        }
+      ]
+    },
+    {
+      "Route": "css/opportunities-page.css",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\opportunities-page.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12818"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"LiA++pxXZ7IZoU7P+rsmd4GPbgwsKKM3ksL+0ZDhplw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 16 Jul 2026 10:17:53 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-LiA++pxXZ7IZoU7P+rsmd4GPbgwsKKM3ksL+0ZDhplw="
+        }
+      ]
+    },
+    {
+      "Route": "css/opportunities-page.ughbfhufjt.css",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\opportunities-page.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12818"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"LiA++pxXZ7IZoU7P+rsmd4GPbgwsKKM3ksL+0ZDhplw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 16 Jul 2026 10:17:53 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ughbfhufjt"
+        },
+        {
+          "Name": "label",
+          "Value": "css/opportunities-page.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-LiA++pxXZ7IZoU7P+rsmd4GPbgwsKKM3ksL+0ZDhplw="
         }
       ]
     },
@@ -2078,6 +2202,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-o8s0O2sshLfap2fTqr4HoDe+hlyDAFqJ/3Q9mFGi90U="
+        }
+      ]
+    },
+    {
+      "Route": "js/opportunities-page.1w7od691nh.js",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\opportunities-page.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5376"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"D+1wNTAwGXjysAsYRDf10RrnjMBoZvV84+TYTRgk6QI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 16 Jul 2026 10:17:53 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "1w7od691nh"
+        },
+        {
+          "Name": "label",
+          "Value": "js/opportunities-page.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-D+1wNTAwGXjysAsYRDf10RrnjMBoZvV84+TYTRgk6QI="
+        }
+      ]
+    },
+    {
+      "Route": "js/opportunities-page.js",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\opportunities-page.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5376"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"D+1wNTAwGXjysAsYRDf10RrnjMBoZvV84+TYTRgk6QI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 16 Jul 2026 10:17:53 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-D+1wNTAwGXjysAsYRDf10RrnjMBoZvV84+TYTRgk6QI="
         }
       ]
     },

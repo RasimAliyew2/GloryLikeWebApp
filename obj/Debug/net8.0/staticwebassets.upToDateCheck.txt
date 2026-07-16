@@ -1,9 +1,11 @@
 wwwroot\css\candidate-dashboard.css
+wwwroot\css\opportunities-page.css
 wwwroot\css\profile-page.css
 wwwroot\css\site.css
 wwwroot\css\skills-page.css
 wwwroot\favicon.ico
 wwwroot\js\candidate-dashboard.js
+wwwroot\js\opportunities-page.js
 wwwroot\js\site.js
 wwwroot\js\skills-page.js
 wwwroot\lib\bootstrap\dist\css\bootstrap.css

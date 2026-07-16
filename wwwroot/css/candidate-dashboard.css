@@ -1134,3 +1134,12 @@ button {
 .job-card {
     min-height: 100%;
 }
+
+
+/* Opportunities navigation links added to the dashboard cards. */
+a.view-job-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}

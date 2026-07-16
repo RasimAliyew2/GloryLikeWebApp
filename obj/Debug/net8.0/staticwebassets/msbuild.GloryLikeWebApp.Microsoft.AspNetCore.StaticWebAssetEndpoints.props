@@ -1,16 +1,28 @@
 ﻿<Project>
   <ItemGroup>
-    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/candidate-dashboard.adawwxg5ez.css">
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/candidate-dashboard.2wy6azkj0t.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\candidate-dashboard.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"adawwxg5ez"},{"Name":"integrity","Value":"sha256-gn\u002BTg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE="},{"Name":"label","Value":"_content/GloryLikeWebApp/css/candidate-dashboard.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"18391"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022gn\u002BTg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 09:59:28 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"2wy6azkj0t"},{"Name":"integrity","Value":"sha256-3lMGmQAfCeaThcxpztjLB/24VKHKocjJq0upM\u002Bz38EQ="},{"Name":"label","Value":"_content/GloryLikeWebApp/css/candidate-dashboard.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"18589"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u00223lMGmQAfCeaThcxpztjLB/24VKHKocjJq0upM\u002Bz38EQ=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 10:17:54 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/candidate-dashboard.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\candidate-dashboard.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-gn\u002BTg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"18391"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022gn\u002BTg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 09:59:28 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-3lMGmQAfCeaThcxpztjLB/24VKHKocjJq0upM\u002Bz38EQ="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"18589"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u00223lMGmQAfCeaThcxpztjLB/24VKHKocjJq0upM\u002Bz38EQ=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 10:17:54 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/opportunities-page.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\opportunities-page.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-LiA\u002B\u002BpxXZ7IZoU7P\u002Brsmd4GPbgwsKKM3ksL\u002B0ZDhplw="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"12818"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022LiA\u002B\u002BpxXZ7IZoU7P\u002Brsmd4GPbgwsKKM3ksL\u002B0ZDhplw=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 10:17:53 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/opportunities-page.ughbfhufjt.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\opportunities-page.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"ughbfhufjt"},{"Name":"integrity","Value":"sha256-LiA\u002B\u002BpxXZ7IZoU7P\u002Brsmd4GPbgwsKKM3ksL\u002B0ZDhplw="},{"Name":"label","Value":"_content/GloryLikeWebApp/css/opportunities-page.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"12818"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022LiA\u002B\u002BpxXZ7IZoU7P\u002Brsmd4GPbgwsKKM3ksL\u002B0ZDhplw=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 10:17:53 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/profile-page.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\profile-page.css'))</AssetFile>
@@ -83,6 +95,18 @@
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-o8s0O2sshLfap2fTqr4HoDe\u002BhlyDAFqJ/3Q9mFGi90U="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"673"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022o8s0O2sshLfap2fTqr4HoDe\u002BhlyDAFqJ/3Q9mFGi90U=\u0022"},{"Name":"Last-Modified","Value":"Wed, 15 Jul 2026 21:48:20 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/opportunities-page.1w7od691nh.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\opportunities-page.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"1w7od691nh"},{"Name":"integrity","Value":"sha256-D\u002B1wNTAwGXjysAsYRDf10RrnjMBoZvV84\u002BTYTRgk6QI="},{"Name":"label","Value":"_content/GloryLikeWebApp/js/opportunities-page.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5376"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022D\u002B1wNTAwGXjysAsYRDf10RrnjMBoZvV84\u002BTYTRgk6QI=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 10:17:53 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/opportunities-page.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\opportunities-page.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-D\u002B1wNTAwGXjysAsYRDf10RrnjMBoZvV84\u002BTYTRgk6QI="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"5376"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022D\u002B1wNTAwGXjysAsYRDf10RrnjMBoZvV84\u002BTYTRgk6QI=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 10:17:53 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/site.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\site.js'))</AssetFile>

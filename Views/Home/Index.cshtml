@@ -31,7 +31,7 @@
                     <span class="nav-icon">⌂</span>
                     <span>Dashboard</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link" asp-controller="Opportunities" asp-action="OpportunitiesPage">
                     <span class="nav-icon">⌕</span>
                     <span>Jobs</span>
                 </a>
@@ -39,7 +39,7 @@
                     <span class="nav-icon">▣</span>
                     <span>Applications</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link" asp-controller="Skills" asp-action="SkillsPage">
                     <span class="nav-icon">✦</span>
                     <span>Skills</span>
                 </a>
@@ -54,7 +54,7 @@
                     <span class="growth-icon">✦</span>
                     <strong>Grow your profile</strong>
                     <p>Verify more skills to unlock stronger matches.</p>
-                    <a href="#">View skill passport</a>
+                    <a asp-controller="Skills" asp-action="SkillsPage">View skill passport</a>
                 </div>
 
                 <form method="post" action="/SignOut">
@@ -71,10 +71,10 @@
             <header class="topbar">
                 <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-label="Open menu">☰</button>
 
-                <div class="topbar-search">
+                <form class="topbar-search" method="get" asp-controller="Opportunities" asp-action="OpportunitiesPage">
                     <span>⌕</span>
-                    <input type="search" placeholder="Search jobs, companies or skills" />
-                </div>
+                    <input type="search" name="search" placeholder="Search matching jobs or skills" />
+                </form>
 
                 <div class="topbar-actions">
                     <button class="icon-button" type="button" aria-label="Notifications">
@@ -227,7 +227,7 @@
                                     <h2>Recommended for you</h2>
                                     <span class="recommended-count">@Model.RecommendedJobsCountText</span>
                                 </div>
-                                <a href="#">Browse jobs</a>
+                                <a asp-controller="Opportunities" asp-action="OpportunitiesPage">Browse jobs</a>
                             </div>
 
                             @if (Model.HasRecommendedJobsError)
@@ -296,7 +296,13 @@
                                                     <strong>@job.Score%</strong>
                                                     <span>match</span>
                                                 </div>
-                                                <button class="view-job-button" type="button">View role</button>
+                                                <a
+                                                    class="view-job-button"
+                                                    asp-controller="Opportunities"
+                                                    asp-action="OpportunitiesPage"
+                                                    asp-route-search="@job.Title">
+                                                    View role
+                                                </a>
                                             </div>
                                         </article>
                                     }
