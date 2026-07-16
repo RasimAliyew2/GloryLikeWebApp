@@ -1,0 +1,268 @@
+@model GloryLikeWebApp.Models.Employer.EmployerHomeViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Employer Dashboard";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SkillMatch</title>
+
+    <link
+        rel="stylesheet"
+        href="~/css/employer-home.css"
+        asp-append-version="true" />
+</head>
+
+<body>
+    <div class="employer-shell">
+        <header class="employer-topbar">
+            <a
+                class="employer-brand"
+                asp-controller="EmployerHome"
+                asp-action="EmployerHome">
+                SkillMatch
+            </a>
+
+            <form
+                class="employer-search"
+                method="get"
+                action="/EmployerHome">
+                <span>⌕</span>
+                <input
+                    type="search"
+                    placeholder="Search by candidates/vacancies"
+                    aria-label="Search candidates or vacancies" />
+            </form>
+
+            <div class="employer-account">
+                <span class="demo-badge">Demo Mode</span>
+
+                <div class="employer-avatar">
+                    @Model.Initials
+                </div>
+
+                <div class="employer-account-copy">
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(Model.Email)
+                            ? Model.DisplayName
+                            : Model.Email)
+                    </strong>
+                    <span>Employer workspace</span>
+                </div>
+
+                <a
+                    class="switch-portal-link"
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    Switch
+                </a>
+            </div>
+        </header>
+
+        <aside
+            class="employer-sidebar"
+            id="employerSidebar">
+
+            <nav aria-label="Employer navigation">
+                <a class="active" href="/EmployerHome">
+                    <span>⌁</span>
+                    <strong>Dashboard</strong>
+                </a>
+
+                <a href="#">
+                    <span>▣</span>
+                    <strong>Vacancies</strong>
+                </a>
+
+                <a href="#">
+                    <span>▱</span>
+                    <strong>Recruitment requests</strong>
+                </a>
+
+                <a href="#">
+                    <span>◎</span>
+                    <strong>Talent Radar</strong>
+                </a>
+
+                <a href="#">
+                    <span>▥</span>
+                    <strong>Company</strong>
+                </a>
+
+                <a href="#">
+                    <span>▧</span>
+                    <strong>Reports</strong>
+                </a>
+            </nav>
+
+            <div class="employer-sidebar-bottom">
+                <a
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    ⇄ Switch workspace
+                </a>
+
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit">
+                        ↪ Sign out
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="employer-main">
+            <button
+                class="employer-menu-button"
+                type="button"
+                id="employerMenuButton"
+                aria-label="Open employer menu">
+                ☰
+            </button>
+
+            <section class="employer-heading">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>
+                        Signal Matching – Hire Based on Data,
+                        Not Resume
+                    </p>
+                </div>
+
+                <button
+                    class="create-vacancy-button"
+                    type="button">
+                    <span>＋</span>
+                    Create a vacancy
+                </button>
+            </section>
+
+            <section class="employer-stat-grid">
+                @foreach (var stat in Model.Stats)
+                {
+                    <article class="employer-stat-card">
+                        <div>
+                            <span>@stat.Label</span>
+                            <strong>@stat.Value</strong>
+                        </div>
+
+                        <span class="stat-icon @stat.AccentClass">
+                            @stat.Icon
+                        </span>
+                    </article>
+                }
+            </section>
+
+            <section class="insights-section">
+                <div class="section-title-row">
+                    <h2>
+                        <span>ϟ</span>
+                        Hiring Insights
+                    </h2>
+
+                    <a href="#">
+                        All signals
+                        <span>→</span>
+                    </a>
+                </div>
+
+                <div class="insights-grid">
+                    @foreach (var insight in Model.Insights)
+                    {
+                        <article class="insight-card">
+                            <span class="insight-icon">
+                                @insight.Icon
+                            </span>
+
+                            <div>
+                                <span>@insight.Label</span>
+                                <strong>@insight.Value</strong>
+                                <small>@insight.Caption</small>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+
+            <section class="candidate-panel">
+                <div class="candidate-panel-heading">
+                    <div>
+                        <h2>Top candidates by signals</h2>
+                        <p>
+                            Ranked by trust, skill evidence
+                            and vacancy match.
+                        </p>
+                    </div>
+
+                    <button type="button">
+                        View all candidates
+                    </button>
+                </div>
+
+                <div class="candidate-list">
+                    @foreach (var candidate in Model.Candidates)
+                    {
+                        <article class="candidate-row">
+                            <div class="candidate-profile">
+                                <span class="candidate-avatar">
+                                    @candidate.Initials
+                                </span>
+
+                                <div>
+                                    <strong>@candidate.Name</strong>
+                                    <span>
+                                        @candidate.CurrentCompany
+                                        ·
+                                        @candidate.CurrentRole
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="candidate-metric">
+                                <span>TRUST</span>
+                                <strong>@candidate.TrustScore</strong>
+                            </div>
+
+                            <div class="candidate-metric match">
+                                <span>MATCH</span>
+                                <strong>@candidate.MatchScore%</strong>
+                            </div>
+
+                            <div class="candidate-signals">
+                                @foreach (var signal in candidate.Signals)
+                                {
+                                    <span>@signal</span>
+                                }
+                            </div>
+
+                            <button
+                                type="button"
+                                class="candidate-action">
+                                →
+                            </button>
+                        </article>
+                    }
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div
+        class="employer-backdrop"
+        id="employerBackdrop">
+    </div>
+
+    <script
+        src="~/js/employer-home.js"
+        asp-append-version="true">
+    </script>
+</body>
+</html>

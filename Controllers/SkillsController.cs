@@ -1,12 +1,13 @@
 using System.Security.Claims;
 using GloryLikeWebApp.Models;
+using GloryLikeWebApp.Security;
 using GloryLikeWebApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GloryLikeWebApp.Controllers;
 
-[Authorize]
+[Authorize(Policy = PortalClaimTypes.EmployeePolicy)]
 public sealed class SkillsController : Controller
 {
     private readonly IUserProfileDataApiService _userProfileDataApiService;

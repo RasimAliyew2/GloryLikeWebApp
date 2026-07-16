@@ -1,0 +1,153 @@
+@model GloryLikeWebApp.Models.Auth.PortalSelectionViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Choose workspace";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SkillMatch</title>
+
+    <link
+        rel="stylesheet"
+        href="~/css/choose-portal.css"
+        asp-append-version="true" />
+</head>
+
+<body>
+    <div class="portal-page">
+        <div class="portal-background">
+            <div class="preview-header">
+                <div class="preview-brand">
+                    <span class="preview-logo">ϟ</span>
+                    <span>SkillMatch</span>
+                </div>
+
+                <span class="preview-pill">
+                    Authenticated
+                </span>
+            </div>
+
+            <div class="preview-content">
+                <div class="preview-sidebar"></div>
+                <div class="preview-cards">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+
+        <main class="portal-dialog-shell">
+            <section
+                class="portal-dialog"
+                aria-labelledby="portal-title">
+
+                <div class="portal-check">✓</div>
+
+                <span class="portal-eyebrow">
+                    LOGIN SUCCESSFUL
+                </span>
+
+                <h1 id="portal-title">
+                    How do you want to continue?
+                </h1>
+
+                <p class="portal-subtitle">
+                    Choose the workspace you want to open.
+                    You can switch later from the account menu.
+                </p>
+
+                <div
+                    asp-validation-summary="ModelOnly"
+                    class="portal-error">
+                </div>
+
+                <div class="portal-options">
+                    <form
+                        method="post"
+                        asp-controller="Account"
+                        asp-action="ChoosePortal">
+
+                        @Html.AntiForgeryToken()
+
+                        <input
+                            type="hidden"
+                            name="PortalType"
+                            value="employee" />
+
+                        <button
+                            type="submit"
+                            class="portal-option employee">
+
+                            <span class="portal-option-icon">
+                                ◉
+                            </span>
+
+                            <span class="portal-option-copy">
+                                <strong>Continue as Employee</strong>
+                                <small>
+                                    Open your candidate dashboard,
+                                    skills, profile and opportunities.
+                                </small>
+                            </span>
+
+                            <span class="portal-arrow">→</span>
+                        </button>
+                    </form>
+
+                    <form
+                        method="post"
+                        asp-controller="Account"
+                        asp-action="ChoosePortal">
+
+                        @Html.AntiForgeryToken()
+
+                        <input
+                            type="hidden"
+                            name="PortalType"
+                            value="employer" />
+
+                        <button
+                            type="submit"
+                            class="portal-option employer">
+
+                            <span class="portal-option-icon">
+                                ▣
+                            </span>
+
+                            <span class="portal-option-copy">
+                                <strong>Continue as Employer</strong>
+                                <small>
+                                    Open the hiring dashboard,
+                                    vacancies, candidates and reports.
+                                </small>
+                            </span>
+
+                            <span class="portal-arrow">→</span>
+                        </button>
+                    </form>
+                </div>
+
+                <form
+                    method="post"
+                    action="/SignOut"
+                    class="portal-signout">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit">
+                        Sign in with another account
+                    </button>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

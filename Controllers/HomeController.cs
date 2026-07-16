@@ -2,13 +2,14 @@ using System.Diagnostics;
 using System.Security.Claims;
 using GloryLikeWebApp.Models;
 using GloryLikeWebApp.Models.Dashboard;
+using GloryLikeWebApp.Security;
 using GloryLikeWebApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GloryLikeWebApp.Controllers;
 
-[Authorize]
+[Authorize(Policy = PortalClaimTypes.EmployeePolicy)]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;

@@ -9,6 +9,14 @@
       "PackagePath": "staticwebassets\\css\\candidate-dashboard.css"
     },
     {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\choose-portal.css",
+      "PackagePath": "staticwebassets\\css\\choose-portal.css"
+    },
+    {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\employer-home.css",
+      "PackagePath": "staticwebassets\\css\\employer-home.css"
+    },
+    {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\opportunities-page.css",
       "PackagePath": "staticwebassets\\css\\opportunities-page.css"
     },
@@ -31,6 +39,10 @@
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\candidate-dashboard.js",
       "PackagePath": "staticwebassets\\js\\candidate-dashboard.js"
+    },
+    {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\employer-home.js",
+      "PackagePath": "staticwebassets\\js\\employer-home.js"
     },
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\opportunities-page.js",

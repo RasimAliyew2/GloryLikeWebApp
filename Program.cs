@@ -1,3 +1,4 @@
+using GloryLikeWebApp.Security;
 using GloryLikeWebApp.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -58,12 +59,28 @@ builder.Services.AddHttpClient<IJobOffersApiService, JobOffersApiService>((sp, c
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(
+        PortalClaimTypes.EmployeePolicy,
+        policy => policy.RequireClaim(
+            PortalClaimTypes.ClaimName,
+            PortalClaimTypes.Employee));
+
+    options.AddPolicy(
+        PortalClaimTypes.EmployerPolicy,
+        policy => policy.RequireClaim(
+            PortalClaimTypes.ClaimName,
+            PortalClaimTypes.Employer));
+});
+
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/SignIn";
-        options.AccessDeniedPath = "/SignIn";
+        options.AccessDeniedPath = "/ChoosePortal";
         options.Cookie.Name = "GloryLikeWebApp.Auth";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
