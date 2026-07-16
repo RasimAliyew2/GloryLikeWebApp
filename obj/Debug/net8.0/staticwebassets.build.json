@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "5LbHPVSMck0dd4egAt4VMThPI2d4yx5okygwPSbWeJQ=",
+  "Hash": "20kVUr3P0uxJ33ugWqiIT4YFdhd54/s757q4utOR8nQ=",
   "Source": "GloryLikeWebApp",
   "BasePath": "_content/GloryLikeWebApp",
   "Mode": "Default",
@@ -73,8 +73,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "0fxe13uqke",
-      "Integrity": "rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c=",
+      "Fingerprint": "adawwxg5ez",
+      "Integrity": "gn+Tg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\candidate-dashboard.css"
@@ -1426,7 +1426,7 @@
   ],
   "Endpoints": [
     {
-      "Route": "css/candidate-dashboard.0fxe13uqke.css",
+      "Route": "css/candidate-dashboard.adawwxg5ez.css",
       "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\candidate-dashboard.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -1436,7 +1436,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "16884"
+          "Value": "18391"
         },
         {
           "Name": "Content-Type",
@@ -1444,11 +1444,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c=\""
+          "Value": "\"gn+Tg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 15 Jul 2026 21:48:20 GMT"
+          "Value": "Thu, 16 Jul 2026 09:59:28 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1458,7 +1458,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "0fxe13uqke"
+          "Value": "adawwxg5ez"
         },
         {
           "Name": "label",
@@ -1466,7 +1466,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c="
+          "Value": "sha256-gn+Tg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE="
         }
       ]
     },
@@ -1481,7 +1481,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "16884"
+          "Value": "18391"
         },
         {
           "Name": "Content-Type",
@@ -1489,11 +1489,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c=\""
+          "Value": "\"gn+Tg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 15 Jul 2026 21:48:20 GMT"
+          "Value": "Thu, 16 Jul 2026 09:59:28 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1503,7 +1503,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c="
+          "Value": "sha256-gn+Tg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE="
         }
       ]
     },

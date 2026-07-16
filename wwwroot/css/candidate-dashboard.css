@@ -1042,3 +1042,95 @@ button {
         grid-template-columns: 1fr;
     }
 }
+
+/* Real SQL-backed recommendations */
+.recommended-count {
+    display: block;
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.recommended-state {
+    padding: 26px;
+    display: grid;
+    gap: 7px;
+    text-align: center;
+}
+
+.recommended-state strong {
+    font-size: 15px;
+}
+
+.recommended-state span {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.recommended-state a {
+    width: max-content;
+    margin: 6px auto 0;
+    color: var(--blue-dark);
+    font-size: 12px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.recommended-state.error {
+    color: #9f2e3a;
+    border-color: #f0c6cb;
+    background: #fff7f8;
+}
+
+.job-description {
+    display: -webkit-box;
+    overflow: hidden;
+    color: #667085 !important;
+    font-size: 12px !important;
+    line-height: 1.5;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.job-skill-group {
+    display: grid;
+    gap: 7px;
+}
+
+.job-skill-label {
+    color: #7d8799;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.job-tags.matched span {
+    color: #315fb8;
+    background: #edf4ff;
+}
+
+.job-tags .muted-tag {
+    color: #7d8799;
+    background: #f3f5f8;
+}
+
+.missing-skills {
+    padding: 10px 11px;
+    display: flex;
+    gap: 5px;
+    color: #8a6416;
+    border-radius: 11px;
+    background: #fff8e8;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.missing-skills strong {
+    flex: 0 0 auto;
+}
+
+.job-card {
+    min-height: 100%;
+}

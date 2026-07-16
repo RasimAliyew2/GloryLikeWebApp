@@ -161,7 +161,7 @@
                         </div>
 
                         <h2>@Model.DisplayName</h2>
-                        <p>Senior Product Designer</p>
+                        <p>@(string.IsNullOrWhiteSpace(Model.CurrentJobName) ? "No Job selected" : Model.CurrentJobName)</p>
 
                         <div class="profile-meta">
                             <span>⌖ Almaty, KZ</span>
@@ -225,41 +225,83 @@
                                 <div>
                                     <span class="section-kicker">OPPORTUNITIES</span>
                                     <h2>Recommended for you</h2>
+                                    <span class="recommended-count">@Model.RecommendedJobsCountText</span>
                                 </div>
                                 <a href="#">Browse jobs</a>
                             </div>
 
-                            <div class="job-grid">
-                                @foreach (var job in Model.RecommendedJobs)
-                                {
-                                    <article class="job-card panel">
-                                        <div class="job-top">
-                                            <div class="company-logo large">@job.CompanyInitials</div>
-                                            <div>
-                                                <span class="job-company">@job.Company</span>
-                                                <h3>@job.Role</h3>
-                                                <p>@job.Meta</p>
+                            @if (Model.HasRecommendedJobsError)
+                            {
+                                <div class="recommended-state panel error">
+                                    <strong>Recommendations could not be loaded</strong>
+                                    <span>@Model.RecommendedJobsError</span>
+                                </div>
+                            }
+                            else if (!Model.HasRecommendedJobs)
+                            {
+                                <div class="recommended-state panel">
+                                    <strong>No matching recommendations yet</strong>
+                                    <span>@Model.RecommendedJobsEmptyMessage</span>
+                                    <a asp-controller="Skills" asp-action="SkillsPage">Review Job and skills</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="job-grid">
+                                    @foreach (var job in Model.RecommendedJobs)
+                                    {
+                                        <article class="job-card panel">
+                                            <div class="job-top">
+                                                <div class="company-logo large">@job.LogoLetter</div>
+                                                <div>
+                                                    <span class="job-company">@job.Company</span>
+                                                    <h3>@job.Title</h3>
+                                                    <p>@job.Meta</p>
+                                                </div>
+                                                <button class="bookmark-button" type="button">♡</button>
                                             </div>
-                                            <button class="bookmark-button" type="button">♡</button>
-                                        </div>
 
-                                        <div class="job-tags">
-                                            @foreach (var tag in job.Tags)
+                                            @if (!string.IsNullOrWhiteSpace(job.Description))
                                             {
-                                                <span>@tag</span>
+                                                <p class="job-description">@job.Description</p>
                                             }
-                                        </div>
 
-                                        <div class="job-bottom">
-                                            <div class="match-badge">
-                                                <strong>@job.MatchScore%</strong>
-                                                <span>match</span>
+                                            <div class="job-skill-group">
+                                                <span class="job-skill-label">Matched skills</span>
+                                                <div class="job-tags matched">
+                                                    @if (job.MatchedSkills.Count == 0)
+                                                    {
+                                                        <span class="muted-tag">No matched skills yet</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @foreach (var skill in job.MatchedSkills.Take(4))
+                                                        {
+                                                            <span>@skill</span>
+                                                        }
+                                                    }
+                                                </div>
                                             </div>
-                                            <button class="view-job-button" type="button">View role</button>
-                                        </div>
-                                    </article>
-                                }
-                            </div>
+
+                                            @if (job.MissingSkills.Count > 0)
+                                            {
+                                                <div class="missing-skills">
+                                                    <strong>Missing:</strong>
+                                                    <span>@job.MissingSkillsText</span>
+                                                </div>
+                                            }
+
+                                            <div class="job-bottom">
+                                                <div class="match-badge">
+                                                    <strong>@job.Score%</strong>
+                                                    <span>match</span>
+                                                </div>
+                                                <button class="view-job-button" type="button">View role</button>
+                                            </div>
+                                        </article>
+                                    }
+                                </div>
+                            }
                         </section>
                     </div>
 
@@ -270,7 +312,7 @@
                                     <span class="section-kicker">SKILL PASSPORT</span>
                                     <h2>Top skills</h2>
                                 </div>
-                                <a href="#">View all</a>
+                                <a asp-controller="Skills" asp-action="SkillsPage">View all</a>
                             </div>
 
                             <div class="skills-list">

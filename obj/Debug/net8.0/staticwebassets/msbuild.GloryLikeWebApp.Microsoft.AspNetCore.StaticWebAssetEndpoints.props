@@ -1,16 +1,16 @@
 ﻿<Project>
   <ItemGroup>
-    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/candidate-dashboard.0fxe13uqke.css">
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/candidate-dashboard.adawwxg5ez.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\candidate-dashboard.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"0fxe13uqke"},{"Name":"integrity","Value":"sha256-rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c="},{"Name":"label","Value":"_content/GloryLikeWebApp/css/candidate-dashboard.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"16884"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c=\u0022"},{"Name":"Last-Modified","Value":"Wed, 15 Jul 2026 21:48:20 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"adawwxg5ez"},{"Name":"integrity","Value":"sha256-gn\u002BTg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE="},{"Name":"label","Value":"_content/GloryLikeWebApp/css/candidate-dashboard.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"18391"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022gn\u002BTg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 09:59:28 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/candidate-dashboard.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\candidate-dashboard.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"16884"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022rI02QXhZwnJHPyKxl9igAKkpbv57Coyop2JqBZmkT2c=\u0022"},{"Name":"Last-Modified","Value":"Wed, 15 Jul 2026 21:48:20 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-gn\u002BTg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"18391"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022gn\u002BTg4NZc8rFCinXbg5mGkbKhSQRJozH6WxuiVqCMfE=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 09:59:28 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/profile-page.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\profile-page.css'))</AssetFile>
