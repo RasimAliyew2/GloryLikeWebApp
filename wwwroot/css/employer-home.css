@@ -712,3 +712,13 @@ input {
         justify-self: end;
     }
 }
+
+
+/* Employer vacancy wizard navigation */
+a.create-vacancy-button {
+    text-decoration: none;
+}
+
+.vacancy-shell .employer-search {
+    pointer-events: none;
+}

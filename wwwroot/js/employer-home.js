@@ -26,13 +26,4 @@
         if (event.key === "Escape")
             closeSidebar();
     });
-
-    document
-        .querySelector(".create-vacancy-button")
-        ?.addEventListener("click", () => {
-            window.alert(
-                "Create vacancy UI hazırdır. "
-                + "Vacancy SQL API əlavə ediləndə "
-                + "bu düymə real formu açacaq.");
-        });
 })();

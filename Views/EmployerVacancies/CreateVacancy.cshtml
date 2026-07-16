@@ -1,0 +1,1069 @@
+@using System.Text.Json
+@model GloryLikeWebApp.Models.Employer.CreateVacancyPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Create a vacancy";
+
+    var taxonomyJson = JsonSerializer.Serialize(
+        Model.JobFamilies,
+        new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+    var selectedSkillIds =
+        Model.Input.SelectedSkillIds
+            ?? new List<int>();
+
+    var benefitOptions = new[]
+    {
+        "Health Insurance",
+        "Bonus System",
+        "Remote Work",
+        "Flexible Schedule",
+        "Learning Budget",
+        "Stock Options",
+        "Meal Allowance",
+        "Transport",
+        "Gym Membership",
+        "Childcare Support",
+        "Relocation Package",
+        "Annual Leave 25+"
+    };
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SkillMatch</title>
+
+    <link
+        rel="stylesheet"
+        href="~/css/employer-home.css"
+        asp-append-version="true" />
+
+    <link
+        rel="stylesheet"
+        href="~/css/create-vacancy.css"
+        asp-append-version="true" />
+</head>
+
+<body>
+    <div class="employer-shell vacancy-shell">
+        <header class="employer-topbar">
+            <a
+                class="employer-brand"
+                asp-controller="EmployerHome"
+                asp-action="EmployerHome">
+                SkillMatch
+            </a>
+
+            <div class="employer-search">
+                <span>⌕</span>
+                <input
+                    type="search"
+                    placeholder="Search by candidates/vacancies"
+                    aria-label="Search candidates or vacancies" />
+            </div>
+
+            <div class="employer-account">
+                <span class="demo-badge">Employer</span>
+
+                <div class="employer-avatar">
+                    @Model.Initials
+                </div>
+
+                <div class="employer-account-copy">
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(Model.Email)
+                            ? Model.DisplayName
+                            : Model.Email)
+                    </strong>
+                    <span>Employer workspace</span>
+                </div>
+
+                <a
+                    class="switch-portal-link"
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    Switch
+                </a>
+            </div>
+        </header>
+
+        <aside
+            class="employer-sidebar"
+            id="employerSidebar">
+
+            <nav aria-label="Employer navigation">
+                <a
+                    asp-controller="EmployerHome"
+                    asp-action="EmployerHome">
+                    <span>⌁</span>
+                    <strong>Dashboard</strong>
+                </a>
+
+                <a
+                    class="active"
+                    asp-controller="EmployerVacancies"
+                    asp-action="CreateVacancy">
+                    <span>▣</span>
+                    <strong>Vacancies</strong>
+                </a>
+
+                <a href="#">
+                    <span>▱</span>
+                    <strong>Recruitment requests</strong>
+                </a>
+
+                <a href="#">
+                    <span>◎</span>
+                    <strong>Talent Radar</strong>
+                </a>
+
+                <a href="#">
+                    <span>▥</span>
+                    <strong>Company</strong>
+                </a>
+
+                <a href="#">
+                    <span>▧</span>
+                    <strong>Reports</strong>
+                </a>
+            </nav>
+
+            <div class="employer-sidebar-bottom">
+                <a
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    ⇄ Switch workspace
+                </a>
+
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit">
+                        ↪ Sign out
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="employer-main vacancy-main">
+            <button
+                class="employer-menu-button"
+                type="button"
+                id="employerMenuButton"
+                aria-label="Open employer menu">
+                ☰
+            </button>
+
+            <a
+                class="back-to-employer"
+                asp-controller="EmployerHome"
+                asp-action="EmployerHome">
+                ← Back to vacancies
+            </a>
+
+            <div class="vacancy-heading">
+                <h1>Create a vacancy</h1>
+                <p>
+                    <span id="currentStepText">Step 1 of 5</span>
+                    –
+                    <span id="currentStepName">
+                        Role and Profile
+                    </span>
+                </p>
+            </div>
+
+            <nav
+                class="vacancy-steps"
+                aria-label="Vacancy creation stages">
+
+                <button
+                    type="button"
+                    class="vacancy-step active"
+                    data-step-target="0">
+                    <span>▣</span>
+                    Role and profile
+                </button>
+
+                <span class="step-line"></span>
+
+                <button
+                    type="button"
+                    class="vacancy-step"
+                    data-step-target="1">
+                    <span>▤</span>
+                    Application Requirements
+                </button>
+
+                <span class="step-line"></span>
+
+                <button
+                    type="button"
+                    class="vacancy-step"
+                    data-step-target="2">
+                    <span>▽</span>
+                    Screening
+                </button>
+
+                <span class="step-line"></span>
+
+                <button
+                    type="button"
+                    class="vacancy-step"
+                    data-step-target="3">
+                    <span>⌁</span>
+                    Funnel
+                </button>
+
+                <span class="step-line"></span>
+
+                <button
+                    type="button"
+                    class="vacancy-step"
+                    data-step-target="4">
+                    <span>◎</span>
+                    Publication
+                </button>
+            </nav>
+
+            @if (!string.IsNullOrWhiteSpace(
+                Model.ErrorMessage))
+            {
+                <div class="vacancy-message error">
+                    <strong>SQL taxonomy could not be loaded</strong>
+                    <span>@Model.ErrorMessage</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(
+                Model.SuccessMessage))
+            {
+                <div class="vacancy-message success">
+                    <strong>Vacancy validated</strong>
+                    <span>@Model.SuccessMessage</span>
+                </div>
+            }
+
+            <div
+                asp-validation-summary="ModelOnly"
+                class="vacancy-message error validation-summary">
+            </div>
+
+            <form
+                method="post"
+                asp-controller="EmployerVacancies"
+                asp-action="CreateVacancy"
+                id="createVacancyForm"
+                novalidate>
+
+                @Html.AntiForgeryToken()
+
+                <section
+                    class="vacancy-stage active"
+                    data-stage="0">
+
+                    <article class="vacancy-section-card">
+                        <h2>Role Definition</h2>
+
+                        <div class="form-field full">
+                            <label asp-for="Input.JobFamilyId">
+                                Job Family *
+                            </label>
+
+                            <select
+                                asp-for="Input.JobFamilyId"
+                                id="jobFamilySelect"
+                                disabled="@(!Model.HasTaxonomy)">
+                                <option value="">
+                                    Select an SQL Job
+                                </option>
+
+                                @foreach (var job in
+                                    Model.JobFamilies)
+                                {
+                                    <option value="@job.Id">
+                                        @job.JobName
+                                    </option>
+                                }
+                            </select>
+
+                            <span
+                                asp-validation-for="Input.JobFamilyId"
+                                class="field-error">
+                            </span>
+
+                            <small class="sql-source-note">
+                                Source: SQL via
+                                /api/SkillAndJob/job-families
+                            </small>
+                        </div>
+
+                        <div class="form-field full">
+                            <label asp-for="Input.SeniorityId">
+                                Seniority Level *
+                            </label>
+
+                            <select
+                                asp-for="Input.SeniorityId"
+                                id="senioritySelect"
+                                disabled>
+                                <option value="">
+                                    Select Job first
+                                </option>
+                            </select>
+
+                            <span
+                                asp-validation-for="Input.SeniorityId"
+                                class="field-error">
+                            </span>
+                        </div>
+
+                        <div class="form-field full">
+                            <label asp-for="Input.PositionId">
+                                Role / Position *
+                            </label>
+
+                            <select
+                                asp-for="Input.PositionId"
+                                id="positionSelect"
+                                disabled>
+                                <option value="">
+                                    Select Seniority first
+                                </option>
+                            </select>
+
+                            <span
+                                asp-validation-for="Input.PositionId"
+                                class="field-error">
+                            </span>
+                        </div>
+
+                        <div class="form-field full">
+                            <label asp-for="Input.RoleTitle">
+                                Role Title *
+                            </label>
+
+                            <div class="input-with-icon">
+                                <span>⌕</span>
+                                <input
+                                    asp-for="Input.RoleTitle"
+                                    id="roleTitleInput"
+                                    placeholder="Role title is filled from SQL Position" />
+                            </div>
+
+                            <span
+                                asp-validation-for="Input.RoleTitle"
+                                class="field-error">
+                            </span>
+
+                            <div
+                                class="role-match-box"
+                                id="roleMatchBox"
+                                hidden>
+                                <div>
+                                    <span>You selected:</span>
+                                    <strong id="selectedJobText"></strong>
+                                    <small>
+                                        Best match:
+                                        <b id="selectedPositionText"></b>
+                                    </small>
+                                </div>
+
+                                <span class="confidence-label">
+                                    SQL taxonomy
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="vacancy-section-card">
+                        <h2>Vacancy Identification</h2>
+
+                        <div class="form-grid two-columns">
+                            <div class="form-field">
+                                <label asp-for="Input.PlatformVacancyId">
+                                    Platform Vacancy ID
+                                </label>
+
+                                <input
+                                    asp-for="Input.PlatformVacancyId"
+                                    readonly />
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.ClientRequisitionCode">
+                                    Client Requisition Code
+                                </label>
+
+                                <input
+                                    asp-for="Input.ClientRequisitionCode"
+                                    placeholder="Internal code" />
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="vacancy-section-card">
+                        <h2>Role Profile</h2>
+
+                        <div class="form-grid two-columns">
+                            <div class="form-field">
+                                <label asp-for="Input.EmploymentType">
+                                    Employment Type
+                                </label>
+
+                                <select asp-for="Input.EmploymentType">
+                                    <option>Full-time</option>
+                                    <option>Part-time</option>
+                                    <option>Contract</option>
+                                    <option>Internship</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.ExperienceRequired">
+                                    Experience Required
+                                </label>
+
+                                <select asp-for="Input.ExperienceRequired">
+                                    <option>Entry level</option>
+                                    <option>1-3 years</option>
+                                    <option>3-5 years</option>
+                                    <option>5-8 years</option>
+                                    <option>8+ years</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.EducationRequirement">
+                                    Education Requirement
+                                </label>
+
+                                <select asp-for="Input.EducationRequirement">
+                                    <option>Not required</option>
+                                    <option>Preferred</option>
+                                    <option>Required</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.EducationLevel">
+                                    Education Level
+                                </label>
+
+                                <select asp-for="Input.EducationLevel">
+                                    <option>High school</option>
+                                    <option>Bachelor</option>
+                                    <option>Master</option>
+                                    <option>Doctorate</option>
+                                </select>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="vacancy-section-card">
+                        <h2>Compensation</h2>
+
+                        <div class="form-grid two-columns">
+                            <div class="form-field">
+                                <label asp-for="Input.MinSalary">
+                                    Min Salary
+                                </label>
+
+                                <input
+                                    asp-for="Input.MinSalary"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    placeholder="1000" />
+
+                                <span
+                                    asp-validation-for="Input.MinSalary"
+                                    class="field-error">
+                                </span>
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.MaxSalary">
+                                    Max Salary
+                                </label>
+
+                                <input
+                                    asp-for="Input.MaxSalary"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    placeholder="3000" />
+
+                                <span
+                                    asp-validation-for="Input.MaxSalary"
+                                    class="field-error">
+                                </span>
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.PaymentTerms">
+                                    Payment Terms
+                                </label>
+
+                                <select asp-for="Input.PaymentTerms">
+                                    <option>Monthly Gross</option>
+                                    <option>Monthly Net</option>
+                                    <option>Hourly</option>
+                                    <option>Annual Gross</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.Currency">
+                                    Currency
+                                </label>
+
+                                <select asp-for="Input.Currency">
+                                    <option>AZN</option>
+                                    <option>USD</option>
+                                    <option>EUR</option>
+                                    <option>GBP</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <label class="toggle-row">
+                            <input asp-for="Input.HideSalary" />
+                            <span class="toggle-control"></span>
+                            Hide salary from public view
+                        </label>
+                    </article>
+
+                    <article class="vacancy-section-card">
+                        <div class="card-title-row">
+                            <h2>Job Description</h2>
+
+                            <button
+                                type="button"
+                                class="small-secondary-button">
+                                ✧ AI Review
+                            </button>
+                        </div>
+
+                        <textarea
+                            asp-for="Input.JobDescription"
+                            rows="7"
+                            placeholder="Describe responsibilities, requirements, working conditions...">
+                        </textarea>
+                    </article>
+
+                    <article class="vacancy-section-card">
+                        <h2>Skill Requirements *</h2>
+
+                        <div
+                            class="skill-library-message"
+                            id="skillLibraryMessage">
+                            Select SQL Job, Seniority and Position
+                            to load its skill library.
+                        </div>
+
+                        <div
+                            class="skill-requirement-grid"
+                            id="skillRequirements">
+                        </div>
+
+                        <span
+                            asp-validation-for="Input.SelectedSkillIds"
+                            class="field-error">
+                        </span>
+
+                        <div class="verification-control">
+                            <div>
+                                <strong>
+                                    Minimum Verification Level
+                                </strong>
+                                <span id="verificationValue">
+                                    @Model.Input.MinimumVerificationLevel
+                                </span>
+                            </div>
+
+                            <input
+                                asp-for="Input.MinimumVerificationLevel"
+                                id="verificationRange"
+                                type="range"
+                                min="0"
+                                max="100"
+                                step="5" />
+                        </div>
+                    </article>
+
+                    <article class="vacancy-section-card talent-card">
+                        <div class="card-title-row">
+                            <h2>⌁ Talent Pool Insights</h2>
+                            <span>Preview</span>
+                        </div>
+
+                        <div class="talent-stat-grid">
+                            <div>
+                                <strong id="matchedCandidates">—</strong>
+                                <span>Matched Candidates</span>
+                            </div>
+                            <div>
+                                <strong id="strongMatches">—</strong>
+                                <span>Strong Matches</span>
+                            </div>
+                            <div>
+                                <strong id="verifiedCandidates">—</strong>
+                                <span>Verified Candidates</span>
+                            </div>
+                        </div>
+
+                        <p>
+                            Candidate counts require an employer
+                            candidate-search API. The selected SQL
+                            skills are already available for that
+                            calculation.
+                        </p>
+                    </article>
+
+                    <article class="vacancy-section-card">
+                        <h2>Benefits &amp; Perks</h2>
+
+                        <div class="benefit-options">
+                            @foreach (var benefit in benefitOptions)
+                            {
+                                var checkedBenefit =
+                                    Model.Input.Benefits.Contains(
+                                        benefit,
+                                        StringComparer.OrdinalIgnoreCase);
+
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        name="Benefits"
+                                        value="@benefit"
+                                        checked="@checkedBenefit" />
+
+                                    <span>@benefit</span>
+                                </label>
+                            }
+                        </div>
+                    </article>
+                </section>
+
+                <section
+                    class="vacancy-stage"
+                    data-stage="1">
+
+                    <article class="vacancy-section-card">
+                        <h2>Application Documents</h2>
+
+                        <div class="choice-grid">
+                            <label class="choice-card">
+                                <input asp-for="Input.RequireCv" />
+                                <span>▤</span>
+                                <strong>CV / Resume</strong>
+                                <small>
+                                    Ask candidates for a CV.
+                                </small>
+                            </label>
+
+                            <label class="choice-card">
+                                <input asp-for="Input.RequireCoverLetter" />
+                                <span>✎</span>
+                                <strong>Cover Letter</strong>
+                                <small>
+                                    Require a written introduction.
+                                </small>
+                            </label>
+
+                            <label class="choice-card">
+                                <input asp-for="Input.RequirePortfolio" />
+                                <span>▣</span>
+                                <strong>Portfolio</strong>
+                                <small>
+                                    Require a portfolio or work sample.
+                                </small>
+                            </label>
+
+                            <label class="choice-card">
+                                <input asp-for="Input.RequireLinkedIn" />
+                                <span>◎</span>
+                                <strong>Professional Profile</strong>
+                                <small>
+                                    Ask for a profile URL.
+                                </small>
+                            </label>
+                        </div>
+                    </article>
+
+                    <article class="vacancy-section-card">
+                        <h2>Candidate Information</h2>
+
+                        <div class="form-field">
+                            <label asp-for="Input.NoticePeriod">
+                                Accepted Notice Period
+                            </label>
+
+                            <select asp-for="Input.NoticePeriod">
+                                <option>Any</option>
+                                <option>Immediate</option>
+                                <option>Up to 2 weeks</option>
+                                <option>Up to 1 month</option>
+                                <option>Up to 3 months</option>
+                            </select>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="Input.ApplicationQuestions">
+                                Application Questions
+                            </label>
+
+                            <textarea
+                                asp-for="Input.ApplicationQuestions"
+                                rows="8"
+                                placeholder="One question per line...">
+                            </textarea>
+                        </div>
+                    </article>
+                </section>
+
+                <section
+                    class="vacancy-stage"
+                    data-stage="2">
+
+                    <article class="vacancy-section-card">
+                        <h2>Signal Screening</h2>
+
+                        <div class="score-control-grid">
+                            <div class="score-control">
+                                <label asp-for="Input.MinimumMatchScore">
+                                    Minimum Match Score
+                                </label>
+
+                                <strong id="matchScoreValue">
+                                    @Model.Input.MinimumMatchScore%
+                                </strong>
+
+                                <input
+                                    asp-for="Input.MinimumMatchScore"
+                                    id="matchScoreRange"
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    step="5" />
+                            </div>
+
+                            <div class="score-control">
+                                <label asp-for="Input.MinimumTrustScore">
+                                    Minimum Trust Score
+                                </label>
+
+                                <strong id="trustScoreValue">
+                                    @Model.Input.MinimumTrustScore
+                                </strong>
+
+                                <input
+                                    asp-for="Input.MinimumTrustScore"
+                                    id="trustScoreRange"
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    step="5" />
+                            </div>
+                        </div>
+
+                        <div class="switch-list">
+                            <label class="toggle-row">
+                                <input
+                                    asp-for="Input.AutoRejectBelowScore" />
+                                <span class="toggle-control"></span>
+                                Auto-reject candidates below thresholds
+                            </label>
+
+                            <label class="toggle-row">
+                                <input
+                                    asp-for="Input.RequireVerifiedCoreSkills" />
+                                <span class="toggle-control"></span>
+                                Require verified core skills
+                            </label>
+                        </div>
+                    </article>
+
+                    <article class="vacancy-section-card">
+                        <h2>Screening Notes</h2>
+
+                        <textarea
+                            asp-for="Input.ScreeningNotes"
+                            rows="8"
+                            placeholder="Internal screening instructions...">
+                        </textarea>
+                    </article>
+                </section>
+
+                <section
+                    class="vacancy-stage"
+                    data-stage="3">
+
+                    <article class="vacancy-section-card">
+                        <h2>Recruitment Funnel</h2>
+
+                        <p class="section-description">
+                            Select the stages used for this vacancy.
+                        </p>
+
+                        <div class="funnel-stage-grid">
+                            <label>
+                                <input asp-for="Input.StageApplied" />
+                                <span>1</span>
+                                <strong>Applied</strong>
+                            </label>
+
+                            <label>
+                                <input asp-for="Input.StageScreening" />
+                                <span>2</span>
+                                <strong>Screening</strong>
+                            </label>
+
+                            <label>
+                                <input asp-for="Input.StageInterview" />
+                                <span>3</span>
+                                <strong>Interview</strong>
+                            </label>
+
+                            <label>
+                                <input asp-for="Input.StageOffer" />
+                                <span>4</span>
+                                <strong>Offer</strong>
+                            </label>
+                        </div>
+
+                        <span
+                            asp-validation-for="Input.StageApplied"
+                            class="field-error">
+                        </span>
+                    </article>
+
+                    <article class="vacancy-section-card">
+                        <h2>Funnel Configuration</h2>
+
+                        <div class="form-grid two-columns">
+                            <div class="form-field">
+                                <label asp-for="Input.InterviewRounds">
+                                    Interview Rounds
+                                </label>
+
+                                <select asp-for="Input.InterviewRounds">
+                                    <option value="1">1 round</option>
+                                    <option value="2">2 rounds</option>
+                                    <option value="3">3 rounds</option>
+                                    <option value="4">4 rounds</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.ScreeningSlaDays">
+                                    Screening SLA
+                                </label>
+
+                                <select asp-for="Input.ScreeningSlaDays">
+                                    <option value="1">1 day</option>
+                                    <option value="3">3 days</option>
+                                    <option value="5">5 days</option>
+                                    <option value="7">7 days</option>
+                                </select>
+                            </div>
+                        </div>
+                    </article>
+                </section>
+
+                <section
+                    class="vacancy-stage"
+                    data-stage="4">
+
+                    <article class="vacancy-section-card">
+                        <h2>Publication Settings</h2>
+
+                        <div class="form-grid two-columns">
+                            <div class="form-field">
+                                <label asp-for="Input.Visibility">
+                                    Vacancy Visibility
+                                </label>
+
+                                <select asp-for="Input.Visibility">
+                                    <option>Public</option>
+                                    <option>Private link</option>
+                                    <option>Internal only</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.ContactEmail">
+                                    Contact Email *
+                                </label>
+
+                                <input
+                                    asp-for="Input.ContactEmail"
+                                    type="email" />
+
+                                <span
+                                    asp-validation-for="Input.ContactEmail"
+                                    class="field-error">
+                                </span>
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.PublishDate">
+                                    Publish Date
+                                </label>
+
+                                <input
+                                    asp-for="Input.PublishDate"
+                                    type="date" />
+                            </div>
+
+                            <div class="form-field">
+                                <label asp-for="Input.ApplicationDeadline">
+                                    Application Deadline
+                                </label>
+
+                                <input
+                                    asp-for="Input.ApplicationDeadline"
+                                    type="date" />
+                            </div>
+                        </div>
+
+                        <div class="switch-list">
+                            <label class="toggle-row">
+                                <input
+                                    asp-for="Input.AllowInternalCandidates" />
+                                <span class="toggle-control"></span>
+                                Allow internal candidates
+                            </label>
+
+                            <label class="toggle-row">
+                                <input
+                                    asp-for="Input.NotifyMatchingCandidates" />
+                                <span class="toggle-control"></span>
+                                Notify matching candidates
+                            </label>
+                        </div>
+                    </article>
+
+                    <article class="vacancy-section-card publication-review">
+                        <div class="card-title-row">
+                            <h2>Vacancy Review</h2>
+                            <span>Step 5 of 5</span>
+                        </div>
+
+                        <div class="review-grid">
+                            <div>
+                                <span>Job Family</span>
+                                <strong id="reviewJob">—</strong>
+                            </div>
+
+                            <div>
+                                <span>Seniority</span>
+                                <strong id="reviewSeniority">—</strong>
+                            </div>
+
+                            <div>
+                                <span>Position</span>
+                                <strong id="reviewPosition">—</strong>
+                            </div>
+
+                            <div>
+                                <span>Selected Skills</span>
+                                <strong id="reviewSkills">0</strong>
+                            </div>
+
+                            <div>
+                                <span>Match Threshold</span>
+                                <strong id="reviewMatchScore">
+                                    @Model.Input.MinimumMatchScore%
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Visibility</span>
+                                <strong id="reviewVisibility">
+                                    @Model.Input.Visibility
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="publication-warning">
+                            <strong>Backend status</strong>
+                            <p>
+                                Job taxonomy is real SQL data.
+                                BackendApp currently exposes JobOffers
+                                only through GET, so final vacancy
+                                persistence requires a new POST endpoint
+                                and vacancy table.
+                            </p>
+                        </div>
+                    </article>
+                </section>
+
+                <footer class="vacancy-form-footer">
+                    <button
+                        type="button"
+                        class="vacancy-secondary-action"
+                        id="previousStepButton"
+                        disabled>
+                        ← Previous
+                    </button>
+
+                    <button
+                        type="button"
+                        class="vacancy-primary-action"
+                        id="nextStepButton"
+                        disabled="@(!Model.HasTaxonomy)">
+                        Continue →
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="vacancy-primary-action"
+                        id="publishVacancyButton"
+                        hidden
+                        disabled="@(!Model.HasTaxonomy)">
+                        Publish vacancy
+                    </button>
+                </footer>
+            </form>
+        </main>
+    </div>
+
+    <div
+        class="employer-backdrop"
+        id="employerBackdrop">
+    </div>
+
+    <script
+        id="jobTaxonomyJson"
+        type="application/json">
+        @Html.Raw(taxonomyJson)
+    </script>
+
+    <script>
+        window.gloryLikeVacancyInitialState = {
+            jobFamilyId: @Model.Input.JobFamilyId,
+            seniorityId: @Model.Input.SeniorityId,
+            positionId: @Model.Input.PositionId,
+            selectedSkillIds: @Html.Raw(
+                JsonSerializer.Serialize(selectedSkillIds))
+        };
+    </script>
+
+    <script
+        src="~/js/employer-home.js"
+        asp-append-version="true">
+    </script>
+
+    <script
+        src="~/js/create-vacancy.js"
+        asp-append-version="true">
+    </script>
+</body>
+</html>

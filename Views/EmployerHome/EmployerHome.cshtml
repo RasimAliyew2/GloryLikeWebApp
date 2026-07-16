@@ -76,7 +76,9 @@
                     <strong>Dashboard</strong>
                 </a>
 
-                <a href="#">
+                <a
+                    asp-controller="EmployerVacancies"
+                    asp-action="CreateVacancy">
                     <span>▣</span>
                     <strong>Vacancies</strong>
                 </a>
@@ -137,12 +139,13 @@
                     </p>
                 </div>
 
-                <button
+                <a
                     class="create-vacancy-button"
-                    type="button">
+                    asp-controller="EmployerVacancies"
+                    asp-action="CreateVacancy">
                     <span>＋</span>
                     Create a vacancy
-                </button>
+                </a>
             </section>
 
             <section class="employer-stat-grid">

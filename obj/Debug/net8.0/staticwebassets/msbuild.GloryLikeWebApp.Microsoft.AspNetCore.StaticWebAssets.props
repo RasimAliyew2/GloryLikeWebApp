@@ -36,6 +36,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\choose-portal.css'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\create-vacancy.css'))">
+      <SourceType>Package</SourceType>
+      <SourceId>GloryLikeWebApp</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/GloryLikeWebApp</BasePath>
+      <RelativePath>css/create-vacancy.css</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>wunki2dymm</Fingerprint>
+      <Integrity>OGCoaDYql1SxsfivO8BfdxSAlStwAfH4Pm9Q30bKup4=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\create-vacancy.css'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\employer-home.css'))">
       <SourceType>Package</SourceType>
       <SourceId>GloryLikeWebApp</SourceId>
@@ -48,8 +66,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>89kzjncn54</Fingerprint>
-      <Integrity>TIBWnUwXyrgV+Ec3CMyDXTQ0l5l55dHjEghHuuHFVCs=</Integrity>
+      <Fingerprint>6f0u04uvv5</Fingerprint>
+      <Integrity>XnKvzzTVizusxUusKpj1GZ2mkjbhjscf/s1YVqPgLkA=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\employer-home.css'))</OriginalItemSpec>
@@ -180,6 +198,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\candidate-dashboard.js'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\create-vacancy.js'))">
+      <SourceType>Package</SourceType>
+      <SourceId>GloryLikeWebApp</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/GloryLikeWebApp</BasePath>
+      <RelativePath>js/create-vacancy.js</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>1hm8v9qy4e</Fingerprint>
+      <Integrity>xYaYLuFEaE8BDqB55Dim/QPOGYd5rLYmfNNs9yKfvdQ=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\create-vacancy.js'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\employer-home.js'))">
       <SourceType>Package</SourceType>
       <SourceId>GloryLikeWebApp</SourceId>
@@ -192,8 +228,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>jopot46ngt</Fingerprint>
-      <Integrity>/XrGMmHyWXbojIJCGWTmCFeeJ0N327ae9mFtuWnoKgo=</Integrity>
+      <Fingerprint>6k6git10db</Fingerprint>
+      <Integrity>NnuVW6er92gE+ZG6NQEsj6f4NOInmpL2CvXlLuYqgZg=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\employer-home.js'))</OriginalItemSpec>

@@ -13,6 +13,10 @@
       "PackagePath": "staticwebassets\\css\\choose-portal.css"
     },
     {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy.css",
+      "PackagePath": "staticwebassets\\css\\create-vacancy.css"
+    },
+    {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\employer-home.css",
       "PackagePath": "staticwebassets\\css\\employer-home.css"
     },
@@ -39,6 +43,10 @@
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\candidate-dashboard.js",
       "PackagePath": "staticwebassets\\js\\candidate-dashboard.js"
+    },
+    {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy.js",
+      "PackagePath": "staticwebassets\\js\\create-vacancy.js"
     },
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\employer-home.js",
