@@ -12,6 +12,10 @@
         Model.Input.SelectedSkillIds
             ?? new List<int>();
 
+    var skillRequirements =
+        Model.Input.SkillRequirements
+            ?? new List<GloryLikeWebApp.Models.Employer.VacancySkillRequirementInput>();
+
     var benefitOptions = new[]
     {
         "Health Insurance",
@@ -47,6 +51,11 @@
     <link
         rel="stylesheet"
         href="~/css/create-vacancy.css"
+        asp-append-version="true" />
+
+    <link
+        rel="stylesheet"
+        href="~/css/create-vacancy-skill-search.css"
         asp-append-version="true" />
 </head>
 
@@ -561,14 +570,39 @@
                         <h2>Skill Requirements *</h2>
 
                         <div
-                            class="skill-library-message"
-                            id="skillLibraryMessage">
-                            Select SQL Job, Seniority and Position
-                            to load its skill library.
+                            class="vacancy-skill-search-shell"
+                            id="vacancySkillSearchShell">
+
+                            <div class="vacancy-skill-search-field">
+                                <span class="vacancy-skill-search-icon">⌕</span>
+
+                                <input
+                                    type="search"
+                                    id="vacancySkillSearchInput"
+                                    autocomplete="off"
+                                    placeholder="Add a skill from the SQL library..."
+                                    aria-label="Search SQL skills"
+                                    aria-autocomplete="list"
+                                    aria-controls="vacancySkillSuggestions" />
+                            </div>
+
+                            <div
+                                class="vacancy-skill-suggestions"
+                                id="vacancySkillSuggestions"
+                                role="listbox"
+                                hidden>
+                            </div>
                         </div>
 
                         <div
-                            class="skill-requirement-grid"
+                            class="skill-library-message"
+                            id="skillLibraryMessage">
+                            Skill adını yaz. Məsələn, “Fa” yazdıqda
+                            SQL-də uyğun skill-lər təklif ediləcək.
+                        </div>
+
+                        <div
+                            class="vacancy-selected-skill-grid"
                             id="skillRequirements">
                         </div>
 
@@ -576,25 +610,6 @@
                             asp-validation-for="Input.SelectedSkillIds"
                             class="field-error">
                         </span>
-
-                        <div class="verification-control">
-                            <div>
-                                <strong>
-                                    Minimum Verification Level
-                                </strong>
-                                <span id="verificationValue">
-                                    @Model.Input.MinimumVerificationLevel
-                                </span>
-                            </div>
-
-                            <input
-                                asp-for="Input.MinimumVerificationLevel"
-                                id="verificationRange"
-                                type="range"
-                                min="0"
-                                max="100"
-                                step="5" />
-                        </div>
                     </article>
 
                     <article class="vacancy-section-card talent-card">
@@ -1052,7 +1067,12 @@
             seniorityId: @Model.Input.SeniorityId,
             positionId: @Model.Input.PositionId,
             selectedSkillIds: @Html.Raw(
-                JsonSerializer.Serialize(selectedSkillIds))
+                JsonSerializer.Serialize(selectedSkillIds)),
+            skillRequirements: @Html.Raw(
+                JsonSerializer.Serialize(
+                    skillRequirements,
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web))),
+            minimumVerificationLevel: @Model.Input.MinimumVerificationLevel
         };
     </script>
 

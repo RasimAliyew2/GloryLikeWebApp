@@ -1,6 +1,7 @@
 wwwroot\css\candidate-dashboard.css
 wwwroot\css\choose-portal.css
 wwwroot\css\create-vacancy.css
+wwwroot\css\create-vacancy-skill-search.css
 wwwroot\css\employer-home.css
 wwwroot\css\opportunities-page.css
 wwwroot\css\profile-page.css

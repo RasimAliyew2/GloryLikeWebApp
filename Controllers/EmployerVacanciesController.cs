@@ -46,6 +46,8 @@ public sealed class EmployerVacanciesController : Controller
         CreateVacancyInput input,
         CancellationToken cancellationToken)
     {
+        NormalizeSkillRequirements(input);
+
         var model = await BuildPageModelAsync(
             input,
             cancellationToken);
@@ -63,14 +65,12 @@ public sealed class EmployerVacanciesController : Controller
         if (!ModelState.IsValid)
             return View("CreateVacancy", model);
 
-        // BackendApp-də hazırda JobOffers üçün yalnız GET endpoint-i var.
-        // Buna görə burada saxta SQL save əməliyyatı edilmir.
-        // Form və bütün 5 mərhələ server-side validation-dan keçir.
         model.SuccessMessage =
             "Vacancy bütün 5 mərhələ üzrə yoxlanıldı. "
-            + "Job, Seniority, Position və Skills SQL taxonomy-dən seçilib. "
-            + "Backend-də vacancy POST endpoint-i əlavə ediləndən sonra "
-            + "son Publish əməliyyatı SQL-ə yazıla bilər.";
+            + "Job, Seniority, Position və Skill-lər SQL taxonomy-dən seçilib. "
+            + "Hər skill üçün Required/Desirable statusu və 1–100 verification "
+            + "level saxlanılıb. Backend vacancy POST endpoint-i əlavə ediləndən "
+            + "sonra bu məlumatlar SQL-ə yazıla bilər.";
 
         return View("CreateVacancy", model);
     }
@@ -145,7 +145,7 @@ public sealed class EmployerVacanciesController : Controller
         if (jobFamily is null)
         {
             ModelState.AddModelError(
-                nameof(input.JobFamilyId),
+                "Input.JobFamilyId",
                 "Seçilən Job SQL taxonomy-də yoxdur.");
 
             return;
@@ -158,7 +158,7 @@ public sealed class EmployerVacanciesController : Controller
         if (seniority is null)
         {
             ModelState.AddModelError(
-                nameof(input.SeniorityId),
+                "Input.SeniorityId",
                 "Seçilən Seniority bu Job-a aid deyil.");
 
             return;
@@ -171,41 +171,148 @@ public sealed class EmployerVacanciesController : Controller
         if (position is null)
         {
             ModelState.AddModelError(
-                nameof(input.PositionId),
+                "Input.PositionId",
                 "Seçilən Position bu Seniority-yə aid deyil.");
 
             return;
         }
 
-        var allowedSkillIds = position.Skills
-            .Select(skill => skill.Id)
-            .Where(id => id > 0)
-            .ToHashSet();
-
-        var selectedSkillIds =
-            input.SelectedSkillIds
-                .Where(id => id > 0)
-                .Distinct()
-                .ToList();
-
-        if (selectedSkillIds.Count == 0)
-        {
-            ModelState.AddModelError(
-                nameof(input.SelectedSkillIds),
-                "Ən azı bir SQL skill seçilməlidir.");
-        }
-        else if (selectedSkillIds.Any(
-            id => !allowedSkillIds.Contains(id)))
-        {
-            ModelState.AddModelError(
-                nameof(input.SelectedSkillIds),
-                "Seçilən skill-lərdən biri Position-a aid deyil.");
-        }
+        ValidateSkillRequirements(
+            input,
+            jobFamilies);
 
         input.RoleTitle = string.IsNullOrWhiteSpace(
             input.RoleTitle)
             ? position.Name
             : input.RoleTitle.Trim();
+    }
+
+    private void ValidateSkillRequirements(
+        CreateVacancyInput input,
+        IReadOnlyCollection<JobFamily> jobFamilies)
+    {
+        NormalizeSkillRequirements(input);
+
+        var allSqlSkillIds = jobFamilies
+            .SelectMany(job => job.Seniorities)
+            .SelectMany(seniority => seniority.Positions)
+            .SelectMany(position => position.Skills)
+            .Where(skill => skill.Id > 0)
+            .Select(skill => skill.Id)
+            .ToHashSet();
+
+        if (input.SkillRequirements.Count == 0)
+        {
+            ModelState.AddModelError(
+                "Input.SelectedSkillIds",
+                "Ən azı bir SQL skill seçilməlidir.");
+
+            return;
+        }
+
+        var duplicateSkillIds = input.SkillRequirements
+            .GroupBy(requirement => requirement.SkillId)
+            .Where(group => group.Count() > 1)
+            .Select(group => group.Key)
+            .ToList();
+
+        if (duplicateSkillIds.Count > 0)
+        {
+            ModelState.AddModelError(
+                "Input.SelectedSkillIds",
+                "Eyni skill bir dəfədən çox əlavə edilə bilməz.");
+        }
+
+        foreach (var requirement in input.SkillRequirements)
+        {
+            if (!allSqlSkillIds.Contains(requirement.SkillId))
+            {
+                ModelState.AddModelError(
+                    "Input.SelectedSkillIds",
+                    $"SkillId {requirement.SkillId} SQL taxonomy-də tapılmadı.");
+            }
+
+            if (requirement.MinimumVerificationLevel is < 1 or > 100)
+            {
+                ModelState.AddModelError(
+                    "Input.SelectedSkillIds",
+                    "Hər skill üçün verification level 1–100 arasında olmalıdır.");
+            }
+
+            if (!requirement.RequirementType.Equals(
+                    "Required",
+                    StringComparison.OrdinalIgnoreCase)
+                && !requirement.RequirementType.Equals(
+                    "Desirable",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError(
+                    "Input.SelectedSkillIds",
+                    "Skill statusu Required və ya Desirable olmalıdır.");
+            }
+        }
+    }
+
+    private static void NormalizeSkillRequirements(
+        CreateVacancyInput input)
+    {
+        input.SkillRequirements ??=
+            new List<VacancySkillRequirementInput>();
+
+        input.SelectedSkillIds ??= new List<int>();
+
+        // Köhnə form yalnız SelectedSkillIds göndərərsə,
+        // onları yeni modelə çevir.
+        if (input.SkillRequirements.Count == 0
+            && input.SelectedSkillIds.Count > 0)
+        {
+            input.SkillRequirements = input.SelectedSkillIds
+                .Where(id => id > 0)
+                .Distinct()
+                .Select(
+                    id => new VacancySkillRequirementInput
+                    {
+                        SkillId = id,
+                        MinimumVerificationLevel =
+                            Math.Clamp(
+                                input.MinimumVerificationLevel,
+                                1,
+                                100),
+                        RequirementType = "Required"
+                    })
+                .ToList();
+        }
+
+        input.SkillRequirements = input.SkillRequirements
+            .Where(requirement => requirement.SkillId > 0)
+            .Select(
+                requirement => new VacancySkillRequirementInput
+                {
+                    SkillId = requirement.SkillId,
+                    MinimumVerificationLevel = Math.Clamp(
+                        requirement.MinimumVerificationLevel,
+                        1,
+                        100),
+                    RequirementType =
+                        requirement.RequirementType.Equals(
+                            "Desirable",
+                            StringComparison.OrdinalIgnoreCase)
+                            ? "Desirable"
+                            : "Required"
+                })
+            .ToList();
+
+        input.SelectedSkillIds = input.SkillRequirements
+            .Select(requirement => requirement.SkillId)
+            .Distinct()
+            .ToList();
+
+        if (input.SkillRequirements.Count > 0)
+        {
+            input.MinimumVerificationLevel =
+                input.SkillRequirements[0]
+                    .MinimumVerificationLevel;
+        }
     }
 
     private void ValidateCompensation(
@@ -217,7 +324,7 @@ public sealed class EmployerVacanciesController : Controller
                 > input.MaxSalary.Value)
         {
             ModelState.AddModelError(
-                nameof(input.MaxSalary),
+                "Input.MaxSalary",
                 "Maximum salary Minimum salary-dən az ola bilməz.");
         }
     }
@@ -231,7 +338,7 @@ public sealed class EmployerVacanciesController : Controller
             && !input.StageOffer)
         {
             ModelState.AddModelError(
-                nameof(input.StageApplied),
+                "Input.StageApplied",
                 "Funnel üçün ən azı bir mərhələ seçilməlidir.");
         }
     }

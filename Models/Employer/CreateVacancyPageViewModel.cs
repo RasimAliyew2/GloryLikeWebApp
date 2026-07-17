@@ -106,9 +106,27 @@ public sealed class CreateVacancyInput
     [StringLength(5000)]
     public string JobDescription { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Yeni əsas model. Hər skill öz verification level və
+    /// Required/Desirable statusunu saxlayır.
+    /// </summary>
+    public List<VacancySkillRequirementInput> SkillRequirements
+    {
+        get;
+        set;
+    } = new();
+
+    /// <summary>
+    /// Köhnə View və əvvəlki POST-larla compatibility üçün saxlanılıb.
+    /// Yeni JavaScript bunu da hidden input kimi göndərir.
+    /// </summary>
     public List<int> SelectedSkillIds { get; set; } = new();
 
-    [Range(0, 100)]
+    /// <summary>
+    /// Köhnə ümumi slider ilə compatibility. Yeni sistemdə hər skill-in
+    /// ayrıca MinimumVerificationLevel dəyəri var.
+    /// </summary>
+    [Range(1, 100)]
     public int MinimumVerificationLevel { get; set; } = 70;
 
     public List<string> Benefits { get; set; } = new();
@@ -151,4 +169,25 @@ public sealed class CreateVacancyInput
 
     public bool AllowInternalCandidates { get; set; } = true;
     public bool NotifyMatchingCandidates { get; set; } = true;
+}
+
+public sealed class VacancySkillRequirementInput
+{
+    [Range(
+        1,
+        int.MaxValue,
+        ErrorMessage = "SQL skill düzgün deyil.")]
+    public int SkillId { get; set; }
+
+    [Range(
+        1,
+        100,
+        ErrorMessage = "Verification level 1–100 arasında olmalıdır.")]
+    public int MinimumVerificationLevel { get; set; } = 70;
+
+    [Required]
+    [RegularExpression(
+        "^(Required|Desirable)$",
+        ErrorMessage = "Skill statusu Required və ya Desirable olmalıdır.")]
+    public string RequirementType { get; set; } = "Required";
 }

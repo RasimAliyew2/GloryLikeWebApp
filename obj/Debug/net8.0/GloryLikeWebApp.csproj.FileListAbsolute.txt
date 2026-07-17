@@ -14,6 +14,7 @@ C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\Glo
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.RazorAssemblyInfo.cache
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.RazorAssemblyInfo.cs
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.sourcelink.json
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\scopedcss\bundle\GloryLikeWebApp.styles.css
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\scopedcss\projectbundle\GloryLikeWebApp.bundle.scp.css
@@ -32,4 +33,3 @@ C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\ref
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.pdb
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.genruntimeconfig.cache
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\ref\GloryLikeWebApp.dll
-C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.sourcelink.json

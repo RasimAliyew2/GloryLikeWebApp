@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "XQ7ykd5r8ELXZJd3pwQNyZYcxWDfAD7gqSSnPVxfwUY=",
+  "Hash": "xSl98rloOtpPIJTfGY+4q+rHN3ywtq2obUhN8ql+whM=",
   "Source": "GloryLikeWebApp",
   "BasePath": "_content/GloryLikeWebApp",
   "Mode": "Default",
@@ -120,6 +120,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\create-vacancy.css"
+    },
+    {
+      "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy-skill-search.css",
+      "SourceId": "GloryLikeWebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\",
+      "BasePath": "_content/GloryLikeWebApp",
+      "RelativePath": "css/create-vacancy-skill-search#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "58189e928m",
+      "Integrity": "NWmluPTCQBMDrJuFZQoHMAlQYzb/EPAi8B5FDuMMQxA=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\create-vacancy-skill-search.css"
     },
     {
       "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\employer-home.css",
@@ -283,8 +304,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "1hm8v9qy4e",
-      "Integrity": "xYaYLuFEaE8BDqB55Dim/QPOGYd5rLYmfNNs9yKfvdQ=",
+      "Fingerprint": "z6u8fs28hd",
+      "Integrity": "JTYa2aYi9KSJEk3lozxbiSVN3q1XXiQYmIxkRIsUbO4=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\create-vacancy.js"
@@ -1819,6 +1840,88 @@
       ]
     },
     {
+      "Route": "css/create-vacancy-skill-search.58189e928m.css",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy-skill-search.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5117"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"NWmluPTCQBMDrJuFZQoHMAlQYzb/EPAi8B5FDuMMQxA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 17 Jul 2026 05:44:18 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "58189e928m"
+        },
+        {
+          "Name": "label",
+          "Value": "css/create-vacancy-skill-search.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-NWmluPTCQBMDrJuFZQoHMAlQYzb/EPAi8B5FDuMMQxA="
+        }
+      ]
+    },
+    {
+      "Route": "css/create-vacancy-skill-search.css",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy-skill-search.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "5117"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"NWmluPTCQBMDrJuFZQoHMAlQYzb/EPAi8B5FDuMMQxA=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 17 Jul 2026 05:44:18 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-NWmluPTCQBMDrJuFZQoHMAlQYzb/EPAi8B5FDuMMQxA="
+        }
+      ]
+    },
+    {
       "Route": "css/employer-home.6f0u04uvv5.css",
       "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\employer-home.css",
       "Selectors": [],
@@ -2333,7 +2436,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 13 Jul 2026 16:27:41 GMT"
+          "Value": "Fri, 17 Jul 2026 05:49:07 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2370,7 +2473,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 13 Jul 2026 16:27:41 GMT"
+          "Value": "Fri, 17 Jul 2026 05:49:07 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2415,7 +2518,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 13 Jul 2026 16:27:41 GMT"
+          "Value": "Fri, 17 Jul 2026 05:49:07 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2460,7 +2563,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 13 Jul 2026 16:27:41 GMT"
+          "Value": "Fri, 17 Jul 2026 05:49:07 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2557,51 +2660,6 @@
       ]
     },
     {
-      "Route": "js/create-vacancy.1hm8v9qy4e.js",
-      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "17283"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"xYaYLuFEaE8BDqB55Dim/QPOGYd5rLYmfNNs9yKfvdQ=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 16 Jul 2026 12:13:32 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "1hm8v9qy4e"
-        },
-        {
-          "Name": "label",
-          "Value": "js/create-vacancy.js"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-xYaYLuFEaE8BDqB55Dim/QPOGYd5rLYmfNNs9yKfvdQ="
-        }
-      ]
-    },
-    {
       "Route": "js/create-vacancy.js",
       "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy.js",
       "Selectors": [],
@@ -2612,7 +2670,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "17283"
+          "Value": "30360"
         },
         {
           "Name": "Content-Type",
@@ -2620,11 +2678,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"xYaYLuFEaE8BDqB55Dim/QPOGYd5rLYmfNNs9yKfvdQ=\""
+          "Value": "\"JTYa2aYi9KSJEk3lozxbiSVN3q1XXiQYmIxkRIsUbO4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 16 Jul 2026 12:13:32 GMT"
+          "Value": "Fri, 17 Jul 2026 07:01:16 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -2634,7 +2692,52 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-xYaYLuFEaE8BDqB55Dim/QPOGYd5rLYmfNNs9yKfvdQ="
+          "Value": "sha256-JTYa2aYi9KSJEk3lozxbiSVN3q1XXiQYmIxkRIsUbO4="
+        }
+      ]
+    },
+    {
+      "Route": "js/create-vacancy.z6u8fs28hd.js",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "30360"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"JTYa2aYi9KSJEk3lozxbiSVN3q1XXiQYmIxkRIsUbO4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 17 Jul 2026 07:01:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "z6u8fs28hd"
+        },
+        {
+          "Name": "label",
+          "Value": "js/create-vacancy.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-JTYa2aYi9KSJEk3lozxbiSVN3q1XXiQYmIxkRIsUbO4="
         }
       ]
     },

@@ -1,4 +1,5 @@
 (() => {
+
     const taxonomyElement =
         document.getElementById("jobTaxonomyJson");
 
@@ -8,7 +9,8 @@
             jobFamilyId: 0,
             seniorityId: 0,
             positionId: 0,
-            selectedSkillIds: []
+            selectedSkillIds: [],
+            skillRequirements: []
         };
 
     let taxonomy = [];
@@ -20,6 +22,74 @@
     } catch {
         taxonomy = [];
     }
+
+    const normalize = value =>
+        String(value ?? "")
+            .trim()
+            .toLocaleLowerCase();
+
+    const allSqlSkills = (() => {
+        const flattened = [];
+
+        taxonomy.forEach(job => {
+            (job.seniorities ?? []).forEach(seniority => {
+                (seniority.positions ?? []).forEach(position => {
+                    (position.skills ?? []).forEach(skill => {
+                        if (
+                            Number(skill.id) <= 0
+                            || !String(
+                                skill.skillName
+                                ?? "").trim()
+                        ) {
+                            return;
+                        }
+
+                        flattened.push({
+                            id: Number(skill.id),
+                            skillName:
+                                String(skill.skillName).trim(),
+                            skillComplexity:
+                                String(
+                                    skill.skillComplexity
+                                    ?? "medium").trim(),
+                            jobName:
+                                String(
+                                    job.jobName
+                                    ?? "").trim(),
+                            seniorityName:
+                                String(
+                                    seniority.name
+                                    ?? "").trim(),
+                            positionName:
+                                String(
+                                    position.name
+                                    ?? "").trim()
+                        });
+                    });
+                });
+            });
+        });
+
+        const byId = new Map();
+
+        flattened.forEach(skill => {
+            if (!byId.has(skill.id))
+                byId.set(skill.id, skill);
+        });
+
+        return Array.from(byId.values())
+            .sort((left, right) =>
+                left.skillName.localeCompare(
+                    right.skillName));
+    })();
+
+    const skillById = new Map(
+        allSqlSkills.map(skill => [
+            skill.id,
+            skill
+        ]));
+
+    const selectedRequirements = new Map();
 
     const stages = Array.from(
         document.querySelectorAll(
@@ -89,26 +159,20 @@
                 `Step ${currentStage + 1} of ${stages.length}`;
         }
 
-        if (stepName) {
-            stepName.textContent =
-                stageNames[currentStage];
-        }
+        if (stepName)
+            stepName.textContent = stageNames[currentStage];
 
-        if (previousButton) {
-            previousButton.disabled =
-                currentStage === 0;
-        }
+        if (previousButton)
+            previousButton.disabled = currentStage === 0;
 
         if (nextButton) {
             nextButton.hidden =
-                currentStage
-                === stages.length - 1;
+                currentStage === stages.length - 1;
         }
 
         if (publishButton) {
             publishButton.hidden =
-                currentStage
-                !== stages.length - 1;
+                currentStage !== stages.length - 1;
         }
 
         if (currentStage === stages.length - 1)
@@ -155,6 +219,18 @@
     const selectedPositionText =
         document.getElementById(
             "selectedPositionText");
+
+    const skillSearchShell =
+        document.getElementById(
+            "vacancySkillSearchShell");
+
+    const skillSearchInput =
+        document.getElementById(
+            "vacancySkillSearchInput");
+
+    const skillSuggestions =
+        document.getElementById(
+            "vacancySkillSuggestions");
 
     const getCurrentJob = () => {
         const id = Number(
@@ -286,153 +362,6 @@
             item => item.name,
             selectedValue);
 
-        refreshSkills();
-    };
-
-    const renderSkill = (
-        skill,
-        isSelected) => {
-
-        const label =
-            document.createElement("label");
-
-        label.className =
-            "skill-requirement";
-
-        if (isSelected)
-            label.classList.add("selected");
-
-        const checkbox =
-            document.createElement("input");
-
-        checkbox.type = "checkbox";
-        checkbox.name =
-            "SelectedSkillIds";
-        checkbox.value =
-            String(skill.id);
-        checkbox.checked =
-            isSelected;
-
-        checkbox.addEventListener(
-            "change",
-            () => {
-                label.classList.toggle(
-                    "selected",
-                    checkbox.checked);
-
-                updateReview();
-            });
-
-        const copy =
-            document.createElement("span");
-
-        copy.className =
-            "skill-requirement-copy";
-
-        const title =
-            document.createElement("strong");
-
-        title.textContent =
-            skill.skillName
-            ?? "Unnamed skill";
-
-        const tags =
-            document.createElement("span");
-
-        tags.className =
-            "skill-tags";
-
-        const requiredTag =
-            document.createElement("span");
-
-        requiredTag.textContent =
-            "Required";
-
-        const complexityTag =
-            document.createElement("span");
-
-        complexityTag.textContent =
-            skill.skillComplexity
-            ?? "medium";
-
-        tags.append(
-            requiredTag,
-            complexityTag);
-
-        const note =
-            document.createElement("small");
-
-        note.textContent =
-            "Loaded from SQL Position skills";
-
-        copy.append(
-            title,
-            tags,
-            note);
-
-        label.append(
-            checkbox,
-            copy);
-
-        return label;
-    };
-
-    const refreshSkills = () => {
-        const position =
-            getCurrentPosition();
-
-        const skills =
-            position?.skills
-            ?? [];
-
-        if (skillRequirements)
-            skillRequirements.innerHTML = "";
-
-        const previouslySelected =
-            new Set(
-                (
-                    initialState.selectedSkillIds
-                    ?? []
-                ).map(Number));
-
-        if (!position) {
-            if (skillLibraryMessage) {
-                skillLibraryMessage.hidden =
-                    false;
-
-                skillLibraryMessage.textContent =
-                    "Select SQL Job, Seniority and Position "
-                    + "to load its skill library.";
-            }
-
-            updateRoleMatch();
-            return;
-        }
-
-        if (skills.length === 0) {
-            if (skillLibraryMessage) {
-                skillLibraryMessage.hidden =
-                    false;
-
-                skillLibraryMessage.textContent =
-                    "This SQL Position has no skills.";
-            }
-
-            updateRoleMatch();
-            return;
-        }
-
-        if (skillLibraryMessage)
-            skillLibraryMessage.hidden = true;
-
-        skills.forEach(skill => {
-            skillRequirements?.appendChild(
-                renderSkill(
-                    skill,
-                    previouslySelected.has(
-                        Number(skill.id))));
-        });
-
         updateRoleMatch();
     };
 
@@ -441,10 +370,7 @@
         const position =
             getCurrentPosition();
 
-        if (
-            !job
-            || !position
-        ) {
+        if (!job || !position) {
             if (roleMatchBox)
                 roleMatchBox.hidden = true;
 
@@ -476,10 +402,538 @@
             roleMatchBox.hidden = false;
     };
 
+    const wireSkillSearchUi = () => {
+        if (
+            !skillSearchShell
+            || !skillSearchInput
+            || !skillSuggestions
+        ) {
+            return;
+        }
+
+        if (skillLibraryMessage) {
+            skillLibraryMessage.textContent =
+                `${allSqlSkills.length} skill SQL taxonomy-dən yükləndi. `
+                + `Məsələn “Fa” yazaraq uyğun skill-ləri tap.`;
+        }
+
+        skillSearchInput.addEventListener(
+            "input",
+            renderSuggestions);
+
+        skillSearchInput.addEventListener(
+            "focus",
+            renderSuggestions);
+
+        skillSearchInput.addEventListener(
+            "keydown",
+            event => {
+                if (event.key === "Escape")
+                    closeSuggestions();
+            });
+
+        document.addEventListener(
+            "click",
+            event => {
+                if (!skillSearchShell.contains(event.target))
+                    closeSuggestions();
+            });
+    };
+
+    const closeSuggestions = () => {
+        if (!skillSuggestions)
+            return;
+
+        skillSuggestions.hidden = true;
+        skillSuggestions.innerHTML = "";
+    };
+
+    const getMatchingSkills = query => {
+        const normalizedQuery =
+            normalize(query);
+
+        if (!normalizedQuery)
+            return [];
+
+        return allSqlSkills
+            .filter(
+                skill =>
+                    !selectedRequirements.has(
+                        skill.id))
+            .filter(skill =>
+                normalize(skill.skillName)
+                    .includes(normalizedQuery))
+            .sort((left, right) => {
+                const leftStarts =
+                    normalize(left.skillName)
+                        .startsWith(normalizedQuery);
+
+                const rightStarts =
+                    normalize(right.skillName)
+                        .startsWith(normalizedQuery);
+
+                if (leftStarts !== rightStarts)
+                    return leftStarts ? -1 : 1;
+
+                return left.skillName.localeCompare(
+                    right.skillName);
+            })
+            .slice(0, 10);
+    };
+
+    const renderSuggestions = () => {
+        if (
+            !skillSuggestions
+            || !skillSearchInput
+        ) {
+            return;
+        }
+
+        const query =
+            skillSearchInput.value.trim();
+
+        if (!query) {
+            closeSuggestions();
+            return;
+        }
+
+        const matches =
+            getMatchingSkills(query);
+
+        skillSuggestions.innerHTML = "";
+
+        if (matches.length === 0) {
+            const empty =
+                document.createElement("div");
+
+            empty.className =
+                "vacancy-skill-suggestion-empty";
+
+            empty.textContent =
+                `“${query}” üçün SQL skill tapılmadı.`;
+
+            skillSuggestions.appendChild(empty);
+            skillSuggestions.hidden = false;
+            return;
+        }
+
+        matches.forEach(skill => {
+            const button =
+                document.createElement("button");
+
+            button.type = "button";
+            button.className =
+                "vacancy-skill-suggestion";
+            button.setAttribute("role", "option");
+
+            const title =
+                document.createElement("strong");
+
+            title.textContent =
+                skill.skillName;
+
+            const context =
+                document.createElement("span");
+
+            context.textContent =
+                [
+                    skill.jobName,
+                    skill.positionName,
+                    skill.skillComplexity
+                ]
+                .filter(Boolean)
+                .join(" · ");
+
+            const plus =
+                document.createElement("b");
+
+            plus.textContent = "＋";
+
+            button.append(
+                title,
+                context,
+                plus);
+
+            button.addEventListener(
+                "click",
+                () => addSkill(skill));
+
+            skillSuggestions.appendChild(button);
+        });
+
+        skillSuggestions.hidden = false;
+    };
+
+    const addSkill = skill => {
+        if (selectedRequirements.has(skill.id))
+            return;
+
+        selectedRequirements.set(
+            skill.id,
+            {
+                skillId: skill.id,
+                minimumVerificationLevel: 70,
+                requirementType: "Required"
+            });
+
+        if (skillSearchInput) {
+            skillSearchInput.value = "";
+            skillSearchInput.focus();
+        }
+
+        closeSuggestions();
+        renderSelectedSkills();
+        updateReview();
+    };
+
+    const removeSkill = skillId => {
+        selectedRequirements.delete(skillId);
+        renderSelectedSkills();
+        renderSuggestions();
+        updateReview();
+    };
+
+    const createHiddenInput = (
+        name,
+        value) => {
+
+        const input =
+            document.createElement("input");
+
+        input.type = "hidden";
+        input.name = name;
+        input.value = String(value);
+
+        return input;
+    };
+
+    const createSelectedSkillCard = (
+        requirement,
+        index) => {
+
+        const skill =
+            skillById.get(
+                requirement.skillId);
+
+        if (!skill)
+            return null;
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "vacancy-skill-config-card";
+
+        const header =
+            document.createElement("header");
+
+        header.className =
+            "vacancy-skill-config-header";
+
+        const titleArea =
+            document.createElement("div");
+
+        titleArea.className =
+            "vacancy-skill-config-title";
+
+        const titleRow =
+            document.createElement("div");
+
+        titleRow.className =
+            "vacancy-skill-title-row";
+
+        const title =
+            document.createElement("h3");
+
+        title.textContent =
+            skill.skillName;
+
+        const tp =
+            document.createElement("span");
+
+        tp.className = "vacancy-skill-tp";
+        tp.textContent = "[TP]";
+
+        const ai =
+            document.createElement("span");
+
+        ai.className = "vacancy-skill-ai";
+        ai.textContent = "✣ AI";
+
+        titleRow.append(title, tp, ai);
+
+        const context =
+            document.createElement("small");
+
+        context.textContent =
+            [
+                skill.jobName,
+                skill.positionName
+            ]
+            .filter(Boolean)
+            .join(" · ");
+
+        titleArea.append(
+            titleRow,
+            context);
+
+        const removeButton =
+            document.createElement("button");
+
+        removeButton.type = "button";
+        removeButton.className =
+            "vacancy-skill-remove";
+        removeButton.textContent = "×";
+        removeButton.title = "Remove skill";
+        removeButton.setAttribute(
+            "aria-label",
+            `Remove ${skill.skillName}`);
+
+        removeButton.addEventListener(
+            "click",
+            () => removeSkill(skill.id));
+
+        header.append(
+            titleArea,
+            removeButton);
+
+        const typeSelector =
+            document.createElement("div");
+
+        typeSelector.className =
+            "vacancy-skill-type-selector";
+
+        ["Required", "Desirable"]
+            .forEach(type => {
+                const button =
+                    document.createElement("button");
+
+                button.type = "button";
+                button.textContent = type;
+                button.classList.toggle(
+                    "active",
+                    requirement.requirementType === type);
+
+                button.addEventListener(
+                    "click",
+                    () => {
+                        requirement.requirementType = type;
+                        renderSelectedSkills();
+                    });
+
+                typeSelector.appendChild(button);
+            });
+
+        const verification =
+            document.createElement("div");
+
+        verification.className =
+            "vacancy-skill-verification";
+
+        const verificationHeader =
+            document.createElement("div");
+
+        const verificationLabel =
+            document.createElement("span");
+
+        verificationLabel.textContent =
+            "Min. Verification Level";
+
+        const verificationValue =
+            document.createElement("strong");
+
+        verificationValue.textContent =
+            String(
+                requirement.minimumVerificationLevel);
+
+        verificationHeader.append(
+            verificationLabel,
+            verificationValue);
+
+        const range =
+            document.createElement("input");
+
+        range.type = "range";
+        range.min = "1";
+        range.max = "100";
+        range.step = "1";
+        range.value = String(
+            requirement.minimumVerificationLevel);
+
+        range.addEventListener(
+            "input",
+            () => {
+                const value = Math.max(
+                    1,
+                    Math.min(
+                        100,
+                        Number(range.value)));
+
+                requirement.minimumVerificationLevel =
+                    value;
+
+                verificationValue.textContent =
+                    String(value);
+
+                levelInput.value =
+                    String(value);
+            });
+
+        const scale =
+            document.createElement("div");
+
+        scale.className =
+            "vacancy-skill-range-scale";
+
+        scale.innerHTML = `
+            <span>1</span>
+            <span>50</span>
+            <span>100</span>
+        `;
+
+        verification.append(
+            verificationHeader,
+            range,
+            scale);
+
+        const skillIdInput =
+            createHiddenInput(
+                `Input.SkillRequirements[${index}].SkillId`,
+                requirement.skillId);
+
+        const levelInput =
+            createHiddenInput(
+                `Input.SkillRequirements[${index}].MinimumVerificationLevel`,
+                requirement.minimumVerificationLevel);
+
+        const typeInput =
+            createHiddenInput(
+                `Input.SkillRequirements[${index}].RequirementType`,
+                requirement.requirementType);
+
+        const compatibilitySkillId =
+            createHiddenInput(
+                "Input.SelectedSkillIds",
+                requirement.skillId);
+
+        card.append(
+            header,
+            typeSelector,
+            verification,
+            skillIdInput,
+            levelInput,
+            typeInput,
+            compatibilitySkillId);
+
+        return card;
+    };
+
+    const renderSelectedSkills = () => {
+        if (!skillRequirements)
+            return;
+
+        skillRequirements.innerHTML = "";
+
+        Array.from(
+            selectedRequirements.values())
+            .forEach(
+                (requirement, index) => {
+                    const card =
+                        createSelectedSkillCard(
+                            requirement,
+                            index);
+
+                    if (card)
+                        skillRequirements.appendChild(card);
+                });
+
+        if (skillLibraryMessage) {
+            skillLibraryMessage.hidden =
+                selectedRequirements.size > 0;
+
+            if (selectedRequirements.size === 0) {
+                skillLibraryMessage.textContent =
+                    `${allSqlSkills.length} skill SQL taxonomy-dən yükləndi. `
+                    + `Yuxarıdakı axtarış sahəsinə yazaraq skill əlavə et.`;
+            }
+        }
+    };
+
+    const initializeSelectedRequirements = () => {
+        const detailed =
+            Array.isArray(
+                initialState.skillRequirements)
+                ? initialState.skillRequirements
+                : [];
+
+        detailed.forEach(requirement => {
+            const skillId =
+                Number(
+                    requirement.skillId
+                    ?? requirement.SkillId
+                    ?? 0);
+
+            if (!skillById.has(skillId))
+                return;
+
+            selectedRequirements.set(
+                skillId,
+                {
+                    skillId,
+                    minimumVerificationLevel:
+                        Math.max(
+                            1,
+                            Math.min(
+                                100,
+                                Number(
+                                    requirement.minimumVerificationLevel
+                                    ?? requirement.MinimumVerificationLevel
+                                    ?? 70))),
+                    requirementType:
+                        String(
+                            requirement.requirementType
+                            ?? requirement.RequirementType
+                            ?? "Required")
+                            .toLocaleLowerCase()
+                            === "desirable"
+                            ? "Desirable"
+                            : "Required"
+                });
+        });
+
+        if (selectedRequirements.size > 0)
+            return;
+
+        const legacyLevel = Math.max(
+            1,
+            Math.min(
+                100,
+                Number(
+                    initialState.minimumVerificationLevel
+                    ?? 70)));
+
+        (
+            initialState.selectedSkillIds
+            ?? []
+        ).map(Number)
+            .filter(skillId =>
+                skillById.has(skillId))
+            .forEach(skillId => {
+                selectedRequirements.set(
+                    skillId,
+                    {
+                        skillId,
+                        minimumVerificationLevel:
+                            legacyLevel,
+                        requirementType:
+                            "Required"
+                    });
+            });
+    };
+
     jobSelect?.addEventListener(
         "change",
         () => {
-            initialState.selectedSkillIds = [];
             refreshSeniorities();
             updateReview();
         });
@@ -487,7 +941,6 @@
     senioritySelect?.addEventListener(
         "change",
         () => {
-            initialState.selectedSkillIds = [];
             refreshPositions();
             updateReview();
         });
@@ -495,12 +948,10 @@
     positionSelect?.addEventListener(
         "change",
         () => {
-            initialState.selectedSkillIds = [];
-
             if (roleTitleInput)
                 roleTitleInput.value = "";
 
-            refreshSkills();
+            updateRoleMatch();
             updateReview();
         });
 
@@ -517,8 +968,7 @@
                 element =>
                     !String(
                         element?.value
-                        ?? ""
-                    ).trim());
+                        ?? "").trim());
 
         if (missingElement) {
             missingElement.focus();
@@ -530,13 +980,11 @@
             return false;
         }
 
-        const selectedSkills =
-            document.querySelectorAll(
-                'input[name="SelectedSkillIds"]:checked');
-
-        if (selectedSkills.length === 0) {
+        if (selectedRequirements.size === 0) {
             window.alert(
                 "Ən azı bir SQL skill seçilməlidir.");
+
+            skillSearchInput?.focus();
 
             skillRequirements?.scrollIntoView({
                 behavior: "smooth",
@@ -619,19 +1067,6 @@
         update();
     };
 
-    bindRangeOutput(
-        "verificationRange",
-        "verificationValue");
-
-    bindRangeOutput(
-        "matchScoreRange",
-        "matchScoreValue",
-        "%");
-
-    bindRangeOutput(
-        "trustScoreRange",
-        "trustScoreValue");
-
     const updateReview = () => {
         const job =
             getCurrentJob();
@@ -641,11 +1076,6 @@
 
         const position =
             getCurrentPosition();
-
-        const selectedSkillCount =
-            document.querySelectorAll(
-                'input[name="SelectedSkillIds"]:checked')
-                .length;
 
         const reviewJob =
             document.getElementById(
@@ -671,24 +1101,29 @@
             document.getElementById(
                 "reviewVisibility");
 
-        if (reviewJob)
+        if (reviewJob) {
             reviewJob.textContent =
                 job?.jobName
                 ?? "—";
+        }
 
-        if (reviewSeniority)
+        if (reviewSeniority) {
             reviewSeniority.textContent =
                 seniority?.name
                 ?? "—";
+        }
 
-        if (reviewPosition)
+        if (reviewPosition) {
             reviewPosition.textContent =
                 position?.name
                 ?? "—";
+        }
 
-        if (reviewSkills)
+        if (reviewSkills) {
             reviewSkills.textContent =
-                String(selectedSkillCount);
+                String(
+                    selectedRequirements.size);
+        }
 
         const matchInput =
             document.getElementById(
@@ -716,6 +1151,23 @@
         ?.addEventListener(
             "change",
             updateReview);
+
+    // updateReview artıq initialize olunub.
+    // Bu çağırışlar bundan əvvəl olsaydı brauzer:
+    // "Cannot access 'updateReview' before initialization"
+    // xətası ilə bütün script-i dayandırırdı.
+    bindRangeOutput(
+        "verificationRange",
+        "verificationValue");
+
+    bindRangeOutput(
+        "matchScoreRange",
+        "matchScoreValue",
+        "%");
+
+    bindRangeOutput(
+        "trustScoreRange",
+        "trustScoreValue");
 
     const initializeTaxonomy = () => {
         if (
@@ -751,10 +1203,13 @@
                     initialState.positionId);
         }
 
-        refreshSkills();
-        updateReview();
+        updateRoleMatch();
     };
 
+    initializeSelectedRequirements();
+    wireSkillSearchUi();
     initializeTaxonomy();
+    renderSelectedSkills();
+    updateReview();
     showStage(0);
 })();

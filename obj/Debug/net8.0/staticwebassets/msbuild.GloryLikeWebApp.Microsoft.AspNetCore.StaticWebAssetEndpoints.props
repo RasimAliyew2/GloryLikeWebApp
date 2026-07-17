@@ -24,6 +24,18 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"rdkj98puup"},{"Name":"integrity","Value":"sha256-ETmwUKPCaz/L3/Jlu/BZbG\u002BK0HVze3vEQGvjwqj3IMI="},{"Name":"label","Value":"_content/GloryLikeWebApp/css/choose-portal.css"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5771"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022ETmwUKPCaz/L3/Jlu/BZbG\u002BK0HVze3vEQGvjwqj3IMI=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 10:54:35 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/create-vacancy-skill-search.58189e928m.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\create-vacancy-skill-search.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"58189e928m"},{"Name":"integrity","Value":"sha256-NWmluPTCQBMDrJuFZQoHMAlQYzb/EPAi8B5FDuMMQxA="},{"Name":"label","Value":"_content/GloryLikeWebApp/css/create-vacancy-skill-search.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5117"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022NWmluPTCQBMDrJuFZQoHMAlQYzb/EPAi8B5FDuMMQxA=\u0022"},{"Name":"Last-Modified","Value":"Fri, 17 Jul 2026 05:44:18 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/create-vacancy-skill-search.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\create-vacancy-skill-search.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-NWmluPTCQBMDrJuFZQoHMAlQYzb/EPAi8B5FDuMMQxA="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"5117"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022NWmluPTCQBMDrJuFZQoHMAlQYzb/EPAi8B5FDuMMQxA=\u0022"},{"Name":"Last-Modified","Value":"Fri, 17 Jul 2026 05:44:18 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/create-vacancy.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\create-vacancy.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
@@ -112,13 +124,13 @@
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\GloryLikeWebApp.cbkm1gt154.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-WAF8IwJNdm9lxlxhYGyR5PNuVTt0esKSFVBAS4K9DEw="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1133"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022WAF8IwJNdm9lxlxhYGyR5PNuVTt0esKSFVBAS4K9DEw=\u0022"},{"Name":"Last-Modified","Value":"Mon, 13 Jul 2026 16:27:41 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1133"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022WAF8IwJNdm9lxlxhYGyR5PNuVTt0esKSFVBAS4K9DEw=\u0022"},{"Name":"Last-Modified","Value":"Fri, 17 Jul 2026 05:49:07 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/GloryLikeWebApp.cbkm1gt154.bundle.scp.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\GloryLikeWebApp.cbkm1gt154.bundle.scp.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"cbkm1gt154"},{"Name":"integrity","Value":"sha256-WAF8IwJNdm9lxlxhYGyR5PNuVTt0esKSFVBAS4K9DEw="},{"Name":"label","Value":"_content/GloryLikeWebApp/GloryLikeWebApp.bundle.scp.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1133"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022WAF8IwJNdm9lxlxhYGyR5PNuVTt0esKSFVBAS4K9DEw=\u0022"},{"Name":"Last-Modified","Value":"Mon, 13 Jul 2026 16:27:41 GMT"}]]]></ResponseHeaders>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1133"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022WAF8IwJNdm9lxlxhYGyR5PNuVTt0esKSFVBAS4K9DEw=\u0022"},{"Name":"Last-Modified","Value":"Fri, 17 Jul 2026 05:49:07 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/candidate-dashboard.dg5ndr0dty.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\candidate-dashboard.js'))</AssetFile>
@@ -132,17 +144,17 @@
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-o8s0O2sshLfap2fTqr4HoDe\u002BhlyDAFqJ/3Q9mFGi90U="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"673"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022o8s0O2sshLfap2fTqr4HoDe\u002BhlyDAFqJ/3Q9mFGi90U=\u0022"},{"Name":"Last-Modified","Value":"Wed, 15 Jul 2026 21:48:20 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/create-vacancy.1hm8v9qy4e.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\create-vacancy.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"1hm8v9qy4e"},{"Name":"integrity","Value":"sha256-xYaYLuFEaE8BDqB55Dim/QPOGYd5rLYmfNNs9yKfvdQ="},{"Name":"label","Value":"_content/GloryLikeWebApp/js/create-vacancy.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"17283"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022xYaYLuFEaE8BDqB55Dim/QPOGYd5rLYmfNNs9yKfvdQ=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 12:13:32 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/create-vacancy.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\create-vacancy.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-xYaYLuFEaE8BDqB55Dim/QPOGYd5rLYmfNNs9yKfvdQ="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"17283"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022xYaYLuFEaE8BDqB55Dim/QPOGYd5rLYmfNNs9yKfvdQ=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 12:13:32 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-JTYa2aYi9KSJEk3lozxbiSVN3q1XXiQYmIxkRIsUbO4="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"30360"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022JTYa2aYi9KSJEk3lozxbiSVN3q1XXiQYmIxkRIsUbO4=\u0022"},{"Name":"Last-Modified","Value":"Fri, 17 Jul 2026 07:01:16 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/create-vacancy.z6u8fs28hd.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\create-vacancy.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"z6u8fs28hd"},{"Name":"integrity","Value":"sha256-JTYa2aYi9KSJEk3lozxbiSVN3q1XXiQYmIxkRIsUbO4="},{"Name":"label","Value":"_content/GloryLikeWebApp/js/create-vacancy.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"30360"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022JTYa2aYi9KSJEk3lozxbiSVN3q1XXiQYmIxkRIsUbO4=\u0022"},{"Name":"Last-Modified","Value":"Fri, 17 Jul 2026 07:01:16 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/employer-home.6k6git10db.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\employer-home.js'))</AssetFile>
