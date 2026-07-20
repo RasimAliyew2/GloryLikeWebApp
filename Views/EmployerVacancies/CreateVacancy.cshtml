@@ -55,7 +55,9 @@
             ? 3
             : hasPublicationErrors
                 ? 4
-                : 0;
+                : Model.OpenPublicationStageOnLoad
+                    ? 4
+                    : 0;
 
     var benefitOptions = new[]
     {
@@ -314,8 +316,17 @@
                 Model.SuccessMessage))
             {
                 <div class="vacancy-message success">
-                    <strong>Vacancy validated</strong>
+                    <strong>Vacancy created</strong>
                     <span>@Model.SuccessMessage</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(
+                Model.SubmissionErrorMessage))
+            {
+                <div class="vacancy-message error">
+                    <strong>Vacancy could not be created</strong>
+                    <span>@Model.SubmissionErrorMessage</span>
                 </div>
             }
 
@@ -716,7 +727,7 @@
                                 <label>
                                     <input
                                         type="checkbox"
-                                        name="Benefits"
+                                        name="Input.Benefits"
                                         value="@benefit"
                                         checked="@checkedBenefit" />
 

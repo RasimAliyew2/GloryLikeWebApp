@@ -15,13 +15,16 @@ public sealed class EmployerVacanciesController : Controller
     private const int MaximumFunnelStageCount = 20;
 
     private readonly ISkillAndJobApiService _skillAndJobApiService;
+    private readonly IVacancyApiService _vacancyApiService;
     private readonly ILogger<EmployerVacanciesController> _logger;
 
     public EmployerVacanciesController(
         ISkillAndJobApiService skillAndJobApiService,
+        IVacancyApiService vacancyApiService,
         ILogger<EmployerVacanciesController> logger)
     {
         _skillAndJobApiService = skillAndJobApiService;
+        _vacancyApiService = vacancyApiService;
         _logger = logger;
     }
 
@@ -45,6 +48,10 @@ public sealed class EmployerVacanciesController : Controller
             },
             cancellationToken);
 
+        model.SuccessMessage =
+            TempData["VacancySuccessMessage"]
+            as string;
+
         return View("CreateVacancy", model);
     }
 
@@ -55,6 +62,7 @@ public sealed class EmployerVacanciesController : Controller
         CancellationToken cancellationToken)
     {
         NormalizeSkillRequirements(input);
+        NormalizeBenefits(input);
         NormalizeApplicationRequirements(input);
         NormalizeScreeningQuestions(input);
         NormalizeFunnelStages(input);
@@ -79,18 +87,46 @@ public sealed class EmployerVacanciesController : Controller
         if (!ModelState.IsValid)
             return View("CreateVacancy", model);
 
-        model.SuccessMessage =
-            "Vacancy bütün 5 mərhələ üzrə yoxlanıldı. "
-            + "Job, Seniority, Position və Skill-lər SQL taxonomy-dən seçilib. "
-            + "Hər skill üçün Required/Desirable statusu və 1–100 verification "
-            + $"level, həmçinin {input.ScreeningQuestions.Count} screening sualı "
-            + $"və {input.FunnelStages.Count} funnel mərhələsi form modelində saxlanılıb. "
-            + $"Publication type “{input.Visibility}”, priority isə "
-            + $"{input.PublicationPriority}/10 olaraq seçilib. "
-            + "Backend vacancy POST endpoint-i əlavə ediləndən "
-            + "sonra bu məlumatlar SQL-ə yazıla bilər.";
+        if (!TryGetEmployerUserId(out var employerUserId))
+        {
+            model.SubmissionErrorMessage =
+                "Login məlumatında employer user ID tapılmadı. Yenidən sign in edin.";
+            model.OpenPublicationStageOnLoad = true;
 
-        return View("CreateVacancy", model);
+            return View("CreateVacancy", model);
+        }
+
+        var createResult = await _vacancyApiService.CreateAsync(
+            employerUserId,
+            input,
+            cancellationToken);
+
+        if (!createResult.Success)
+        {
+            _logger.LogWarning(
+                "Vacancy {PlatformVacancyId} BackendApp-də yaradılmadı: {Message}",
+                input.PlatformVacancyId,
+                createResult.Message);
+
+            model.SubmissionErrorMessage =
+                string.IsNullOrWhiteSpace(createResult.Message)
+                    ? "Vacancy BackendApp-də yaradılmadı."
+                    : createResult.Message;
+            model.OpenPublicationStageOnLoad = true;
+
+            return View("CreateVacancy", model);
+        }
+
+        _logger.LogInformation(
+            "Vacancy {VacancyId}/{PlatformVacancyId} BackendApp vasitəsilə SQL-də yaradıldı.",
+            createResult.VacancyId,
+            createResult.PlatformVacancyId);
+
+        TempData["VacancySuccessMessage"] =
+            $"Vacancy SQL-də yaradıldı. ID: {createResult.VacancyId}, "
+            + $"Platform ID: {createResult.PlatformVacancyId}.";
+
+        return RedirectToAction(nameof(CreateVacancy));
     }
 
     private async Task<CreateVacancyPageViewModel>
@@ -362,6 +398,18 @@ public sealed class EmployerVacanciesController : Controller
                 .ToList();
     }
 
+    private static void NormalizeBenefits(
+        CreateVacancyInput input)
+    {
+        input.Benefits ??= new List<string>();
+
+        input.Benefits = input.Benefits
+            .Where(benefit => !string.IsNullOrWhiteSpace(benefit))
+            .Select(benefit => benefit.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
     private static void NormalizeScreeningQuestions(
         CreateVacancyInput input)
     {
@@ -596,6 +644,15 @@ public sealed class EmployerVacanciesController : Controller
                 ? "Employer"
                 : userName
             : displayName;
+    }
+
+    private bool TryGetEmployerUserId(out int userId)
+    {
+        return int.TryParse(
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier),
+                out userId)
+            && userId > 0;
     }
 
     private static string GenerateVacancyId()

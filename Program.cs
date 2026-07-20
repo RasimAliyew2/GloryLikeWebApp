@@ -59,6 +59,19 @@ builder.Services.AddHttpClient<IJobOffersApiService, JobOffersApiService>((sp, c
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
+builder.Services.AddHttpClient<IVacancyApiService, VacancyApiService>((sp, client) =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["Backend:BaseUrl"];
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new InvalidOperationException(
+            "Backend:BaseUrl appsettings.json daxilində təyin edilməyib.");
+
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(60);
+});
+
 
 builder.Services.AddAuthorization(options =>
 {

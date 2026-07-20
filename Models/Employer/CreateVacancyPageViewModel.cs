@@ -13,7 +13,9 @@ public sealed class CreateVacancyPageViewModel
     public CreateVacancyInput Input { get; set; } = new();
 
     public string? ErrorMessage { get; set; }
+    public string? SubmissionErrorMessage { get; set; }
     public string? SuccessMessage { get; set; }
+    public bool OpenPublicationStageOnLoad { get; set; }
 
     public bool HasTaxonomy =>
         JobFamilies.Count > 0;

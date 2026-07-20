@@ -15,6 +15,10 @@
         document.getElementById(
             "createVacancyForm");
 
+    const createVacancyButton =
+        document.getElementById(
+            "publishVacancyButton");
+
     const visibilityInput =
         document.getElementById(
             "publicationVisibilityValue");
@@ -331,6 +335,21 @@
             event.stopImmediatePropagation();
         },
         true);
+
+    vacancyForm?.addEventListener(
+        "submit",
+        event => {
+            if (
+                event.defaultPrevented
+                || !createVacancyButton
+            ) {
+                return;
+            }
+
+            createVacancyButton.disabled = true;
+            createVacancyButton.textContent =
+                "Creating vacancy…";
+        });
 
     if (skillMatchInput)
         skillMatchInput.value = "true";
