@@ -35,11 +35,27 @@
             "FunnelStages",
             StringComparison.OrdinalIgnoreCase));
 
+    var hasPublicationErrors = ViewData.ModelState.Keys.Any(
+        key => key.Contains(
+                "Visibility",
+                StringComparison.OrdinalIgnoreCase)
+            || key.Contains(
+                "PublicationPriority",
+                StringComparison.OrdinalIgnoreCase)
+            || key.Contains(
+                "ApplicationDeadline",
+                StringComparison.OrdinalIgnoreCase)
+            || key.Contains(
+                "ContactEmail",
+                StringComparison.OrdinalIgnoreCase));
+
     var initialStage = hasScreeningErrors
         ? 2
         : hasFunnelErrors
             ? 3
-            : 0;
+            : hasPublicationErrors
+                ? 4
+                : 0;
 
     var benefitOptions = new[]
     {
@@ -96,6 +112,11 @@
     <link
         rel="stylesheet"
         href="~/css/create-vacancy-funnel.css"
+        asp-append-version="true" />
+
+    <link
+        rel="stylesheet"
+        href="~/css/create-vacancy-publication.css"
         asp-append-version="true" />
 </head>
 
@@ -1343,138 +1364,273 @@
                     class="vacancy-stage"
                     data-stage="4">
 
-                    <article class="vacancy-section-card">
-                        <h2>Publication Settings</h2>
+                    <input
+                        asp-for="Input.Visibility"
+                        type="hidden"
+                        id="publicationVisibilityValue" />
 
-                        <div class="form-grid two-columns">
-                            <div class="form-field">
-                                <label asp-for="Input.Visibility">
-                                    Vacancy Visibility
-                                </label>
+                    <input
+                        asp-for="Input.PublishDate"
+                        type="hidden" />
 
-                                <select asp-for="Input.Visibility">
-                                    <option>Public</option>
-                                    <option>Private link</option>
-                                    <option>Internal only</option>
-                                </select>
-                            </div>
+                    <input
+                        asp-for="Input.ApplicationDeadline"
+                        type="hidden" />
 
-                            <div class="form-field">
-                                <label asp-for="Input.ContactEmail">
-                                    Contact Email *
-                                </label>
+                    <input
+                        asp-for="Input.ContactEmail"
+                        type="hidden" />
 
+                    <input
+                        asp-for="Input.AllowInternalCandidates"
+                        type="hidden" />
+
+                    <input
+                        asp-for="Input.NotifyMatchingCandidates"
+                        type="hidden" />
+
+                    <input
+                        asp-for="Input.PublishOnSkillMatch"
+                        type="hidden"
+                        value="true" />
+
+                    <article class="vacancy-section-card publication-type-card">
+                        <h2>Publication type</h2>
+
+                        <div
+                            class="publication-type-grid"
+                            role="radiogroup"
+                            aria-label="Publication type">
+
+                            <label
+                                class="publication-type-option"
+                                data-publication-type="Public"
+                                role="radio"
+                                aria-checked="false">
                                 <input
-                                    asp-for="Input.ContactEmail"
-                                    type="email" />
-
+                                    type="radio"
+                                    name="publicationVisibilityChoice"
+                                    value="Public" />
                                 <span
-                                    asp-validation-for="Input.ContactEmail"
-                                    class="field-error">
-                                </span>
-                            </div>
-
-                            <div class="form-field">
-                                <label asp-for="Input.PublishDate">
-                                    Publish Date
-                                </label>
-
-                                <input
-                                    asp-for="Input.PublishDate"
-                                    type="date" />
-                            </div>
-
-                            <div class="form-field">
-                                <label asp-for="Input.ApplicationDeadline">
-                                    Application Deadline
-                                </label>
-
-                                <input
-                                    asp-for="Input.ApplicationDeadline"
-                                    type="date" />
-                            </div>
-                        </div>
-
-                        <div class="switch-list">
-                            <label class="toggle-row">
-                                <input
-                                    asp-for="Input.AllowInternalCandidates" />
-                                <span class="toggle-control"></span>
-                                Allow internal candidates
+                                    class="publication-type-icon"
+                                    aria-hidden="true">◎</span>
+                                <strong>Public</strong>
+                                <small>Visible to all candidates</small>
                             </label>
 
-                            <label class="toggle-row">
+                            <label
+                                class="publication-type-option"
+                                data-publication-type="Internal"
+                                role="radio"
+                                aria-checked="false">
                                 <input
-                                    asp-for="Input.NotifyMatchingCandidates" />
-                                <span class="toggle-control"></span>
-                                Notify matching candidates
+                                    type="radio"
+                                    name="publicationVisibilityChoice"
+                                    value="Internal" />
+                                <span
+                                    class="publication-type-icon"
+                                    aria-hidden="true">▣</span>
+                                <strong>Internal</strong>
+                                <small>Only for company employees</small>
+                            </label>
+
+                            <label
+                                class="publication-type-option"
+                                data-publication-type="Anonymous"
+                                role="radio"
+                                aria-checked="false">
+                                <input
+                                    type="radio"
+                                    name="publicationVisibilityChoice"
+                                    value="Anonymous" />
+                                <span
+                                    class="publication-type-icon"
+                                    aria-hidden="true">◉</span>
+                                <strong>Anonymous</strong>
+                                <small>Without specifying the company</small>
+                            </label>
+                        </div>
+
+                        <span
+                            asp-validation-for="Input.Visibility"
+                            class="field-error publication-field-error">
+                        </span>
+                    </article>
+
+                    <article class="vacancy-section-card publication-info-card">
+                        <div class="publication-card-heading">
+                            <span
+                                class="publication-heading-icon"
+                                aria-hidden="true">◎</span>
+                            <h2>Publication on SkillMatch</h2>
+                        </div>
+
+                        <p>
+                            The vacancy will automatically appear in the SkillMatch ecosystem
+                            and will be available to selected candidates.
+                        </p>
+
+                        <span class="publication-default-badge">
+                            Enabled by default
+                        </span>
+                    </article>
+
+                    <article class="vacancy-section-card publication-channel-card">
+                        <div class="publication-card-heading">
+                            <span
+                                class="publication-heading-icon neutral"
+                                aria-hidden="true">↗</span>
+                            <h2>Outdoor Venues</h2>
+                        </div>
+
+                        <div class="publication-check-list">
+                            <label class="publication-check-option">
+                                <input asp-for="Input.PublishOnJobSearchAz" />
+                                <span aria-hidden="true"></span>
+                                <strong>JobSearch.az</strong>
+                            </label>
+
+                            <label class="publication-check-option">
+                                <input asp-for="Input.PublishOnPositionAz" />
+                                <span aria-hidden="true"></span>
+                                <strong>Position.az</strong>
+                            </label>
+
+                            <label class="publication-check-option">
+                                <input asp-for="Input.PublishOnBancoAz" />
+                                <span aria-hidden="true"></span>
+                                <strong>Banco.az</strong>
+                            </label>
+
+                            <label class="publication-check-option">
+                                <input asp-for="Input.PublishOnBusyAz" />
+                                <span aria-hidden="true"></span>
+                                <strong>Busy.az</strong>
                             </label>
                         </div>
                     </article>
 
-                    <article class="vacancy-section-card publication-review">
-                        <div class="card-title-row">
-                            <h2>Vacancy Review</h2>
-                            <span>Step 5 of 5</span>
+                    <article class="vacancy-section-card publication-channel-card">
+                        <div class="publication-card-heading">
+                            <span
+                                class="publication-heading-icon neutral"
+                                aria-hidden="true">⌯</span>
+                            <h2>Social Media</h2>
                         </div>
 
-                        <div class="review-grid">
-                            <div>
-                                <span>Job Family</span>
-                                <strong id="reviewJob">—</strong>
-                            </div>
+                        <div class="publication-check-list">
+                            <label class="publication-check-option">
+                                <input asp-for="Input.ShareOnTwitter" />
+                                <span aria-hidden="true"></span>
+                                <strong>Twitter / X</strong>
+                            </label>
 
-                            <div>
-                                <span>Seniority</span>
-                                <strong id="reviewSeniority">—</strong>
-                            </div>
-
-                            <div>
-                                <span>Position</span>
-                                <strong id="reviewPosition">—</strong>
-                            </div>
-
-                            <div>
-                                <span>Selected Skills</span>
-                                <strong id="reviewSkills">0</strong>
-                            </div>
-
-                            <div>
-                                <span>Screening Questions</span>
-                                <strong id="reviewScreeningQuestions">0</strong>
-                            </div>
-
-                            <div>
-                                <span>Hiring Funnel</span>
-                                <strong id="reviewFunnelStages">0 stages</strong>
-                            </div>
-
-                            <div>
-                                <span>Match Threshold</span>
-                                <strong id="reviewMatchScore">
-                                    @Model.Input.MinimumMatchScore%
-                                </strong>
-                            </div>
-
-                            <div>
-                                <span>Visibility</span>
-                                <strong id="reviewVisibility">
-                                    @Model.Input.Visibility
-                                </strong>
-                            </div>
+                            <label class="publication-check-option">
+                                <input asp-for="Input.ShareOnLinkedIn" />
+                                <span aria-hidden="true"></span>
+                                <strong>LinkedIn</strong>
+                            </label>
                         </div>
 
-                        <div class="publication-warning">
-                            <strong>Backend status</strong>
-                            <p>
-                                Job taxonomy is real SQL data.
-                                BackendApp currently exposes JobOffers
-                                only through GET, so final vacancy
-                                persistence requires a new POST endpoint
-                                and vacancy table.
-                            </p>
+                        <div class="publication-copy-row">
+                            <button
+                                type="button"
+                                class="publication-copy-button"
+                                id="copyTrackingLinkButton">
+                                <span aria-hidden="true">▣</span>
+                                <span data-copy-label>Tracking Link</span>
+                            </button>
+
+                            <span
+                                class="publication-copy-status"
+                                id="trackingLinkCopyStatus"
+                                role="status"
+                                aria-live="polite">
+                            </span>
                         </div>
                     </article>
+
+                    <article class="vacancy-section-card publication-widget-card">
+                        <div class="publication-card-heading">
+                            <span
+                                class="publication-heading-icon neutral code"
+                                aria-hidden="true">&lt;&gt;</span>
+                            <h2>Corporate Career Page</h2>
+                        </div>
+
+                        <p>
+                            Embed the vacancy on your website via the JavaScript widget.
+                            The vacancy will be automatically updated.
+                        </p>
+
+                        <code
+                            class="publication-widget-code"
+                            id="careerWidgetCode">
+                        </code>
+
+                        <div class="publication-copy-row">
+                            <button
+                                type="button"
+                                class="publication-copy-button"
+                                id="copyWidgetCodeButton">
+                                <span aria-hidden="true">▣</span>
+                                <span data-copy-label>Copy code</span>
+                            </button>
+
+                            <span
+                                class="publication-copy-status"
+                                id="widgetCodeCopyStatus"
+                                role="status"
+                                aria-live="polite">
+                            </span>
+                        </div>
+                    </article>
+
+                    <article class="vacancy-section-card publication-priority-card">
+                        <h2>Priority of the vacancy</h2>
+
+                        <label for="publicationPriorityRange">
+                            Career Page Display Priority (1–10)
+                        </label>
+
+                        <div class="publication-priority-control">
+                            <input
+                                asp-for="Input.PublicationPriority"
+                                type="range"
+                                min="1"
+                                max="10"
+                                step="1"
+                                id="publicationPriorityRange" />
+
+                            <output
+                                for="publicationPriorityRange"
+                                id="publicationPriorityValue">
+                                @Model.Input.PublicationPriority
+                            </output>
+                        </div>
+
+                        <div class="publication-priority-scale" aria-hidden="true">
+                            <span>1</span>
+                            <span>10</span>
+                        </div>
+
+                        <span
+                            asp-validation-for="Input.PublicationPriority"
+                            class="field-error publication-field-error">
+                        </span>
+                    </article>
+
+                    <div class="publication-hidden-errors">
+                        <span
+                            asp-validation-for="Input.ContactEmail"
+                            class="field-error">
+                        </span>
+
+                        <span
+                            asp-validation-for="Input.ApplicationDeadline"
+                            class="field-error">
+                        </span>
+                    </div>
                 </section>
 
                 <footer class="vacancy-form-footer">
@@ -1500,7 +1656,7 @@
                         id="publishVacancyButton"
                         hidden
                         disabled="@(!Model.HasTaxonomy)">
-                        Publish vacancy
+                        Create a vacancy&nbsp; ✓
                     </button>
                 </footer>
             </form>
@@ -1537,6 +1693,9 @@
                 JsonSerializer.Serialize(
                     funnelStages,
                     new JsonSerializerOptions(JsonSerializerDefaults.Web))),
+            platformVacancyId: @Html.Raw(
+                JsonSerializer.Serialize(
+                    Model.Input.PlatformVacancyId)),
             minimumVerificationLevel: @Model.Input.MinimumVerificationLevel,
             startStage: @initialStage
         };
@@ -1564,6 +1723,11 @@
 
     <script
         src="~/js/create-vacancy-funnel.js"
+        asp-append-version="true">
+    </script>
+
+    <script
+        src="~/js/create-vacancy-publication.js"
         asp-append-version="true">
     </script>
 </body>

@@ -168,16 +168,34 @@ public sealed class CreateVacancyInput
     public int ScreeningSlaDays { get; set; } = 3;
 
     // Step 5 — Publication
-    public string Visibility { get; set; } = "Public";
+    [Required(ErrorMessage = "Publication type seçilməlidir.")]
+    [RegularExpression(
+        "^(Public|Internal|Anonymous)$",
+        ErrorMessage = "Publication type düzgün seçilməyib.")]
+    public string Visibility { get; set; } = "Internal";
+
     public DateTime? PublishDate { get; set; }
     public DateTime? ApplicationDeadline { get; set; }
 
-    [Required(ErrorMessage = "Contact email boş ola bilməz.")]
     [EmailAddress(ErrorMessage = "Contact email formatı düzgün deyil.")]
     public string ContactEmail { get; set; } = string.Empty;
 
     public bool AllowInternalCandidates { get; set; } = true;
     public bool NotifyMatchingCandidates { get; set; } = true;
+
+    public bool PublishOnSkillMatch { get; set; } = true;
+    public bool PublishOnJobSearchAz { get; set; } = true;
+    public bool PublishOnPositionAz { get; set; } = true;
+    public bool PublishOnBancoAz { get; set; } = true;
+    public bool PublishOnBusyAz { get; set; }
+    public bool ShareOnTwitter { get; set; }
+    public bool ShareOnLinkedIn { get; set; }
+
+    [Range(
+        1,
+        10,
+        ErrorMessage = "Vacancy priority 1–10 arasında olmalıdır.")]
+    public int PublicationPriority { get; set; } = 5;
 }
 
 public enum ApplicationRequirementMode

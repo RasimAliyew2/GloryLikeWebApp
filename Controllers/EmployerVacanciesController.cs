@@ -58,6 +58,7 @@ public sealed class EmployerVacanciesController : Controller
         NormalizeApplicationRequirements(input);
         NormalizeScreeningQuestions(input);
         NormalizeFunnelStages(input);
+        NormalizePublication(input);
 
         var model = await BuildPageModelAsync(
             input,
@@ -73,6 +74,7 @@ public sealed class EmployerVacanciesController : Controller
         ValidateCompensation(input);
         ValidateScreeningQuestions(input);
         ValidateFunnel(input);
+        ValidatePublication(input);
 
         if (!ModelState.IsValid)
             return View("CreateVacancy", model);
@@ -83,6 +85,8 @@ public sealed class EmployerVacanciesController : Controller
             + "Hər skill üçün Required/Desirable statusu və 1–100 verification "
             + $"level, həmçinin {input.ScreeningQuestions.Count} screening sualı "
             + $"və {input.FunnelStages.Count} funnel mərhələsi form modelində saxlanılıb. "
+            + $"Publication type “{input.Visibility}”, priority isə "
+            + $"{input.PublicationPriority}/10 olaraq seçilib. "
             + "Backend vacancy POST endpoint-i əlavə ediləndən "
             + "sonra bu məlumatlar SQL-ə yazıla bilər.";
 
@@ -435,6 +439,22 @@ public sealed class EmployerVacanciesController : Controller
                 StringComparison.OrdinalIgnoreCase));
     }
 
+    private static void NormalizePublication(
+        CreateVacancyInput input)
+    {
+        input.Visibility =
+            input.Visibility?.Trim()
+            ?? string.Empty;
+
+        input.ContactEmail =
+            input.ContactEmail?.Trim()
+            ?? string.Empty;
+
+        // SkillMatch əsas publication kanalıdır və dizayna əsasən
+        // bütün vacancy-lər üçün həmişə aktiv qalır.
+        input.PublishOnSkillMatch = true;
+    }
+
     private void ValidateCompensation(
         CreateVacancyInput input)
     {
@@ -479,6 +499,36 @@ public sealed class EmployerVacanciesController : Controller
             ModelState.AddModelError(
                 "Input.FunnelStages",
                 $"“{duplicateStage.Key}” mərhələsi yalnız bir dəfə əlavə edilə bilər.");
+        }
+    }
+
+    private void ValidatePublication(
+        CreateVacancyInput input)
+    {
+        var allowedVisibilityValues = new[]
+        {
+            "Public",
+            "Internal",
+            "Anonymous"
+        };
+
+        if (!allowedVisibilityValues.Contains(
+            input.Visibility,
+            StringComparer.Ordinal))
+        {
+            ModelState.AddModelError(
+                "Input.Visibility",
+                "Publication type Public, Internal və ya Anonymous olmalıdır.");
+        }
+
+        if (input.PublishDate.HasValue
+            && input.ApplicationDeadline.HasValue
+            && input.ApplicationDeadline.Value.Date
+                < input.PublishDate.Value.Date)
+        {
+            ModelState.AddModelError(
+                "Input.ApplicationDeadline",
+                "Application deadline publish date-dən əvvəl ola bilməz.");
         }
     }
 
