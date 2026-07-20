@@ -21,12 +21,25 @@
         Model.Input.ScreeningQuestions
             ?? new List<VacancyScreeningQuestionInput>();
 
-    var initialStage = ViewData.ModelState.Keys.Any(
+    var funnelStages =
+        Model.Input.FunnelStages
+            ?? new List<VacancyFunnelStageInput>();
+
+    var hasScreeningErrors = ViewData.ModelState.Keys.Any(
         key => key.Contains(
             "ScreeningQuestions",
-            StringComparison.OrdinalIgnoreCase))
+            StringComparison.OrdinalIgnoreCase));
+
+    var hasFunnelErrors = ViewData.ModelState.Keys.Any(
+        key => key.Contains(
+            "FunnelStages",
+            StringComparison.OrdinalIgnoreCase));
+
+    var initialStage = hasScreeningErrors
         ? 2
-        : 0;
+        : hasFunnelErrors
+            ? 3
+            : 0;
 
     var benefitOptions = new[]
     {
@@ -78,6 +91,11 @@
     <link
         rel="stylesheet"
         href="~/css/create-vacancy-screening.css"
+        asp-append-version="true" />
+
+    <link
+        rel="stylesheet"
+        href="~/css/create-vacancy-funnel.css"
         asp-append-version="true" />
 </head>
 
@@ -1229,75 +1247,95 @@
                     class="vacancy-stage"
                     data-stage="3">
 
-                    <article class="vacancy-section-card">
-                        <h2>Recruitment Funnel</h2>
+                    <article class="vacancy-section-card funnel-template-card">
+                        <div class="funnel-section-heading">
+                            <div>
+                                <h2>Funnel templates</h2>
+                                <p>
+                                    Start with a standard flow and edit every stage if needed.
+                                </p>
+                            </div>
+                        </div>
 
-                        <p class="section-description">
-                            Select the stages used for this vacancy.
-                        </p>
+                        <div class="funnel-template-grid">
+                            <button
+                                type="button"
+                                class="funnel-template-option active"
+                                data-funnel-template="standard">
+                                <strong>Standard Hiring</strong>
+                                <span>Responses → Screening → Interview → Offer → Hired</span>
+                            </button>
 
-                        <div class="funnel-stage-grid">
-                            <label>
-                                <input asp-for="Input.StageApplied" />
-                                <span>1</span>
-                                <strong>Applied</strong>
-                            </label>
+                            <button
+                                type="button"
+                                class="funnel-template-option"
+                                data-funnel-template="technical">
+                                <strong>Technical Hiring</strong>
+                                <span>Responses → Screening → Technical Interview → Task → Offer → Hired</span>
+                            </button>
 
-                            <label>
-                                <input asp-for="Input.StageScreening" />
-                                <span>2</span>
-                                <strong>Screening</strong>
-                            </label>
+                            <button
+                                type="button"
+                                class="funnel-template-option"
+                                data-funnel-template="executive">
+                                <strong>Executive Hiring</strong>
+                                <span>Responses → HR Interview → Leadership Interview → Executive Review → Offer → Hired</span>
+                            </button>
+                        </div>
+                    </article>
 
-                            <label>
-                                <input asp-for="Input.StageInterview" />
-                                <span>3</span>
-                                <strong>Interview</strong>
-                            </label>
+                    <article class="vacancy-section-card funnel-builder-card">
+                        <div class="funnel-builder-header">
+                            <div>
+                                <h2>Hiring funnel</h2>
+                                <p>
+                                    Define the candidate journey and the time allowed for each stage.
+                                </p>
+                            </div>
 
-                            <label>
-                                <input asp-for="Input.StageOffer" />
-                                <span>4</span>
-                                <strong>Offer</strong>
-                            </label>
+                            <button
+                                type="button"
+                                class="funnel-add-button"
+                                id="addFunnelStageButton">
+                                <span>＋</span>
+                                Add a stage
+                            </button>
+                        </div>
+
+                        <div
+                            class="funnel-stage-list"
+                            id="funnelStageList"
+                            aria-live="polite">
+                        </div>
+
+                        <div
+                            class="funnel-empty-state"
+                            id="funnelEmptyState"
+                            hidden>
+                            <strong>No funnel stages yet</strong>
+                            <span>Add at least one stage to continue.</span>
+                        </div>
+
+                        <div class="funnel-builder-summary">
+                            <span>
+                                <strong id="funnelStageCount">0</strong>
+                                stages
+                            </span>
+
+                            <span>
+                                <strong id="funnelTotalHours">0</strong>
+                                total hours
+                            </span>
                         </div>
 
                         <span
-                            asp-validation-for="Input.StageApplied"
+                            asp-validation-for="Input.FunnelStages"
                             class="field-error">
                         </span>
-                    </article>
 
-                    <article class="vacancy-section-card">
-                        <h2>Funnel Configuration</h2>
-
-                        <div class="form-grid two-columns">
-                            <div class="form-field">
-                                <label asp-for="Input.InterviewRounds">
-                                    Interview Rounds
-                                </label>
-
-                                <select asp-for="Input.InterviewRounds">
-                                    <option value="1">1 round</option>
-                                    <option value="2">2 rounds</option>
-                                    <option value="3">3 rounds</option>
-                                    <option value="4">4 rounds</option>
-                                </select>
-                            </div>
-
-                            <div class="form-field">
-                                <label asp-for="Input.ScreeningSlaDays">
-                                    Screening SLA
-                                </label>
-
-                                <select asp-for="Input.ScreeningSlaDays">
-                                    <option value="1">1 day</option>
-                                    <option value="3">3 days</option>
-                                    <option value="5">5 days</option>
-                                    <option value="7">7 days</option>
-                                </select>
-                            </div>
-                        </div>
+                        <p class="funnel-limit-note">
+                            Up to 20 stages. Standard stages can be renamed and their hours can be changed.
+                        </p>
                     </article>
                 </section>
 
@@ -1407,6 +1445,11 @@
                             </div>
 
                             <div>
+                                <span>Hiring Funnel</span>
+                                <strong id="reviewFunnelStages">0 stages</strong>
+                            </div>
+
+                            <div>
                                 <span>Match Threshold</span>
                                 <strong id="reviewMatchScore">
                                     @Model.Input.MinimumMatchScore%
@@ -1490,6 +1533,10 @@
                 JsonSerializer.Serialize(
                     screeningQuestions,
                     new JsonSerializerOptions(JsonSerializerDefaults.Web))),
+            funnelStages: @Html.Raw(
+                JsonSerializer.Serialize(
+                    funnelStages,
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web))),
             minimumVerificationLevel: @Model.Input.MinimumVerificationLevel,
             startStage: @initialStage
         };
@@ -1512,6 +1559,11 @@
 
     <script
         src="~/js/create-vacancy-screening.js"
+        asp-append-version="true">
+    </script>
+
+    <script
+        src="~/js/create-vacancy-funnel.js"
         asp-append-version="true">
     </script>
 </body>

@@ -17,6 +17,10 @@
       "PackagePath": "staticwebassets\\css\\create-vacancy-application-requirements.css"
     },
     {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy-funnel.css",
+      "PackagePath": "staticwebassets\\css\\create-vacancy-funnel.css"
+    },
+    {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy-screening.css",
       "PackagePath": "staticwebassets\\css\\create-vacancy-screening.css"
     },
@@ -59,6 +63,10 @@
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy-application-requirements.js",
       "PackagePath": "staticwebassets\\js\\create-vacancy-application-requirements.js"
+    },
+    {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy-funnel.js",
+      "PackagePath": "staticwebassets\\js\\create-vacancy-funnel.js"
     },
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy-screening.js",

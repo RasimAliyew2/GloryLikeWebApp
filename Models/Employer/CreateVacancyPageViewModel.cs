@@ -153,6 +153,13 @@ public sealed class CreateVacancyInput
     public string ScreeningNotes { get; set; } = string.Empty;
 
     // Step 4 — Funnel
+    public List<VacancyFunnelStageInput> FunnelStages
+    {
+        get;
+        set;
+    } = new();
+
+    // Köhnə form versiyası ilə uyğunluq üçün saxlanılır.
     public bool StageApplied { get; set; } = true;
     public bool StageScreening { get; set; } = true;
     public bool StageInterview { get; set; } = true;
@@ -275,6 +282,23 @@ public sealed class VacancyScreeningQuestionInput
         "^(Required|KnockOut)$",
         ErrorMessage = "Screening sualı Required və ya KnockOut olmalıdır.")]
     public string RequirementType { get; set; } = "Required";
+}
+
+public sealed class VacancyFunnelStageInput
+{
+    [Required(ErrorMessage = "Funnel mərhələsinin adı boş ola bilməz.")]
+    [StringLength(
+        100,
+        ErrorMessage = "Funnel mərhələsinin adı maksimum 100 simvol ola bilər.")]
+    public string StageName { get; set; } = string.Empty;
+
+    [Range(
+        0,
+        8760,
+        ErrorMessage = "Mərhələ müddəti 0–8760 saat arasında olmalıdır.")]
+    public int Hours { get; set; }
+
+    public bool IsStandard { get; set; }
 }
 
 public sealed class VacancySkillRequirementInput

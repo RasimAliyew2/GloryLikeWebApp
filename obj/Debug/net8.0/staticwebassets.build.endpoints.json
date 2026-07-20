@@ -331,6 +331,88 @@
       ]
     },
     {
+      "Route": "css/create-vacancy-funnel.7hwxylhtfp.css",
+      "AssetFile": "css/create-vacancy-funnel.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "7073"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"VbfQU4r7aIu6G8MrdaDhlo9hBu3qx1CuHu0YuQwpG54=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 20 Jul 2026 07:29:45 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "7hwxylhtfp"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-VbfQU4r7aIu6G8MrdaDhlo9hBu3qx1CuHu0YuQwpG54="
+        },
+        {
+          "Name": "label",
+          "Value": "css/create-vacancy-funnel.css"
+        }
+      ]
+    },
+    {
+      "Route": "css/create-vacancy-funnel.css",
+      "AssetFile": "css/create-vacancy-funnel.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "7073"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"VbfQU4r7aIu6G8MrdaDhlo9hBu3qx1CuHu0YuQwpG54=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 20 Jul 2026 07:29:45 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-VbfQU4r7aIu6G8MrdaDhlo9hBu3qx1CuHu0YuQwpG54="
+        }
+      ]
+    },
+    {
       "Route": "css/create-vacancy-screening.0b2x58c6p3.css",
       "AssetFile": "css/create-vacancy-screening.css",
       "Selectors": [],
@@ -1229,6 +1311,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-Fq14VI1O+XJuk0KwgSO1JYN9Fs9ntPYJ8mmatzIhYQs="
+        }
+      ]
+    },
+    {
+      "Route": "js/create-vacancy-funnel.73nz9bi3de.js",
+      "AssetFile": "js/create-vacancy-funnel.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "16726"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"o/Qz/bNl/6k7/CNae0JTtTdJL0NmYRCUrr9lqubZf3Q=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 20 Jul 2026 07:29:45 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "73nz9bi3de"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-o/Qz/bNl/6k7/CNae0JTtTdJL0NmYRCUrr9lqubZf3Q="
+        },
+        {
+          "Name": "label",
+          "Value": "js/create-vacancy-funnel.js"
+        }
+      ]
+    },
+    {
+      "Route": "js/create-vacancy-funnel.js",
+      "AssetFile": "js/create-vacancy-funnel.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "16726"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"o/Qz/bNl/6k7/CNae0JTtTdJL0NmYRCUrr9lqubZf3Q=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 20 Jul 2026 07:29:45 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-o/Qz/bNl/6k7/CNae0JTtTdJL0NmYRCUrr9lqubZf3Q="
         }
       ]
     },

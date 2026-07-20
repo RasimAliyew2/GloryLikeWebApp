@@ -12,6 +12,7 @@ namespace GloryLikeWebApp.Controllers;
 public sealed class EmployerVacanciesController : Controller
 {
     private const int MaximumScreeningQuestionCount = 20;
+    private const int MaximumFunnelStageCount = 20;
 
     private readonly ISkillAndJobApiService _skillAndJobApiService;
     private readonly ILogger<EmployerVacanciesController> _logger;
@@ -39,7 +40,8 @@ public sealed class EmployerVacanciesController : Controller
                 ScreeningQuestions = new List<VacancyScreeningQuestionInput>
                 {
                     new()
-                }
+                },
+                FunnelStages = CreateDefaultFunnelStages()
             },
             cancellationToken);
 
@@ -55,6 +57,7 @@ public sealed class EmployerVacanciesController : Controller
         NormalizeSkillRequirements(input);
         NormalizeApplicationRequirements(input);
         NormalizeScreeningQuestions(input);
+        NormalizeFunnelStages(input);
 
         var model = await BuildPageModelAsync(
             input,
@@ -79,7 +82,8 @@ public sealed class EmployerVacanciesController : Controller
             + "Job, Seniority, Position və Skill-lər SQL taxonomy-dən seçilib. "
             + "Hər skill üçün Required/Desirable statusu və 1–100 verification "
             + $"level, həmçinin {input.ScreeningQuestions.Count} screening sualı "
-            + "form modelində saxlanılıb. Backend vacancy POST endpoint-i əlavə ediləndən "
+            + $"və {input.FunnelStages.Count} funnel mərhələsi form modelində saxlanılıb. "
+            + "Backend vacancy POST endpoint-i əlavə ediləndən "
             + "sonra bu məlumatlar SQL-ə yazıla bilər.";
 
         return View("CreateVacancy", model);
@@ -390,6 +394,47 @@ public sealed class EmployerVacanciesController : Controller
             $"Maksimum {MaximumScreeningQuestionCount} screening sualı əlavə edilə bilər.");
     }
 
+    private static void NormalizeFunnelStages(
+        CreateVacancyInput input)
+    {
+        input.FunnelStages ??=
+            new List<VacancyFunnelStageInput>();
+
+        foreach (var stage in input.FunnelStages)
+        {
+            stage.StageName =
+                stage.StageName?.Trim()
+                ?? string.Empty;
+        }
+
+        input.StageApplied = input.FunnelStages.Any(
+            stage =>
+                stage.StageName.Equals(
+                    "Applied",
+                    StringComparison.OrdinalIgnoreCase)
+                || stage.StageName.Equals(
+                    "Applications",
+                    StringComparison.OrdinalIgnoreCase)
+                || stage.StageName.Equals(
+                    "Responses",
+                    StringComparison.OrdinalIgnoreCase));
+
+        input.StageScreening = input.FunnelStages.Any(
+            stage => stage.StageName.Contains(
+                "Screening",
+                StringComparison.OrdinalIgnoreCase));
+
+        input.StageInterview = input.FunnelStages.Any(
+            stage => stage.StageName.Contains(
+                "Interview",
+                StringComparison.OrdinalIgnoreCase));
+
+        input.StageOffer = input.FunnelStages.Any(
+            stage => stage.StageName.Contains(
+                "Offer",
+                StringComparison.OrdinalIgnoreCase));
+    }
+
     private void ValidateCompensation(
         CreateVacancyInput input)
     {
@@ -407,15 +452,72 @@ public sealed class EmployerVacanciesController : Controller
     private void ValidateFunnel(
         CreateVacancyInput input)
     {
-        if (!input.StageApplied
-            && !input.StageScreening
-            && !input.StageInterview
-            && !input.StageOffer)
+        if (input.FunnelStages.Count == 0)
         {
             ModelState.AddModelError(
-                "Input.StageApplied",
+                "Input.FunnelStages",
                 "Funnel üçün ən azı bir mərhələ seçilməlidir.");
         }
+
+        if (input.FunnelStages.Count > MaximumFunnelStageCount)
+        {
+            ModelState.AddModelError(
+                "Input.FunnelStages",
+                $"Maksimum {MaximumFunnelStageCount} funnel mərhələsi əlavə edilə bilər.");
+        }
+
+        var duplicateStage = input.FunnelStages
+            .Where(stage =>
+                !string.IsNullOrWhiteSpace(stage.StageName))
+            .GroupBy(
+                stage => stage.StageName,
+                StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(group => group.Count() > 1);
+
+        if (duplicateStage is not null)
+        {
+            ModelState.AddModelError(
+                "Input.FunnelStages",
+                $"“{duplicateStage.Key}” mərhələsi yalnız bir dəfə əlavə edilə bilər.");
+        }
+    }
+
+    private static List<VacancyFunnelStageInput>
+        CreateDefaultFunnelStages()
+    {
+        return new List<VacancyFunnelStageInput>
+        {
+            new()
+            {
+                StageName = "Responses",
+                Hours = 48,
+                IsStandard = true
+            },
+            new()
+            {
+                StageName = "Screening",
+                Hours = 72,
+                IsStandard = true
+            },
+            new()
+            {
+                StageName = "Interview",
+                Hours = 120,
+                IsStandard = true
+            },
+            new()
+            {
+                StageName = "Offer",
+                Hours = 48,
+                IsStandard = true
+            },
+            new()
+            {
+                StageName = "Hired",
+                Hours = 0,
+                IsStandard = true
+            }
+        };
     }
 
     private string GetDisplayName()

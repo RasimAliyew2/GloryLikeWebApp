@@ -2,6 +2,7 @@ wwwroot\css\candidate-dashboard.css
 wwwroot\css\choose-portal.css
 wwwroot\css\create-vacancy.css
 wwwroot\css\create-vacancy-application-requirements.css
+wwwroot\css\create-vacancy-funnel.css
 wwwroot\css\create-vacancy-screening.css
 wwwroot\css\create-vacancy-skill-search.css
 wwwroot\css\employer-home.css
@@ -13,6 +14,7 @@ wwwroot\favicon.ico
 wwwroot\js\candidate-dashboard.js
 wwwroot\js\create-vacancy.js
 wwwroot\js\create-vacancy-application-requirements.js
+wwwroot\js\create-vacancy-funnel.js
 wwwroot\js\create-vacancy-screening.js
 wwwroot\js\employer-home.js
 wwwroot\js\opportunities-page.js
