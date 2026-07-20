@@ -11,6 +11,8 @@ namespace GloryLikeWebApp.Controllers;
 [Authorize(Policy = PortalClaimTypes.EmployerPolicy)]
 public sealed class EmployerVacanciesController : Controller
 {
+    private const int MaximumScreeningQuestionCount = 20;
+
     private readonly ISkillAndJobApiService _skillAndJobApiService;
     private readonly ILogger<EmployerVacanciesController> _logger;
 
@@ -33,7 +35,11 @@ public sealed class EmployerVacanciesController : Controller
                 ContactEmail =
                     User.FindFirstValue(ClaimTypes.Email)
                     ?? string.Empty,
-                PublishDate = DateTime.Today
+                PublishDate = DateTime.Today,
+                ScreeningQuestions = new List<VacancyScreeningQuestionInput>
+                {
+                    new()
+                }
             },
             cancellationToken);
 
@@ -47,6 +53,8 @@ public sealed class EmployerVacanciesController : Controller
         CancellationToken cancellationToken)
     {
         NormalizeSkillRequirements(input);
+        NormalizeApplicationRequirements(input);
+        NormalizeScreeningQuestions(input);
 
         var model = await BuildPageModelAsync(
             input,
@@ -60,6 +68,7 @@ public sealed class EmployerVacanciesController : Controller
             model.JobFamilies);
 
         ValidateCompensation(input);
+        ValidateScreeningQuestions(input);
         ValidateFunnel(input);
 
         if (!ModelState.IsValid)
@@ -69,7 +78,8 @@ public sealed class EmployerVacanciesController : Controller
             "Vacancy bütün 5 mərhələ üzrə yoxlanıldı. "
             + "Job, Seniority, Position və Skill-lər SQL taxonomy-dən seçilib. "
             + "Hər skill üçün Required/Desirable statusu və 1–100 verification "
-            + "level saxlanılıb. Backend vacancy POST endpoint-i əlavə ediləndən "
+            + $"level, həmçinin {input.ScreeningQuestions.Count} screening sualı "
+            + "form modelində saxlanılıb. Backend vacancy POST endpoint-i əlavə ediləndən "
             + "sonra bu məlumatlar SQL-ə yazıla bilər.";
 
         return View("CreateVacancy", model);
@@ -313,6 +323,71 @@ public sealed class EmployerVacanciesController : Controller
                 input.SkillRequirements[0]
                     .MinimumVerificationLevel;
         }
+    }
+
+
+    private static void NormalizeApplicationRequirements(
+        CreateVacancyInput input)
+    {
+        input.ApplicationRequirements ??=
+            new ApplicationRequirementsInput();
+
+        input.ApplicationRequirements.CustomFields ??=
+            new List<ApplicationCustomFieldInput>();
+
+        input.ApplicationRequirements.CustomFields =
+            input.ApplicationRequirements.CustomFields
+                .Where(field =>
+                    !string.IsNullOrWhiteSpace(field.Label))
+                .Select(field => new ApplicationCustomFieldInput
+                {
+                    Label = field.Label.Trim(),
+                    Requirement = Enum.IsDefined(field.Requirement)
+                        ? field.Requirement
+                        : ApplicationRequirementMode.Optional
+                })
+                .GroupBy(
+                    field => field.Label,
+                    StringComparer.OrdinalIgnoreCase)
+                .Select(group => group.First())
+                .Take(20)
+                .ToList();
+    }
+
+    private static void NormalizeScreeningQuestions(
+        CreateVacancyInput input)
+    {
+        input.ScreeningQuestions ??=
+            new List<VacancyScreeningQuestionInput>();
+
+        foreach (var question in input.ScreeningQuestions)
+        {
+            question.QuestionText =
+                question.QuestionText?.Trim()
+                ?? string.Empty;
+
+            question.AnswerType =
+                question.AnswerType?.Trim()
+                ?? string.Empty;
+
+            question.RequirementType =
+                question.RequirementType?.Trim()
+                ?? string.Empty;
+        }
+    }
+
+    private void ValidateScreeningQuestions(
+        CreateVacancyInput input)
+    {
+        if (input.ScreeningQuestions.Count
+            <= MaximumScreeningQuestionCount)
+        {
+            return;
+        }
+
+        ModelState.AddModelError(
+            "Input.ScreeningQuestions",
+            $"Maksimum {MaximumScreeningQuestionCount} screening sualı əlavə edilə bilər.");
     }
 
     private void ValidateCompensation(

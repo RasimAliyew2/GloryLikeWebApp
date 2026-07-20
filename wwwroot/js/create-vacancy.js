@@ -1067,7 +1067,7 @@
         update();
     };
 
-    const updateReview = () => {
+    function updateReview() {
         const job =
             getCurrentJob();
 
@@ -1143,7 +1143,7 @@
                 visibility?.value
                 ?? "Public";
         }
-    };
+    }
 
     document
         .querySelector(
@@ -1152,10 +1152,8 @@
             "change",
             updateReview);
 
-    // updateReview artıq initialize olunub.
-    // Bu çağırışlar bundan əvvəl olsaydı brauzer:
-    // "Cannot access 'updateReview' before initialization"
-    // xətası ilə bütün script-i dayandırırdı.
+    // updateReview function declaration olduğu üçün hoist edilir və
+    // bindRangeOutput ilkin update zamanı onu təhlükəsiz çağıra bilir.
     bindRangeOutput(
         "verificationRange",
         "verificationValue");

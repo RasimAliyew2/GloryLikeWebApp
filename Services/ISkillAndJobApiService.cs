@@ -6,4 +6,7 @@ public interface ISkillAndJobApiService
 {
     Task<SkillAndJobApiResult> GetJobFamiliesAsync(
         CancellationToken cancellationToken = default);
+
+    Task<SkillLookupApiResult> GetAllSkillsAsync(
+        CancellationToken cancellationToken = default);
 }

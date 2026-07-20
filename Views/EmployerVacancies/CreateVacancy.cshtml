@@ -1,4 +1,5 @@
 @using System.Text.Json
+@using GloryLikeWebApp.Models.Employer
 @model GloryLikeWebApp.Models.Employer.CreateVacancyPageViewModel
 @{
     Layout = null;
@@ -15,6 +16,17 @@
     var skillRequirements =
         Model.Input.SkillRequirements
             ?? new List<GloryLikeWebApp.Models.Employer.VacancySkillRequirementInput>();
+
+    var screeningQuestions =
+        Model.Input.ScreeningQuestions
+            ?? new List<VacancyScreeningQuestionInput>();
+
+    var initialStage = ViewData.ModelState.Keys.Any(
+        key => key.Contains(
+            "ScreeningQuestions",
+            StringComparison.OrdinalIgnoreCase))
+        ? 2
+        : 0;
 
     var benefitOptions = new[]
     {
@@ -56,6 +68,16 @@
     <link
         rel="stylesheet"
         href="~/css/create-vacancy-skill-search.css"
+        asp-append-version="true" />
+
+    <link
+        rel="stylesheet"
+        href="~/css/create-vacancy-application-requirements.css"
+        asp-append-version="true" />
+
+    <link
+        rel="stylesheet"
+        href="~/css/create-vacancy-screening.css"
         asp-append-version="true" />
 </head>
 
@@ -667,85 +689,472 @@
                 </section>
 
                 <section
-                    class="vacancy-stage"
+                    class="vacancy-stage application-requirements-stage"
                     data-stage="1">
 
-                    <article class="vacancy-section-card">
-                        <h2>Application Documents</h2>
+                    <article class="application-summary-card">
+                        <div class="application-summary-time">
+                            <span class="application-summary-icon">◷</span>
+                            <span>
+                                Approximate filling time:
+                                <strong id="applicationEstimatedMinutes">12 min</strong>
+                            </span>
+                        </div>
 
-                        <div class="choice-grid">
-                            <label class="choice-card">
-                                <input asp-for="Input.RequireCv" />
-                                <span>▤</span>
-                                <strong>CV / Resume</strong>
-                                <small>
-                                    Ask candidates for a CV.
-                                </small>
-                            </label>
+                        <div class="application-summary-counts">
+                            <span class="application-count required">
+                                <strong id="applicationRequiredCount">3</strong>
+                                Required
+                            </span>
 
-                            <label class="choice-card">
-                                <input asp-for="Input.RequireCoverLetter" />
-                                <span>✎</span>
-                                <strong>Cover Letter</strong>
-                                <small>
-                                    Require a written introduction.
-                                </small>
-                            </label>
+                            <span class="application-count optional">
+                                <strong id="applicationOptionalCount">9</strong>
+                                Optional
+                            </span>
+                        </div>
 
-                            <label class="choice-card">
-                                <input asp-for="Input.RequirePortfolio" />
-                                <span>▣</span>
-                                <strong>Portfolio</strong>
-                                <small>
-                                    Require a portfolio or work sample.
-                                </small>
-                            </label>
+                        <button
+                            type="button"
+                            class="application-preview-button"
+                            id="applicationPreviewButton">
+                            <span>◉</span>
+                            Form Preview
+                        </button>
+                    </article>
 
-                            <label class="choice-card">
-                                <input asp-for="Input.RequireLinkedIn" />
-                                <span>◎</span>
-                                <strong>Professional Profile</strong>
-                                <small>
-                                    Ask for a profile URL.
-                                </small>
-                            </label>
+                    <article class="application-field-section">
+                        <h2>Main Profile</h2>
+
+                        <div class="application-field-list">
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    <span class="application-lock">♙</span>
+                                    Full Name
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.FullName"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    <span class="application-lock">♙</span>
+                                    Email
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.Email"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Phone
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.Phone"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Location
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.Location"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
                         </div>
                     </article>
 
-                    <article class="vacancy-section-card">
-                        <h2>Candidate Information</h2>
+                    <article class="application-field-section">
+                        <h2>Operational Information</h2>
 
-                        <div class="form-field">
-                            <label asp-for="Input.NoticePeriod">
-                                Accepted Notice Period
-                            </label>
+                        <div class="application-field-list">
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    <span class="application-lock">♙</span>
+                                    Work experience
+                                </span>
 
-                            <select asp-for="Input.NoticePeriod">
-                                <option>Any</option>
-                                <option>Immediate</option>
-                                <option>Up to 2 weeks</option>
-                                <option>Up to 1 month</option>
-                                <option>Up to 3 months</option>
-                            </select>
-                        </div>
+                                <select
+                                    asp-for="Input.ApplicationRequirements.WorkExperience"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
 
-                        <div class="form-field">
-                            <label asp-for="Input.ApplicationQuestions">
-                                Application Questions
-                            </label>
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Current position
+                                </span>
 
-                            <textarea
-                                asp-for="Input.ApplicationQuestions"
-                                rows="8"
-                                placeholder="One question per line...">
-                            </textarea>
+                                <select
+                                    asp-for="Input.ApplicationRequirements.CurrentPosition"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Previous companies
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.PreviousCompanies"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
                         </div>
                     </article>
+
+                    <article class="application-field-section">
+                        <h2>Education &amp; Certifications</h2>
+
+                        <div class="application-field-list">
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Education
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.Education"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Certifications
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.Certifications"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Trainings
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.Trainings"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="application-field-section">
+                        <h2>Skills &amp; Languages</h2>
+
+                        <div class="application-field-list">
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Languages
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.Languages"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Tools
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.Tools"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="application-field-section">
+                        <h2>Professional Profiles</h2>
+
+                        <div class="application-field-list">
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    LinkedIn
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.LinkedIn"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    GitHub
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.GitHub"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Portfolio
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.Portfolio"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Personal website
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.PersonalWebsite"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="application-field-section">
+                        <h2>Documents</h2>
+
+                        <div class="application-field-list">
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Cover letter
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.CoverLetter"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+
+                            <div class="application-field-row">
+                                <span class="application-field-label">
+                                    Additional Files
+                                </span>
+
+                                <select
+                                    asp-for="Input.ApplicationRequirements.AdditionalFiles"
+                                    class="application-field-mode">
+                                    <option value="Required">Required</option>
+                                    <option value="Optional">Optional</option>
+                                    <option value="Hidden">Hidden</option>
+                                </select>
+                            </div>
+                        </div>
+                    </article>
+
+                    <section
+                        class="application-custom-fields"
+                        id="applicationCustomFields">
+
+                        @for (var index = 0;
+                            index < Model.Input.ApplicationRequirements.CustomFields.Count;
+                            index++)
+                        {
+                            var customField =
+                                Model.Input.ApplicationRequirements.CustomFields[index];
+
+                            <article
+                                class="application-custom-field-row"
+                                data-custom-field-row>
+
+                                <input
+                                    type="text"
+                                    name="Input.ApplicationRequirements.CustomFields[@index].Label"
+                                    value="@customField.Label"
+                                    maxlength="100"
+                                    placeholder="New field name"
+                                    data-custom-field-label />
+
+                                <select
+                                    name="Input.ApplicationRequirements.CustomFields[@index].Requirement"
+                                    class="application-field-mode"
+                                    data-custom-field-mode>
+                                    <option
+                                        value="Required"
+                                        selected="@(customField.Requirement == ApplicationRequirementMode.Required)">
+                                        Required
+                                    </option>
+                                    <option
+                                        value="Optional"
+                                        selected="@(customField.Requirement == ApplicationRequirementMode.Optional)">
+                                        Optional
+                                    </option>
+                                    <option
+                                        value="Hidden"
+                                        selected="@(customField.Requirement == ApplicationRequirementMode.Hidden)">
+                                        Hidden
+                                    </option>
+                                </select>
+
+                                <button
+                                    type="button"
+                                    class="application-remove-custom-field"
+                                    data-remove-custom-field
+                                    aria-label="Remove custom field">
+                                    ×
+                                </button>
+                            </article>
+                        }
+                    </section>
+
+                    <button
+                        type="button"
+                        class="application-request-field-button"
+                        id="applicationRequestFieldButton">
+                        <span>➤</span>
+                        Request a new field
+                    </button>
                 </section>
+
+                <div
+                    class="application-preview-backdrop"
+                    id="applicationPreviewBackdrop"
+                    hidden>
+                </div>
+
+                <aside
+                    class="application-preview-panel"
+                    id="applicationPreviewPanel"
+                    aria-hidden="true">
+
+                    <header>
+                        <div>
+                            <span>APPLICATION FORM</span>
+                            <h2>Candidate Preview</h2>
+                            <p>
+                                Hidden fields are excluded from the candidate form.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            id="applicationPreviewCloseButton"
+                            aria-label="Close form preview">
+                            ×
+                        </button>
+                    </header>
+
+                    <div
+                        class="application-preview-content"
+                        id="applicationPreviewContent">
+                    </div>
+                </aside>
+
 
                 <section
                     class="vacancy-stage"
                     data-stage="2">
+
+                    <article class="vacancy-section-card screening-builder-card">
+                        <div class="screening-builder-header">
+                            <div>
+                                <h2>Screening Questions</h2>
+                                <p>
+                                    Add questions candidates must answer before applying.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="screening-add-button"
+                                id="addScreeningQuestionButton">
+                                <span>＋</span>
+                                Add question
+                            </button>
+                        </div>
+
+                        <div
+                            class="screening-question-list"
+                            id="screeningQuestionList"
+                            aria-live="polite">
+                        </div>
+
+                        <div
+                            class="screening-empty-state"
+                            id="screeningEmptyState"
+                            hidden>
+                            <span>?</span>
+                            <strong>No screening questions yet</strong>
+                            <p>
+                                Use “Add question” to create the first question.
+                            </p>
+                        </div>
+
+                        <p class="screening-limit-note">
+                            Up to 20 questions. Each question can be Required or KnockOut.
+                        </p>
+                    </article>
 
                     <article class="vacancy-section-card">
                         <h2>Signal Screening</h2>
@@ -993,6 +1402,11 @@
                             </div>
 
                             <div>
+                                <span>Screening Questions</span>
+                                <strong id="reviewScreeningQuestions">0</strong>
+                            </div>
+
+                            <div>
                                 <span>Match Threshold</span>
                                 <strong id="reviewMatchScore">
                                     @Model.Input.MinimumMatchScore%
@@ -1072,7 +1486,12 @@
                 JsonSerializer.Serialize(
                     skillRequirements,
                     new JsonSerializerOptions(JsonSerializerDefaults.Web))),
-            minimumVerificationLevel: @Model.Input.MinimumVerificationLevel
+            screeningQuestions: @Html.Raw(
+                JsonSerializer.Serialize(
+                    screeningQuestions,
+                    new JsonSerializerOptions(JsonSerializerDefaults.Web))),
+            minimumVerificationLevel: @Model.Input.MinimumVerificationLevel,
+            startStage: @initialStage
         };
     </script>
 
@@ -1083,6 +1502,16 @@
 
     <script
         src="~/js/create-vacancy.js"
+        asp-append-version="true">
+    </script>
+
+    <script
+        src="~/js/create-vacancy-application-requirements.js"
+        asp-append-version="true">
+    </script>
+
+    <script
+        src="~/js/create-vacancy-screening.js"
         asp-append-version="true">
     </script>
 </body>

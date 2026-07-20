@@ -13,6 +13,14 @@
       "PackagePath": "staticwebassets\\css\\choose-portal.css"
     },
     {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy-application-requirements.css",
+      "PackagePath": "staticwebassets\\css\\create-vacancy-application-requirements.css"
+    },
+    {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy-screening.css",
+      "PackagePath": "staticwebassets\\css\\create-vacancy-screening.css"
+    },
+    {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy-skill-search.css",
       "PackagePath": "staticwebassets\\css\\create-vacancy-skill-search.css"
     },
@@ -47,6 +55,14 @@
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\candidate-dashboard.js",
       "PackagePath": "staticwebassets\\js\\candidate-dashboard.js"
+    },
+    {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy-application-requirements.js",
+      "PackagePath": "staticwebassets\\js\\create-vacancy-application-requirements.js"
+    },
+    {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy-screening.js",
+      "PackagePath": "staticwebassets\\js\\create-vacancy-screening.js"
     },
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy.js",

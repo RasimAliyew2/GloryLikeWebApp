@@ -132,14 +132,16 @@ public sealed class CreateVacancyInput
     public List<string> Benefits { get; set; } = new();
 
     // Step 2 — Application Requirements
-    public bool RequireCv { get; set; } = true;
-    public bool RequireCoverLetter { get; set; }
-    public bool RequirePortfolio { get; set; }
-    public bool RequireLinkedIn { get; set; }
-    public string NoticePeriod { get; set; } = "Any";
-    public string ApplicationQuestions { get; set; } = string.Empty;
+    public ApplicationRequirementsInput ApplicationRequirements { get; set; } =
+        new();
 
     // Step 3 — Screening
+    public List<VacancyScreeningQuestionInput> ScreeningQuestions
+    {
+        get;
+        set;
+    } = new();
+
     [Range(0, 100)]
     public int MinimumMatchScore { get; set; } = 65;
 
@@ -169,6 +171,110 @@ public sealed class CreateVacancyInput
 
     public bool AllowInternalCandidates { get; set; } = true;
     public bool NotifyMatchingCandidates { get; set; } = true;
+}
+
+public enum ApplicationRequirementMode
+{
+    Required = 1,
+    Optional = 2,
+    Hidden = 3
+}
+
+public sealed class ApplicationRequirementsInput
+{
+    // Main Profile
+    public ApplicationRequirementMode FullName { get; set; } =
+        ApplicationRequirementMode.Required;
+
+    public ApplicationRequirementMode Email { get; set; } =
+        ApplicationRequirementMode.Required;
+
+    public ApplicationRequirementMode Phone { get; set; } =
+        ApplicationRequirementMode.Optional;
+
+    public ApplicationRequirementMode Location { get; set; } =
+        ApplicationRequirementMode.Optional;
+
+    // Operational Information
+    public ApplicationRequirementMode WorkExperience { get; set; } =
+        ApplicationRequirementMode.Required;
+
+    public ApplicationRequirementMode CurrentPosition { get; set; } =
+        ApplicationRequirementMode.Optional;
+
+    public ApplicationRequirementMode PreviousCompanies { get; set; } =
+        ApplicationRequirementMode.Optional;
+
+    // Education & Certifications
+    public ApplicationRequirementMode Education { get; set; } =
+        ApplicationRequirementMode.Optional;
+
+    public ApplicationRequirementMode Certifications { get; set; } =
+        ApplicationRequirementMode.Optional;
+
+    public ApplicationRequirementMode Trainings { get; set; } =
+        ApplicationRequirementMode.Hidden;
+
+    // Skills & Languages
+    public ApplicationRequirementMode Languages { get; set; } =
+        ApplicationRequirementMode.Optional;
+
+    public ApplicationRequirementMode Tools { get; set; } =
+        ApplicationRequirementMode.Hidden;
+
+    // Professional Profiles
+    public ApplicationRequirementMode LinkedIn { get; set; } =
+        ApplicationRequirementMode.Optional;
+
+    public ApplicationRequirementMode GitHub { get; set; } =
+        ApplicationRequirementMode.Hidden;
+
+    public ApplicationRequirementMode Portfolio { get; set; } =
+        ApplicationRequirementMode.Hidden;
+
+    public ApplicationRequirementMode PersonalWebsite { get; set; } =
+        ApplicationRequirementMode.Hidden;
+
+    // Documents
+    public ApplicationRequirementMode CoverLetter { get; set; } =
+        ApplicationRequirementMode.Optional;
+
+    public ApplicationRequirementMode AdditionalFiles { get; set; } =
+        ApplicationRequirementMode.Hidden;
+
+    public List<ApplicationCustomFieldInput> CustomFields { get; set; } =
+        new();
+}
+
+public sealed class ApplicationCustomFieldInput
+{
+    [Required(ErrorMessage = "Custom field adı boş ola bilməz.")]
+    [StringLength(100)]
+    public string Label { get; set; } = string.Empty;
+
+    public ApplicationRequirementMode Requirement { get; set; } =
+        ApplicationRequirementMode.Optional;
+}
+
+public sealed class VacancyScreeningQuestionInput
+{
+    [Required(ErrorMessage = "Screening sualının mətni boş ola bilməz.")]
+    [StringLength(
+        500,
+        ErrorMessage = "Screening sualı maksimum 500 simvol ola bilər.")]
+    public string QuestionText { get; set; } = string.Empty;
+
+    [Required]
+    [RegularExpression(
+        "^(Text|TrueFalse|OneChoice|ShortAnswer|Number|Date)$",
+        ErrorMessage = "Screening cavab üsulu düzgün deyil.")]
+    public string AnswerType { get; set; } = "Text";
+
+    [Required]
+    [RegularExpression(
+        "^(Required|KnockOut)$",
+        ErrorMessage = "Screening sualı Required və ya KnockOut olmalıdır.")]
+    public string RequirementType { get; set; } = "Required";
 }
 
 public sealed class VacancySkillRequirementInput
