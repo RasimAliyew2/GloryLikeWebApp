@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "SKz2dtgLjf9oOc7GpqohHVnN3WWbFOvArf+qSa91raI=",
+  "Hash": "N1181oZ8BAqdMyCVwTuRytsdqoNJNwmTZ68jvsEj6uM=",
   "Source": "GloryLikeWebApp",
   "BasePath": "_content/GloryLikeWebApp",
   "Mode": "Default",
@@ -99,6 +99,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\choose-portal.css"
+    },
+    {
+      "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\company-profile.css",
+      "SourceId": "GloryLikeWebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\",
+      "BasePath": "_content/GloryLikeWebApp",
+      "RelativePath": "css/company-profile#[.{fingerprint}]?.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "8aov5j2bff",
+      "Integrity": "UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF+cet6Im84=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\company-profile.css"
     },
     {
       "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy.css",
@@ -393,6 +414,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\candidate-dashboard.js"
+    },
+    {
+      "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\company-profile.js",
+      "SourceId": "GloryLikeWebApp",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\",
+      "BasePath": "_content/GloryLikeWebApp",
+      "RelativePath": "js/company-profile#[.{fingerprint}]?.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "nsbetmx74y",
+      "Integrity": "N1gsYt3BcLc6+HDFzz5OC3B0w/orWr/OwvNbLQxwBJk=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\company-profile.js"
     },
     {
       "Identity": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\create-vacancy.js",
@@ -1968,6 +2010,88 @@
       ]
     },
     {
+      "Route": "css/company-profile.8aov5j2bff.css",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\company-profile.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12289"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF+cet6Im84=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 05:04:11 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "8aov5j2bff"
+        },
+        {
+          "Name": "label",
+          "Value": "css/company-profile.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF+cet6Im84="
+        }
+      ]
+    },
+    {
+      "Route": "css/company-profile.css",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\company-profile.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12289"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF+cet6Im84=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 05:04:11 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF+cet6Im84="
+        }
+      ]
+    },
+    {
       "Route": "css/create-vacancy.css",
       "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\create-vacancy.css",
       "Selectors": [],
@@ -3276,6 +3400,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-o8s0O2sshLfap2fTqr4HoDe+hlyDAFqJ/3Q9mFGi90U="
+        }
+      ]
+    },
+    {
+      "Route": "js/company-profile.js",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\company-profile.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12944"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1gsYt3BcLc6+HDFzz5OC3B0w/orWr/OwvNbLQxwBJk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 05:04:11 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-N1gsYt3BcLc6+HDFzz5OC3B0w/orWr/OwvNbLQxwBJk="
+        }
+      ]
+    },
+    {
+      "Route": "js/company-profile.nsbetmx74y.js",
+      "AssetFile": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\company-profile.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12944"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1gsYt3BcLc6+HDFzz5OC3B0w/orWr/OwvNbLQxwBJk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 05:04:11 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "nsbetmx74y"
+        },
+        {
+          "Name": "label",
+          "Value": "js/company-profile.js"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-N1gsYt3BcLc6+HDFzz5OC3B0w/orWr/OwvNbLQxwBJk="
         }
       ]
     },

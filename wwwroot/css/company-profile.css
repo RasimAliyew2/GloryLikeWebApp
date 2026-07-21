@@ -1,0 +1,670 @@
+.company-main {
+    padding: 0 30px 72px;
+}
+
+.company-profile-content {
+    width: min(1120px, 100%);
+    margin: 0 auto;
+}
+
+.company-tabs {
+    min-height: 72px;
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+    border-bottom: 1px solid var(--employer-line);
+}
+
+.company-tabs a,
+.company-tabs button {
+    min-width: 112px;
+    padding: 0 17px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #696e7d;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.company-tabs a:hover,
+.company-tabs button:hover {
+    color: #4f45df;
+    background: #faf9ff;
+}
+
+.company-tabs .active {
+    color: #4e43e5;
+    border-bottom-color: #4e43e5;
+    background: #f7f5ff;
+}
+
+.company-tabs span {
+    font-size: 15px;
+}
+
+.company-page-heading {
+    padding: 30px 0 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.company-page-heading h1 {
+    margin: 0;
+    font-size: 28px;
+    letter-spacing: -.04em;
+}
+
+.company-page-heading p {
+    margin: 6px 0 0;
+    color: var(--employer-muted);
+    font-size: 13px;
+}
+
+.company-heading-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.company-heading-actions button {
+    min-height: 42px;
+    padding: 0 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 11px;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.company-secondary-button {
+    color: #242834;
+    border: 1px solid #e2e2e8;
+    background: #fff;
+}
+
+.company-primary-button {
+    color: #fff;
+    border: 1px solid #5045e8;
+    background: #5045e8;
+    box-shadow: 0 9px 20px rgba(79, 69, 230, .18);
+}
+
+.company-heading-actions button:hover {
+    transform: translateY(-1px);
+}
+
+.company-completion {
+    min-height: 48px;
+    padding: 0 16px;
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto auto;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid var(--employer-line);
+    border-radius: 13px;
+    background: #fff;
+    box-shadow: var(--employer-shadow);
+}
+
+.company-completion-track {
+    height: 5px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #eeeef2;
+}
+
+.company-completion-track span {
+    width: 0;
+    height: 100%;
+    display: block;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #5649f0, #7369ff);
+    transition: width .2s ease;
+}
+
+.company-completion strong {
+    min-width: 70px;
+    color: #303440;
+    font-size: 11px;
+    text-align: right;
+}
+
+.company-completion small {
+    color: #8a8e9b;
+    font-size: 9px;
+}
+
+.company-profile-form {
+    margin-top: 20px;
+    display: grid;
+    gap: 16px;
+}
+
+.company-form-card {
+    padding: 25px 25px 22px;
+    border: 1px solid var(--employer-line);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: var(--employer-shadow);
+}
+
+.company-form-card h2 {
+    margin: 0 0 22px;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+}
+
+.company-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 17px 18px;
+}
+
+.company-field {
+    min-width: 0;
+    display: grid;
+    gap: 7px;
+}
+
+.company-field + .company-form-grid,
+.company-form-grid + .company-field,
+.company-field + .company-field {
+    margin-top: 17px;
+}
+
+.company-form-grid .company-field {
+    margin-top: 0;
+}
+
+.company-field label {
+    color: #222630;
+    font-size: 11px;
+    font-weight: 650;
+}
+
+.company-field > small {
+    color: #858a98;
+    font-size: 9px;
+}
+
+.company-field input,
+.company-field select,
+.company-field textarea,
+.company-social-field input {
+    width: 100%;
+    color: #333744;
+    border: 1px solid #e4e4e9;
+    border-radius: 10px;
+    outline: 0;
+    background: #f9f9fb;
+    font: inherit;
+    font-size: 11px;
+    transition:
+        border-color .16s ease,
+        box-shadow .16s ease,
+        background .16s ease;
+}
+
+.company-field input,
+.company-field select,
+.company-social-field input {
+    height: 42px;
+    padding: 0 12px;
+}
+
+.company-field select {
+    cursor: pointer;
+}
+
+.company-field textarea {
+    min-height: 92px;
+    padding: 12px;
+    resize: vertical;
+    line-height: 1.55;
+}
+
+.company-field input:focus,
+.company-field select:focus,
+.company-field textarea:focus,
+.company-social-field input:focus {
+    border-color: #766df2;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(80, 69, 232, .09);
+}
+
+.company-field input[aria-invalid="true"] {
+    border-color: #dc4b5e;
+    box-shadow: 0 0 0 3px rgba(220, 75, 94, .08);
+}
+
+.company-field-error {
+    min-height: 12px;
+    color: #c6394d !important;
+}
+
+.company-upload-grid {
+    align-items: stretch;
+}
+
+.company-upload-tile {
+    min-height: 118px;
+    padding: 15px;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    overflow: hidden;
+    color: #333744 !important;
+    border: 1px dashed #dcdde5;
+    border-radius: 13px;
+    background: #fff;
+    text-align: center;
+    cursor: pointer;
+    transition:
+        border-color .16s ease,
+        background .16s ease;
+}
+
+.company-upload-tile:hover,
+.company-upload-tile.has-file {
+    border-color: #6f65ef;
+    background: #faf9ff;
+}
+
+.company-upload-tile input,
+.company-gallery-add input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.company-upload-icon {
+    color: #777c8a;
+    font-size: 23px;
+    line-height: 1;
+}
+
+.company-upload-tile strong {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.company-upload-tile small {
+    max-width: 100%;
+    color: #858a98;
+    font-size: 8px;
+    line-height: 1.4;
+}
+
+.company-gallery-field {
+    margin-top: 18px;
+}
+
+.company-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.company-gallery-add,
+.company-gallery-preview {
+    width: 155px;
+    height: 112px;
+    overflow: hidden;
+    border: 1px dashed #dcdde5;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.company-gallery-add {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    color: #636876 !important;
+    cursor: pointer;
+}
+
+.company-gallery-add span {
+    font-size: 19px;
+}
+
+.company-gallery-add strong {
+    font-size: 9px;
+    font-weight: 650;
+}
+
+.company-gallery-preview {
+    position: relative;
+    border-style: solid;
+}
+
+.company-gallery-preview img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.company-gallery-preview button {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 25px;
+    height: 25px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(20, 22, 31, .72);
+    cursor: pointer;
+}
+
+.company-benefit-entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 38px;
+    gap: 8px;
+}
+
+.company-benefit-entry button {
+    color: #444957;
+    border: 1px solid #e4e4e9;
+    border-radius: 10px;
+    background: #f9f9fb;
+    cursor: pointer;
+}
+
+.company-benefit-list,
+.company-benefit-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.company-benefit-list:empty {
+    display: none;
+}
+
+.company-benefit-chip,
+.company-benefit-suggestions button {
+    min-height: 24px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #646977;
+    border: 1px solid #e6e6eb;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 8px;
+}
+
+.company-benefit-chip {
+    color: #4f45df;
+    border-color: #dcd8ff;
+    background: #f5f3ff;
+}
+
+.company-benefit-chip button {
+    padding: 0;
+    color: inherit;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.company-benefit-suggestions button {
+    cursor: pointer;
+}
+
+.company-benefit-suggestions button:hover {
+    color: #4f45df;
+    border-color: #d9d5ff;
+}
+
+.company-map-placeholder {
+    height: 150px;
+    margin-top: 18px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 8px;
+    color: #858a98;
+    border: 1px solid #e8e8ed;
+    border-radius: 12px;
+    background:
+        linear-gradient(rgba(255, 255, 255, .7), rgba(255, 255, 255, .7)),
+        repeating-linear-gradient(45deg, #f4f4f7 0 12px, #fafafd 12px 24px);
+}
+
+.company-map-placeholder span {
+    font-size: 26px;
+}
+
+.company-map-placeholder small {
+    font-size: 9px;
+}
+
+.company-social-list {
+    display: grid;
+    gap: 9px;
+}
+
+.company-social-field {
+    display: grid;
+    grid-template-columns: 27px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+}
+
+.company-social-field > span {
+    color: #727785;
+    font-size: 11px;
+    font-weight: 750;
+    text-align: center;
+}
+
+.company-social-field input {
+    height: 39px;
+}
+
+.company-preview-dialog {
+    width: min(560px, calc(100% - 32px));
+    padding: 0;
+    color: var(--employer-text);
+    border: 1px solid #e6e5eb;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 28px 80px rgba(20, 20, 35, .2);
+}
+
+.company-preview-dialog::backdrop {
+    background: rgba(20, 21, 30, .45);
+    backdrop-filter: blur(3px);
+}
+
+.company-preview-header {
+    padding: 23px;
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr) 34px;
+    gap: 13px;
+    align-items: center;
+    border-bottom: 1px solid var(--employer-line);
+}
+
+.company-preview-logo {
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    color: #4f45df;
+    border-radius: 15px;
+    background: #eeecff;
+    font-size: 15px;
+    font-weight: 850;
+}
+
+.company-preview-header h2 {
+    margin: 0;
+    font-size: 19px;
+}
+
+.company-preview-header p {
+    margin: 4px 0 0;
+    color: #7a7f8d;
+    font-size: 11px;
+}
+
+.company-preview-header button {
+    width: 32px;
+    height: 32px;
+    color: #636876;
+    border: 1px solid #e5e5ea;
+    border-radius: 9px;
+    background: #fff;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.company-preview-description {
+    margin: 0;
+    padding: 22px 23px 12px;
+    color: #5f6472;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.company-preview-benefits {
+    padding: 5px 23px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.company-preview-benefits span {
+    padding: 6px 9px;
+    color: #4f45df;
+    border-radius: 999px;
+    background: #f0eeff;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.company-toast {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 120;
+    max-width: 340px;
+    padding: 12px 16px;
+    color: #fff;
+    border-radius: 11px;
+    background: #252936;
+    box-shadow: 0 16px 35px rgba(20, 21, 30, .2);
+    font-size: 11px;
+    font-weight: 650;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px);
+    transition:
+        opacity .18s ease,
+        transform .18s ease;
+}
+
+.company-toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.company-toast.error {
+    background: #b83d50;
+}
+
+@media (max-width: 850px) {
+    .company-main {
+        padding: 18px 20px 55px;
+    }
+
+    .company-tabs {
+        overflow-x: auto;
+    }
+
+    .company-tabs a,
+    .company-tabs button {
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 680px) {
+    .company-page-heading {
+        flex-direction: column;
+    }
+
+    .company-heading-actions {
+        width: 100%;
+    }
+
+    .company-heading-actions button {
+        flex: 1;
+    }
+
+    .company-completion {
+        padding: 13px;
+        grid-template-columns: 1fr auto;
+    }
+
+    .company-completion small {
+        grid-column: 1 / -1;
+    }
+
+    .company-form-card {
+        padding: 20px 17px;
+    }
+
+    .company-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .company-upload-grid {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .company-tabs a,
+    .company-tabs button {
+        min-width: 102px;
+        padding: 0 12px;
+    }
+
+    .company-page-heading h1 {
+        font-size: 25px;
+    }
+
+    .company-gallery-add,
+    .company-gallery-preview {
+        width: calc(50% - 5px);
+    }
+}

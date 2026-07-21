@@ -24,6 +24,18 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"rdkj98puup"},{"Name":"integrity","Value":"sha256-ETmwUKPCaz/L3/Jlu/BZbG\u002BK0HVze3vEQGvjwqj3IMI="},{"Name":"label","Value":"_content/GloryLikeWebApp/css/choose-portal.css"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"5771"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022ETmwUKPCaz/L3/Jlu/BZbG\u002BK0HVze3vEQGvjwqj3IMI=\u0022"},{"Name":"Last-Modified","Value":"Thu, 16 Jul 2026 10:54:35 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/company-profile.8aov5j2bff.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\company-profile.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"8aov5j2bff"},{"Name":"integrity","Value":"sha256-UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF\u002Bcet6Im84="},{"Name":"label","Value":"_content/GloryLikeWebApp/css/company-profile.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"12289"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF\u002Bcet6Im84=\u0022"},{"Name":"Last-Modified","Value":"Tue, 21 Jul 2026 05:04:11 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/company-profile.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\company-profile.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF\u002Bcet6Im84="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"12289"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF\u002Bcet6Im84=\u0022"},{"Name":"Last-Modified","Value":"Tue, 21 Jul 2026 05:04:11 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/css/create-vacancy-application-requirements.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\create-vacancy-application-requirements.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
@@ -203,6 +215,18 @@
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-o8s0O2sshLfap2fTqr4HoDe\u002BhlyDAFqJ/3Q9mFGi90U="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"673"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022o8s0O2sshLfap2fTqr4HoDe\u002BhlyDAFqJ/3Q9mFGi90U=\u0022"},{"Name":"Last-Modified","Value":"Wed, 15 Jul 2026 21:48:20 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/company-profile.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\company-profile.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-N1gsYt3BcLc6\u002BHDFzz5OC3B0w/orWr/OwvNbLQxwBJk="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"12944"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022N1gsYt3BcLc6\u002BHDFzz5OC3B0w/orWr/OwvNbLQxwBJk=\u0022"},{"Name":"Last-Modified","Value":"Tue, 21 Jul 2026 05:04:11 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/company-profile.nsbetmx74y.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\company-profile.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"nsbetmx74y"},{"Name":"integrity","Value":"sha256-N1gsYt3BcLc6\u002BHDFzz5OC3B0w/orWr/OwvNbLQxwBJk="},{"Name":"label","Value":"_content/GloryLikeWebApp/js/company-profile.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"12944"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022N1gsYt3BcLc6\u002BHDFzz5OC3B0w/orWr/OwvNbLQxwBJk=\u0022"},{"Name":"Last-Modified","Value":"Tue, 21 Jul 2026 05:04:11 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/GloryLikeWebApp/js/create-vacancy-application-requirements.2pld66m80u.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\create-vacancy-application-requirements.js'))</AssetFile>

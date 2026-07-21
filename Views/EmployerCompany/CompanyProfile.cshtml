@@ -1,0 +1,640 @@
+@model GloryLikeWebApp.Models.Employer.CompanyProfilePageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Company Profile";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SkillMatch</title>
+
+    <link
+        rel="stylesheet"
+        href="~/css/employer-home.css"
+        asp-append-version="true" />
+    <link
+        rel="stylesheet"
+        href="~/css/company-profile.css"
+        asp-append-version="true" />
+</head>
+
+<body>
+    <div class="employer-shell company-shell">
+        <header class="employer-topbar">
+            <a
+                class="employer-brand"
+                asp-controller="EmployerHome"
+                asp-action="EmployerHome">
+                SkillMatch
+            </a>
+
+            <div class="employer-search">
+                <span>⌕</span>
+                <input
+                    type="search"
+                    placeholder="Search by candidates/vacancies"
+                    aria-label="Search candidates or vacancies" />
+            </div>
+
+            <div class="employer-account">
+                <span class="demo-badge">Employer</span>
+
+                <div class="employer-avatar">
+                    @Model.Initials
+                </div>
+
+                <div class="employer-account-copy">
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(Model.Email)
+                            ? Model.DisplayName
+                            : Model.Email)
+                    </strong>
+                    <span>Employer workspace</span>
+                </div>
+
+                <a
+                    class="switch-portal-link"
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    Switch
+                </a>
+            </div>
+        </header>
+
+        <aside
+            class="employer-sidebar"
+            id="employerSidebar">
+            <nav aria-label="Employer navigation">
+                <a
+                    asp-controller="EmployerHome"
+                    asp-action="EmployerHome">
+                    <span>⌁</span>
+                    <strong>Dashboard</strong>
+                </a>
+
+                <a
+                    asp-controller="EmployerVacancies"
+                    asp-action="CreateVacancy">
+                    <span>▣</span>
+                    <strong>Vacancies</strong>
+                </a>
+
+                <a href="#">
+                    <span>▱</span>
+                    <strong>Recruitment requests</strong>
+                </a>
+
+                <a
+                    asp-controller="TalentRadar"
+                    asp-action="Index">
+                    <span>◎</span>
+                    <strong>Talent Radar</strong>
+                </a>
+
+                <a
+                    class="active"
+                    asp-controller="EmployerCompany"
+                    asp-action="Index">
+                    <span>▥</span>
+                    <strong>Company</strong>
+                </a>
+
+                <a href="#">
+                    <span>▧</span>
+                    <strong>Reports</strong>
+                </a>
+            </nav>
+
+            <div class="employer-sidebar-bottom">
+                <a
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    ⇄ Switch workspace
+                </a>
+
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">↪ Sign out</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="employer-main company-main">
+            <button
+                class="employer-menu-button"
+                type="button"
+                id="employerMenuButton"
+                aria-label="Open employer menu">
+                ☰
+            </button>
+
+            <div class="company-profile-content">
+                <nav class="company-tabs" aria-label="Company sections">
+                    <a
+                        class="active"
+                        asp-controller="EmployerCompany"
+                        asp-action="Index">
+                        <span>♙</span>
+                        Profile
+                    </a>
+                    <button type="button" data-future-tab>
+                        <span>▱</span>
+                        Structure
+                    </button>
+                    <button type="button" data-future-tab>
+                        <span>♧</span>
+                        Team
+                    </button>
+                    <button type="button" data-future-tab>
+                        <span>◎</span>
+                        Hiring Plan
+                    </button>
+                </nav>
+
+                <section class="company-page-heading">
+                    <div>
+                        <h1>Company Profile</h1>
+                        <p>
+                            Candidates will see this information. Fill out your
+                            profile — this is your career landing page.
+                        </p>
+                    </div>
+
+                    <div class="company-heading-actions">
+                        <button
+                            class="company-secondary-button"
+                            type="button"
+                            id="companyPreviewButton">
+                            <span>⊙</span>
+                            Preview
+                        </button>
+                        <button
+                            class="company-primary-button"
+                            type="button"
+                            id="companySaveButton">
+                            <span>▣</span>
+                            Save
+                        </button>
+                    </div>
+                </section>
+
+                <section class="company-completion" aria-label="Profile completion">
+                    <div class="company-completion-track">
+                        <span id="companyCompletionBar"></span>
+                    </div>
+                    <strong id="companyCompletionValue">0% Filled</strong>
+                    <small>Complete the profile completely for better visibility</small>
+                </section>
+
+                <form
+                    class="company-profile-form"
+                    id="companyProfileForm"
+                    data-storage-key="skillmatch-company-profile-@Model.UserId"
+                    novalidate>
+
+                    <section class="company-form-card">
+                        <h2>Basic information</h2>
+
+                        <div class="company-field full-width">
+                            <label for="companyName">Company Name *</label>
+                            <input
+                                id="companyName"
+                                name="companyName"
+                                type="text"
+                                maxlength="160"
+                                placeholder="OOO Horns and Hooves"
+                                autocomplete="organization"
+                                data-profile-field
+                                required />
+                            <small class="company-field-error" id="companyNameError"></small>
+                        </div>
+
+                        <div class="company-form-grid">
+                            <div class="company-field">
+                                <label for="companyType">Company Type</label>
+                                <select
+                                    id="companyType"
+                                    name="companyType"
+                                    data-profile-field>
+                                    <option value="">Select company type</option>
+                                    <option>Startup</option>
+                                    <option>SME</option>
+                                    <option>Enterprise</option>
+                                    <option>Government</option>
+                                    <option>Non-profit</option>
+                                </select>
+                            </div>
+
+                            <div class="company-field">
+                                <label for="activityScope">Scope of activity</label>
+                                <select
+                                    id="activityScope"
+                                    name="activityScope"
+                                    data-profile-field>
+                                    <option value="">Select a field of activity</option>
+                                    <option>Information Technology</option>
+                                    <option>Finance and Banking</option>
+                                    <option>Telecommunications</option>
+                                    <option>Retail and E-commerce</option>
+                                    <option>Education</option>
+                                    <option>Healthcare</option>
+                                    <option>Manufacturing</option>
+                                    <option>Professional Services</option>
+                                </select>
+                            </div>
+
+                            <div class="company-field">
+                                <label for="foundationYear">Year of foundation</label>
+                                <input
+                                    id="foundationYear"
+                                    name="foundationYear"
+                                    type="number"
+                                    min="1800"
+                                    max="2100"
+                                    inputmode="numeric"
+                                    placeholder="2015"
+                                    data-profile-field />
+                            </div>
+
+                            <div class="company-field">
+                                <label for="employeeCount">Number of employees</label>
+                                <select
+                                    id="employeeCount"
+                                    name="employeeCount"
+                                    data-profile-field>
+                                    <option value="">Select</option>
+                                    <option>1–10</option>
+                                    <option>11–50</option>
+                                    <option>51–200</option>
+                                    <option>201–500</option>
+                                    <option>501–1000</option>
+                                    <option>1000+</option>
+                                </select>
+                            </div>
+
+                            <div class="company-field">
+                                <label for="website">Website</label>
+                                <input
+                                    id="website"
+                                    name="website"
+                                    type="url"
+                                    maxlength="240"
+                                    placeholder="https://company.az"
+                                    autocomplete="url"
+                                    data-profile-field />
+                            </div>
+
+                            <div class="company-field">
+                                <label for="pageLanguage">Language of the company page</label>
+                                <select
+                                    id="pageLanguage"
+                                    name="pageLanguage"
+                                    data-profile-field>
+                                    <option value="">Select language</option>
+                                    <option>Azərbaycan dili</option>
+                                    <option>English</option>
+                                    <option>Russian</option>
+                                    <option>Turkish</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="company-form-card">
+                        <h2>Media &amp; branding</h2>
+
+                        <div class="company-form-grid company-upload-grid">
+                            <div class="company-field">
+                                <label>Logo</label>
+                                <label class="company-upload-tile" for="companyLogo">
+                                    <input
+                                        id="companyLogo"
+                                        name="companyLogo"
+                                        type="file"
+                                        accept="image/png,image/svg+xml"
+                                        data-max-size="2097152"
+                                        data-upload-kind="Logo"
+                                        data-profile-field />
+                                    <span class="company-upload-icon">⇧</span>
+                                    <strong data-upload-title>Logo</strong>
+                                    <small data-upload-caption>
+                                        Recommended size: 400×400 px · PNG or SVG · Max. 2MB
+                                    </small>
+                                </label>
+                            </div>
+
+                            <div class="company-field">
+                                <label>Cover</label>
+                                <label class="company-upload-tile" for="companyCover">
+                                    <input
+                                        id="companyCover"
+                                        name="companyCover"
+                                        type="file"
+                                        accept="image/jpeg,image/png"
+                                        data-max-size="5242880"
+                                        data-upload-kind="Cover"
+                                        data-profile-field />
+                                    <span class="company-upload-icon">⇧</span>
+                                    <strong data-upload-title>Cover</strong>
+                                    <small data-upload-caption>
+                                        Recommended size: 1440×400 px · JPG or PNG · Max. 5MB
+                                    </small>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="company-field company-gallery-field">
+                            <label>Photo Gallery</label>
+                            <small>Recommended size: 800×600 px · JPG or PNG · Max. 3MB each · up to 8 photos</small>
+
+                            <div class="company-gallery" id="companyGallery">
+                                <label class="company-gallery-add" for="companyGalleryFiles">
+                                    <input
+                                        id="companyGalleryFiles"
+                                        name="companyGalleryFiles"
+                                        type="file"
+                                        accept="image/jpeg,image/png"
+                                        multiple
+                                        data-max-size="3145728"
+                                        data-profile-field />
+                                    <span>＋</span>
+                                    <strong>Add photo</strong>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="company-field full-width">
+                            <label for="companyVideo">Company Video (YouTube / Vimeo)</label>
+                            <input
+                                id="companyVideo"
+                                name="companyVideo"
+                                type="url"
+                                maxlength="240"
+                                placeholder="https://youtube.com/watch?v=..."
+                                data-profile-field />
+                        </div>
+                    </section>
+
+                    <section class="company-form-card">
+                        <h2>About the company</h2>
+
+                        <div class="company-field full-width">
+                            <label for="companyDescription">Description</label>
+                            <textarea
+                                id="companyDescription"
+                                name="companyDescription"
+                                rows="5"
+                                maxlength="2500"
+                                placeholder="Tell us about the company..."
+                                data-profile-field></textarea>
+                        </div>
+                    </section>
+
+                    <section class="company-form-card">
+                        <h2>Life in the company</h2>
+
+                        <div class="company-field full-width">
+                            <label for="companyCulture">Culture and values</label>
+                            <textarea
+                                id="companyCulture"
+                                name="companyCulture"
+                                rows="4"
+                                maxlength="1600"
+                                placeholder="Describe the culture of the company..."
+                                data-profile-field></textarea>
+                        </div>
+
+                        <div class="company-field full-width">
+                            <label for="whyWorkWithUs">Why work with us</label>
+                            <textarea
+                                id="whyWorkWithUs"
+                                name="whyWorkWithUs"
+                                rows="4"
+                                maxlength="1600"
+                                placeholder="What attracts employees..."
+                                data-profile-field></textarea>
+                        </div>
+
+                        <div class="company-field full-width company-benefit-field">
+                            <label for="benefitInput">Bonuses and benefits</label>
+                            <div class="company-benefit-entry">
+                                <input
+                                    id="benefitInput"
+                                    type="text"
+                                    maxlength="70"
+                                    placeholder="Add bonus..." />
+                                <button
+                                    type="button"
+                                    id="addBenefitButton"
+                                    aria-label="Add benefit">
+                                    ＋
+                                </button>
+                            </div>
+
+                            <div
+                                class="company-benefit-list"
+                                id="companyBenefitList"
+                                data-profile-field>
+                            </div>
+
+                            <div class="company-benefit-suggestions" aria-label="Benefit suggestions">
+                                @foreach (var benefit in new[]
+                                {
+                                    "VHI",
+                                    "Flexible schedule",
+                                    "Remote work",
+                                    "Free lunches",
+                                    "Corporate Training",
+                                    "Fitness",
+                                    "Parking",
+                                    "Bonuses"
+                                })
+                                {
+                                    <button
+                                        type="button"
+                                        data-benefit-suggestion="@benefit">
+                                        + @benefit
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="company-form-card">
+                        <h2>Location</h2>
+
+                        <div class="company-field full-width">
+                            <label for="companyAddress">Address</label>
+                            <input
+                                id="companyAddress"
+                                name="companyAddress"
+                                type="text"
+                                maxlength="240"
+                                placeholder="Street, building, office"
+                                autocomplete="street-address"
+                                data-profile-field />
+                        </div>
+
+                        <div class="company-form-grid">
+                            <div class="company-field">
+                                <label for="companyCountry">Country</label>
+                                <input
+                                    id="companyCountry"
+                                    name="companyCountry"
+                                    type="text"
+                                    maxlength="100"
+                                    placeholder="Azerbaijan"
+                                    autocomplete="country-name"
+                                    data-profile-field />
+                            </div>
+                            <div class="company-field">
+                                <label for="companyCity">City</label>
+                                <input
+                                    id="companyCity"
+                                    name="companyCity"
+                                    type="text"
+                                    maxlength="100"
+                                    placeholder="Baku"
+                                    autocomplete="address-level2"
+                                    data-profile-field />
+                            </div>
+                        </div>
+
+                        <div class="company-map-placeholder">
+                            <span>⌖</span>
+                            <small>Map integration coming soon</small>
+                        </div>
+                    </section>
+
+                    <section class="company-form-card">
+                        <h2>Social media</h2>
+
+                        <div class="company-social-list">
+                            <label class="company-social-field" for="linkedInUrl">
+                                <span>in</span>
+                                <input
+                                    id="linkedInUrl"
+                                    name="linkedInUrl"
+                                    type="url"
+                                    maxlength="240"
+                                    placeholder="https://linkedin.com/company/..."
+                                    aria-label="LinkedIn URL"
+                                    data-profile-field />
+                            </label>
+
+                            <label class="company-social-field" for="instagramUrl">
+                                <span>◎</span>
+                                <input
+                                    id="instagramUrl"
+                                    name="instagramUrl"
+                                    type="url"
+                                    maxlength="240"
+                                    placeholder="https://instagram.com/..."
+                                    aria-label="Instagram URL"
+                                    data-profile-field />
+                            </label>
+
+                            <label class="company-social-field" for="facebookUrl">
+                                <span>f</span>
+                                <input
+                                    id="facebookUrl"
+                                    name="facebookUrl"
+                                    type="url"
+                                    maxlength="240"
+                                    placeholder="https://facebook.com/..."
+                                    aria-label="Facebook URL"
+                                    data-profile-field />
+                            </label>
+
+                            <label class="company-social-field" for="youtubeUrl">
+                                <span>▶</span>
+                                <input
+                                    id="youtubeUrl"
+                                    name="youtubeUrl"
+                                    type="url"
+                                    maxlength="240"
+                                    placeholder="https://youtube.com/@@..."
+                                    aria-label="YouTube URL"
+                                    data-profile-field />
+                            </label>
+
+                            <label class="company-social-field" for="telegramUrl">
+                                <span>◉</span>
+                                <input
+                                    id="telegramUrl"
+                                    name="telegramUrl"
+                                    type="url"
+                                    maxlength="240"
+                                    placeholder="https://t.me/..."
+                                    aria-label="Telegram URL"
+                                    data-profile-field />
+                            </label>
+
+                            <label class="company-social-field" for="tiktokUrl">
+                                <span>♪</span>
+                                <input
+                                    id="tiktokUrl"
+                                    name="tiktokUrl"
+                                    type="url"
+                                    maxlength="240"
+                                    placeholder="https://tiktok.com/@@..."
+                                    aria-label="TikTok URL"
+                                    data-profile-field />
+                            </label>
+                        </div>
+                    </section>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <div
+        class="employer-backdrop"
+        id="employerBackdrop">
+    </div>
+
+    <dialog class="company-preview-dialog" id="companyPreviewDialog">
+        <div class="company-preview-header">
+            <div class="company-preview-logo" id="companyPreviewInitials">CO</div>
+            <div>
+                <h2 id="companyPreviewName">Company name</h2>
+                <p id="companyPreviewMeta">Company profile preview</p>
+            </div>
+            <button
+                type="button"
+                id="companyPreviewClose"
+                aria-label="Close preview">
+                ×
+            </button>
+        </div>
+
+        <p class="company-preview-description" id="companyPreviewDescription">
+            Add a company description to see it here.
+        </p>
+
+        <div class="company-preview-benefits" id="companyPreviewBenefits"></div>
+    </dialog>
+
+    <div
+        class="company-toast"
+        id="companyToast"
+        role="status"
+        aria-live="polite">
+    </div>
+
+    <script
+        src="~/js/employer-home.js"
+        asp-append-version="true">
+    </script>
+    <script
+        src="~/js/company-profile.js"
+        asp-append-version="true">
+    </script>
+</body>
+</html>

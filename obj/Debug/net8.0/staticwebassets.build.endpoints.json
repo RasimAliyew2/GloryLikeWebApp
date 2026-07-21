@@ -249,6 +249,88 @@
       ]
     },
     {
+      "Route": "css/company-profile.8aov5j2bff.css",
+      "AssetFile": "css/company-profile.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12289"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF+cet6Im84=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 05:04:11 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "8aov5j2bff"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF+cet6Im84="
+        },
+        {
+          "Name": "label",
+          "Value": "css/company-profile.css"
+        }
+      ]
+    },
+    {
+      "Route": "css/company-profile.css",
+      "AssetFile": "css/company-profile.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12289"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF+cet6Im84=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 05:04:11 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-UEKJ8T8e/djpLQt8ntuMqFl1lVUuZUFTfF+cet6Im84="
+        }
+      ]
+    },
+    {
       "Route": "css/create-vacancy-application-requirements.css",
       "AssetFile": "css/create-vacancy-application-requirements.css",
       "Selectors": [],
@@ -1393,6 +1475,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-o8s0O2sshLfap2fTqr4HoDe+hlyDAFqJ/3Q9mFGi90U="
+        }
+      ]
+    },
+    {
+      "Route": "js/company-profile.js",
+      "AssetFile": "js/company-profile.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12944"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1gsYt3BcLc6+HDFzz5OC3B0w/orWr/OwvNbLQxwBJk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 05:04:11 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-N1gsYt3BcLc6+HDFzz5OC3B0w/orWr/OwvNbLQxwBJk="
+        }
+      ]
+    },
+    {
+      "Route": "js/company-profile.nsbetmx74y.js",
+      "AssetFile": "js/company-profile.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "12944"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"N1gsYt3BcLc6+HDFzz5OC3B0w/orWr/OwvNbLQxwBJk=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 05:04:11 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "nsbetmx74y"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-N1gsYt3BcLc6+HDFzz5OC3B0w/orWr/OwvNbLQxwBJk="
+        },
+        {
+          "Name": "label",
+          "Value": "js/company-profile.js"
         }
       ]
     },
