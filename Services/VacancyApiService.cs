@@ -23,6 +23,82 @@ public sealed class VacancyApiService : IVacancyApiService
         _logger = logger;
     }
 
+    public async Task<EmployerVacancyListApiResult>
+        GetEmployerVacanciesAsync(
+            int employerUserId,
+            CancellationToken cancellationToken = default)
+    {
+        if (employerUserId <= 0)
+        {
+            return EmployerVacancyListApiResult.Fail(
+                "Employer user ID düzgün deyil.");
+        }
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(
+                $"api/Vacancies/employer/{employerUserId}",
+                cancellationToken);
+
+            var body = await response.Content.ReadAsStringAsync(
+                cancellationToken);
+
+            EmployerVacancyListApiResponse? apiResponse = null;
+
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<EmployerVacancyListApiResponse>(
+                        body,
+                        JsonOptions);
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "Employer vacancies API cavabı JSON kimi oxunmadı. HTTP {StatusCode}.",
+                        (int)response.StatusCode);
+                }
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return EmployerVacancyListApiResult.Fail(
+                    ExtractMessage(
+                        body,
+                        apiResponse?.Message,
+                        $"Vacancies yüklənmədi. HTTP {(int)response.StatusCode}."));
+            }
+
+            if (apiResponse is null || !apiResponse.Success)
+            {
+                return EmployerVacancyListApiResult.Fail(
+                    apiResponse?.Message
+                    ?? "Backend vacancy list cavabı oxunmadı.");
+            }
+
+            apiResponse.Vacancies ??= new List<EmployerVacancyListApiItem>();
+
+            return EmployerVacancyListApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return EmployerVacancyListApiResult.Fail(
+                "Vacancy list sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(
+                ex,
+                "Vacancies BackendApp-dən yüklənmədi.");
+
+            return EmployerVacancyListApiResult.Fail(
+                "BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
     public async Task<CreateVacancyApiResult> CreateAsync(
         int employerUserId,
         CreateVacancyInput vacancy,

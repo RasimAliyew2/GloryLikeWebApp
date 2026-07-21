@@ -1,0 +1,317 @@
+@model GloryLikeWebApp.Models.Employer.EmployerVacanciesPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "My Vacancies";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SkillMatch</title>
+
+    <link
+        rel="stylesheet"
+        href="~/css/employer-home.css"
+        asp-append-version="true" />
+    <link
+        rel="stylesheet"
+        href="~/css/employer-vacancies-list.css"
+        asp-append-version="true" />
+</head>
+
+<body>
+    <div class="employer-shell vacancies-list-shell">
+        <header class="employer-topbar">
+            <a
+                class="employer-brand"
+                asp-controller="EmployerHome"
+                asp-action="EmployerHome">
+                SkillMatch
+            </a>
+
+            <div class="employer-search">
+                <span>⌕</span>
+                <input
+                    id="vacancySearchInput"
+                    type="search"
+                    placeholder="Search by candidates/vacancies"
+                    aria-label="Search vacancies" />
+            </div>
+
+            <div class="employer-account">
+                <span class="demo-badge">Employer</span>
+
+                <div class="employer-avatar">
+                    @Model.Initials
+                </div>
+
+                <div class="employer-account-copy">
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(Model.Email)
+                            ? Model.DisplayName
+                            : Model.Email)
+                    </strong>
+                    <span>Employer workspace</span>
+                </div>
+
+                <a
+                    class="switch-portal-link"
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    Switch
+                </a>
+            </div>
+        </header>
+
+        <aside
+            class="employer-sidebar"
+            id="employerSidebar">
+            <nav aria-label="Employer navigation">
+                <a
+                    asp-controller="EmployerHome"
+                    asp-action="EmployerHome">
+                    <span>⌁</span>
+                    <strong>Dashboard</strong>
+                </a>
+
+                <a
+                    class="active"
+                    asp-controller="EmployerVacancies"
+                    asp-action="Index">
+                    <span>▣</span>
+                    <strong>Vacancies</strong>
+                </a>
+
+                <a href="#">
+                    <span>▱</span>
+                    <strong>Recruitment requests</strong>
+                </a>
+
+                <a
+                    asp-controller="TalentRadar"
+                    asp-action="Index">
+                    <span>◎</span>
+                    <strong>Talent Radar</strong>
+                </a>
+
+                <a
+                    asp-controller="EmployerCompany"
+                    asp-action="Index">
+                    <span>▥</span>
+                    <strong>Company</strong>
+                </a>
+
+                <a href="#">
+                    <span>▧</span>
+                    <strong>Reports</strong>
+                </a>
+            </nav>
+
+            <div class="employer-sidebar-bottom">
+                <a
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    ⇄ Switch workspace
+                </a>
+
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">↪ Sign out</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="employer-main vacancies-list-main">
+            <button
+                class="employer-menu-button"
+                type="button"
+                id="employerMenuButton"
+                aria-label="Open employer menu">
+                ☰
+            </button>
+
+            <section class="vacancies-list-heading">
+                <div>
+                    <h1>My vacancies</h1>
+                    <p>Manage your vacancies</p>
+                </div>
+
+                <a
+                    class="vacancies-create-button"
+                    asp-controller="EmployerVacancies"
+                    asp-action="CreateVacancy">
+                    <span>＋</span>
+                    Create a vacancy
+                </a>
+            </section>
+
+            <nav class="vacancy-status-tabs" aria-label="Vacancy status filters">
+                <button
+                    class="active"
+                    type="button"
+                    data-vacancy-filter="all">
+                    All
+                    <span>@Model.AllCount</span>
+                </button>
+                <button
+                    type="button"
+                    data-vacancy-filter="active">
+                    Active
+                    <span>@Model.ActiveCount</span>
+                </button>
+                <button
+                    type="button"
+                    data-vacancy-filter="suspended">
+                    Suspended
+                    <span>@Model.SuspendedCount</span>
+                </button>
+                <button
+                    type="button"
+                    data-vacancy-filter="draft">
+                    Drafts
+                    <span>@Model.DraftCount</span>
+                </button>
+            </nav>
+
+            @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+            {
+                <div class="vacancies-list-message success">
+                    <strong>Vacancy created</strong>
+                    <span>@Model.SuccessMessage</span>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="vacancies-list-message error">
+                    <strong>Vacancies could not be loaded</strong>
+                    <span>@Model.ErrorMessage</span>
+                </div>
+            }
+
+            @if (Model.Vacancies.Count == 0)
+            {
+                <section class="vacancies-empty-state">
+                    <span class="vacancies-empty-icon">▣</span>
+                    <h2>No vacancies yet</h2>
+                    <p>Create your first vacancy and it will appear here with its current status.</p>
+                    <a
+                        asp-controller="EmployerVacancies"
+                        asp-action="CreateVacancy">
+                        ＋ Create a vacancy
+                    </a>
+                </section>
+            }
+            else
+            {
+                <section class="vacancies-table-card">
+                    <div class="vacancies-table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Direction</th>
+                                    <th>Status</th>
+                                    <th class="center-column">Candidates</th>
+                                    <th>Team</th>
+                                    <th>Date</th>
+                                    <th aria-label="Actions"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var vacancy in Model.Vacancies)
+                                {
+                                    <tr
+                                        data-vacancy-row
+                                        data-status="@vacancy.StatusKey"
+                                        data-search-value="@vacancy.SearchValue">
+                                        <td>
+                                            <div class="vacancy-name-cell">
+                                                <strong>@vacancy.VacancyName</strong>
+                                                <small>@vacancy.PlatformVacancyId</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="vacancy-direction">
+                                                @vacancy.Direction
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="vacancy-status @vacancy.StatusCssClass">
+                                                @vacancy.StatusLabel
+                                            </span>
+                                        </td>
+                                        <td class="center-column">
+                                            @vacancy.CandidateCount
+                                        </td>
+                                        <td>
+                                            <span class="vacancy-team-empty">—</span>
+                                        </td>
+                                        <td>
+                                            <time datetime="@vacancy.DateIso">
+                                                @vacancy.DateText
+                                            </time>
+                                        </td>
+                                        <td class="vacancy-actions-cell">
+                                            <button
+                                                class="vacancy-row-menu-button"
+                                                type="button"
+                                                data-vacancy-menu-button
+                                                aria-label="Actions for @vacancy.VacancyName"
+                                                aria-expanded="false">
+                                                •••
+                                            </button>
+
+                                            <div class="vacancy-row-menu" data-vacancy-menu hidden>
+                                                <button
+                                                    type="button"
+                                                    data-copy-vacancy-id="@vacancy.PlatformVacancyId">
+                                                    Copy vacancy ID
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section
+                    class="vacancies-filter-empty"
+                    id="vacanciesFilterEmpty"
+                    hidden>
+                    <strong>No vacancies match this filter</strong>
+                    <span>Try another status or search phrase.</span>
+                </section>
+            }
+
+            <div
+                class="vacancies-list-live-status"
+                id="vacanciesListStatus"
+                role="status"
+                aria-live="polite">
+            </div>
+        </main>
+    </div>
+
+    <div
+        class="employer-backdrop"
+        id="employerBackdrop">
+    </div>
+
+    <script
+        src="~/js/employer-home.js"
+        asp-append-version="true">
+    </script>
+    <script
+        src="~/js/employer-vacancies-list.js"
+        asp-append-version="true">
+    </script>
+</body>
+</html>

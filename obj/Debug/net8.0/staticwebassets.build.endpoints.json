@@ -905,6 +905,88 @@
       ]
     },
     {
+      "Route": "css/employer-vacancies-list.css",
+      "AssetFile": "css/employer-vacancies-list.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "8421"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qJBS+orAjeU7n+kLxUpC4En0gEy1uXTOIEKjsFs7Rkw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 07:30:19 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-qJBS+orAjeU7n+kLxUpC4En0gEy1uXTOIEKjsFs7Rkw="
+        }
+      ]
+    },
+    {
+      "Route": "css/employer-vacancies-list.khnzblhbv5.css",
+      "AssetFile": "css/employer-vacancies-list.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "8421"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"qJBS+orAjeU7n+kLxUpC4En0gEy1uXTOIEKjsFs7Rkw=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 07:30:19 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "khnzblhbv5"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-qJBS+orAjeU7n+kLxUpC4En0gEy1uXTOIEKjsFs7Rkw="
+        },
+        {
+          "Name": "label",
+          "Value": "css/employer-vacancies-list.css"
+        }
+      ]
+    },
+    {
       "Route": "css/opportunities-page.css",
       "AssetFile": "css/opportunities-page.css",
       "Selectors": [],
@@ -2049,6 +2131,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-NnuVW6er92gE+ZG6NQEsj6f4NOInmpL2CvXlLuYqgZg="
+        }
+      ]
+    },
+    {
+      "Route": "js/employer-vacancies-list.hq1965i0tx.js",
+      "AssetFile": "js/employer-vacancies-list.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4140"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"CYu1nq5QpxYgPx5CRAz3UxMICuQsn98tXpiOxrzjvyM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 07:30:19 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "hq1965i0tx"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-CYu1nq5QpxYgPx5CRAz3UxMICuQsn98tXpiOxrzjvyM="
+        },
+        {
+          "Name": "label",
+          "Value": "js/employer-vacancies-list.js"
+        }
+      ]
+    },
+    {
+      "Route": "js/employer-vacancies-list.js",
+      "AssetFile": "js/employer-vacancies-list.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "4140"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"CYu1nq5QpxYgPx5CRAz3UxMICuQsn98tXpiOxrzjvyM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 21 Jul 2026 07:30:19 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-CYu1nq5QpxYgPx5CRAz3UxMICuQsn98tXpiOxrzjvyM="
         }
       ]
     },

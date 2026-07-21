@@ -45,6 +45,10 @@
       "PackagePath": "staticwebassets\\css\\employer-home.css"
     },
     {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\employer-vacancies-list.css",
+      "PackagePath": "staticwebassets\\css\\employer-vacancies-list.css"
+    },
+    {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\opportunities-page.css",
       "PackagePath": "staticwebassets\\css\\opportunities-page.css"
     },
@@ -99,6 +103,10 @@
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\employer-home.js",
       "PackagePath": "staticwebassets\\js\\employer-home.js"
+    },
+    {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\employer-vacancies-list.js",
+      "PackagePath": "staticwebassets\\js\\employer-vacancies-list.js"
     },
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\opportunities-page.js",

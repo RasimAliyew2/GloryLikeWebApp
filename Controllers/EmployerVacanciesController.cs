@@ -29,6 +29,60 @@ public sealed class EmployerVacanciesController : Controller
         _logger = logger;
     }
 
+    [HttpGet("/Employer/Vacancies")]
+    public async Task<IActionResult> Index(
+        CancellationToken cancellationToken)
+    {
+        var model = new EmployerVacanciesPageViewModel
+        {
+            DisplayName = GetDisplayName(),
+            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+            SuccessMessage = TempData["VacancySuccessMessage"] as string
+        };
+
+        if (!TryGetEmployerUserId(out var employerUserId))
+        {
+            model.ErrorMessage =
+                "Login məlumatında employer user ID tapılmadı. Yenidən sign in edin.";
+            return View("Vacancies", model);
+        }
+
+        var result = await _vacancyApiService.GetEmployerVacanciesAsync(
+            employerUserId,
+            cancellationToken);
+
+        if (!result.Success || result.Data is null)
+        {
+            model.ErrorMessage = string.IsNullOrWhiteSpace(result.Message)
+                ? "Vacancies yüklənmədi."
+                : result.Message;
+
+            _logger.LogWarning(
+                "Employer {EmployerUserId} üçün vacancy list yüklənmədi: {Message}",
+                employerUserId,
+                model.ErrorMessage);
+
+            return View("Vacancies", model);
+        }
+
+        model.Vacancies = result.Data.Vacancies
+            .Select(vacancy => new EmployerVacancyListItemViewModel
+            {
+                VacancyId = vacancy.VacancyId,
+                PlatformVacancyId = vacancy.PlatformVacancyId,
+                RoleTitle = vacancy.RoleTitle,
+                JobFamilyName = vacancy.JobFamilyName,
+                PositionName = vacancy.PositionName,
+                Status = vacancy.Status,
+                CandidateCount = Math.Max(vacancy.CandidateCount, 0),
+                PublishDate = vacancy.PublishDate,
+                CreatedAtUtc = vacancy.CreatedAtUtc
+            })
+            .ToList();
+
+        return View("Vacancies", model);
+    }
+
     [HttpGet("/Employer/Vacancies/Create")]
     public async Task<IActionResult> CreateVacancy(
         CancellationToken cancellationToken)
@@ -136,7 +190,7 @@ public sealed class EmployerVacanciesController : Controller
             $"Vacancy SQL-də yaradıldı. ID: {createResult.VacancyId}, "
             + $"Platform ID: {createResult.PlatformVacancyId}.";
 
-        return RedirectToAction(nameof(CreateVacancy));
+        return RedirectToAction(nameof(Index));
     }
 
     private async Task<CreateVacancyPageViewModel>
