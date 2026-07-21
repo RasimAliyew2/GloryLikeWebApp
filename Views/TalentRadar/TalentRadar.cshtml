@@ -1,0 +1,317 @@
+@model GloryLikeWebApp.Models.Employer.TalentRadarPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Talent Radar";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SkillMatch</title>
+
+    <link
+        rel="stylesheet"
+        href="~/css/employer-home.css"
+        asp-append-version="true" />
+    <link
+        rel="stylesheet"
+        href="~/css/talent-radar.css"
+        asp-append-version="true" />
+</head>
+
+<body>
+    <div class="employer-shell talent-radar-shell">
+        <header class="employer-topbar">
+            <a
+                class="employer-brand"
+                asp-controller="EmployerHome"
+                asp-action="EmployerHome">
+                SkillMatch
+            </a>
+
+            <div class="employer-search">
+                <span>⌕</span>
+                <input
+                    id="talentRadarSearch"
+                    type="search"
+                    placeholder="Search by candidate/vacancy"
+                    aria-label="Search Talent Radar candidates" />
+            </div>
+
+            <div class="employer-account">
+                <span class="demo-badge">Employer</span>
+
+                <div class="employer-avatar">
+                    @Model.Initials
+                </div>
+
+                <div class="employer-account-copy">
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(Model.Email)
+                            ? Model.DisplayName
+                            : Model.Email)
+                    </strong>
+                    <span>Employer workspace</span>
+                </div>
+
+                <a
+                    class="switch-portal-link"
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    Switch
+                </a>
+            </div>
+        </header>
+
+        <aside
+            class="employer-sidebar"
+            id="employerSidebar">
+            <nav aria-label="Employer navigation">
+                <a
+                    asp-controller="EmployerHome"
+                    asp-action="EmployerHome">
+                    <span>⌁</span>
+                    <strong>Dashboard</strong>
+                </a>
+
+                <a
+                    asp-controller="EmployerVacancies"
+                    asp-action="CreateVacancy">
+                    <span>▣</span>
+                    <strong>Vacancies</strong>
+                </a>
+
+                <a href="#">
+                    <span>▱</span>
+                    <strong>Recruitment requests</strong>
+                </a>
+
+                <a
+                    class="active"
+                    asp-controller="TalentRadar"
+                    asp-action="Index">
+                    <span>◎</span>
+                    <strong>Talent Radar</strong>
+                </a>
+
+                <a href="#">
+                    <span>▥</span>
+                    <strong>Company</strong>
+                </a>
+
+                <a href="#">
+                    <span>▧</span>
+                    <strong>Reports</strong>
+                </a>
+            </nav>
+
+            <div class="employer-sidebar-bottom">
+                <a
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    ⇄ Switch workspace
+                </a>
+
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">↪ Sign out</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="employer-main talent-radar-main">
+            <button
+                class="employer-menu-button"
+                type="button"
+                id="employerMenuButton"
+                aria-label="Open employer menu">
+                ☰
+            </button>
+
+            <section class="talent-radar-heading">
+                <div class="talent-radar-title-icon">◎</div>
+
+                <div class="talent-radar-heading-copy">
+                    <h1>Talent Radar</h1>
+                    <p>
+                        Candidates whose Job matches at least one
+                        of your vacancies
+                    </p>
+                </div>
+
+                <div class="talent-radar-summary">
+                    <div>
+                        <strong>@Model.Candidates.Count</strong>
+                        <span>Candidates</span>
+                    </div>
+                    <div>
+                        <strong>@Model.ScoredVacancies</strong>
+                        <span>Scored roles</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="radar-rule-card">
+                <span class="radar-rule-icon">∑</span>
+                <div>
+                    <strong>Role Readiness</strong>
+                    <span>
+                        Weighted vacancy skill score only — no
+                        SeniorityFit or ContextFit.
+                    </span>
+                </div>
+                <code>Σ(wᵢ × sᵢ) / Σ(wᵢ)</code>
+            </section>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <section class="talent-radar-state error" role="alert">
+                    <strong>Talent Radar could not be loaded</strong>
+                    <span>@Model.ErrorMessage</span>
+                </section>
+            }
+            else if (Model.Candidates.Count == 0)
+            {
+                <section class="talent-radar-state empty">
+                    <span class="state-icon">◎</span>
+                    <strong>No matching candidates yet</strong>
+                    <span>
+                        @(string.IsNullOrWhiteSpace(Model.StatusMessage)
+                            ? "Create a vacancy and add its skill template first."
+                            : Model.StatusMessage)
+                    </span>
+
+                    <a
+                        asp-controller="EmployerVacancies"
+                        asp-action="CreateVacancy">
+                        Create a vacancy
+                    </a>
+                </section>
+            }
+            else
+            {
+                <section
+                    class="talent-radar-list"
+                    id="talentRadarList"
+                    aria-live="polite">
+                    @foreach (var candidate in Model.Candidates)
+                    {
+                        var searchValue = string.Join(
+                            " ",
+                            new[]
+                            {
+                                candidate.Name,
+                                candidate.CurrentRole,
+                                candidate.JobFamilyName,
+                                candidate.TargetRoleTitle,
+                                candidate.PlatformVacancyId,
+                                string.Join(
+                                    " ",
+                                    candidate.Skills.Select(
+                                        skill => skill.SkillName))
+                            })
+                            .ToLowerInvariant();
+
+                        <article
+                            class="talent-radar-card"
+                            data-radar-card
+                            data-search-value="@searchValue">
+                            <div class="radar-candidate-profile">
+                                <span class="radar-candidate-avatar">
+                                    @candidate.Initials
+                                </span>
+
+                                <div>
+                                    <h2>@candidate.Name</h2>
+                                    <p>@candidate.CurrentRole</p>
+                                    <span class="job-match-label">
+                                        ✓ @candidate.JobFamilyName Job match
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="radar-role-details">
+                                <span class="radar-eyebrow">BEST MATCHING VACANCY</span>
+                                <strong>@candidate.TargetRoleTitle</strong>
+                                <small>
+                                    @candidate.PlatformVacancyId
+                                    · matches @candidate.MatchedVacancyCount vacancy(s)
+                                </small>
+
+                                <div class="radar-skill-list">
+                                    @if (candidate.Skills.Count == 0)
+                                    {
+                                        <span class="radar-skill missing">
+                                            No scored template skill
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var skill in candidate.Skills.Take(4))
+                                        {
+                                            <span class="radar-skill">
+                                                @if (skill.IsVerified)
+                                                {
+                                                    <span aria-label="Verified">✓</span>
+                                                }
+                                                @skill.SkillName
+                                                <small>@skill.Score</small>
+                                            </span>
+                                        }
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="radar-score-column">
+                                <span>ROLE READINESS</span>
+
+                                <div
+                                    class="readiness-ring @candidate.ScoreClass"
+                                    style="--readiness: @candidate.RoleReadiness;"
+                                    aria-label="Role readiness @candidate.RoleReadiness percent">
+                                    <div>
+                                        <strong>@candidate.RoleReadiness%</strong>
+                                        <small>match</small>
+                                    </div>
+                                </div>
+
+                                <small>
+                                    @candidate.MatchedSkillsCount /
+                                    @candidate.TemplateSkillsCount skills
+                                </small>
+                            </div>
+                        </article>
+                    }
+                </section>
+
+                <section
+                    class="talent-radar-state search-empty"
+                    id="talentRadarSearchEmpty"
+                    hidden>
+                    <strong>No candidate matches this search</strong>
+                    <span>Try another candidate, vacancy or skill name.</span>
+                </section>
+            }
+        </main>
+    </div>
+
+    <div
+        class="employer-backdrop"
+        id="employerBackdrop">
+    </div>
+
+    <script
+        src="~/js/employer-home.js"
+        asp-append-version="true">
+    </script>
+    <script
+        src="~/js/talent-radar.js"
+        asp-append-version="true">
+    </script>
+</body>
+</html>

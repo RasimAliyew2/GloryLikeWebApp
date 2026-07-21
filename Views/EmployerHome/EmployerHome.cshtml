@@ -88,7 +88,9 @@
                     <strong>Recruitment requests</strong>
                 </a>
 
-                <a href="#">
+                <a
+                    asp-controller="TalentRadar"
+                    asp-action="Index">
                     <span>◎</span>
                     <strong>Talent Radar</strong>
                 </a>
@@ -205,9 +207,12 @@
                         </p>
                     </div>
 
-                    <button type="button">
+                    <a
+                        class="candidate-view-all"
+                        asp-controller="TalentRadar"
+                        asp-action="Index">
                         View all candidates
-                    </button>
+                    </a>
                 </div>
 
                 <div class="candidate-list">

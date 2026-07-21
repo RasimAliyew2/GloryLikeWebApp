@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Security.Claims;
 using GloryLikeWebApp.Models;
 using GloryLikeWebApp.Models.Employer;
@@ -67,6 +68,15 @@ public sealed class EmployerVacanciesController : Controller
         NormalizeScreeningQuestions(input);
         NormalizeFunnelStages(input);
         NormalizePublication(input);
+
+        input.ClientRequisitionCode =
+        input.ClientRequisitionCode?.Trim() ?? string.Empty;
+
+        input.JobDescription =
+            input.JobDescription?.Trim() ?? string.Empty;
+
+        input.ScreeningNotes =
+            input.ScreeningNotes?.Trim() ?? string.Empty;
 
         var model = await BuildPageModelAsync(
             input,

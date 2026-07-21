@@ -75,7 +75,7 @@ public sealed class CreateVacancyInput
     public string PlatformVacancyId { get; set; } = string.Empty;
 
     [StringLength(100)]
-    public string ClientRequisitionCode { get; set; } = string.Empty;
+    public string? ClientRequisitionCode { get; set; } = string.Empty;
 
     [Required]
     public string EmploymentType { get; set; } = "Full-time";
@@ -106,7 +106,7 @@ public sealed class CreateVacancyInput
     public bool HideSalary { get; set; }
 
     [StringLength(5000)]
-    public string JobDescription { get; set; } = string.Empty;
+    public string? JobDescription { get; set; } = string.Empty;
 
     /// <summary>
     /// Yeni əsas model. Hər skill öz verification level və
@@ -152,7 +152,7 @@ public sealed class CreateVacancyInput
 
     public bool AutoRejectBelowScore { get; set; }
     public bool RequireVerifiedCoreSkills { get; set; } = true;
-    public string ScreeningNotes { get; set; } = string.Empty;
+    public string? ScreeningNotes { get; set; } = string.Empty;
 
     // Step 4 — Funnel
     public List<VacancyFunnelStageInput> FunnelStages

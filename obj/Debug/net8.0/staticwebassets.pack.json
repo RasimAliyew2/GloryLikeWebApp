@@ -57,6 +57,10 @@
       "PackagePath": "staticwebassets\\css\\skills-page.css"
     },
     {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\css\\talent-radar.css",
+      "PackagePath": "staticwebassets\\css\\talent-radar.css"
+    },
+    {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\favicon.ico",
       "PackagePath": "staticwebassets\\favicon.ico"
     },
@@ -99,6 +103,10 @@
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\skills-page.js",
       "PackagePath": "staticwebassets\\js\\skills-page.js"
+    },
+    {
+      "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\js\\talent-radar.js",
+      "PackagePath": "staticwebassets\\js\\talent-radar.js"
     },
     {
       "Id": "C:\\Users\\Rasim\\source\\repos\\GloryLikeWebApp\\GloryLikeWebApp\\wwwroot\\lib\\bootstrap\\LICENSE",

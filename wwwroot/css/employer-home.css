@@ -447,15 +447,19 @@ input {
     font-size: 12px;
 }
 
-.candidate-panel-heading button {
+.candidate-panel-heading button,
+.candidate-panel-heading .candidate-view-all {
     min-height: 39px;
     padding: 0 13px;
+    display: inline-flex;
+    align-items: center;
     color: #575d6b;
     border: 1px solid var(--employer-line);
     border-radius: 11px;
     background: #fff;
     cursor: pointer;
     font-weight: 700;
+    text-decoration: none;
 }
 
 .candidate-list {

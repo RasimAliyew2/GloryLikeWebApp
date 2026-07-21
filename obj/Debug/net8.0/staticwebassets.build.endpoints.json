@@ -741,7 +741,7 @@
       ]
     },
     {
-      "Route": "css/employer-home.6f0u04uvv5.css",
+      "Route": "css/employer-home.5rf546qltr.css",
       "AssetFile": "css/employer-home.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -755,7 +755,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12750"
+          "Value": "12874"
         },
         {
           "Name": "Content-Type",
@@ -763,21 +763,21 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"XnKvzzTVizusxUusKpj1GZ2mkjbhjscf/s1YVqPgLkA=\""
+          "Value": "\"ARv2yKHe6JoHF20eh8atzrUitkiHKeI2Aq2jzNxId54=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 16 Jul 2026 12:13:35 GMT"
+          "Value": "Mon, 20 Jul 2026 10:44:43 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "6f0u04uvv5"
+          "Value": "5rf546qltr"
         },
         {
           "Name": "integrity",
-          "Value": "sha256-XnKvzzTVizusxUusKpj1GZ2mkjbhjscf/s1YVqPgLkA="
+          "Value": "sha256-ARv2yKHe6JoHF20eh8atzrUitkiHKeI2Aq2jzNxId54="
         },
         {
           "Name": "label",
@@ -800,7 +800,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "12750"
+          "Value": "12874"
         },
         {
           "Name": "Content-Type",
@@ -808,17 +808,17 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"XnKvzzTVizusxUusKpj1GZ2mkjbhjscf/s1YVqPgLkA=\""
+          "Value": "\"ARv2yKHe6JoHF20eh8atzrUitkiHKeI2Aq2jzNxId54=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 16 Jul 2026 12:13:35 GMT"
+          "Value": "Mon, 20 Jul 2026 10:44:43 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-XnKvzzTVizusxUusKpj1GZ2mkjbhjscf/s1YVqPgLkA="
+          "Value": "sha256-ARv2yKHe6JoHF20eh8atzrUitkiHKeI2Aq2jzNxId54="
         }
       ]
     },
@@ -1151,6 +1151,88 @@
       ]
     },
     {
+      "Route": "css/talent-radar.css",
+      "AssetFile": "css/talent-radar.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "9117"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lk/RzrVvKoA7/eafAcIVkuOV5xV4fgaQLlWyzP027bU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 20 Jul 2026 10:44:37 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-lk/RzrVvKoA7/eafAcIVkuOV5xV4fgaQLlWyzP027bU="
+        }
+      ]
+    },
+    {
+      "Route": "css/talent-radar.mwouqblbby.css",
+      "AssetFile": "css/talent-radar.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "9117"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"lk/RzrVvKoA7/eafAcIVkuOV5xV4fgaQLlWyzP027bU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 20 Jul 2026 10:44:37 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "mwouqblbby"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-lk/RzrVvKoA7/eafAcIVkuOV5xV4fgaQLlWyzP027bU="
+        },
+        {
+          "Name": "label",
+          "Value": "css/talent-radar.css"
+        }
+      ]
+    },
+    {
       "Route": "favicon.61n19gt1b8.ico",
       "AssetFile": "favicon.ico",
       "Selectors": [],
@@ -1479,51 +1561,6 @@
       ]
     },
     {
-      "Route": "js/create-vacancy-publication.52h96sjecj.js",
-      "AssetFile": "js/create-vacancy-publication.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "8764"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"Y9uXcLU6MdXeo5GUXJgKQRgh0E7Fsz8FrCmEOH5Rbss=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 20 Jul 2026 08:09:09 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "52h96sjecj"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-Y9uXcLU6MdXeo5GUXJgKQRgh0E7Fsz8FrCmEOH5Rbss="
-        },
-        {
-          "Name": "label",
-          "Value": "js/create-vacancy-publication.js"
-        }
-      ]
-    },
-    {
       "Route": "js/create-vacancy-publication.js",
       "AssetFile": "js/create-vacancy-publication.js",
       "Selectors": [],
@@ -1538,7 +1575,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "8764"
+          "Value": "9237"
         },
         {
           "Name": "Content-Type",
@@ -1546,17 +1583,62 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"Y9uXcLU6MdXeo5GUXJgKQRgh0E7Fsz8FrCmEOH5Rbss=\""
+          "Value": "\"XN+RPQpKRkK2/1fGsfV9X8mLObuzpmgHlJCyGlCvfdY=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 20 Jul 2026 08:09:09 GMT"
+          "Value": "Mon, 20 Jul 2026 09:24:39 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-Y9uXcLU6MdXeo5GUXJgKQRgh0E7Fsz8FrCmEOH5Rbss="
+          "Value": "sha256-XN+RPQpKRkK2/1fGsfV9X8mLObuzpmgHlJCyGlCvfdY="
+        }
+      ]
+    },
+    {
+      "Route": "js/create-vacancy-publication.w1eeu1y9sn.js",
+      "AssetFile": "js/create-vacancy-publication.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "9237"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"XN+RPQpKRkK2/1fGsfV9X8mLObuzpmgHlJCyGlCvfdY=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 20 Jul 2026 09:24:39 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "w1eeu1y9sn"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-XN+RPQpKRkK2/1fGsfV9X8mLObuzpmgHlJCyGlCvfdY="
+        },
+        {
+          "Name": "label",
+          "Value": "js/create-vacancy-publication.js"
         }
       ]
     },
@@ -2049,6 +2131,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-40jd4flBwNCno1ctTs3OoIrBwH5oxviQd9tFTRtE9LE="
+        }
+      ]
+    },
+    {
+      "Route": "js/talent-radar.dbcw2gnlug.js",
+      "AssetFile": "js/talent-radar.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1027"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"p8eXUay/ezCz5ut7WnD5A2+tuKXPq3Q1kmorwjbkHhM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 20 Jul 2026 10:44:37 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "dbcw2gnlug"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-p8eXUay/ezCz5ut7WnD5A2+tuKXPq3Q1kmorwjbkHhM="
+        },
+        {
+          "Name": "label",
+          "Value": "js/talent-radar.js"
+        }
+      ]
+    },
+    {
+      "Route": "js/talent-radar.js",
+      "AssetFile": "js/talent-radar.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "1027"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"p8eXUay/ezCz5ut7WnD5A2+tuKXPq3Q1kmorwjbkHhM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 20 Jul 2026 10:44:37 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-p8eXUay/ezCz5ut7WnD5A2+tuKXPq3Q1kmorwjbkHhM="
         }
       ]
     },
