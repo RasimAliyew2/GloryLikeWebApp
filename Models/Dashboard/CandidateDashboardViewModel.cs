@@ -23,7 +23,7 @@ public class CandidateDashboardViewModel
 
     public string? RecommendedJobsError { get; set; }
     public string RecommendedJobsEmptyMessage { get; set; } =
-        "No matching job offers were found for your Job.";
+        "No matching active vacancies were found for your Job.";
 
     public bool HasRecommendedJobs => RecommendedJobs.Count > 0;
     public bool HasRecommendedJobsError =>

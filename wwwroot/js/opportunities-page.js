@@ -11,6 +11,12 @@
         document.getElementById(
             "clientFilterEmpty");
 
+    const antiForgeryToken =
+        document.querySelector(
+            "#opportunityApplyToken input[name='__RequestVerificationToken']")
+            ?.value
+        ?? "";
+
     const savedStorageKey =
         "glorylike.saved-opportunities";
 
@@ -199,16 +205,86 @@
         .forEach(button => {
             button.addEventListener(
                 "click",
-                () => {
-                    const title =
-                        button.dataset.roleTitle
-                        ?? "this role";
+                async () => {
+                    const control = button.closest(
+                        "[data-application-control]");
+                    const card = button.closest(
+                        "[data-opportunity-card]");
+                    const errorElement = control?.querySelector(
+                        "[data-application-error]");
+                    const responseElement = control?.querySelector(
+                        ".application-response");
+                    const applyUrl = button.dataset.applyUrl ?? "";
 
-                    window.alert(
-                        `${title} üçün Apply əməliyyatı `
-                        + "hazırkı Mobile App-də olduğu kimi "
-                        + "təsdiq mesajıdır. Applications SQL API "
-                        + "qoşulduqda real müraciət burada saxlanacaq.");
+                    if (!control
+                        || control.dataset.applied === "true"
+                        || !applyUrl)
+                    {
+                        return;
+                    }
+
+                    if (errorElement) {
+                        errorElement.hidden = true;
+                        errorElement.textContent = "";
+                    }
+
+                    button.disabled = true;
+                    button.classList.add("loading");
+
+                    try {
+                        const response = await fetch(applyUrl, {
+                            method: "POST",
+                            headers: {
+                                "Accept": "application/json",
+                                "RequestVerificationToken": antiForgeryToken,
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            credentials: "same-origin"
+                        });
+
+                        let payload = {};
+
+                        try {
+                            payload = await response.json();
+                        } catch {
+                            payload = {};
+                        }
+
+                        if (!response.ok || payload.success !== true) {
+                            throw new Error(
+                                payload.message
+                                || "Application could not be saved.");
+                        }
+
+                        if (responseElement) {
+                            responseElement.textContent =
+                                payload.statusText
+                                || "No response yet";
+                        }
+
+                        control.dataset.applied = "true";
+                        control.classList.remove("just-applied");
+
+                        // Reflow animasiyanın hər uğurlu keçiddə başlamasını təmin edir.
+                        void control.offsetWidth;
+                        control.classList.add("just-applied");
+
+                        if (card) {
+                            card.dataset.applicationState = "applied";
+                        }
+                    } catch (error) {
+                        if (errorElement) {
+                            errorElement.textContent =
+                                error instanceof Error
+                                    ? error.message
+                                    : "Application could not be saved.";
+                            errorElement.hidden = false;
+                        }
+
+                        button.disabled = false;
+                    } finally {
+                        button.classList.remove("loading");
+                    }
                 });
         });
 })();

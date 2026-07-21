@@ -16,7 +16,7 @@ public sealed class OpportunitiesPageViewModel
     public string? ErrorMessage { get; set; }
 
     public string EmptyMessage { get; set; } =
-        "Your current Job üçün SQL-də uyğun JobOffer tapılmadı.";
+        "Your current Job üçün SQL-də uyğun aktiv Vacancy tapılmadı.";
 
     public bool HasError =>
         !string.IsNullOrWhiteSpace(ErrorMessage);

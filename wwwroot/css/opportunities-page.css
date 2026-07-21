@@ -261,6 +261,7 @@
         52px
         minmax(0, 1fr)
         auto
+        minmax(122px, auto)
         38px
         auto;
     align-items: center;
@@ -337,6 +338,150 @@
 .match-score span {
     color: #7c879a;
     font-size: 10px;
+}
+
+.application-control {
+    min-width: 122px;
+    display: grid;
+    justify-items: center;
+    gap: 5px;
+}
+
+.apply-now-button {
+    min-width: 122px;
+    min-height: 42px;
+    padding: 0 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #fff;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(
+        110deg,
+        var(--op-indigo),
+        var(--op-purple));
+    box-shadow: 0 8px 18px rgba(82, 101, 213, .18);
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition:
+        transform .16s ease,
+        box-shadow .16s ease,
+        opacity .16s ease;
+}
+
+.apply-now-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 11px 23px rgba(82, 101, 213, .25);
+}
+
+.apply-now-button:disabled {
+    opacity: .7;
+    cursor: wait;
+}
+
+.apply-loading-spinner {
+    width: 16px;
+    height: 16px;
+    display: none;
+    border: 2px solid rgba(255, 255, 255, .45);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: apply-spin .65s linear infinite;
+}
+
+.apply-now-button.loading .apply-loading-spinner {
+    display: block;
+}
+
+.application-control[data-applied="true"] .apply-now-button,
+.application-control[data-applied="false"] .application-confirmation {
+    display: none;
+}
+
+.application-confirmation {
+    min-width: 122px;
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+}
+
+.application-check {
+    width: 39px;
+    height: 39px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    border-radius: 50%;
+    background: #16a36f;
+    box-shadow: 0 8px 19px rgba(22, 163, 111, .24);
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.application-response {
+    color: #16845f;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.application-control.just-applied .application-check {
+    animation: application-check-pop .48s cubic-bezier(.2, .85, .25, 1.35);
+}
+
+.application-control.just-applied .application-response {
+    animation: application-response-in .32s ease .28s both;
+}
+
+.application-error {
+    max-width: 180px;
+    color: #b43e4a;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: center;
+}
+
+.application-error[hidden] {
+    display: none;
+}
+
+@keyframes apply-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes application-check-pop {
+    0% {
+        opacity: 0;
+        transform: scale(.25) translateY(-8px);
+    }
+
+    70% {
+        opacity: 1;
+        transform: scale(1.12) translateY(0);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes application-response-in {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .opportunity-bookmark,
@@ -520,8 +665,7 @@
     gap: 10px;
 }
 
-.secondary-role-button,
-.apply-role-button {
+.secondary-role-button {
     min-height: 42px;
     padding: 0 15px;
     display: inline-flex;
@@ -536,15 +680,6 @@
     color: #56637a;
     border: 1px solid var(--op-line);
     background: #fff;
-}
-
-.apply-role-button {
-    color: #fff;
-    border: 0;
-    background: linear-gradient(
-        110deg,
-        var(--op-indigo),
-        var(--op-purple));
 }
 
 .opportunity-state,
@@ -627,8 +762,35 @@
             38px;
     }
 
+    .opportunity-logo {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .opportunity-title {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .match-score {
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    .opportunity-bookmark {
+        grid-column: 4;
+        grid-row: 1;
+    }
+
+    .application-control {
+        grid-column: 2 / 4;
+        grid-row: 2;
+        justify-self: end;
+    }
+
     .opportunity-toggle {
-        grid-column: 2 / -1;
+        grid-column: 4;
+        grid-row: 2;
         justify-self: end;
     }
 
@@ -680,17 +842,24 @@
 
     .match-score {
         grid-column: 1;
+        grid-row: 2;
     }
 
-    .opportunity-bookmark {
+    .application-control {
         grid-column: 2;
         grid-row: 2;
         justify-self: start;
     }
 
+    .opportunity-bookmark {
+        grid-column: 1;
+        grid-row: 3;
+        justify-self: start;
+    }
+
     .opportunity-toggle {
         grid-column: 2;
-        grid-row: 2;
+        grid-row: 3;
         justify-self: end;
     }
 
@@ -703,8 +872,16 @@
         flex-direction: column;
     }
 
-    .secondary-role-button,
-    .apply-role-button {
+    .secondary-role-button {
         width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .apply-loading-spinner,
+    .application-control.just-applied .application-check,
+    .application-control.just-applied .application-response {
+        animation-duration: .01ms;
+        animation-iteration-count: 1;
     }
 }

@@ -11,17 +11,14 @@ namespace GloryLikeWebApp.Controllers;
 public sealed class OpportunitiesController : Controller
 {
     private readonly ILogger<OpportunitiesController> _logger;
-    private readonly IUserProfileDataApiService _userProfileDataApiService;
-    private readonly IJobOffersApiService _jobOffersApiService;
+    private readonly IVacancyApiService _vacancyApiService;
 
     public OpportunitiesController(
         ILogger<OpportunitiesController> logger,
-        IUserProfileDataApiService userProfileDataApiService,
-        IJobOffersApiService jobOffersApiService)
+        IVacancyApiService vacancyApiService)
     {
         _logger = logger;
-        _userProfileDataApiService = userProfileDataApiService;
-        _jobOffersApiService = jobOffersApiService;
+        _vacancyApiService = vacancyApiService;
     }
 
     [HttpGet("/Opportunities")]
@@ -29,70 +26,36 @@ public sealed class OpportunitiesController : Controller
         string? search,
         CancellationToken cancellationToken)
     {
-        var userIdValue = User.FindFirstValue(
-            ClaimTypes.NameIdentifier);
-
-        if (!int.TryParse(userIdValue, out var userId)
-            || userId <= 0)
-        {
+        if (!TryGetCandidateUserId(out var candidateUserId))
             return Challenge();
-        }
 
-        var model = CreateBaseModel(userId, search);
-
-        var profileResult =
-            await _userProfileDataApiService.GetAsync(
-                userId,
-                cancellationToken);
-
-        if (!profileResult.Success
-            || profileResult.Data is null)
-        {
-            model.ErrorMessage =
-                string.IsNullOrWhiteSpace(profileResult.Message)
-                    ? "SQL profile məlumatı yüklənmədi."
-                    : profileResult.Message;
-
-            return View("OpportunitiesPage", model);
-        }
-
-        var selectedSkills =
-            profileResult.Data.Skills
-            ?? new List<UserSkillInfo>();
-
-        model.CurrentJobName =
-            ResolveCurrentJobName(selectedSkills);
-
-        // Strict Job filter:
-        // Job müəyyən edilməyibsə bütün elanları göstərmirik.
-        if (string.IsNullOrWhiteSpace(model.CurrentJobName))
-        {
-            model.EmptyMessage =
-                "User-in cari Job məlumatı SQL profile datasında tapılmadı. "
-                + "Job müəyyən edilmədən elanlar filtrsiz göstərilmir.";
-
-            return View("OpportunitiesPage", model);
-        }
+        var model = CreateBaseModel(candidateUserId, search);
 
         try
         {
-            var jobOffers =
-                await _jobOffersApiService.GetJobOffersAsync(
-                    cancellationToken);
+            var result = await _vacancyApiService.GetCandidateVacanciesAsync(
+                candidateUserId,
+                cancellationToken);
 
-            var opportunities = BuildOpportunities(
-                jobOffers,
-                model.CurrentJobName,
-                selectedSkills);
+            if (!result.Success || result.Data is null)
+            {
+                model.ErrorMessage = string.IsNullOrWhiteSpace(result.Message)
+                    ? "Vacancies SQL datası yüklənmədi."
+                    : result.Message;
+
+                return View("OpportunitiesPage", model);
+            }
+
+            var data = result.Data;
+            model.CurrentJobName = ResolveCurrentJobName(data);
+            var opportunities = BuildOpportunities(data.Vacancies);
 
             if (!string.IsNullOrWhiteSpace(model.SearchText))
             {
                 opportunities = opportunities
-                    .Where(
-                        opportunity => opportunity.SearchText
-                            .Contains(
-                                model.SearchText,
-                                StringComparison.OrdinalIgnoreCase))
+                    .Where(opportunity => opportunity.SearchText.Contains(
+                        model.SearchText,
+                        StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
 
@@ -100,48 +63,83 @@ public sealed class OpportunitiesController : Controller
 
             if (model.Opportunities.Count == 0)
             {
-                model.EmptyMessage =
-                    string.IsNullOrWhiteSpace(model.SearchText)
-                        ? $"SQL-də “{model.CurrentJobName}” Job-u üçün uyğun JobOffer tapılmadı."
-                        : $"“{model.SearchText}” axtarışına uyğun {model.CurrentJobName} JobOffer-i tapılmadı.";
+                model.EmptyMessage = string.IsNullOrWhiteSpace(model.SearchText)
+                    ? string.IsNullOrWhiteSpace(data.Message)
+                        ? "JobFamilyId-nizə uyğun aktiv vacancy tapılmadı."
+                        : data.Message
+                    : $"“{model.SearchText}” axtarışına uyğun vacancy tapılmadı.";
             }
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
             _logger.LogError(
-                ex,
-                "Opportunities could not be loaded for user {UserId}.",
-                userId);
+                exception,
+                "Candidate vacancies could not be loaded for user {UserId}.",
+                candidateUserId);
 
             model.ErrorMessage =
-                "JobOffers SQL datası yüklənmədi: "
-                + ex.Message;
+                "Vacancies SQL datası yüklənmədi: " + exception.Message;
         }
 
         return View("OpportunitiesPage", model);
+    }
+
+    [HttpPost("/Opportunities/{vacancyId:int}/Apply")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Apply(
+        int vacancyId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetCandidateUserId(out var candidateUserId))
+            return Unauthorized(new { success = false, message = "Sign in tələb olunur." });
+
+        var result = await _vacancyApiService.ApplyAsync(
+            vacancyId,
+            candidateUserId,
+            cancellationToken);
+
+        if (!result.Success || result.Data is null)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = string.IsNullOrWhiteSpace(result.Message)
+                    ? "Müraciət SQL-də saxlanmadı."
+                    : result.Message
+            });
+        }
+
+        return Ok(new
+        {
+            success = true,
+            message = result.Data.Message,
+            applicationId = result.Data.ApplicationId,
+            status = result.Data.Status,
+            statusText = "No response yet",
+            appliedAtUtc = result.Data.AppliedAtUtc,
+            alreadyApplied = result.Data.AlreadyApplied
+        });
+    }
+
+    private bool TryGetCandidateUserId(out int candidateUserId)
+    {
+        return int.TryParse(
+                User.FindFirstValue(ClaimTypes.NameIdentifier),
+                out candidateUserId)
+            && candidateUserId > 0;
     }
 
     private OpportunitiesPageViewModel CreateBaseModel(
         int userId,
         string? search)
     {
-        var firstName =
-            User.FindFirstValue(ClaimTypes.Name)
-            ?? string.Empty;
-
-        var surname =
-            User.FindFirstValue(ClaimTypes.Surname)
-            ?? string.Empty;
-
-        var userName =
-            User.FindFirstValue("username")
-            ?? string.Empty;
-
+        var firstName = User.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
+        var surname = User.FindFirstValue(ClaimTypes.Surname) ?? string.Empty;
+        var userName = User.FindFirstValue("username") ?? string.Empty;
         var displayName = string.Join(
             " ",
             new[] { firstName, surname }
-                .Where(
-                    value => !string.IsNullOrWhiteSpace(value)));
+                .Where(value => !string.IsNullOrWhiteSpace(value)));
 
         if (string.IsNullOrWhiteSpace(displayName))
         {
@@ -155,220 +153,124 @@ public sealed class OpportunitiesController : Controller
             UserId = userId,
             DisplayName = displayName,
             UserName = userName,
-            Email = User.FindFirstValue(ClaimTypes.Email)
-                ?? string.Empty,
+            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
             SearchText = search?.Trim() ?? string.Empty
         };
     }
 
-    private string ResolveCurrentJobName(
-        IReadOnlyCollection<UserSkillInfo> selectedSkills)
+    private static string ResolveCurrentJobName(
+        CandidateVacancyListApiResponse response)
     {
-        // Login/backend gələcəkdə Job claim göndərərsə,
-        // həmin dəyər SQL skill fallback-dan əvvəl istifadə ediləcək.
-        var jobClaim =
-            User.FindFirstValue("jobFamilyName");
+        var names = response.CandidateJobFamilyNames
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Select(name => name.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(name => name)
+            .ToList();
 
-        if (!string.IsNullOrWhiteSpace(jobClaim))
-            return jobClaim.Trim();
+        if (names.Count == 0)
+        {
+            names = response.Vacancies
+                .Where(vacancy =>
+                    !string.IsNullOrWhiteSpace(vacancy.JobFamilyName))
+                .Select(vacancy => vacancy.JobFamilyName.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(name => name)
+                .ToList();
+        }
 
-        // Hazırkı BackendApp profile contract-da Job ayrıca
-        // qaytarılmadığı üçün cari Job SQL-də saxlanan
-        // skill-lərin JobFamilyName dəyərindən müəyyən edilir.
-        return selectedSkills
-            .Where(
-                skill => !string.IsNullOrWhiteSpace(
-                    skill.JobFamilyName))
-            .GroupBy(
-                skill => skill.JobFamilyName.Trim(),
-                StringComparer.OrdinalIgnoreCase)
-            .OrderByDescending(group => group.Count())
-            .ThenBy(group => group.Key)
-            .Select(group => group.Key)
-            .FirstOrDefault()
-            ?? string.Empty;
+        return string.Join(", ", names);
     }
 
     private static List<OpportunityItem> BuildOpportunities(
-        IReadOnlyList<JobOfferApiItem> jobOffers,
-        string currentJobName,
-        IReadOnlyCollection<UserSkillInfo> selectedSkills)
+        IReadOnlyCollection<CandidateVacancyApiItem> vacancies)
     {
-        var candidateSkills =
-            BuildCandidateSkillScoreMap(selectedSkills);
-
-        // Vacib: Job filter score hesablanmazdan əvvəl tətbiq edilir.
-        // HR user-in siyahısına programmer offer heç vaxt daxil olmur.
-        var matchingJobOffers = jobOffers
-            .Where(offer => offer is not null)
-            .Where(
-                offer => !string.IsNullOrWhiteSpace(
-                    offer.RequiredJob))
-            .Where(
-                offer => !string.IsNullOrWhiteSpace(
-                    offer.Skills))
-            .Where(offer => offer.SkillsWeight > 0)
-            .Where(
-                offer => Normalize(offer.RequiredJob)
-                    == Normalize(currentJobName))
-            .ToList();
-
-        var groups = matchingJobOffers
-            .GroupBy(
-                offer => new
-                {
-                    RequiredJob = offer.RequiredJob.Trim(),
-                    Name = string.IsNullOrWhiteSpace(offer.Name)
-                        ? BuildTitle(
-                            offer.RequiredJob,
-                            offer.Seniority)
-                        : offer.Name.Trim(),
-                    Description =
-                        offer.Description?.Trim()
-                        ?? string.Empty,
-                    Seniority =
-                        string.IsNullOrWhiteSpace(
-                            offer.Seniority)
-                            ? "Middle"
-                            : offer.Seniority.Trim()
-                })
-            .ToList();
-
         var result = new List<OpportunityItem>();
         var index = 0;
 
-        foreach (var group in groups)
+        foreach (var vacancy in vacancies.Where(item => item.VacancyId > 0))
         {
-            var requiredSkills = group
-                .Select(
-                    offer => new RequiredSkillTemplate
-                    {
-                        SkillName = offer.Skills.Trim(),
-                        Weight = Math.Max(
-                            offer.SkillsWeight,
-                            1)
-                    })
-                .Where(
-                    skill => !string.IsNullOrWhiteSpace(
-                        skill.SkillName))
+            var requiredSkills = vacancy.Skills
+                .Where(skill => !string.IsNullOrWhiteSpace(skill.SkillName))
                 .GroupBy(
-                    skill => Normalize(skill.SkillName),
-                    StringComparer.OrdinalIgnoreCase)
-                .Select(
-                    skillGroup => new RequiredSkillTemplate
-                    {
-                        SkillName =
-                            skillGroup.First().SkillName,
-                        Weight =
-                            skillGroup.Max(
-                                skill => skill.Weight)
-                    })
-                .ToList();
-
-            if (requiredSkills.Count == 0)
-                continue;
-
-            var score = CalculateRoleReadiness(
-                requiredSkills,
-                candidateSkills);
-
-            var matchedSkills = requiredSkills
-                .Where(
-                    skill => candidateSkills.ContainsKey(
-                        Normalize(skill.SkillName)))
-                .Select(skill => skill.SkillName)
-                .OrderBy(skill => skill)
-                .ToList();
-
-            var missingSkills = requiredSkills
-                .Where(
-                    skill => !candidateSkills.ContainsKey(
-                        Normalize(skill.SkillName)))
-                .Select(skill => skill.SkillName)
-                .OrderBy(skill => skill)
-                .ToList();
-
-            var responsibilities = requiredSkills
+                    skill => skill.SkillId > 0
+                        ? $"id:{skill.SkillId}"
+                        : $"name:{skill.SkillName.Trim().ToLowerInvariant()}")
+                .Select(group => group
+                    .OrderByDescending(skill => skill.Weight)
+                    .First())
                 .OrderByDescending(skill => skill.Weight)
                 .ThenBy(skill => skill.SkillName)
-                .Take(5)
-                .Select(
-                    skill =>
-                        $"{skill.SkillName} — weight {skill.Weight}")
                 .ToList();
 
-            result.Add(
-                new OpportunityItem
-                {
-                    Id = group.Min(offer => offer.Id),
+            var matchedSkills = requiredSkills
+                .Where(skill => skill.IsMatched)
+                .Select(skill => skill.SkillName.Trim())
+                .ToList();
+            var missingSkills = requiredSkills
+                .Where(skill => !skill.IsMatched)
+                .Select(skill => skill.SkillName.Trim())
+                .ToList();
+            var responsibilities = requiredSkills
+                .Take(6)
+                .Select(skill =>
+                    $"{skill.SkillName.Trim()} — {skill.RequirementType}, weight {skill.Weight}")
+                .ToList();
 
-                    LogoLetter =
-                        GetLogoLetter(group.Key.RequiredJob),
+            var title = string.IsNullOrWhiteSpace(vacancy.RoleTitle)
+                ? string.IsNullOrWhiteSpace(vacancy.PositionName)
+                    ? $"Vacancy #{vacancy.VacancyId}"
+                    : vacancy.PositionName.Trim()
+                : vacancy.RoleTitle.Trim();
+            var jobFamilyName = string.IsNullOrWhiteSpace(vacancy.JobFamilyName)
+                ? "Vacancy"
+                : vacancy.JobFamilyName.Trim();
 
-                    // Mobile App da Company sahəsinə RequiredJob yazır.
-                    // Bu dəyər SQL JobOffers-dan gəlir.
-                    Company = group.Key.RequiredJob,
-
-                    Title = group.Key.Name,
-                    Level = group.Key.Seniority,
-
-                    // Backend modelində location/work type/salary yoxdur.
-                    // Saxta data yaratmamaq üçün yalnız SQL-dən
-                    // hesablana bilən məlumat göstərilir.
-                    Location = "SQL JobOffer",
-                    WorkType = "Role",
-                    Salary =
-                        requiredSkills.Count == 1
-                            ? "1 required skill"
-                            : $"{requiredSkills.Count} required skills",
-
-                    Score = score,
-                    ScoreColor = GetScoreColor(score),
-                    IsExpanded = index == 0,
-
-                    AboutRole =
-                        string.IsNullOrWhiteSpace(
-                            group.Key.Description)
-                            ? "Bu JobOffer üçün description SQL-də qeyd edilməyib."
-                            : group.Key.Description,
-
-                    Responsibilities =
-                        string.Join(
-                            Environment.NewLine,
-                            responsibilities.Select(
-                                item => $"• {item}")),
-
-                    MatchedSkills =
-                        matchedSkills.Count == 0
-                            ? "No matched skills yet"
-                            : string.Join(", ", matchedSkills),
-
-                    MissingSkills =
-                        missingSkills.Count == 0
-                            ? "No missing required skills"
-                            : string.Join(
-                                ", ",
-                                missingSkills.Take(8)),
-
-                    MatchNote = BuildMatchNote(
-                        score,
-                        matchedSkills.Count,
-                        requiredSkills.Count),
-
-                    RequiredSkillsCount =
-                        requiredSkills.Count,
-
-                    RequiredSkillItems =
-                        requiredSkills
-                            .Select(skill => skill.SkillName)
-                            .ToList(),
-
-                    MatchedSkillItems = matchedSkills,
-                    MissingSkillItems = missingSkills,
-
-                    ResponsibilityItems =
-                        responsibilities
-                });
+            result.Add(new OpportunityItem
+            {
+                Id = vacancy.VacancyId,
+                PlatformVacancyId = vacancy.PlatformVacancyId,
+                LogoLetter = GetLogoLetter(title),
+                Company = jobFamilyName,
+                EmployerName = vacancy.EmployerName,
+                Title = title,
+                Level = vacancy.SeniorityName,
+                Location = string.IsNullOrWhiteSpace(vacancy.EmployerName)
+                    ? "Employer vacancy"
+                    : vacancy.EmployerName.Trim(),
+                WorkType = vacancy.EmploymentType,
+                Salary = BuildSalaryText(vacancy),
+                Score = Math.Clamp(vacancy.MatchScore, 0, 100),
+                ScoreColor = GetScoreColor(vacancy.MatchScore),
+                IsExpanded = index == 0,
+                AboutRole = string.IsNullOrWhiteSpace(vacancy.JobDescription)
+                    ? "Bu vacancy üçün job description qeyd edilməyib."
+                    : vacancy.JobDescription.Trim(),
+                Responsibilities = string.Join(
+                    Environment.NewLine,
+                    responsibilities),
+                MatchedSkills = matchedSkills.Count == 0
+                    ? "No matched skills yet"
+                    : string.Join(", ", matchedSkills),
+                MissingSkills = missingSkills.Count == 0
+                    ? "No missing required skills"
+                    : string.Join(", ", missingSkills),
+                MatchNote = BuildMatchNote(
+                    vacancy.MatchScore,
+                    matchedSkills.Count,
+                    requiredSkills.Count),
+                RequiredSkillsCount = requiredSkills.Count,
+                RequiredSkillItems = requiredSkills
+                    .Select(skill => skill.SkillName.Trim())
+                    .ToList(),
+                MatchedSkillItems = matchedSkills,
+                MissingSkillItems = missingSkills,
+                ResponsibilityItems = responsibilities,
+                IsApplied = vacancy.HasApplied,
+                ApplicationId = vacancy.ApplicationId,
+                ApplicationStatus = vacancy.ApplicationStatus,
+                AppliedAtUtc = vacancy.AppliedAtUtc
+            });
 
             index++;
         }
@@ -379,83 +281,26 @@ public sealed class OpportunitiesController : Controller
             .ToList();
     }
 
-    /// <summary>
-    /// Mobile App OpportunitiesViewModel ilə eyni score mənbə seçimi:
-    /// DepthScore varsa onu, yoxdursa KnowledgeScore-u istifadə edir.
-    /// </summary>
-    private static Dictionary<string, double>
-        BuildCandidateSkillScoreMap(
-            IReadOnlyCollection<UserSkillInfo> selectedSkills)
+    private static string BuildSalaryText(CandidateVacancyApiItem vacancy)
     {
-        return selectedSkills
-            .Where(
-                skill => !string.IsNullOrWhiteSpace(
-                    skill.SkillName))
-            .GroupBy(
-                skill => Normalize(skill.SkillName),
-                StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Max(GetCandidateSkillScore),
-                StringComparer.OrdinalIgnoreCase);
-    }
-
-    private static double GetCandidateSkillScore(
-        UserSkillInfo skill)
-    {
-        if (skill.DepthScore > 0)
+        if (vacancy.HideSalary
+            || (!vacancy.MinSalary.HasValue && !vacancy.MaxSalary.HasValue))
         {
-            return Math.Clamp(
-                skill.DepthScore,
-                0,
-                100);
+            return "Salary not disclosed";
         }
 
-        if (skill.KnowledgeScore > 0)
+        var currency = string.IsNullOrWhiteSpace(vacancy.Currency)
+            ? string.Empty
+            : $" {vacancy.Currency.Trim()}";
+
+        if (vacancy.MinSalary.HasValue && vacancy.MaxSalary.HasValue)
         {
-            return Math.Clamp(
-                skill.KnowledgeScore,
-                0,
-                100);
+            return $"{vacancy.MinSalary.Value:0.##}–{vacancy.MaxSalary.Value:0.##}{currency}";
         }
 
-        return 0;
-    }
-
-    private static int CalculateRoleReadiness(
-        IReadOnlyCollection<RequiredSkillTemplate> requiredSkills,
-        IReadOnlyDictionary<string, double> candidateSkills)
-    {
-        var denominator =
-            requiredSkills.Sum(skill => skill.Weight);
-
-        if (denominator <= 0)
-            return 0;
-
-        var numerator = requiredSkills.Sum(
-            requiredSkill =>
-            {
-                var key =
-                    Normalize(requiredSkill.SkillName);
-
-                var candidateScore =
-                    candidateSkills.TryGetValue(
-                        key,
-                        out var value)
-                        ? value
-                        : 0d;
-
-                return requiredSkill.Weight
-                    * candidateScore;
-            });
-
-        var readiness = numerator / denominator;
-
-        // Round half up: 40.5 -> 41.
-        return (int)Math.Clamp(
-            Math.Floor(readiness + 0.5d),
-            0,
-            100);
+        return vacancy.MinSalary.HasValue
+            ? $"From {vacancy.MinSalary.Value:0.##}{currency}"
+            : $"Up to {vacancy.MaxSalary!.Value:0.##}{currency}";
     }
 
     private static string BuildMatchNote(
@@ -463,37 +308,19 @@ public sealed class OpportunitiesController : Controller
         int matchedCount,
         int requiredCount)
     {
-        if (requiredCount <= 0)
-        {
-            return "This role has no required skills "
-                + "and was excluded from scoring.";
-        }
+        if (requiredCount == 0)
+            return "Job uyğundur; vacancy skill template-i boşdur.";
 
-        return $"Role readiness is {score}%. "
-            + $"Matched {matchedCount} of {requiredCount} "
-            + "required skills. "
-            + "The score uses Σ(wᵢ × sᵢ) / Σ(wᵢ).";
+        return $"Role readiness is {Math.Clamp(score, 0, 100)}%. "
+            + $"Matched {matchedCount} of {requiredCount} required skills.";
     }
 
-    private static string BuildTitle(
-        string requiredJob,
-        string? seniority)
+    private static string GetLogoLetter(string value)
     {
-        return string.IsNullOrWhiteSpace(seniority)
-            ? requiredJob.Trim()
-            : $"{seniority.Trim()} {requiredJob.Trim()}";
-    }
-
-    private static string GetLogoLetter(
-        string requiredJob)
-    {
-        var trimmed = requiredJob.Trim();
-
+        var trimmed = value.Trim();
         return string.IsNullOrWhiteSpace(trimmed)
-            ? "J"
-            : trimmed[0]
-                .ToString()
-                .ToUpperInvariant();
+            ? "V"
+            : char.ToUpperInvariant(trimmed[0]).ToString();
     }
 
     private static string GetScoreColor(int score)
@@ -505,20 +332,5 @@ public sealed class OpportunitiesController : Controller
             >= 50 => "#F59E0B",
             _ => "#EF4444"
         };
-    }
-
-    private static string Normalize(string value)
-    {
-        return (value ?? string.Empty)
-            .Trim()
-            .ToLowerInvariant();
-    }
-
-    private sealed class RequiredSkillTemplate
-    {
-        public string SkillName { get; set; } =
-            string.Empty;
-
-        public int Weight { get; set; }
     }
 }

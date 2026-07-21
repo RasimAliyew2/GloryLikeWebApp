@@ -14,16 +14,16 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IUserProfileDataApiService _userProfileDataApiService;
-    private readonly IJobOffersApiService _jobOffersApiService;
+    private readonly IVacancyApiService _vacancyApiService;
 
     public HomeController(
         ILogger<HomeController> logger,
         IUserProfileDataApiService userProfileDataApiService,
-        IJobOffersApiService jobOffersApiService)
+        IVacancyApiService vacancyApiService)
     {
         _logger = logger;
         _userProfileDataApiService = userProfileDataApiService;
-        _jobOffersApiService = jobOffersApiService;
+        _vacancyApiService = vacancyApiService;
     }
 
     public async Task<IActionResult> Index(
@@ -73,29 +73,7 @@ public class HomeController : Controller
         {
             DisplayName = displayName,
             UserName = userName,
-            Email = email,
-
-            // Applications still use seed data because there is no
-            // applications API in the current BackendApp.
-            Applications =
-            {
-                new DashboardApplicationItem
-                {
-                    Company = "Northstar",
-                    Role = "Senior Product Designer",
-                    Status = "Interview",
-                    StatusClass = "interview",
-                    UpdatedText = "Updated 2h ago"
-                },
-                new DashboardApplicationItem
-                {
-                    Company = "Vertex Labs",
-                    Role = "Product Designer",
-                    Status = "In review",
-                    StatusClass = "review",
-                    UpdatedText = "Updated yesterday"
-                }
-            }
+            Email = email
         };
 
         var profileResult =
@@ -168,7 +146,7 @@ public class HomeController : Controller
                 "Select a Job and add at least one related skill. Recommendations are filtered by Job before scoring.";
 
             model.StrongestRoleSubtitle =
-                "A Job is required before offers can be matched.";
+                "A Job is required before vacancies can be matched.";
 
             BuildStats(
                 model,
@@ -180,14 +158,32 @@ public class HomeController : Controller
 
         try
         {
-            var offers =
-                await _jobOffersApiService.GetJobOffersAsync(
+            var vacancyResult =
+                await _vacancyApiService.GetCandidateVacanciesAsync(
+                    userId,
                     cancellationToken);
 
+            if (!vacancyResult.Success || vacancyResult.Data is null)
+            {
+                model.RecommendedJobsError =
+                    string.IsNullOrWhiteSpace(vacancyResult.Message)
+                        ? "Recommended vacancies could not be loaded."
+                        : vacancyResult.Message;
+                model.RecommendedJobsEmptyMessage =
+                    "SQL Vacancies data could not be loaded.";
+
+                BuildStats(
+                    model,
+                    averageCredibility,
+                    verifiedCount);
+
+                return View(model);
+            }
+
             model.RecommendedJobs = BuildRecommendedJobs(
-                offers,
-                currentJobName,
-                selectedSkills);
+                vacancyResult.Data.Vacancies);
+            model.Applications = BuildDashboardApplications(
+                vacancyResult.Data.Vacancies);
 
             if (model.RecommendedJobs.Count > 0)
             {
@@ -196,12 +192,12 @@ public class HomeController : Controller
                 model.OverallScore = bestMatch.Score;
                 model.StrongestRole = bestMatch.Title;
                 model.StrongestRoleSubtitle =
-                    $"{currentJobName} · best SQL job-offer match";
+                    $"{currentJobName} · best live vacancy match";
             }
             else
             {
                 model.RecommendedJobsEmptyMessage =
-                    $"SQL-də “{currentJobName}” Job-u üçün uyğun JobOffer tapılmadı.";
+                    $"SQL-də “{currentJobName}” Job-u üçün uyğun aktiv Vacancy tapılmadı.";
             }
         }
         catch (Exception ex)
@@ -212,7 +208,7 @@ public class HomeController : Controller
                 userId);
 
             model.RecommendedJobsError =
-                "Recommended JobOffers could not be loaded: " +
+                "Recommended Vacancies could not be loaded: " +
                 ex.Message;
         }
 
@@ -225,160 +221,95 @@ public class HomeController : Controller
     }
 
     private static List<RecommendedJobItem> BuildRecommendedJobs(
-        IReadOnlyList<JobOfferApiItem> offers,
-        string currentJobName,
-        IReadOnlyCollection<UserSkillInfo> selectedSkills)
+        IReadOnlyCollection<CandidateVacancyApiItem> vacancies)
     {
-        var candidateSkills = selectedSkills
-            .Where(
-                x => !string.IsNullOrWhiteSpace(
-                    x.SkillName))
-            .GroupBy(
-                x => Normalize(x.SkillName),
-                StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Max(GetSkillSignal),
-                StringComparer.OrdinalIgnoreCase);
-
-        // The Job filter is applied before any score is calculated.
-        // An unrelated JobOffer can never enter the recommendation list.
-        var matchingOffers = offers
-            .Where(x =>
-                x is not null &&
-                !string.IsNullOrWhiteSpace(x.RequiredJob) &&
-                !string.IsNullOrWhiteSpace(x.Skills) &&
-                x.SkillsWeight > 0 &&
-                Normalize(x.RequiredJob) ==
-                Normalize(currentJobName))
-            .ToList();
-
-        var groups = matchingOffers
-            .GroupBy(x => new
+        return vacancies
+            .Where(vacancy => vacancy.VacancyId > 0)
+            .Select(vacancy =>
             {
-                RequiredJob = x.RequiredJob.Trim(),
-                Name = string.IsNullOrWhiteSpace(x.Name)
-                    ? BuildTitle(
-                        x.RequiredJob,
-                        x.Seniority)
-                    : x.Name.Trim(),
-                Description =
-                    x.Description?.Trim()
-                    ?? string.Empty,
-                Seniority =
-                    string.IsNullOrWhiteSpace(
-                        x.Seniority)
-                        ? "Middle"
-                        : x.Seniority.Trim()
-            })
-            .ToList();
+                var title = string.IsNullOrWhiteSpace(vacancy.RoleTitle)
+                    ? string.IsNullOrWhiteSpace(vacancy.PositionName)
+                        ? $"Vacancy #{vacancy.VacancyId}"
+                        : vacancy.PositionName.Trim()
+                    : vacancy.RoleTitle.Trim();
+                var skills = vacancy.Skills
+                    .Where(skill =>
+                        !string.IsNullOrWhiteSpace(skill.SkillName))
+                    .GroupBy(skill => skill.SkillId > 0
+                        ? $"id:{skill.SkillId}"
+                        : $"name:{skill.SkillName.Trim().ToLowerInvariant()}")
+                    .Select(group => group
+                        .OrderByDescending(skill => skill.Weight)
+                        .First())
+                    .ToList();
 
-        var result = new List<RecommendedJobItem>();
-
-        foreach (var group in groups)
-        {
-            var requiredSkills = group
-                .Select(x => new RequiredSkillItem
+                return new RecommendedJobItem
                 {
-                    SkillName = x.Skills.Trim(),
-                    Weight = Math.Max(
-                        x.SkillsWeight,
-                        1)
-                })
-                .Where(
-                    x => !string.IsNullOrWhiteSpace(
-                        x.SkillName))
-                .GroupBy(
-                    x => Normalize(x.SkillName),
-                    StringComparer.OrdinalIgnoreCase)
-                .Select(skillGroup =>
-                    new RequiredSkillItem
-                    {
-                        SkillName =
-                            skillGroup.First()
-                                .SkillName,
-                        Weight =
-                            skillGroup.Max(
-                                x => x.Weight)
-                    })
-                .ToList();
-
-            if (requiredSkills.Count == 0)
-                continue;
-
-            var score = CalculateRoleReadiness(
-                requiredSkills,
-                candidateSkills);
-
-            var matchedSkills = requiredSkills
-                .Where(x =>
-                    candidateSkills.ContainsKey(
-                        Normalize(x.SkillName)))
-                .Select(x => x.SkillName)
-                .OrderBy(x => x)
-                .ToList();
-
-            var missingSkills = requiredSkills
-                .Where(x =>
-                    !candidateSkills.ContainsKey(
-                        Normalize(x.SkillName)))
-                .Select(x => x.SkillName)
-                .OrderBy(x => x)
-                .ToList();
-
-            result.Add(new RecommendedJobItem
-            {
-                Id = group.Min(x => x.Id),
-                LogoLetter = GetLogoLetter(
-                    group.Key.RequiredJob),
-                Company = group.Key.RequiredJob,
-                Title = group.Key.Name,
-                Description =
-                    string.IsNullOrWhiteSpace(
-                        group.Key.Description)
-                        ? $"Matched against {requiredSkills.Count} required skill(s)."
-                        : group.Key.Description,
-                Level = group.Key.Seniority,
-                Score = score,
-                RequiredSkillsCount =
-                    requiredSkills.Count,
-                MatchedSkills = matchedSkills,
-                MissingSkills = missingSkills
-            });
-        }
-
-        return result
-            .OrderByDescending(x => x.Score)
-            .ThenBy(x => x.Title)
+                    Id = vacancy.VacancyId,
+                    LogoLetter = GetLogoLetter(title),
+                    Company = ResolveEmployerName(vacancy),
+                    Title = title,
+                    Description = string.IsNullOrWhiteSpace(
+                        vacancy.JobDescription)
+                        ? "Employer vacancy matching your Job."
+                        : vacancy.JobDescription.Trim(),
+                    Level = string.Join(
+                        " · ",
+                        new[]
+                        {
+                            vacancy.SeniorityName,
+                            vacancy.JobFamilyName
+                        }.Where(value =>
+                            !string.IsNullOrWhiteSpace(value))),
+                    Score = Math.Clamp(vacancy.MatchScore, 0, 100),
+                    RequiredSkillsCount = skills.Count,
+                    MatchedSkills = skills
+                        .Where(skill => skill.IsMatched)
+                        .Select(skill => skill.SkillName.Trim())
+                        .ToList(),
+                    MissingSkills = skills
+                        .Where(skill => !skill.IsMatched)
+                        .Select(skill => skill.SkillName.Trim())
+                        .ToList()
+                };
+            })
+            .OrderByDescending(vacancy => vacancy.Score)
+            .ThenBy(vacancy => vacancy.Title)
             .Take(5)
             .ToList();
     }
 
-    private static int CalculateRoleReadiness(
-        IReadOnlyCollection<RequiredSkillItem> requiredSkills,
-        IReadOnlyDictionary<string, double> candidateSkills)
+    private static List<DashboardApplicationItem> BuildDashboardApplications(
+        IReadOnlyCollection<CandidateVacancyApiItem> vacancies)
     {
-        var denominator = requiredSkills.Sum(
-            x => x.Weight);
+        return vacancies
+            .Where(vacancy => vacancy.HasApplied)
+            .OrderByDescending(vacancy => vacancy.AppliedAtUtc)
+            .Take(5)
+            .Select(vacancy => new DashboardApplicationItem
+            {
+                Company = ResolveEmployerName(vacancy),
+                Role = string.IsNullOrWhiteSpace(vacancy.RoleTitle)
+                    ? vacancy.PositionName
+                    : vacancy.RoleTitle,
+                Status = "No response yet",
+                StatusClass = "review",
+                UpdatedText = vacancy.AppliedAtUtc.HasValue
+                    ? $"Applied {vacancy.AppliedAtUtc.Value.ToLocalTime():dd.MM.yyyy HH:mm}"
+                    : "Applied"
+            })
+            .ToList();
+    }
 
-        if (denominator <= 0)
-            return 0;
+    private static string ResolveEmployerName(
+        CandidateVacancyApiItem vacancy)
+    {
+        if (!string.IsNullOrWhiteSpace(vacancy.EmployerName))
+            return vacancy.EmployerName.Trim();
 
-        var numerator = requiredSkills.Sum(x =>
-        {
-            var key = Normalize(x.SkillName);
-
-            var signal = candidateSkills.TryGetValue(
-                key,
-                out var value)
-                ? value
-                : 0d;
-
-            return x.Weight * signal;
-        });
-
-        return RoundHalfUp(
-            numerator / denominator);
+        return string.IsNullOrWhiteSpace(vacancy.JobFamilyName)
+            ? "Employer"
+            : vacancy.JobFamilyName.Trim();
     }
 
     private static double GetSkillSignal(
@@ -512,7 +443,7 @@ public class HomeController : Controller
             {
                 Label = "Match",
                 Value = model.OverallScore.ToString(),
-                Caption = "Best SQL offer"
+                Caption = "Best SQL vacancy"
             });
 
         model.Stats.Add(
@@ -550,15 +481,6 @@ public class HomeController : Controller
                    StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string BuildTitle(
-        string requiredJob,
-        string seniority)
-    {
-        return string.IsNullOrWhiteSpace(seniority)
-            ? requiredJob.Trim()
-            : $"{seniority.Trim()} {requiredJob.Trim()}";
-    }
-
     private static string GetLogoLetter(
         string value)
     {
@@ -569,26 +491,6 @@ public class HomeController : Controller
             : trimmed[0]
                 .ToString()
                 .ToUpperInvariant();
-    }
-
-    private static string Normalize(
-        string value)
-    {
-        value = (value ?? string.Empty)
-            .Trim()
-            .ToLowerInvariant();
-
-        while (value.Contains(
-                   "  ",
-                   StringComparison.Ordinal))
-        {
-            value = value.Replace(
-                "  ",
-                " ",
-                StringComparison.Ordinal);
-        }
-
-        return value;
     }
 
     private static int RoundHalfUp(
@@ -627,11 +529,4 @@ public class HomeController : Controller
             });
     }
 
-    private sealed class RequiredSkillItem
-    {
-        public string SkillName { get; set; } =
-            string.Empty;
-
-        public int Weight { get; set; }
-    }
 }

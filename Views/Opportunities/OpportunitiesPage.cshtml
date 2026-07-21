@@ -26,6 +26,10 @@
 </head>
 
 <body>
+    <form id="opportunityApplyToken" hidden>
+        @Html.AntiForgeryToken()
+    </form>
+
     <div class="dashboard-shell">
         <aside
             class="sidebar"
@@ -86,8 +90,8 @@
                     <span class="growth-icon">⌕</span>
                     <strong>Job matching</strong>
                     <p>
-                        Only SQL JobOffers that belong to your
-                        current Job are displayed.
+                        Only active SQL Vacancies matching your
+                        JobFamilyId are displayed.
                     </p>
 
                     <a
@@ -159,17 +163,15 @@
                 <section class="opportunities-hero">
                     <div>
                         <span class="opportunities-eyebrow">
-                            SQL-MATCHED ROLES
+                            LIVE SQL VACANCIES
                         </span>
 
                         <h1>Opportunities</h1>
 
-@*                         <p>
-                            JobOffers are loaded from SQL, filtered by
-                            your current Job and ranked with the same
-                            weighted skill-readiness logic used by
-                            Mobile App.
-                        </p> *@
+                        <p>
+                            Employer vacancies appear here directly
+                            when their JobFamilyId matches yours.
+                        </p>
 
                         @if (Model.HasCurrentJob)
                         {
@@ -308,6 +310,7 @@
                                 data-opportunity-card
                                 data-opportunity-id="@opportunity.Id"
                                 data-score="@opportunity.Score"
+                                data-application-state="@(opportunity.IsApplied ? "applied" : "available")"
                                 data-expanded="@opportunity.IsExpanded.ToString().ToLowerInvariant()">
 
                                 <div class="opportunity-summary">
@@ -342,6 +345,48 @@
                                             @opportunity.Score%
                                         </strong>
                                         <span>match</span>
+                                    </div>
+
+                                    <div
+                                        class="application-control"
+                                        data-application-control
+                                        data-applied="@opportunity.IsApplied.ToString().ToLowerInvariant()"
+                                        aria-live="polite">
+
+                                        <button
+                                            type="button"
+                                            class="apply-now-button"
+                                            data-apply-role
+                                            data-apply-url="/Opportunities/@opportunity.Id/Apply"
+                                            data-role-title="@opportunity.Title">
+                                            <span data-apply-label>
+                                                Apply now
+                                            </span>
+                                            <span
+                                                class="apply-loading-spinner"
+                                                aria-hidden="true">
+                                            </span>
+                                        </button>
+
+                                        <div
+                                            class="application-confirmation"
+                                            data-application-confirmation>
+                                            <span
+                                                class="application-check"
+                                                aria-hidden="true">
+                                                ✓
+                                            </span>
+                                            <span class="application-response">
+                                                @opportunity.ApplicationStatusText
+                                            </span>
+                                        </div>
+
+                                        <span
+                                            class="application-error"
+                                            data-application-error
+                                            role="alert"
+                                            hidden>
+                                        </span>
                                     </div>
 
                                     <button
@@ -487,13 +532,6 @@
                                             Improve matching skills
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="apply-role-button"
-                                            data-apply-role
-                                            data-role-title="@opportunity.Title">
-                                            Apply
-                                        </button>
                                     </div>
                                 </div>
                             </article>

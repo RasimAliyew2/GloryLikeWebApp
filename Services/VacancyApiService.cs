@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
+using GloryLikeWebApp.Models;
 using GloryLikeWebApp.Models.Employer;
 
 namespace GloryLikeWebApp.Services;
@@ -21,6 +22,86 @@ public sealed class VacancyApiService : IVacancyApiService
     {
         _httpClient = httpClient;
         _logger = logger;
+    }
+
+    public async Task<CandidateVacancyListApiResult>
+        GetCandidateVacanciesAsync(
+            int candidateUserId,
+            CancellationToken cancellationToken = default)
+    {
+        if (candidateUserId <= 0)
+        {
+            return CandidateVacancyListApiResult.Fail(
+                "Candidate user ID düzgün deyil.");
+        }
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(
+                $"api/Vacancies/candidate/{candidateUserId}",
+                cancellationToken);
+
+            var body = await response.Content.ReadAsStringAsync(
+                cancellationToken);
+            CandidateVacancyListApiResponse? apiResponse = null;
+
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<CandidateVacancyListApiResponse>(
+                        body,
+                        JsonOptions);
+                }
+                catch (JsonException exception)
+                {
+                    _logger.LogWarning(
+                        exception,
+                        "Candidate vacancies API cavabı JSON kimi oxunmadı. HTTP {StatusCode}.",
+                        (int)response.StatusCode);
+                }
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return CandidateVacancyListApiResult.Fail(
+                    ExtractMessage(
+                        body,
+                        apiResponse?.Message,
+                        $"Candidate vacancies yüklənmədi. HTTP {(int)response.StatusCode}."));
+            }
+
+            if (apiResponse is null || !apiResponse.Success)
+            {
+                return CandidateVacancyListApiResult.Fail(
+                    apiResponse?.Message
+                    ?? "Backend candidate vacancy cavabı oxunmadı.");
+            }
+
+            apiResponse.CandidateJobFamilyIds ??= new List<int>();
+            apiResponse.CandidateJobFamilyNames ??= new List<string>();
+            apiResponse.Vacancies ??= new List<CandidateVacancyApiItem>();
+
+            foreach (var vacancy in apiResponse.Vacancies)
+                vacancy.Skills ??= new List<CandidateVacancySkillApiItem>();
+
+            return CandidateVacancyListApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return CandidateVacancyListApiResult.Fail(
+                "Candidate vacancy sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Candidate vacancies BackendApp-dən yüklənmədi.");
+
+            return CandidateVacancyListApiResult.Fail(
+                "BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
     }
 
     public async Task<EmployerVacancyListApiResult>
@@ -95,6 +176,86 @@ public sealed class VacancyApiService : IVacancyApiService
                 "Vacancies BackendApp-dən yüklənmədi.");
 
             return EmployerVacancyListApiResult.Fail(
+                "BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
+    public async Task<ApplyToVacancyApiResult> ApplyAsync(
+        int vacancyId,
+        int candidateUserId,
+        CancellationToken cancellationToken = default)
+    {
+        if (vacancyId <= 0 || candidateUserId <= 0)
+        {
+            return ApplyToVacancyApiResult.Fail(
+                "Vacancy və candidate user ID düzgün deyil.");
+        }
+
+        var request = new ApplyToVacancyApiRequest
+        {
+            CandidateUserId = candidateUserId
+        };
+
+        try
+        {
+            using var response = await _httpClient.PostAsJsonAsync(
+                $"api/Vacancies/{vacancyId}/applications",
+                request,
+                JsonOptions,
+                cancellationToken);
+
+            var body = await response.Content.ReadAsStringAsync(
+                cancellationToken);
+            ApplyToVacancyApiResponse? apiResponse = null;
+
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<ApplyToVacancyApiResponse>(
+                        body,
+                        JsonOptions);
+                }
+                catch (JsonException exception)
+                {
+                    _logger.LogWarning(
+                        exception,
+                        "Apply API cavabı JSON kimi oxunmadı. HTTP {StatusCode}.",
+                        (int)response.StatusCode);
+                }
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return ApplyToVacancyApiResult.Fail(
+                    ExtractMessage(
+                        body,
+                        apiResponse?.Message,
+                        $"Müraciət SQL-də saxlanmadı. HTTP {(int)response.StatusCode}."));
+            }
+
+            if (apiResponse is null || !apiResponse.Success)
+            {
+                return ApplyToVacancyApiResult.Fail(
+                    apiResponse?.Message
+                    ?? "Backend apply cavabı oxunmadı.");
+            }
+
+            return ApplyToVacancyApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return ApplyToVacancyApiResult.Fail(
+                "Apply sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Candidate vacancy apply BackendApp-ə göndərilmədi.");
+
+            return ApplyToVacancyApiResult.Fail(
                 "BackendApp-ə qoşulmaq mümkün olmadı.");
         }
     }

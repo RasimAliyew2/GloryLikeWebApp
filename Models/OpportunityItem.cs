@@ -2,14 +2,16 @@ namespace GloryLikeWebApp.Models;
 
 /// <summary>
 /// Mobile App-dakı OpportunityItem ilə eyni təqdimat modelidir.
-/// Bütün iş məlumatları BackendApp JobOffers SQL datasından hazırlanır.
+/// Bütün iş məlumatları BackendApp Vacancies SQL datasından hazırlanır.
 /// </summary>
 public sealed class OpportunityItem
 {
     public int Id { get; set; }
+    public string PlatformVacancyId { get; set; } = string.Empty;
 
     public string LogoLetter { get; set; } = "J";
     public string Company { get; set; } = string.Empty;
+    public string EmployerName { get; set; } = string.Empty;
     public string PostedAgo { get; set; } = string.Empty;
 
     public string Title { get; set; } = string.Empty;
@@ -23,6 +25,10 @@ public sealed class OpportunityItem
 
     public bool IsExpanded { get; set; }
     public bool IsSaved { get; set; }
+    public bool IsApplied { get; set; }
+    public int? ApplicationId { get; set; }
+    public string ApplicationStatus { get; set; } = string.Empty;
+    public DateTime? AppliedAtUtc { get; set; }
 
     public string AboutRole { get; set; } = string.Empty;
     public string Responsibilities { get; set; } = string.Empty;
@@ -46,12 +52,17 @@ public sealed class OpportunityItem
                     ? "medium"
                     : "low";
 
+    public string ApplicationStatusText => IsApplied
+        ? "No response yet"
+        : string.Empty;
+
     public string SearchText =>
         string.Join(
             " ",
             new[]
             {
                 Company,
+                EmployerName,
                 Title,
                 AboutRole,
                 Level,
