@@ -180,6 +180,182 @@ public sealed class VacancyApiService : IVacancyApiService
         }
     }
 
+    public async Task<EmployerVacancyDetailApiResult>
+        GetEmployerVacancyDetailAsync(
+            int employerUserId,
+            int vacancyId,
+            CancellationToken cancellationToken = default)
+    {
+        if (employerUserId <= 0 || vacancyId <= 0)
+        {
+            return EmployerVacancyDetailApiResult.Fail(
+                "Employer və vacancy ID düzgün deyil.");
+        }
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(
+                $"api/Vacancies/employer/{employerUserId}/{vacancyId}",
+                cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(
+                cancellationToken);
+            EmployerVacancyDetailApiResponse? apiResponse = null;
+
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<EmployerVacancyDetailApiResponse>(
+                        body,
+                        JsonOptions);
+                }
+                catch (JsonException exception)
+                {
+                    _logger.LogWarning(
+                        exception,
+                        "Employer vacancy detail API cavabı JSON kimi oxunmadı. HTTP {StatusCode}.",
+                        (int)response.StatusCode);
+                }
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return EmployerVacancyDetailApiResult.Fail(
+                    ExtractMessage(
+                        body,
+                        apiResponse?.Message,
+                        $"Vacancy detail yüklənmədi. HTTP {(int)response.StatusCode}."));
+            }
+
+            if (apiResponse is null
+                || !apiResponse.Success
+                || apiResponse.Vacancy is null)
+            {
+                return EmployerVacancyDetailApiResult.Fail(
+                    apiResponse?.Message
+                    ?? "Backend vacancy detail cavabı oxunmadı.");
+            }
+
+            apiResponse.Vacancy.Applicants ??=
+                new List<EmployerVacancyApplicantApiItem>();
+            apiResponse.Vacancy.Skills ??=
+                new List<EmployerVacancySkillApiItem>();
+            apiResponse.Vacancy.FunnelStages ??=
+                new List<EmployerVacancyFunnelStageApiItem>();
+
+            foreach (var applicant in apiResponse.Vacancy.Applicants)
+            {
+                applicant.MatchedSkills ??= new List<string>();
+                applicant.MissingSkills ??= new List<string>();
+            }
+
+            if (apiResponse.Vacancy.BestMatch is not null)
+            {
+                apiResponse.Vacancy.BestMatch.MatchedSkills ??=
+                    new List<string>();
+                apiResponse.Vacancy.BestMatch.MissingSkills ??=
+                    new List<string>();
+            }
+
+            return EmployerVacancyDetailApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return EmployerVacancyDetailApiResult.Fail(
+                "Vacancy detail sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Employer vacancy detail BackendApp-dən yüklənmədi.");
+
+            return EmployerVacancyDetailApiResult.Fail(
+                "BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
+    public async Task<ToggleEmployerVacancyStatusApiResult>
+        ToggleEmployerStatusAsync(
+            int employerUserId,
+            int vacancyId,
+            CancellationToken cancellationToken = default)
+    {
+        if (employerUserId <= 0 || vacancyId <= 0)
+        {
+            return ToggleEmployerVacancyStatusApiResult.Fail(
+                "Employer və vacancy ID düzgün deyil.");
+        }
+
+        var request = new ToggleEmployerVacancyStatusApiRequest
+        {
+            EmployerUserId = employerUserId
+        };
+
+        try
+        {
+            using var response = await _httpClient.PostAsJsonAsync(
+                $"api/Vacancies/{vacancyId}/employer-status/toggle",
+                request,
+                JsonOptions,
+                cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(
+                cancellationToken);
+            ToggleEmployerVacancyStatusApiResponse? apiResponse = null;
+
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<ToggleEmployerVacancyStatusApiResponse>(
+                        body,
+                        JsonOptions);
+                }
+                catch (JsonException exception)
+                {
+                    _logger.LogWarning(
+                        exception,
+                        "Vacancy status API cavabı JSON kimi oxunmadı. HTTP {StatusCode}.",
+                        (int)response.StatusCode);
+                }
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return ToggleEmployerVacancyStatusApiResult.Fail(
+                    ExtractMessage(
+                        body,
+                        apiResponse?.Message,
+                        $"Vacancy statusu dəyişmədi. HTTP {(int)response.StatusCode}."));
+            }
+
+            if (apiResponse is null || !apiResponse.Success)
+            {
+                return ToggleEmployerVacancyStatusApiResult.Fail(
+                    apiResponse?.Message
+                    ?? "Backend vacancy status cavabı oxunmadı.");
+            }
+
+            return ToggleEmployerVacancyStatusApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return ToggleEmployerVacancyStatusApiResult.Fail(
+                "Vacancy status sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Vacancy statusu BackendApp-də dəyişdirilmədi.");
+
+            return ToggleEmployerVacancyStatusApiResult.Fail(
+                "BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
     public async Task<ApplyToVacancyApiResult> ApplyAsync(
         int vacancyId,
         int candidateUserId,

@@ -184,6 +184,17 @@
     background: #fbfbfd;
 }
 
+.vacancies-table-card tbody tr[data-vacancy-url] {
+    cursor: pointer;
+}
+
+.vacancies-table-card tbody tr[data-vacancy-url]:focus-visible td {
+    background: #f5f3ff;
+    box-shadow:
+        inset 0 2px #5145e8,
+        inset 0 -2px #5145e8;
+}
+
 .vacancies-table-card th:nth-child(1),
 .vacancies-table-card td:nth-child(1) {
     width: 24%;
@@ -240,6 +251,15 @@
 .vacancy-name-cell strong {
     font-size: 12px;
     font-weight: 700;
+}
+
+.vacancy-detail-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.vacancy-detail-link:hover {
+    color: #5145e8;
 }
 
 .vacancy-name-cell small {

@@ -85,6 +85,37 @@
 
     searchInput?.addEventListener("input", applyFilters);
 
+    rows.forEach((row) => {
+        const openDetail = () => {
+            const url = row.dataset.vacancyUrl ?? "";
+
+            if (url) {
+                window.location.assign(url);
+            }
+        };
+
+        row.addEventListener("click", (event) => {
+            if (event.target.closest("a, button, [data-vacancy-menu]")) {
+                return;
+            }
+
+            openDetail();
+        });
+
+        row.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter" && event.key !== " ") {
+                return;
+            }
+
+            if (event.target.closest("a, button, [data-vacancy-menu]")) {
+                return;
+            }
+
+            event.preventDefault();
+            openDetail();
+        });
+    });
+
     document
         .querySelectorAll("[data-vacancy-menu-button]")
         .forEach((button) => {

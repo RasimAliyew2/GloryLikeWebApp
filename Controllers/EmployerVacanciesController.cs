@@ -83,6 +83,99 @@ public sealed class EmployerVacanciesController : Controller
         return View("Vacancies", model);
     }
 
+    [HttpGet("/Employer/Vacancies/{vacancyId:int}")]
+    public async Task<IActionResult> Detail(
+        int vacancyId,
+        CancellationToken cancellationToken)
+    {
+        var model = new EmployerVacancyDetailPageViewModel
+        {
+            DisplayName = GetDisplayName(),
+            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty
+        };
+
+        if (!TryGetEmployerUserId(out var employerUserId))
+            return Challenge();
+
+        var result = await _vacancyApiService.GetEmployerVacancyDetailAsync(
+            employerUserId,
+            vacancyId,
+            cancellationToken);
+
+        if (!result.Success
+            || result.Data?.Vacancy is null)
+        {
+            model.ErrorMessage = string.IsNullOrWhiteSpace(result.Message)
+                ? "Vacancy detail yüklənmədi."
+                : result.Message;
+
+            _logger.LogWarning(
+                "Employer {EmployerUserId} üçün vacancy {VacancyId} detail yüklənmədi: {Message}",
+                employerUserId,
+                vacancyId,
+                model.ErrorMessage);
+
+            return View("VacancyDetail", model);
+        }
+
+        model.Vacancy = MapVacancyDetail(result.Data.Vacancy);
+
+        return View("VacancyDetail", model);
+    }
+
+    [HttpPost("/Employer/Vacancies/{vacancyId:int}/ToggleStatus")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleStatus(
+        int vacancyId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var employerUserId))
+        {
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Employer sign in tələb olunur."
+            });
+        }
+
+        var result = await _vacancyApiService.ToggleEmployerStatusAsync(
+            employerUserId,
+            vacancyId,
+            cancellationToken);
+
+        if (!result.Success || result.Data is null)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = string.IsNullOrWhiteSpace(result.Message)
+                    ? "Vacancy statusu dəyişmədi."
+                    : result.Message
+            });
+        }
+
+        return Ok(new
+        {
+            success = true,
+            message = result.Data.Message,
+            status = result.Data.Status,
+            statusLabel = result.Data.IsSuspended
+                ? "Suspended"
+                : "Active",
+            statusClass = result.Data.IsSuspended
+                ? "suspended"
+                : "active",
+            actionLabel = result.Data.IsSuspended
+                ? "Continue"
+                : "Pause",
+            actionIcon = result.Data.IsSuspended
+                ? "▶"
+                : "Ⅱ",
+            isSuspended = result.Data.IsSuspended,
+            updatedAtUtc = result.Data.UpdatedAtUtc
+        });
+    }
+
     [HttpGet("/Employer/Vacancies/Create")]
     public async Task<IActionResult> CreateVacancy(
         CancellationToken cancellationToken)
@@ -679,6 +772,79 @@ public sealed class EmployerVacanciesController : Controller
                 Hours = 0,
                 IsStandard = true
             }
+        };
+    }
+
+    private static EmployerVacancyDetailViewModel MapVacancyDetail(
+        EmployerVacancyDetailApiItem source)
+    {
+        var applicants = source.Applicants
+            .OrderByDescending(applicant => applicant.MatchScore)
+            .ThenBy(applicant => applicant.AppliedAtUtc)
+            .Select(applicant => new EmployerVacancyApplicantViewModel
+            {
+                ApplicationId = applicant.ApplicationId,
+                CandidateUserId = applicant.CandidateUserId,
+                CandidateName = applicant.CandidateName,
+                CurrentRole = applicant.CurrentRole,
+                MatchScore = Math.Clamp(applicant.MatchScore, 0, 100),
+                ApplicationStatus = applicant.ApplicationStatus,
+                AppliedAtUtc = applicant.AppliedAtUtc,
+                MatchedSkills = applicant.MatchedSkills
+                    .Where(skill => !string.IsNullOrWhiteSpace(skill))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList(),
+                MissingSkills = applicant.MissingSkills
+                    .Where(skill => !string.IsNullOrWhiteSpace(skill))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList()
+            })
+            .ToList();
+
+        return new EmployerVacancyDetailViewModel
+        {
+            VacancyId = source.VacancyId,
+            PlatformVacancyId = source.PlatformVacancyId,
+            JobFamilyName = source.JobFamilyName,
+            SeniorityName = source.SeniorityName,
+            PositionName = source.PositionName,
+            RoleTitle = source.RoleTitle,
+            EmploymentType = source.EmploymentType,
+            JobDescription = source.JobDescription,
+            Visibility = source.Visibility,
+            Status = source.Status,
+            PublishDate = source.PublishDate,
+            ApplicationDeadline = source.ApplicationDeadline,
+            CreatedAtUtc = source.CreatedAtUtc,
+            UpdatedAtUtc = source.UpdatedAtUtc,
+            ApplicantCount = applicants.Count,
+            AverageMatchScore = Math.Clamp(
+                source.AverageMatchScore,
+                0,
+                100),
+            HighConfidenceCount = Math.Max(
+                source.HighConfidenceCount,
+                0),
+            Applicants = applicants,
+            Skills = source.Skills
+                .Select(skill => new EmployerVacancySkillViewModel
+                {
+                    SkillId = skill.SkillId,
+                    SkillName = skill.SkillName,
+                    Weight = Math.Clamp(skill.Weight, 0, 100),
+                    RequirementType = skill.RequirementType
+                })
+                .ToList(),
+            FunnelStages = source.FunnelStages
+                .OrderBy(stage => stage.SortOrder)
+                .Select(stage => new EmployerVacancyFunnelStageViewModel
+                {
+                    StageName = stage.StageName,
+                    Hours = Math.Max(stage.Hours, 0),
+                    IsStandard = stage.IsStandard,
+                    SortOrder = stage.SortOrder
+                })
+                .ToList()
         };
     }
 

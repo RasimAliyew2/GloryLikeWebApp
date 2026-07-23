@@ -228,11 +228,23 @@
                                 {
                                     <tr
                                         data-vacancy-row
+                                        data-vacancy-url="@Url.Action("Detail", "EmployerVacancies", new { vacancyId = vacancy.VacancyId })"
                                         data-status="@vacancy.StatusKey"
-                                        data-search-value="@vacancy.SearchValue">
+                                        data-search-value="@vacancy.SearchValue"
+                                        tabindex="0"
+                                        role="link"
+                                        aria-label="Open @vacancy.VacancyName">
                                         <td>
                                             <div class="vacancy-name-cell">
-                                                <strong>@vacancy.VacancyName</strong>
+                                                <strong>
+                                                    <a
+                                                        class="vacancy-detail-link"
+                                                        asp-controller="EmployerVacancies"
+                                                        asp-action="Detail"
+                                                        asp-route-vacancyId="@vacancy.VacancyId">
+                                                        @vacancy.VacancyName
+                                                    </a>
+                                                </strong>
                                                 <small>@vacancy.PlatformVacancyId</small>
                                             </div>
                                         </td>

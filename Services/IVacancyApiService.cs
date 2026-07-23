@@ -13,6 +13,16 @@ public interface IVacancyApiService
         int employerUserId,
         CancellationToken cancellationToken = default);
 
+    Task<EmployerVacancyDetailApiResult> GetEmployerVacancyDetailAsync(
+        int employerUserId,
+        int vacancyId,
+        CancellationToken cancellationToken = default);
+
+    Task<ToggleEmployerVacancyStatusApiResult> ToggleEmployerStatusAsync(
+        int employerUserId,
+        int vacancyId,
+        CancellationToken cancellationToken = default);
+
     Task<ApplyToVacancyApiResult> ApplyAsync(
         int vacancyId,
         int candidateUserId,
@@ -98,6 +108,60 @@ public sealed class EmployerVacancyListApiResult
     public static EmployerVacancyListApiResult Fail(string message)
     {
         return new EmployerVacancyListApiResult
+        {
+            Success = false,
+            Message = message
+        };
+    }
+}
+
+public sealed class EmployerVacancyDetailApiResult
+{
+    public bool Success { get; private set; }
+    public string Message { get; private set; } = string.Empty;
+    public EmployerVacancyDetailApiResponse? Data { get; private set; }
+
+    public static EmployerVacancyDetailApiResult Ok(
+        EmployerVacancyDetailApiResponse response)
+    {
+        return new EmployerVacancyDetailApiResult
+        {
+            Success = true,
+            Message = response.Message,
+            Data = response
+        };
+    }
+
+    public static EmployerVacancyDetailApiResult Fail(string message)
+    {
+        return new EmployerVacancyDetailApiResult
+        {
+            Success = false,
+            Message = message
+        };
+    }
+}
+
+public sealed class ToggleEmployerVacancyStatusApiResult
+{
+    public bool Success { get; private set; }
+    public string Message { get; private set; } = string.Empty;
+    public ToggleEmployerVacancyStatusApiResponse? Data { get; private set; }
+
+    public static ToggleEmployerVacancyStatusApiResult Ok(
+        ToggleEmployerVacancyStatusApiResponse response)
+    {
+        return new ToggleEmployerVacancyStatusApiResult
+        {
+            Success = true,
+            Message = response.Message,
+            Data = response
+        };
+    }
+
+    public static ToggleEmployerVacancyStatusApiResult Fail(string message)
+    {
+        return new ToggleEmployerVacancyStatusApiResult
         {
             Success = false,
             Message = message

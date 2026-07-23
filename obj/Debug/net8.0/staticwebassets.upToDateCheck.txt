@@ -9,6 +9,7 @@ wwwroot\css\create-vacancy-screening.css
 wwwroot\css\create-vacancy-skill-search.css
 wwwroot\css\employer-home.css
 wwwroot\css\employer-vacancies-list.css
+wwwroot\css\employer-vacancy-detail.css
 wwwroot\css\opportunities-page.css
 wwwroot\css\profile-page.css
 wwwroot\css\site.css
@@ -24,6 +25,7 @@ wwwroot\js\create-vacancy-publication.js
 wwwroot\js\create-vacancy-screening.js
 wwwroot\js\employer-home.js
 wwwroot\js\employer-vacancies-list.js
+wwwroot\js\employer-vacancy-detail.js
 wwwroot\js\opportunities-page.js
 wwwroot\js\site.js
 wwwroot\js\skills-page.js

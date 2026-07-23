@@ -1,0 +1,611 @@
+@model GloryLikeWebApp.Models.Employer.EmployerVacancyDetailPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = Model.Vacancy?.Title ?? "Vacancy detail";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SkillMatch</title>
+
+    <link
+        rel="stylesheet"
+        href="~/css/employer-home.css"
+        asp-append-version="true" />
+    <link
+        rel="stylesheet"
+        href="~/css/employer-vacancy-detail.css"
+        asp-append-version="true" />
+</head>
+
+<body>
+    <div class="employer-shell vacancy-detail-shell">
+        <header class="employer-topbar">
+            <a
+                class="employer-brand"
+                asp-controller="EmployerHome"
+                asp-action="EmployerHome">
+                SkillMatch
+            </a>
+
+            <div class="employer-search">
+                <span>⌕</span>
+                <input
+                    type="search"
+                    placeholder="Search by candidates/vacancies"
+                    aria-label="Search candidates or vacancies" />
+            </div>
+
+            <div class="employer-account">
+                <span class="demo-badge">Employer</span>
+
+                <div class="employer-avatar">
+                    @Model.Initials
+                </div>
+
+                <div class="employer-account-copy">
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(Model.Email)
+                            ? Model.DisplayName
+                            : Model.Email)
+                    </strong>
+                    <span>Employer workspace</span>
+                </div>
+
+                <a
+                    class="switch-portal-link"
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    Switch
+                </a>
+            </div>
+        </header>
+
+        <aside
+            class="employer-sidebar"
+            id="employerSidebar">
+            <nav aria-label="Employer navigation">
+                <a
+                    asp-controller="EmployerHome"
+                    asp-action="EmployerHome">
+                    <span>⌁</span>
+                    <strong>Dashboard</strong>
+                </a>
+
+                <a
+                    class="active"
+                    asp-controller="EmployerVacancies"
+                    asp-action="Index">
+                    <span>▣</span>
+                    <strong>Vacancies</strong>
+                </a>
+
+                <a href="#">
+                    <span>▱</span>
+                    <strong>Recruitment requests</strong>
+                </a>
+
+                <a
+                    asp-controller="TalentRadar"
+                    asp-action="Index">
+                    <span>◎</span>
+                    <strong>Talent Radar</strong>
+                </a>
+
+                <a
+                    asp-controller="EmployerCompany"
+                    asp-action="Index">
+                    <span>▥</span>
+                    <strong>Company</strong>
+                </a>
+
+                <a href="#">
+                    <span>▧</span>
+                    <strong>Reports</strong>
+                </a>
+            </nav>
+
+            <div class="employer-sidebar-bottom">
+                <a
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    ⇄ Switch workspace
+                </a>
+
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">↪ Sign out</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="employer-main vacancy-detail-main">
+            <button
+                class="employer-menu-button"
+                type="button"
+                id="employerMenuButton"
+                aria-label="Open employer menu">
+                ☰
+            </button>
+
+            @if (Model.Vacancy is not { } vacancy)
+            {
+                <section class="vacancy-detail-error">
+                    <span>!</span>
+                    <h1>Vacancy could not be opened</h1>
+                    <p>
+                        @(string.IsNullOrWhiteSpace(Model.ErrorMessage)
+                            ? "Vacancy tapılmadı və ya bu employer-ə aid deyil."
+                            : Model.ErrorMessage)
+                    </p>
+                    <a
+                        asp-controller="EmployerVacancies"
+                        asp-action="Index">
+                        ← Back to vacancies
+                    </a>
+                </section>
+            }
+            else
+            {
+                <nav class="vacancy-detail-breadcrumb" aria-label="Breadcrumb">
+                    <a
+                        asp-controller="EmployerVacancies"
+                        asp-action="Index">
+                        Vacancies
+                    </a>
+                    <span>›</span>
+                    <strong>@vacancy.Title</strong>
+                </nav>
+
+                <section class="vacancy-detail-heading">
+                    <div class="vacancy-detail-title-copy">
+                        <span class="vacancy-detail-id">
+                            @vacancy.PlatformVacancyId
+                        </span>
+                        <h1>@vacancy.Title</h1>
+                        <p>
+                            @vacancy.JobFamilyName
+                            @if (!string.IsNullOrWhiteSpace(vacancy.SeniorityName))
+                            {
+                                <span> · @vacancy.SeniorityName</span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(vacancy.EmploymentType))
+                            {
+                                <span> · @vacancy.EmploymentType</span>
+                            }
+                        </p>
+                        <small>
+                            ✦ Hiring decisions use the vacancy skill template and
+                            candidates' saved SQL skill signals.
+                        </small>
+                    </div>
+
+                    <div class="vacancy-detail-actions">
+                        <span
+                            class="vacancy-detail-status @vacancy.StatusCssClass"
+                            id="vacancyStatusBadge">
+                            @vacancy.StatusLabel
+                        </span>
+
+                        <form
+                            id="vacancyStatusForm"
+                            data-toggle-url="@Url.Action("ToggleStatus", "EmployerVacancies", new { vacancyId = vacancy.VacancyId })">
+                            @Html.AntiForgeryToken()
+
+                            <button
+                                class="vacancy-status-toggle"
+                                id="vacancyStatusToggle"
+                                type="submit"
+                                disabled="@(!vacancy.CanToggleStatus)">
+                                <span id="vacancyStatusToggleIcon">
+                                    @vacancy.ToggleIcon
+                                </span>
+                                <span id="vacancyStatusToggleLabel">
+                                    @vacancy.ToggleLabel
+                                </span>
+                                <span
+                                    class="vacancy-status-spinner"
+                                    aria-hidden="true">
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <div
+                    class="vacancy-status-message"
+                    id="vacancyStatusMessage"
+                    role="status"
+                    aria-live="polite"
+                    hidden>
+                </div>
+
+                <section class="vacancy-metrics" aria-label="Vacancy analytics">
+                    <article class="vacancy-metric-card best">
+                        <span class="metric-icon">◎</span>
+                        <div>
+                            <small>Best match</small>
+                            @if (vacancy.BestMatch is { } bestMetric)
+                            {
+                                <strong>@($"{bestMetric.MatchScore}%")</strong>
+                                <p>@bestMetric.CandidateName</p>
+                            }
+                            else
+                            {
+                                <strong>—</strong>
+                                <p>No applications yet</p>
+                            }
+                        </div>
+                    </article>
+
+                    <article class="vacancy-metric-card average">
+                        <span class="metric-icon">▥</span>
+                        <div>
+                            <small>Average match</small>
+                            <strong>@($"{vacancy.AverageMatchScore}%")</strong>
+                            <p>from @vacancy.ApplicantCount applications</p>
+                        </div>
+                    </article>
+
+                    <article class="vacancy-metric-card confidence">
+                        <span class="metric-icon">♢</span>
+                        <div>
+                            <small>High confidence</small>
+                            <strong>@vacancy.HighConfidenceCount</strong>
+                            <p>Candidates with score ≥ 60</p>
+                        </div>
+                    </article>
+
+                    <article class="vacancy-metric-card applicants">
+                        <span class="metric-icon">♙</span>
+                        <div>
+                            <small>Applications</small>
+                            <strong>@vacancy.ApplicantCount</strong>
+                            <p>saved in SQL</p>
+                        </div>
+                    </article>
+
+                    <article class="vacancy-metric-card deadline">
+                        <span class="metric-icon">◷</span>
+                        <div>
+                            <small>Application window</small>
+                            <strong>@vacancy.HiringWindowText</strong>
+                            <p>
+                                @(vacancy.ApplicationDeadline.HasValue
+                                    ? $"until {vacancy.ApplicationDeadline.Value:dd.MM.yyyy}"
+                                    : "no deadline")
+                            </p>
+                        </div>
+                    </article>
+                </section>
+
+                <section class="best-match-panel">
+                    <div class="section-heading">
+                        <div>
+                            <span class="section-kicker">TOP APPLICANT</span>
+                            <h2>Best match</h2>
+                            <p>
+                                Highest skill match among candidates who applied
+                                to this vacancy.
+                            </p>
+                        </div>
+                    </div>
+
+                    @if (vacancy.BestMatch is { } bestMatch)
+                    {
+                        <article class="best-match-card">
+                            <div class="best-match-profile">
+                                <span class="candidate-avatar large">
+                                    @bestMatch.Initials
+                                </span>
+                                <div>
+                                    <strong>@bestMatch.CandidateName</strong>
+                                    <span>@bestMatch.CurrentRole</span>
+                                    <small>@bestMatch.AppliedText</small>
+                                </div>
+                            </div>
+
+                            <div class="best-match-skills">
+                                <div>
+                                    <small>Matched skills</small>
+                                    <div class="skill-tags matched">
+                                        @if (bestMatch.MatchedSkills.Count == 0)
+                                        {
+                                            <span>No matched skills</span>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var skill in bestMatch.MatchedSkills.Take(6))
+                                            {
+                                                <span>@skill</span>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <small>Skill gaps</small>
+                                    <div class="skill-tags missing">
+                                        @if (bestMatch.MissingSkills.Count == 0)
+                                        {
+                                            <span>No skill gaps</span>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var skill in bestMatch.MissingSkills.Take(6))
+                                            {
+                                                <span>@skill</span>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="best-match-score @bestMatch.ScoreCssClass">
+                                <strong>@($"{bestMatch.MatchScore}%")</strong>
+                                <span>skill match</span>
+                            </div>
+                        </article>
+                    }
+                    else
+                    {
+                        <div class="best-match-empty">
+                            <span>◎</span>
+                            <strong>No applications yet</strong>
+                            <p>
+                                Best match will be calculated after the first
+                                candidate applies.
+                            </p>
+                        </div>
+                    }
+                </section>
+
+                <nav class="vacancy-detail-tabs" aria-label="Vacancy sections">
+                    <button
+                        class="active"
+                        type="button"
+                        data-detail-tab="analytics">
+                        ▥ Analytics
+                    </button>
+                    <button
+                        type="button"
+                        data-detail-tab="candidates">
+                        ♙ Candidates
+                        <span>@vacancy.ApplicantCount</span>
+                    </button>
+                    <button
+                        type="button"
+                        data-detail-tab="funnel">
+                        ⑂ Funnel
+                    </button>
+                    <button
+                        type="button"
+                        data-detail-tab="settings">
+                        ☷ Settings
+                    </button>
+                </nav>
+
+                <section
+                    class="vacancy-tab-panel active"
+                    data-detail-panel="analytics">
+                    <div class="analytics-grid">
+                        <article class="detail-surface role-overview-card">
+                            <div class="section-heading compact">
+                                <div>
+                                    <span class="section-kicker">ROLE PROFILE</span>
+                                    <h2>Skill requirements</h2>
+                                </div>
+                            </div>
+
+                            <div class="requirement-list">
+                                @foreach (var skill in vacancy.Skills)
+                                {
+                                    <div class="requirement-row">
+                                        <div>
+                                            <strong>@skill.SkillName</strong>
+                                            <span>@skill.RequirementType</span>
+                                        </div>
+                                        <div class="requirement-weight">
+                                            <span style="@($"width:{skill.Weight}%")"></span>
+                                        </div>
+                                        <b>@skill.Weight</b>
+                                    </div>
+                                }
+                            </div>
+                        </article>
+
+                        <article class="detail-surface vacancy-summary-card">
+                            <div class="section-heading compact">
+                                <div>
+                                    <span class="section-kicker">VACANCY</span>
+                                    <h2>Overview</h2>
+                                </div>
+                            </div>
+
+                            <dl>
+                                <div>
+                                    <dt>Job family</dt>
+                                    <dd>@vacancy.JobFamilyName</dd>
+                                </div>
+                                <div>
+                                    <dt>Position</dt>
+                                    <dd>@vacancy.PositionName</dd>
+                                </div>
+                                <div>
+                                    <dt>Seniority</dt>
+                                    <dd>@vacancy.SeniorityName</dd>
+                                </div>
+                                <div>
+                                    <dt>Visibility</dt>
+                                    <dd>@vacancy.Visibility</dd>
+                                </div>
+                                <div>
+                                    <dt>Published</dt>
+                                    <dd>
+                                        @(vacancy.PublishDate.HasValue
+                                            ? vacancy.PublishDate.Value.ToString("dd.MM.yyyy")
+                                            : "Immediately")
+                                    </dd>
+                                </div>
+                                <div>
+                                    <dt>Platform ID</dt>
+                                    <dd>@vacancy.PlatformVacancyId</dd>
+                                </div>
+                            </dl>
+                        </article>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(vacancy.JobDescription))
+                    {
+                        <article class="detail-surface description-card">
+                            <span class="section-kicker">DESCRIPTION</span>
+                            <p>@vacancy.JobDescription</p>
+                        </article>
+                    }
+                </section>
+
+                <section
+                    class="vacancy-tab-panel"
+                    data-detail-panel="candidates"
+                    hidden>
+                    <article class="detail-surface candidates-panel">
+                        <div class="section-heading">
+                            <div>
+                                <span class="section-kicker">APPLICATIONS</span>
+                                <h2>Candidates ranked by skill match</h2>
+                                <p>Only candidates who applied to this vacancy are shown.</p>
+                            </div>
+                        </div>
+
+                        @if (vacancy.Applicants.Count == 0)
+                        {
+                            <div class="panel-empty-state">
+                                <span>♙</span>
+                                <strong>No candidates yet</strong>
+                                <p>Applications will appear here automatically.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="candidate-ranking-list">
+                                @for (var index = 0; index < vacancy.Applicants.Count; index++)
+                                {
+                                    var applicant = vacancy.Applicants[index];
+                                    <article class="candidate-ranking-row">
+                                        <span class="candidate-rank">@(index + 1)</span>
+                                        <span class="candidate-avatar">@applicant.Initials</span>
+                                        <div class="candidate-ranking-copy">
+                                            <strong>@applicant.CandidateName</strong>
+                                            <span>@applicant.CurrentRole</span>
+                                            <small>@applicant.AppliedText</small>
+                                        </div>
+                                        <span class="candidate-application-status">
+                                            @applicant.ApplicationStatusLabel
+                                        </span>
+                                        <div class="candidate-score @applicant.ScoreCssClass">
+                                            <strong>@($"{applicant.MatchScore}%")</strong>
+                                            <span>match</span>
+                                        </div>
+                                    </article>
+                                }
+                            </div>
+                        }
+                    </article>
+                </section>
+
+                <section
+                    class="vacancy-tab-panel"
+                    data-detail-panel="funnel"
+                    hidden>
+                    <article class="detail-surface funnel-panel">
+                        <div class="section-heading">
+                            <div>
+                                <span class="section-kicker">HIRING FLOW</span>
+                                <h2>Vacancy funnel</h2>
+                                <p>Configured stages and target response times.</p>
+                            </div>
+                        </div>
+
+                        @if (vacancy.FunnelStages.Count == 0)
+                        {
+                            <div class="panel-empty-state">
+                                <span>⑂</span>
+                                <strong>No funnel stages</strong>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="funnel-stage-list">
+                                @for (var index = 0; index < vacancy.FunnelStages.Count; index++)
+                                {
+                                    var stage = vacancy.FunnelStages[index];
+                                    <div class="funnel-stage-row">
+                                        <span class="funnel-stage-number">@(index + 1)</span>
+                                        <div>
+                                            <strong>@stage.StageName</strong>
+                                            <small>
+                                                @(stage.IsStandard ? "Standard stage" : "Custom stage")
+                                            </small>
+                                        </div>
+                                        <span class="funnel-stage-hours">
+                                            @stage.Hours h
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </article>
+                </section>
+
+                <section
+                    class="vacancy-tab-panel"
+                    data-detail-panel="settings"
+                    hidden>
+                    <article class="detail-surface settings-panel">
+                        <div class="section-heading">
+                            <div>
+                                <span class="section-kicker">SETTINGS</span>
+                                <h2>Publication state</h2>
+                                <p>
+                                    Pausing removes this vacancy from matching Candidate
+                                    job results. Continue publishes it again.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="settings-status-row">
+                            <div>
+                                <strong>Current status</strong>
+                                <span id="settingsStatusText">@vacancy.StatusLabel</span>
+                            </div>
+                            <small>
+                                Last updated @vacancy.UpdatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                            </small>
+                        </div>
+                    </article>
+                </section>
+            }
+        </main>
+    </div>
+
+    <div
+        class="employer-backdrop"
+        id="employerBackdrop">
+    </div>
+
+    <script
+        src="~/js/employer-home.js"
+        asp-append-version="true">
+    </script>
+    <script
+        src="~/js/employer-vacancy-detail.js"
+        asp-append-version="true">
+    </script>
+</body>
+</html>
