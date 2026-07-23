@@ -3,7 +3,17 @@
 @model GloryLikeWebApp.Models.Employer.CreateVacancyPageViewModel
 @{
     Layout = null;
-    ViewData["Title"] = "Create a vacancy";
+    ViewData["Title"] = Model.IsEditMode
+        ? "Edit vacancy"
+        : "Create a vacancy";
+
+    var pageHeading = Model.IsEditMode
+        ? "Edit vacancy"
+        : "Create a vacancy";
+
+    var submitLabel = Model.IsEditMode
+        ? "Save changes"
+        : "Create a vacancy";
 
     var taxonomyJson = JsonSerializer.Serialize(
         Model.JobFamilies,
@@ -244,7 +254,7 @@
             </a>
 
             <div class="vacancy-heading">
-                <h1>Create a vacancy</h1>
+                <h1>@pageHeading</h1>
                 <p>
                     <span id="currentStepText">Step 1 of 5</span>
                     –
@@ -256,7 +266,7 @@
 
             <nav
                 class="vacancy-steps"
-                aria-label="Vacancy creation stages">
+                aria-label="Vacancy form stages">
 
                 <button
                     type="button"
@@ -320,7 +330,11 @@
                 Model.SuccessMessage))
             {
                 <div class="vacancy-message success">
-                    <strong>Vacancy created</strong>
+                    <strong>
+                        @(Model.IsEditMode
+                            ? "Vacancy updated"
+                            : "Vacancy created")
+                    </strong>
                     <span>@Model.SuccessMessage</span>
                 </div>
             }
@@ -329,7 +343,11 @@
                 Model.SubmissionErrorMessage))
             {
                 <div class="vacancy-message error">
-                    <strong>Vacancy could not be created</strong>
+                    <strong>
+                        @(Model.IsEditMode
+                            ? "Vacancy changes could not be saved"
+                            : "Vacancy could not be created")
+                    </strong>
                     <span>@Model.SubmissionErrorMessage</span>
                 </div>
             }
@@ -347,6 +365,10 @@
                 novalidate>
 
                 @Html.AntiForgeryToken()
+
+                <input
+                    asp-for="Input.EditingVacancyId"
+                    type="hidden" />
 
                 <section
                     class="vacancy-stage active"
@@ -1671,7 +1693,7 @@
                         id="publishVacancyButton"
                         hidden
                         disabled="@(!Model.HasTaxonomy)">
-                        Create a vacancy&nbsp; ✓
+                        @submitLabel&nbsp; ✓
                     </button>
                 </footer>
             </form>
@@ -1712,6 +1734,7 @@
                 JsonSerializer.Serialize(
                     Model.Input.PlatformVacancyId)),
             minimumVerificationLevel: @Model.Input.MinimumVerificationLevel,
+            isEditMode: @(Model.IsEditMode ? "true" : "false"),
             startStage: @initialStage
         };
     </script>

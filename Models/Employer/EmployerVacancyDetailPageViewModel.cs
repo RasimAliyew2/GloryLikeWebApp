@@ -5,6 +5,7 @@ public sealed class EmployerVacancyDetailPageViewModel
     public string DisplayName { get; set; } = "Employer";
     public string Email { get; set; } = string.Empty;
     public string? ErrorMessage { get; set; }
+    public string? SuccessMessage { get; set; }
     public EmployerVacancyDetailViewModel? Vacancy { get; set; }
 
     public string Initials

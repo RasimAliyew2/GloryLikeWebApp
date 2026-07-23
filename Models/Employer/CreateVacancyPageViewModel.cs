@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using GloryLikeWebApp.Models;
 
 namespace GloryLikeWebApp.Models.Employer;
@@ -16,6 +17,9 @@ public sealed class CreateVacancyPageViewModel
     public string? SubmissionErrorMessage { get; set; }
     public string? SuccessMessage { get; set; }
     public bool OpenPublicationStageOnLoad { get; set; }
+
+    public bool IsEditMode =>
+        Input.EditingVacancyId is > 0;
 
     public bool HasTaxonomy =>
         JobFamilies.Count > 0;
@@ -47,6 +51,9 @@ public sealed class CreateVacancyPageViewModel
 
 public sealed class CreateVacancyInput
 {
+    [JsonIgnore]
+    public int? EditingVacancyId { get; set; }
+
     // Step 1 — Role and Profile
     [Range(
         1,

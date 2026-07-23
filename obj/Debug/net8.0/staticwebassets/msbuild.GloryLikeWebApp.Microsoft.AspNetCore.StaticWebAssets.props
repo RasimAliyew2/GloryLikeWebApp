@@ -210,8 +210,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>74qqava66p</Fingerprint>
-      <Integrity>t0xTo3PkhZl235jMA7MQQT/h5OqJ+itn9P+YyKpQYDs=</Integrity>
+      <Fingerprint>hct0n6mcqn</Fingerprint>
+      <Integrity>b7xFO3bzyBTjBOuU5E34TtvrCu1u8+ITRXRkZx6nN+Q=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\employer-vacancy-detail.css'))</OriginalItemSpec>
@@ -444,8 +444,8 @@
       <RelatedAsset></RelatedAsset>
       <AssetTraitName></AssetTraitName>
       <AssetTraitValue></AssetTraitValue>
-      <Fingerprint>w1eeu1y9sn</Fingerprint>
-      <Integrity>XN+RPQpKRkK2/1fGsfV9X8mLObuzpmgHlJCyGlCvfdY=</Integrity>
+      <Fingerprint>4h9t26f1zo</Fingerprint>
+      <Integrity>OB8LoBmGlkk8xtZGtaPedKOHmYKAuahUqYUkHxjKXGM=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\create-vacancy-publication.js'))</OriginalItemSpec>

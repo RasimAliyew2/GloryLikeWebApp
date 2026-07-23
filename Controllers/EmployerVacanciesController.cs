@@ -91,7 +91,8 @@ public sealed class EmployerVacanciesController : Controller
         var model = new EmployerVacancyDetailPageViewModel
         {
             DisplayName = GetDisplayName(),
-            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty
+            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+            SuccessMessage = TempData["VacancySuccessMessage"] as string
         };
 
         if (!TryGetEmployerUserId(out var employerUserId))
@@ -203,6 +204,48 @@ public sealed class EmployerVacanciesController : Controller
         return View("CreateVacancy", model);
     }
 
+    [HttpGet("/Employer/Vacancies/{vacancyId:int}/Edit")]
+    public async Task<IActionResult> Edit(
+        int vacancyId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var employerUserId))
+            return Challenge();
+
+        var result =
+            await _vacancyApiService.GetEmployerVacancyForEditAsync(
+                employerUserId,
+                vacancyId,
+                cancellationToken);
+
+        if (!result.Success
+            || result.Data?.Vacancy is null)
+        {
+            _logger.LogWarning(
+                "Employer {EmployerUserId} üçün vacancy {VacancyId} edit məlumatları yüklənmədi: {Message}",
+                employerUserId,
+                vacancyId,
+                result.Message);
+
+            return NotFound(new
+            {
+                success = false,
+                message = string.IsNullOrWhiteSpace(result.Message)
+                    ? "Vacancy edit məlumatları yüklənmədi."
+                    : result.Message
+            });
+        }
+
+        var input = result.Data.Vacancy;
+        input.EditingVacancyId = vacancyId;
+
+        var model = await BuildPageModelAsync(
+            input,
+            cancellationToken);
+
+        return View("CreateVacancy", model);
+    }
+
     [HttpPost("/Employer/Vacancies/Create")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateVacancy(
@@ -253,6 +296,47 @@ public sealed class EmployerVacanciesController : Controller
             return View("CreateVacancy", model);
         }
 
+        if (input.EditingVacancyId is > 0)
+        {
+            var updateResult = await _vacancyApiService.UpdateAsync(
+                employerUserId,
+                input.EditingVacancyId.Value,
+                input,
+                cancellationToken);
+
+            if (!updateResult.Success)
+            {
+                _logger.LogWarning(
+                    "Vacancy {VacancyId}/{PlatformVacancyId} BackendApp-də update edilmədi: {Message}",
+                    input.EditingVacancyId,
+                    input.PlatformVacancyId,
+                    updateResult.Message);
+
+                model.SubmissionErrorMessage =
+                    string.IsNullOrWhiteSpace(updateResult.Message)
+                        ? "Vacancy dəyişiklikləri BackendApp-də saxlanmadı."
+                        : updateResult.Message;
+                model.OpenPublicationStageOnLoad = true;
+
+                return View("CreateVacancy", model);
+            }
+
+            _logger.LogInformation(
+                "Vacancy {VacancyId}/{PlatformVacancyId} BackendApp vasitəsilə SQL-də update edildi.",
+                updateResult.VacancyId,
+                updateResult.PlatformVacancyId);
+
+            TempData["VacancySuccessMessage"] =
+                "Vacancy dəyişiklikləri SQL-də uğurla saxlanıldı.";
+
+            return RedirectToAction(
+                nameof(Detail),
+                new
+                {
+                    vacancyId = input.EditingVacancyId.Value
+                });
+        }
+
         var createResult = await _vacancyApiService.CreateAsync(
             employerUserId,
             input,
@@ -301,14 +385,16 @@ public sealed class EmployerVacanciesController : Controller
         };
 
         if (string.IsNullOrWhiteSpace(
-            model.Input.PlatformVacancyId))
+                model.Input.PlatformVacancyId)
+            && !model.IsEditMode)
         {
             model.Input.PlatformVacancyId =
                 GenerateVacancyId();
         }
 
         if (string.IsNullOrWhiteSpace(
-            model.Input.ContactEmail))
+                model.Input.ContactEmail)
+            && !model.IsEditMode)
         {
             model.Input.ContactEmail = model.Email;
         }

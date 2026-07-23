@@ -348,7 +348,9 @@
 
             createVacancyButton.disabled = true;
             createVacancyButton.textContent =
-                "Creating vacancy…";
+                initialState.isEditMode
+                    ? "Saving changes…"
+                    : "Creating vacancy…";
         });
 
     if (skillMatchInput)

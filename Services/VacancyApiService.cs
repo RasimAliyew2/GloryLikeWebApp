@@ -276,6 +276,94 @@ public sealed class VacancyApiService : IVacancyApiService
         }
     }
 
+    public async Task<EmployerVacancyEditApiResult>
+        GetEmployerVacancyForEditAsync(
+            int employerUserId,
+            int vacancyId,
+            CancellationToken cancellationToken = default)
+    {
+        if (employerUserId <= 0 || vacancyId <= 0)
+        {
+            return EmployerVacancyEditApiResult.Fail(
+                "Employer və vacancy ID düzgün deyil.");
+        }
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(
+                $"api/Vacancies/employer/{employerUserId}/{vacancyId}/edit",
+                cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(
+                cancellationToken);
+            EmployerVacancyEditApiResponse? apiResponse = null;
+
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<EmployerVacancyEditApiResponse>(
+                        body,
+                        JsonOptions);
+                }
+                catch (JsonException exception)
+                {
+                    _logger.LogWarning(
+                        exception,
+                        "Vacancy edit API cavabı JSON kimi oxunmadı. HTTP {StatusCode}.",
+                        (int)response.StatusCode);
+                }
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return EmployerVacancyEditApiResult.Fail(
+                    ExtractMessage(
+                        body,
+                        apiResponse?.Message,
+                        $"Vacancy edit məlumatları yüklənmədi. HTTP {(int)response.StatusCode}."));
+            }
+
+            if (apiResponse is null
+                || !apiResponse.Success
+                || apiResponse.Vacancy is null)
+            {
+                return EmployerVacancyEditApiResult.Fail(
+                    apiResponse?.Message
+                    ?? "Backend vacancy edit cavabı oxunmadı.");
+            }
+
+            apiResponse.Vacancy.SkillRequirements ??=
+                new List<VacancySkillRequirementInput>();
+            apiResponse.Vacancy.SelectedSkillIds ??= new List<int>();
+            apiResponse.Vacancy.Benefits ??= new List<string>();
+            apiResponse.Vacancy.ApplicationRequirements ??=
+                new ApplicationRequirementsInput();
+            apiResponse.Vacancy.ApplicationRequirements.CustomFields ??=
+                new List<ApplicationCustomFieldInput>();
+            apiResponse.Vacancy.ScreeningQuestions ??=
+                new List<VacancyScreeningQuestionInput>();
+            apiResponse.Vacancy.FunnelStages ??=
+                new List<VacancyFunnelStageInput>();
+
+            return EmployerVacancyEditApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return EmployerVacancyEditApiResult.Fail(
+                "Vacancy edit məlumatları sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Vacancy edit məlumatları BackendApp-dən yüklənmədi.");
+
+            return EmployerVacancyEditApiResult.Fail(
+                "BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
     public async Task<ToggleEmployerVacancyStatusApiResult>
         ToggleEmployerStatusAsync(
             int employerUserId,
@@ -514,6 +602,88 @@ public sealed class VacancyApiService : IVacancyApiService
                 "Vacancy BackendApp-ə göndərilmədi.");
 
             return CreateVacancyApiResult.Fail(
+                "BackendApp-ə qoşulmaq mümkün olmadı. BackendApp-in işlədiyini yoxlayın.");
+        }
+    }
+
+    public async Task<UpdateVacancyApiResult> UpdateAsync(
+        int employerUserId,
+        int vacancyId,
+        CreateVacancyInput vacancy,
+        CancellationToken cancellationToken = default)
+    {
+        if (employerUserId <= 0 || vacancyId <= 0)
+        {
+            return UpdateVacancyApiResult.Fail(
+                "Employer və vacancy ID düzgün deyil.");
+        }
+
+        var request = new CreateVacancyApiRequest
+        {
+            EmployerUserId = employerUserId,
+            Vacancy = vacancy
+        };
+
+        try
+        {
+            using var response = await _httpClient.PutAsJsonAsync(
+                $"api/Vacancies/{vacancyId}",
+                request,
+                JsonOptions,
+                cancellationToken);
+
+            var body = await response.Content.ReadAsStringAsync(
+                cancellationToken);
+            UpdateVacancyApiResponse? apiResponse = null;
+
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<UpdateVacancyApiResponse>(
+                        body,
+                        JsonOptions);
+                }
+                catch (JsonException exception)
+                {
+                    _logger.LogWarning(
+                        exception,
+                        "Vacancy update API cavabı JSON kimi oxunmadı. HTTP {StatusCode}.",
+                        (int)response.StatusCode);
+                }
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return UpdateVacancyApiResult.Fail(
+                    ExtractMessage(
+                        body,
+                        apiResponse?.Message,
+                        $"Vacancy dəyişiklikləri SQL-də saxlanmadı. HTTP {(int)response.StatusCode}."));
+            }
+
+            if (apiResponse is null || !apiResponse.Success)
+            {
+                return UpdateVacancyApiResult.Fail(
+                    apiResponse?.Message
+                    ?? "Backend vacancy update cavabı oxunmadı.");
+            }
+
+            return UpdateVacancyApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return UpdateVacancyApiResult.Fail(
+                "Vacancy update sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Vacancy dəyişiklikləri BackendApp-ə göndərilmədi.");
+
+            return UpdateVacancyApiResult.Fail(
                 "BackendApp-ə qoşulmaq mümkün olmadı. BackendApp-in işlədiyini yoxlayın.");
         }
     }

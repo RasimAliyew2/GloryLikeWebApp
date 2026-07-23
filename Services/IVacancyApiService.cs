@@ -18,6 +18,11 @@ public interface IVacancyApiService
         int vacancyId,
         CancellationToken cancellationToken = default);
 
+    Task<EmployerVacancyEditApiResult> GetEmployerVacancyForEditAsync(
+        int employerUserId,
+        int vacancyId,
+        CancellationToken cancellationToken = default);
+
     Task<ToggleEmployerVacancyStatusApiResult> ToggleEmployerStatusAsync(
         int employerUserId,
         int vacancyId,
@@ -30,6 +35,12 @@ public interface IVacancyApiService
 
     Task<CreateVacancyApiResult> CreateAsync(
         int employerUserId,
+        CreateVacancyInput vacancy,
+        CancellationToken cancellationToken = default);
+
+    Task<UpdateVacancyApiResult> UpdateAsync(
+        int employerUserId,
+        int vacancyId,
         CreateVacancyInput vacancy,
         CancellationToken cancellationToken = default);
 }
@@ -142,6 +153,33 @@ public sealed class EmployerVacancyDetailApiResult
     }
 }
 
+public sealed class EmployerVacancyEditApiResult
+{
+    public bool Success { get; private set; }
+    public string Message { get; private set; } = string.Empty;
+    public EmployerVacancyEditApiResponse? Data { get; private set; }
+
+    public static EmployerVacancyEditApiResult Ok(
+        EmployerVacancyEditApiResponse response)
+    {
+        return new EmployerVacancyEditApiResult
+        {
+            Success = true,
+            Message = response.Message,
+            Data = response
+        };
+    }
+
+    public static EmployerVacancyEditApiResult Fail(string message)
+    {
+        return new EmployerVacancyEditApiResult
+        {
+            Success = false,
+            Message = message
+        };
+    }
+}
+
 public sealed class ToggleEmployerVacancyStatusApiResult
 {
     public bool Success { get; private set; }
@@ -191,6 +229,39 @@ public sealed class CreateVacancyApiResult
     public static CreateVacancyApiResult Fail(string message)
     {
         return new CreateVacancyApiResult
+        {
+            Success = false,
+            Message = message
+        };
+    }
+}
+
+public sealed class UpdateVacancyApiResult
+{
+    public bool Success { get; private set; }
+    public string Message { get; private set; } = string.Empty;
+    public int? VacancyId { get; private set; }
+    public string PlatformVacancyId { get; private set; } = string.Empty;
+    public string Status { get; private set; } = string.Empty;
+    public DateTime? UpdatedAtUtc { get; private set; }
+
+    public static UpdateVacancyApiResult Ok(
+        UpdateVacancyApiResponse response)
+    {
+        return new UpdateVacancyApiResult
+        {
+            Success = true,
+            Message = response.Message,
+            VacancyId = response.VacancyId,
+            PlatformVacancyId = response.PlatformVacancyId,
+            Status = response.Status,
+            UpdatedAtUtc = response.UpdatedAtUtc
+        };
+    }
+
+    public static UpdateVacancyApiResult Fail(string message)
+    {
+        return new UpdateVacancyApiResult
         {
             Success = false,
             Message = message

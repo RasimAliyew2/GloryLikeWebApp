@@ -15,6 +15,27 @@ public sealed class CreateVacancyApiResponse
     public DateTime? CreatedAtUtc { get; set; }
 }
 
+public sealed class EmployerVacancyEditApiResponse
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public int EmployerUserId { get; set; }
+    public int VacancyId { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public CreateVacancyInput? Vacancy { get; set; }
+}
+
+public sealed class UpdateVacancyApiResponse
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public int VacancyId { get; set; }
+    public int EmployerUserId { get; set; }
+    public string PlatformVacancyId { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public DateTime? UpdatedAtUtc { get; set; }
+}
+
 public sealed class EmployerVacancyListApiResponse
 {
     public bool Success { get; set; }

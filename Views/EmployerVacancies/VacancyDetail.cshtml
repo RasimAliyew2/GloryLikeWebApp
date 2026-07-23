@@ -193,6 +193,15 @@
                             @vacancy.StatusLabel
                         </span>
 
+                        <a
+                            class="vacancy-edit-link"
+                            asp-controller="EmployerVacancies"
+                            asp-action="Edit"
+                            asp-route-vacancyId="@vacancy.VacancyId">
+                            <span aria-hidden="true">✎</span>
+                            Edit
+                        </a>
+
                         <form
                             id="vacancyStatusForm"
                             data-toggle-url="@Url.Action("ToggleStatus", "EmployerVacancies", new { vacancyId = vacancy.VacancyId })">
@@ -218,13 +227,26 @@
                     </div>
                 </section>
 
-                <div
-                    class="vacancy-status-message"
-                    id="vacancyStatusMessage"
-                    role="status"
-                    aria-live="polite"
-                    hidden>
-                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+                {
+                    <div
+                        class="vacancy-status-message"
+                        id="vacancyStatusMessage"
+                        role="status"
+                        aria-live="polite">
+                        @Model.SuccessMessage
+                    </div>
+                }
+                else
+                {
+                    <div
+                        class="vacancy-status-message"
+                        id="vacancyStatusMessage"
+                        role="status"
+                        aria-live="polite"
+                        hidden>
+                    </div>
+                }
 
                 <section class="vacancy-metrics" aria-label="Vacancy analytics">
                     <article class="vacancy-metric-card best">

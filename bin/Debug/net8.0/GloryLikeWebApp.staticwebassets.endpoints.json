@@ -987,51 +987,6 @@
       ]
     },
     {
-      "Route": "css/employer-vacancy-detail.74qqava66p.css",
-      "AssetFile": "css/employer-vacancy-detail.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "17242"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"t0xTo3PkhZl235jMA7MQQT/h5OqJ+itn9P+YyKpQYDs=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Wed, 22 Jul 2026 15:57:32 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "74qqava66p"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-t0xTo3PkhZl235jMA7MQQT/h5OqJ+itn9P+YyKpQYDs="
-        },
-        {
-          "Name": "label",
-          "Value": "css/employer-vacancy-detail.css"
-        }
-      ]
-    },
-    {
       "Route": "css/employer-vacancy-detail.css",
       "AssetFile": "css/employer-vacancy-detail.css",
       "Selectors": [],
@@ -1046,7 +1001,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "17242"
+          "Value": "17363"
         },
         {
           "Name": "Content-Type",
@@ -1054,17 +1009,62 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"t0xTo3PkhZl235jMA7MQQT/h5OqJ+itn9P+YyKpQYDs=\""
+          "Value": "\"b7xFO3bzyBTjBOuU5E34TtvrCu1u8+ITRXRkZx6nN+Q=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 22 Jul 2026 15:57:32 GMT"
+          "Value": "Thu, 23 Jul 2026 09:52:44 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-t0xTo3PkhZl235jMA7MQQT/h5OqJ+itn9P+YyKpQYDs="
+          "Value": "sha256-b7xFO3bzyBTjBOuU5E34TtvrCu1u8+ITRXRkZx6nN+Q="
+        }
+      ]
+    },
+    {
+      "Route": "css/employer-vacancy-detail.hct0n6mcqn.css",
+      "AssetFile": "css/employer-vacancy-detail.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "17363"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"b7xFO3bzyBTjBOuU5E34TtvrCu1u8+ITRXRkZx6nN+Q=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 23 Jul 2026 09:52:44 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "hct0n6mcqn"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-b7xFO3bzyBTjBOuU5E34TtvrCu1u8+ITRXRkZx6nN+Q="
+        },
+        {
+          "Name": "label",
+          "Value": "css/employer-vacancy-detail.css"
         }
       ]
     },
@@ -1889,6 +1889,51 @@
       ]
     },
     {
+      "Route": "js/create-vacancy-publication.4h9t26f1zo.js",
+      "AssetFile": "js/create-vacancy-publication.js",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "9325"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/javascript"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"OB8LoBmGlkk8xtZGtaPedKOHmYKAuahUqYUkHxjKXGM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 23 Jul 2026 09:52:44 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "4h9t26f1zo"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-OB8LoBmGlkk8xtZGtaPedKOHmYKAuahUqYUkHxjKXGM="
+        },
+        {
+          "Name": "label",
+          "Value": "js/create-vacancy-publication.js"
+        }
+      ]
+    },
+    {
       "Route": "js/create-vacancy-publication.js",
       "AssetFile": "js/create-vacancy-publication.js",
       "Selectors": [],
@@ -1903,7 +1948,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "9237"
+          "Value": "9325"
         },
         {
           "Name": "Content-Type",
@@ -1911,62 +1956,17 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"XN+RPQpKRkK2/1fGsfV9X8mLObuzpmgHlJCyGlCvfdY=\""
+          "Value": "\"OB8LoBmGlkk8xtZGtaPedKOHmYKAuahUqYUkHxjKXGM=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 20 Jul 2026 09:24:39 GMT"
+          "Value": "Thu, 23 Jul 2026 09:52:44 GMT"
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-XN+RPQpKRkK2/1fGsfV9X8mLObuzpmgHlJCyGlCvfdY="
-        }
-      ]
-    },
-    {
-      "Route": "js/create-vacancy-publication.w1eeu1y9sn.js",
-      "AssetFile": "js/create-vacancy-publication.js",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "9237"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/javascript"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"XN+RPQpKRkK2/1fGsfV9X8mLObuzpmgHlJCyGlCvfdY=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 20 Jul 2026 09:24:39 GMT"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "w1eeu1y9sn"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-XN+RPQpKRkK2/1fGsfV9X8mLObuzpmgHlJCyGlCvfdY="
-        },
-        {
-          "Name": "label",
-          "Value": "js/create-vacancy-publication.js"
+          "Value": "sha256-OB8LoBmGlkk8xtZGtaPedKOHmYKAuahUqYUkHxjKXGM="
         }
       ]
     },

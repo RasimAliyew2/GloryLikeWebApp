@@ -110,6 +110,7 @@
     margin: 0;
 }
 
+.vacancy-edit-link,
 .vacancy-status-toggle {
     min-width: 112px;
     min-height: 42px;
@@ -132,6 +133,11 @@
         transform .16s ease;
 }
 
+.vacancy-edit-link {
+    text-decoration: none;
+}
+
+.vacancy-edit-link:hover,
 .vacancy-status-toggle:hover:not(:disabled) {
     border-color: #bdb9f4;
     box-shadow: 0 9px 22px rgba(78, 68, 225, .12);
@@ -905,6 +911,7 @@
     }
 
     .vacancy-detail-status,
+    .vacancy-edit-link,
     .vacancy-status-toggle {
         width: 100%;
     }
