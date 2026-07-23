@@ -29,6 +29,16 @@ public sealed class AccountController : Controller
     }
 
     [AllowAnonymous]
+    [HttpGet("/Registration")]
+    public IActionResult Registration()
+    {
+        if (User.Identity?.IsAuthenticated != true)
+            return View();
+
+        return RedirectToSelectedPortal();
+    }
+
+    [AllowAnonymous]
     [HttpPost("/SignIn")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SignIn(

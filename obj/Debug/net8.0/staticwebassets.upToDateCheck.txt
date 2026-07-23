@@ -12,6 +12,7 @@ wwwroot\css\employer-vacancies-list.css
 wwwroot\css\employer-vacancy-detail.css
 wwwroot\css\opportunities-page.css
 wwwroot\css\profile-page.css
+wwwroot\css\registration.css
 wwwroot\css\site.css
 wwwroot\css\skills-page.css
 wwwroot\css\talent-radar.css
@@ -27,6 +28,7 @@ wwwroot\js\employer-home.js
 wwwroot\js\employer-vacancies-list.js
 wwwroot\js\employer-vacancy-detail.js
 wwwroot\js\opportunities-page.js
+wwwroot\js\registration.js
 wwwroot\js\site.js
 wwwroot\js\skills-page.js
 wwwroot\js\talent-radar.js

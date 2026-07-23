@@ -1,0 +1,404 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Registration";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link
+        rel="stylesheet"
+        href="~/css/registration.css"
+        asp-append-version="true" />
+</head>
+<body>
+    <main class="registration-page">
+        <div class="registration-layout">
+            <section
+                class="registration-card"
+                aria-labelledby="registration-title">
+                <nav
+                    class="auth-tabs"
+                    aria-label="Account access">
+                    <a
+                        class="auth-tab active"
+                        href="/Registration"
+                        aria-current="page">
+                        Registration
+                    </a>
+                    <a
+                        class="auth-tab"
+                        href="/SignIn">
+                        Login
+                    </a>
+                </nav>
+
+                <div class="registration-content">
+                    <header class="registration-heading">
+                        <h1 id="registration-title">
+                            Create a profile in 1 minute
+                        </h1>
+                        <p>
+                            No extra steps. You can add to your profile later.
+                        </p>
+                    </header>
+
+                    <section aria-labelledby="quick-registration-title">
+                        <h2
+                            class="section-label"
+                            id="quick-registration-title">
+                            QUICK REGISTRATION
+                        </h2>
+
+                        <div class="social-buttons">
+                            <button
+                                class="social-button google-button"
+                                type="button"
+                                title="Google registration is not connected yet">
+                                <span
+                                    class="google-mark"
+                                    aria-hidden="true">
+                                    G
+                                </span>
+                                <span>Continue with Google</span>
+                            </button>
+
+                            <button
+                                class="social-button apple-button"
+                                type="button"
+                                title="Apple registration is not connected yet">
+                                <span
+                                    class="apple-mark"
+                                    aria-hidden="true">
+                                    ●
+                                </span>
+                                <span>Continue with Apple</span>
+                            </button>
+                        </div>
+
+                        <div class="registration-divider">
+                            <span>or by email</span>
+                        </div>
+
+                        <div
+                            class="account-type-switch"
+                            role="group"
+                            aria-label="Choose profile type">
+                            <button
+                                class="account-type-button"
+                                type="button"
+                                data-account-type="candidate"
+                                aria-pressed="false">
+                                <span
+                                    class="account-type-icon"
+                                    aria-hidden="true">
+                                    🎯
+                                </span>
+                                <span>I am a candidate</span>
+                            </button>
+
+                            <button
+                                class="account-type-button active"
+                                type="button"
+                                data-account-type="employer"
+                                aria-pressed="true">
+                                <span
+                                    class="account-type-icon"
+                                    aria-hidden="true">
+                                    🏢
+                                </span>
+                                <span>I am an employer</span>
+                            </button>
+                        </div>
+
+                        <form
+                            class="registration-form"
+                            id="quickRegistrationForm"
+                            novalidate>
+                            <div class="form-field">
+                                <label
+                                    class="form-label"
+                                    id="profileNameLabel"
+                                    for="profileName">
+                                    COMPANY NAME
+                                </label>
+                                <input
+                                    class="form-input"
+                                    id="profileName"
+                                    name="profileName"
+                                    type="text"
+                                    autocomplete="organization"
+                                    placeholder="Your Company Name"
+                                    required
+                                    maxlength="150" />
+                            </div>
+
+                            <div class="form-field">
+                                <label
+                                    class="form-label"
+                                    for="registrationEmail">
+                                    EMAIL
+                                </label>
+                                <input
+                                    class="form-input"
+                                    id="registrationEmail"
+                                    name="email"
+                                    type="email"
+                                    autocomplete="email"
+                                    placeholder="hr@company.com"
+                                    required
+                                    maxlength="150" />
+                            </div>
+
+                            <div class="form-field">
+                                <label
+                                    class="form-label"
+                                    for="registrationPassword">
+                                    PASSWORD
+                                </label>
+                                <input
+                                    class="form-input"
+                                    id="registrationPassword"
+                                    name="password"
+                                    type="password"
+                                    autocomplete="new-password"
+                                    placeholder="Minimum 8 characters"
+                                    required
+                                    minlength="8"
+                                    maxlength="128" />
+                            </div>
+
+                            <fieldset
+                                class="form-field employer-only-field"
+                                id="companyTypeField">
+                                <legend class="form-label">
+                                    COMPANY TYPE
+                                </legend>
+
+                                <div class="company-type-options">
+                                    <label class="company-type-option">
+                                        <input
+                                            name="companyType"
+                                            type="radio"
+                                            value="Startup" />
+                                        <span>Startup</span>
+                                    </label>
+
+                                    <label class="company-type-option">
+                                        <input
+                                            name="companyType"
+                                            type="radio"
+                                            value="SME"
+                                            checked />
+                                        <span>SME</span>
+                                    </label>
+
+                                    <label class="company-type-option">
+                                        <input
+                                            name="companyType"
+                                            type="radio"
+                                            value="Corporate" />
+                                        <span>Corporate</span>
+                                    </label>
+                                </div>
+                            </fieldset>
+
+                            <div
+                                class="form-field employer-only-field"
+                                id="industryField">
+                                <label
+                                    class="form-label"
+                                    for="industry">
+                                    INDUSTRY
+                                </label>
+                                <input
+                                    class="form-input"
+                                    id="industry"
+                                    name="industry"
+                                    type="text"
+                                    autocomplete="organization-title"
+                                    placeholder="For example: IT, Finance, Production"
+                                    required
+                                    maxlength="120" />
+                            </div>
+
+                            <label class="terms-row">
+                                <input
+                                    id="acceptTerms"
+                                    name="acceptTerms"
+                                    type="checkbox" />
+                                <span>
+                                    I agree to the
+                                    <a href="#" onclick="return false;">
+                                        terms and conditions
+                                    </a>
+                                    and
+                                    <a href="#" onclick="return false;">
+                                        privacy policy
+                                    </a>
+                                </span>
+                            </label>
+
+                            <button
+                                class="registration-submit"
+                                id="registrationSubmit"
+                                type="submit"
+                                disabled>
+                                Create a Business Profile
+                            </button>
+
+                            <p
+                                class="registration-feedback"
+                                id="registrationFeedback"
+                                role="status"
+                                aria-live="polite"
+                                hidden>
+                            </p>
+
+                            <p
+                                class="registration-note"
+                                id="registrationNote">
+                                You will be able to create your first vacancy
+                                immediately after registration.
+                            </p>
+                        </form>
+
+                        <p class="login-prompt">
+                            Already have an account?
+                            <a href="/SignIn">Log in</a>
+                        </p>
+                    </section>
+                </div>
+            </section>
+
+            <aside
+                class="benefits-card"
+                aria-labelledby="benefits-title">
+                <div class="benefits-accent" aria-hidden="true"></div>
+
+                <div class="benefits-content">
+                    <p class="benefits-eyebrow">
+                        WHY IT WORKS
+                    </p>
+                    <h2 id="benefits-title">
+                        Briefly about the benefits of the platform
+                    </h2>
+
+                    <div
+                        class="benefits-tabs"
+                        role="tablist"
+                        aria-label="Platform benefits">
+                        <button
+                            class="benefits-tab"
+                            id="candidateBenefitsTab"
+                            type="button"
+                            role="tab"
+                            data-benefits-type="candidate"
+                            aria-selected="false"
+                            aria-controls="candidateBenefits">
+                            For candidates
+                        </button>
+                        <button
+                            class="benefits-tab active"
+                            id="employerBenefitsTab"
+                            type="button"
+                            role="tab"
+                            data-benefits-type="employer"
+                            aria-selected="true"
+                            aria-controls="employerBenefits">
+                            For employers
+                        </button>
+                    </div>
+
+                    <div
+                        class="benefits-panel active"
+                        id="employerBenefits"
+                        role="tabpanel"
+                        aria-labelledby="employerBenefitsTab"
+                        data-benefits-panel="employer">
+                        <article class="benefit-item">
+                            <p>Reduced noise in responses</p>
+                            <strong>up to 33%</strong>
+                            <span>Skills filters</span>
+                        </article>
+                        <article class="benefit-item">
+                            <p>Faster short list</p>
+                            <strong>1.3x</strong>
+                            <span>Match Score + Structure</span>
+                        </article>
+                        <article class="benefit-item">
+                            <p>HR Time Saving</p>
+                            <strong>up to 2 hours</strong>
+                            <span>for a vacancy</span>
+                        </article>
+                        <article class="benefit-item">
+                            <p>Higher trust in skills</p>
+                            <strong class="benefit-icons">🧪 / 📜</strong>
+                            <span>Practice &amp; Certification</span>
+                        </article>
+                        <article class="benefit-item">
+                            <p>Transparent assessment</p>
+                            <strong>Explainable</strong>
+                            <span>without a black box</span>
+                        </article>
+                    </div>
+
+                    <div
+                        class="benefits-panel"
+                        id="candidateBenefits"
+                        role="tabpanel"
+                        aria-labelledby="candidateBenefitsTab"
+                        data-benefits-panel="candidate"
+                        hidden>
+                        <article class="benefit-item">
+                            <p>Relevant opportunities</p>
+                            <strong>Better match</strong>
+                            <span>Based on verified skills</span>
+                        </article>
+                        <article class="benefit-item">
+                            <p>Role readiness</p>
+                            <strong>0–100%</strong>
+                            <span>Clear weighted score</span>
+                        </article>
+                        <article class="benefit-item">
+                            <p>One profile</p>
+                            <strong>Less repetition</strong>
+                            <span>Reuse verified information</span>
+                        </article>
+                        <article class="benefit-item">
+                            <p>Skill credibility</p>
+                            <strong class="benefit-icons">✓ / 📜</strong>
+                            <span>Practice &amp; Certification</span>
+                        </article>
+                        <article class="benefit-item">
+                            <p>Transparent assessment</p>
+                            <strong>Explainable</strong>
+                            <span>Understand your score</span>
+                        </article>
+                    </div>
+
+                    <div class="benefits-tip">
+                        Tip: Require confirmation only for 1-2 critical skills
+                        so as not to reduce conversions.
+                    </div>
+
+                    <p class="benefits-disclaimer">
+                        The indicators are indicative and presented in demo
+                        mode. Real results depend on the completeness of the
+                        profile and the requirements of the vacancy.
+                    </p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script
+        src="~/js/registration.js"
+        asp-append-version="true">
+    </script>
+</body>
+</html>
