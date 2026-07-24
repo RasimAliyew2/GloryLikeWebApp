@@ -33,9 +33,228 @@ public sealed class AccountController : Controller
     public IActionResult Registration()
     {
         if (User.Identity?.IsAuthenticated != true)
-            return View();
+        {
+            return View(new RegistrationViewModel
+            {
+                AccountType = "employer",
+                CompanyType = "SME"
+            });
+        }
 
         return RedirectToSelectedPortal();
+    }
+
+    [AllowAnonymous]
+    [HttpPost("/Registration")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Registration(
+        RegistrationViewModel model,
+        CancellationToken cancellationToken)
+    {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToSelectedPortal();
+
+        model.AccountType =
+            model.AccountType?
+                .Trim()
+                .ToLowerInvariant()
+            ?? string.Empty;
+        model.ProfileName =
+            model.ProfileName?.Trim() ?? string.Empty;
+        model.Email =
+            model.Email?.Trim() ?? string.Empty;
+        model.CompanyType =
+            model.CompanyType?.Trim();
+        model.Industry =
+            model.Industry?.Trim();
+
+        if (model.AccountType == "employer")
+        {
+            if (model.CompanyType is not
+                ("Startup" or "SME" or "Corporate"))
+            {
+                ModelState.AddModelError(
+                    nameof(model.CompanyType),
+                    "Company type seçilməlidir.");
+            }
+
+            if (string.IsNullOrWhiteSpace(model.Industry))
+            {
+                ModelState.AddModelError(
+                    nameof(model.Industry),
+                    "Industry daxil edin.");
+            }
+        }
+        else if (model.AccountType == "candidate")
+        {
+            model.CompanyType = null;
+            model.Industry = null;
+            ModelState.Remove(nameof(model.CompanyType));
+            ModelState.Remove(nameof(model.Industry));
+        }
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        var result =
+            await _authApiService.StartEmailRegistrationAsync(
+                model,
+                cancellationToken);
+
+        if (!result.Success
+            || result.VerificationId is null)
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                string.IsNullOrWhiteSpace(result.Message)
+                    ? "Təsdiq kodu göndərilmədi. Yenidən cəhd edin."
+                    : result.Message);
+
+            return View(model);
+        }
+
+        TempData["RegistrationSuccessMessage"] =
+            result.Message;
+
+        return RedirectToAction(
+            nameof(VerifyRegistration),
+            new
+            {
+                verificationId =
+                    result.VerificationId.Value
+            });
+    }
+
+    [AllowAnonymous]
+    [HttpGet("/Registration/Verify/{verificationId:guid}")]
+    public async Task<IActionResult> VerifyRegistration(
+        Guid verificationId,
+        CancellationToken cancellationToken)
+    {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToSelectedPortal();
+
+        var result =
+            await _authApiService.GetEmailRegistrationStatusAsync(
+                verificationId,
+                cancellationToken);
+
+        var model = BuildVerifyRegistrationViewModel(
+            verificationId,
+            result);
+
+        model.SuccessMessage =
+            TempData["RegistrationSuccessMessage"]
+                as string
+            ?? string.Empty;
+
+        model.ErrorMessage =
+            TempData["RegistrationErrorMessage"]
+                as string
+            ?? model.ErrorMessage;
+
+        return View(model);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("/Registration/Verify")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmRegistrationCode(
+        VerifyRegistrationViewModel model,
+        CancellationToken cancellationToken)
+    {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToSelectedPortal();
+
+        if (!ModelState.IsValid)
+        {
+            var status =
+                await _authApiService
+                    .GetEmailRegistrationStatusAsync(
+                        model.VerificationId,
+                        cancellationToken);
+
+            var invalidModel =
+                BuildVerifyRegistrationViewModel(
+                    model.VerificationId,
+                    status);
+            invalidModel.Code = model.Code;
+
+            return View(
+                nameof(VerifyRegistration),
+                invalidModel);
+        }
+
+        var result =
+            await _authApiService.VerifyEmailRegistrationAsync(
+                model.VerificationId,
+                model.Code,
+                cancellationToken);
+
+        if (!result.Success || result.User is null)
+        {
+            var failedModel =
+                BuildVerifyRegistrationViewModel(
+                    model.VerificationId,
+                    result);
+            failedModel.Code = string.Empty;
+
+            return View(
+                nameof(VerifyRegistration),
+                failedModel);
+        }
+
+        var portalType =
+            string.Equals(
+                result.User.AccountType,
+                "employer",
+                StringComparison.OrdinalIgnoreCase)
+                ? PortalClaimTypes.Employer
+                : PortalClaimTypes.Employee;
+
+        await SignInUserAsync(
+            result.User,
+            portalType);
+
+        return portalType == PortalClaimTypes.Employer
+            ? RedirectToAction(
+                "EmployerHome",
+                "EmployerHome")
+            : RedirectToAction(
+                "Index",
+                "Home");
+    }
+
+    [AllowAnonymous]
+    [HttpPost("/Registration/Verify/Resend")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResendRegistrationCode(
+        Guid verificationId,
+        CancellationToken cancellationToken)
+    {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToSelectedPortal();
+
+        var result =
+            await _authApiService
+                .ResendEmailRegistrationCodeAsync(
+                    verificationId,
+                    cancellationToken);
+
+        if (result.Success)
+        {
+            TempData["RegistrationSuccessMessage"] =
+                result.Message;
+        }
+        else
+        {
+            TempData["RegistrationErrorMessage"] =
+                result.Message;
+        }
+
+        return RedirectToAction(
+            nameof(VerifyRegistration),
+            new { verificationId });
     }
 
     [AllowAnonymous]
@@ -64,47 +283,9 @@ public sealed class AccountController : Controller
             return View(model);
         }
 
-        var user = result.User;
-
-        var claims = new List<Claim>
-        {
-            new(
-                ClaimTypes.NameIdentifier,
-                user.Id.ToString()),
-
-            new(
-                ClaimTypes.Name,
-                string.IsNullOrWhiteSpace(user.Name)
-                    ? user.UserName
-                    : user.Name),
-
-            new(
-                ClaimTypes.Surname,
-                user.Surname ?? string.Empty),
-
-            new(
-                ClaimTypes.Email,
-                user.Email ?? string.Empty),
-
-            new(
-                ClaimTypes.MobilePhone,
-                user.PhoneNumber ?? string.Empty),
-
-            new(
-                "username",
-                user.UserName ?? string.Empty)
-        };
-
-        var identity = new ClaimsIdentity(
-            claims,
-            CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal,
-            CreateAuthenticationProperties());
+        await SignInUserAsync(
+            result.User,
+            portalType: null);
 
         // Login düzgündür. Portal hələ seçilməyib.
         return RedirectToAction(nameof(ChoosePortal));
@@ -232,6 +413,92 @@ public sealed class AccountController : Controller
             _ =>
                 RedirectToAction(
                     nameof(ChoosePortal))
+        };
+    }
+
+    private async Task SignInUserAsync(
+        AuthUserDto user,
+        string? portalType)
+    {
+        var claims = new List<Claim>
+        {
+            new(
+                ClaimTypes.NameIdentifier,
+                user.Id.ToString()),
+
+            new(
+                ClaimTypes.Name,
+                string.IsNullOrWhiteSpace(user.Name)
+                    ? user.UserName
+                    : user.Name),
+
+            new(
+                ClaimTypes.Surname,
+                user.Surname ?? string.Empty),
+
+            new(
+                ClaimTypes.Email,
+                user.Email ?? string.Empty),
+
+            new(
+                ClaimTypes.MobilePhone,
+                user.PhoneNumber ?? string.Empty),
+
+            new(
+                "username",
+                user.UserName ?? string.Empty),
+
+            new(
+                "accountType",
+                user.AccountType ?? string.Empty)
+        };
+
+        if (!string.IsNullOrWhiteSpace(portalType))
+        {
+            claims.Add(
+                new Claim(
+                    PortalClaimTypes.ClaimName,
+                    portalType));
+        }
+
+        var identity = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal,
+            CreateAuthenticationProperties());
+    }
+
+    private static VerifyRegistrationViewModel
+        BuildVerifyRegistrationViewModel(
+            Guid verificationId,
+            EmailRegistrationResponseDto response)
+    {
+        return new VerifyRegistrationViewModel
+        {
+            VerificationId =
+                response.VerificationId
+                ?? verificationId,
+            MaskedEmail = response.MaskedEmail,
+            ExpiresAtUtc = response.ExpiresAtUtc,
+            ResendAvailableAtUtc =
+                response.ResendAvailableAtUtc,
+            ExpiresInSeconds =
+                response.ExpiresInSeconds,
+            ResendInSeconds =
+                response.ResendInSeconds,
+            Expired =
+                response.ExpiresAtUtc is null
+                || response.Expired,
+            CanResend = response.CanResend,
+            ErrorMessage =
+                response.Success
+                    ? string.Empty
+                    : response.Message
         };
     }
 

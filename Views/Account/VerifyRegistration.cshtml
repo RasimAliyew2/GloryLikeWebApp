@@ -1,0 +1,186 @@
+@model GloryLikeWebApp.Models.Auth.VerifyRegistrationViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Verify email";
+    var expiresAt =
+        Model.ExpiresAtUtc?
+            .ToUniversalTime()
+            .ToString("O")
+        ?? string.Empty;
+    var resendAt =
+        Model.ResendAvailableAtUtc?
+            .ToUniversalTime()
+            .ToString("O")
+        ?? string.Empty;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link
+        rel="stylesheet"
+        href="~/css/verify-registration.css"
+        asp-append-version="true" />
+</head>
+<body>
+    <main
+        class="verification-page"
+        id="verificationPage"
+        data-expires-at="@expiresAt"
+        data-resend-at="@resendAt">
+        <section
+            class="verification-card"
+            aria-labelledby="verificationTitle">
+            <a
+                class="brand"
+                href="/Registration"
+                aria-label="SkillMatch registration">
+                SkillMatch
+            </a>
+
+            <div class="mail-icon" aria-hidden="true">
+                <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect x="3" y="5" width="18" height="14" rx="3"></rect>
+                    <path d="m4 7 8 6 8-6"></path>
+                </svg>
+            </div>
+
+            <header class="verification-heading">
+                <p class="eyebrow">EMAIL VERIFICATION</p>
+                <h1 id="verificationTitle">
+                    Check your inbox
+                </h1>
+                <p>
+                    We sent a 6-digit code to
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(Model.MaskedEmail)
+                            ? "your email"
+                            : Model.MaskedEmail)
+                    </strong>.
+                    Enter it before the timer ends.
+                </p>
+            </header>
+
+            @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+            {
+                <div
+                    class="verification-alert success"
+                    role="status">
+                    @Model.SuccessMessage
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div
+                    class="verification-alert error"
+                    role="alert">
+                    @Model.ErrorMessage
+                </div>
+            }
+
+            <div class="timer-panel">
+                <span>Code expires in</span>
+                <strong
+                    id="verificationTimer"
+                    aria-live="polite">
+                    01:00
+                </strong>
+            </div>
+
+            <form
+                class="verification-form"
+                id="verificationForm"
+                asp-controller="Account"
+                asp-action="ConfirmRegistrationCode"
+                method="post"
+                novalidate>
+                @Html.AntiForgeryToken()
+                <input
+                    asp-for="VerificationId"
+                    type="hidden" />
+
+                <label for="verificationCode">
+                    Verification code
+                </label>
+                <input
+                    asp-for="Code"
+                    class="verification-code"
+                    id="verificationCode"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="[0-9]{6}"
+                    maxlength="6"
+                    autocomplete="one-time-code"
+                    placeholder="000000"
+                    aria-describedby="codeValidation"
+                    disabled="@Model.Expired" />
+                <span
+                    class="field-validation"
+                    id="codeValidation"
+                    asp-validation-for="Code">
+                </span>
+
+                <div
+                    asp-validation-summary="ModelOnly"
+                    class="verification-alert error validation-summary">
+                </div>
+
+                <button
+                    class="verify-button"
+                    id="verifyButton"
+                    type="submit"
+                    disabled="@Model.Expired">
+                    Verify and continue
+                </button>
+            </form>
+
+            <div
+                class="resend-area @(Model.CanResend ? string.Empty : "is-hidden")"
+                id="resendArea">
+                <p>
+                    The code has expired or did not arrive.
+                </p>
+                <form
+                    id="resendForm"
+                    asp-controller="Account"
+                    asp-action="ResendRegistrationCode"
+                    method="post">
+                    @Html.AntiForgeryToken()
+                    <input
+                        name="verificationId"
+                        type="hidden"
+                        value="@Model.VerificationId" />
+                    <button
+                        class="resend-button"
+                        id="resendButton"
+                        type="submit">
+                        Send code again
+                    </button>
+                </form>
+            </div>
+
+            <a
+                class="change-email-link"
+                href="/Registration">
+                ← Use another email
+            </a>
+        </section>
+    </main>
+
+    <script
+        src="~/js/verify-registration.js"
+        asp-append-version="true">
+    </script>
+</body>
+</html>

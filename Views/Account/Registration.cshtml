@@ -1,3 +1,4 @@
+@model GloryLikeWebApp.Models.Auth.RegistrationViewModel
 @{
     Layout = null;
     ViewData["Title"] = "Registration";
@@ -118,7 +119,16 @@
                         <form
                             class="registration-form"
                             id="quickRegistrationForm"
+                            asp-controller="Account"
+                            asp-action="Registration"
+                            method="post"
                             novalidate>
+                            @Html.AntiForgeryToken()
+                            <input
+                                asp-for="AccountType"
+                                id="accountType"
+                                type="hidden" />
+
                             <div class="form-field">
                                 <label
                                     class="form-label"
@@ -127,14 +137,18 @@
                                     COMPANY NAME
                                 </label>
                                 <input
+                                    asp-for="ProfileName"
                                     class="form-input"
                                     id="profileName"
-                                    name="profileName"
                                     type="text"
                                     autocomplete="organization"
                                     placeholder="Your Company Name"
                                     required
                                     maxlength="150" />
+                                <span
+                                    class="field-validation"
+                                    asp-validation-for="ProfileName">
+                                </span>
                             </div>
 
                             <div class="form-field">
@@ -144,14 +158,18 @@
                                     EMAIL
                                 </label>
                                 <input
+                                    asp-for="Email"
                                     class="form-input"
                                     id="registrationEmail"
-                                    name="email"
                                     type="email"
                                     autocomplete="email"
                                     placeholder="hr@company.com"
                                     required
                                     maxlength="150" />
+                                <span
+                                    class="field-validation"
+                                    asp-validation-for="Email">
+                                </span>
                             </div>
 
                             <div class="form-field">
@@ -161,15 +179,19 @@
                                     PASSWORD
                                 </label>
                                 <input
+                                    asp-for="Password"
                                     class="form-input"
                                     id="registrationPassword"
-                                    name="password"
                                     type="password"
                                     autocomplete="new-password"
                                     placeholder="Minimum 8 characters"
                                     required
                                     minlength="8"
                                     maxlength="128" />
+                                <span
+                                    class="field-validation"
+                                    asp-validation-for="Password">
+                                </span>
                             </div>
 
                             <fieldset
@@ -182,7 +204,8 @@
                                 <div class="company-type-options">
                                     <label class="company-type-option">
                                         <input
-                                            name="companyType"
+                                            asp-for="CompanyType"
+                                            id="companyTypeStartup"
                                             type="radio"
                                             value="Startup" />
                                         <span>Startup</span>
@@ -190,21 +213,26 @@
 
                                     <label class="company-type-option">
                                         <input
-                                            name="companyType"
+                                            asp-for="CompanyType"
+                                            id="companyTypeSme"
                                             type="radio"
-                                            value="SME"
-                                            checked />
+                                            value="SME" />
                                         <span>SME</span>
                                     </label>
 
                                     <label class="company-type-option">
                                         <input
-                                            name="companyType"
+                                            asp-for="CompanyType"
+                                            id="companyTypeCorporate"
                                             type="radio"
                                             value="Corporate" />
                                         <span>Corporate</span>
                                     </label>
                                 </div>
+                                <span
+                                    class="field-validation"
+                                    asp-validation-for="CompanyType">
+                                </span>
                             </fieldset>
 
                             <div
@@ -216,20 +244,24 @@
                                     INDUSTRY
                                 </label>
                                 <input
+                                    asp-for="Industry"
                                     class="form-input"
                                     id="industry"
-                                    name="industry"
                                     type="text"
                                     autocomplete="organization-title"
                                     placeholder="For example: IT, Finance, Production"
                                     required
                                     maxlength="120" />
+                                <span
+                                    class="field-validation"
+                                    asp-validation-for="Industry">
+                                </span>
                             </div>
 
                             <label class="terms-row">
                                 <input
+                                    asp-for="AcceptedTerms"
                                     id="acceptTerms"
-                                    name="acceptTerms"
                                     type="checkbox" />
                                 <span>
                                     I agree to the
@@ -242,22 +274,26 @@
                                     </a>
                                 </span>
                             </label>
+                            <span
+                                class="field-validation terms-validation"
+                                asp-validation-for="AcceptedTerms">
+                            </span>
 
                             <button
                                 class="registration-submit"
                                 id="registrationSubmit"
                                 type="submit"
-                                disabled>
+                                disabled="@(!Model.AcceptedTerms)">
                                 Create a Business Profile
                             </button>
 
-                            <p
+                            <div
+                                asp-validation-summary="ModelOnly"
                                 class="registration-feedback"
                                 id="registrationFeedback"
                                 role="status"
-                                aria-live="polite"
-                                hidden>
-                            </p>
+                                aria-live="polite">
+                            </div>
 
                             <p
                                 class="registration-note"

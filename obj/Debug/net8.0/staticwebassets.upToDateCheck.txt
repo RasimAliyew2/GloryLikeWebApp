@@ -16,6 +16,7 @@ wwwroot\css\registration.css
 wwwroot\css\site.css
 wwwroot\css\skills-page.css
 wwwroot\css\talent-radar.css
+wwwroot\css\verify-registration.css
 wwwroot\favicon.ico
 wwwroot\js\candidate-dashboard.js
 wwwroot\js\company-profile.js
@@ -32,6 +33,7 @@ wwwroot\js\registration.js
 wwwroot\js\site.js
 wwwroot\js\skills-page.js
 wwwroot\js\talent-radar.js
+wwwroot\js\verify-registration.js
 wwwroot\lib\bootstrap\dist\css\bootstrap.css
 wwwroot\lib\bootstrap\dist\css\bootstrap.css.map
 wwwroot\lib\bootstrap\dist\css\bootstrap.min.css

@@ -2,6 +2,8 @@
     "use strict";
 
     const form = document.getElementById("quickRegistrationForm");
+    const accountTypeInput =
+        document.getElementById("accountType");
     const accountTypeButtons = Array.from(
         document.querySelectorAll("[data-account-type]"));
     const benefitsTabs = Array.from(
@@ -29,7 +31,22 @@
     const feedback =
         document.getElementById("registrationFeedback");
 
+    const syncSubmitState = () => {
+        if (!acceptTerms || !submitButton)
+            return;
+
+        submitButton.disabled = !acceptTerms.checked;
+    };
+
+    if (acceptTerms && submitButton) {
+        acceptTerms.addEventListener("input", syncSubmitState);
+        acceptTerms.addEventListener("change", syncSubmitState);
+        window.addEventListener("pageshow", syncSubmitState);
+        syncSubmitState();
+    }
+
     if (!form
+        || !accountTypeInput
         || !profileNameLabel
         || !profileNameInput
         || !emailInput
@@ -37,14 +54,19 @@
         || !industryInput
         || !acceptTerms
         || !submitButton
-        || !registrationNote
-        || !feedback) {
+        || !registrationNote) {
         return;
     }
 
-    let accountType = "employer";
+    let accountType =
+        accountTypeInput.value === "candidate"
+            ? "candidate"
+            : "employer";
 
     const setFeedback = (message = "", isSuccess = false) => {
+        if (!feedback)
+            return;
+
         feedback.textContent = message;
         feedback.hidden = !message;
         feedback.classList.toggle("success", isSuccess);
@@ -68,11 +90,14 @@
         });
     };
 
-    const setAccountType = (type) => {
+    const setAccountType = (
+        type,
+        clearFeedback = true) => {
         accountType =
             type === "candidate"
                 ? "candidate"
                 : "employer";
+        accountTypeInput.value = accountType;
 
         const isEmployer = accountType === "employer";
 
@@ -117,7 +142,8 @@
                 : "You will be able to complete your skills and career profile after registration.";
 
         setBenefitsType(accountType);
-        setFeedback();
+        if (clearFeedback)
+            setFeedback();
     };
 
     const validateInput = (input) => {
@@ -140,7 +166,6 @@
     });
 
     acceptTerms.addEventListener("change", () => {
-        submitButton.disabled = !acceptTerms.checked;
         setFeedback();
     });
 
@@ -163,8 +188,6 @@
     });
 
     form.addEventListener("submit", (event) => {
-        event.preventDefault();
-
         const inputsToValidate = [
             profileNameInput,
             emailInput,
@@ -180,6 +203,7 @@
                 .every(Boolean);
 
         if (!valid) {
+            event.preventDefault();
             setFeedback(
                 "Please fill in all required fields correctly.");
 
@@ -192,16 +216,17 @@
         }
 
         if (!acceptTerms.checked) {
+            event.preventDefault();
             setFeedback(
                 "Please accept the terms and privacy policy.");
             return;
         }
 
-        setFeedback(
-            "The registration form is ready. Backend account creation will be connected in the registration API step.",
-            true);
+        submitButton.disabled = true;
+        submitButton.textContent = "Sending verification code...";
+        setFeedback();
     });
 
-    setAccountType("employer");
-    submitButton.disabled = true;
+    setAccountType(accountType, false);
+    syncSubmitState();
 })();

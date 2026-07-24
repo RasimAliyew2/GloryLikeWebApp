@@ -326,6 +326,24 @@ a {
     box-shadow: 0 0 0 3px rgba(240, 68, 56, .08);
 }
 
+.field-validation {
+    min-height: 18px;
+    margin-top: 6px;
+    display: block;
+    color: var(--registration-danger);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.field-validation:empty {
+    min-height: 0;
+    margin-top: 0;
+}
+
+.terms-validation {
+    margin: -15px 0 18px 30px;
+}
+
 .company-type-options {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -443,6 +461,16 @@ a {
     border-radius: 11px;
     font-size: 13px;
     line-height: 1.45;
+}
+
+.registration-feedback.validation-summary-valid,
+.registration-feedback:empty {
+    display: none;
+}
+
+.registration-feedback ul {
+    margin: 0;
+    padding-left: 18px;
 }
 
 .registration-feedback.success {
