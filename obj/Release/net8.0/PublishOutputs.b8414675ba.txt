@@ -1,0 +1,7 @@
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\GloryLikeWebApp.exe
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\appsettings.Development.json
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\appsettings.json
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\GloryLikeWebApp.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\GloryLikeWebApp.deps.json
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\GloryLikeWebApp.runtimeconfig.json
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\GloryLikeWebApp.pdb

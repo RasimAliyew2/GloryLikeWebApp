@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using GloryLikeWebApp.Models.Employer;
 using GloryLikeWebApp.Security;
+using GloryLikeWebApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,17 @@ namespace GloryLikeWebApp.Controllers;
 [Authorize(Policy = PortalClaimTypes.EmployerPolicy)]
 public sealed class EmployerCompanyController : Controller
 {
+    private readonly ICompanyTeamApiService _companyTeamApiService;
+    private readonly ILogger<EmployerCompanyController> _logger;
+
+    public EmployerCompanyController(
+        ICompanyTeamApiService companyTeamApiService,
+        ILogger<EmployerCompanyController> logger)
+    {
+        _companyTeamApiService = companyTeamApiService;
+        _logger = logger;
+    }
+
     [HttpGet("/Employer/Company")]
     public IActionResult Index()
     {
@@ -21,6 +33,165 @@ public sealed class EmployerCompanyController : Controller
             DisplayName = GetDisplayName(),
             Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty
         });
+    }
+
+    [HttpGet("/Employer/Company/Team")]
+    public async Task<IActionResult> Team(
+        CancellationToken cancellationToken)
+    {
+        var model = new CompanyTeamPageViewModel
+        {
+            DisplayName = GetDisplayName(),
+            Email =
+                User.FindFirstValue(ClaimTypes.Email)
+                ?? string.Empty
+        };
+
+        if (!TryGetEmployerUserId(out var ownerUserId))
+        {
+            model.ErrorMessage =
+                "Login məlumatında employer user ID tapılmadı. Yenidən sign in edin.";
+
+            return View("Team", model);
+        }
+
+        model.UserId = ownerUserId;
+
+        var result =
+            await _companyTeamApiService.GetTeamAsync(
+                ownerUserId,
+                cancellationToken);
+
+        if (!result.Success || result.Data is null)
+        {
+            model.ErrorMessage =
+                string.IsNullOrWhiteSpace(result.Message)
+                    ? "Company team yüklənmədi."
+                    : result.Message;
+
+            _logger.LogWarning(
+                "Employer {OwnerUserId} üçün Company Team yüklənmədi: {Message}",
+                ownerUserId,
+                model.ErrorMessage);
+
+            return View("Team", model);
+        }
+
+        model.CompanyName = result.Data.CompanyName;
+        model.Members = result.Data.Members
+            .Select(ToTeamMemberViewModel)
+            .OrderBy(item => RoleOrder(item.Role))
+            .ThenBy(item => item.IsInvited)
+            .ThenBy(item => item.DisplayName)
+            .ToList();
+
+        return View("Team", model);
+    }
+
+    [HttpPost("/Employer/Company/Team/Invite")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Invite(
+        InviteCompanyTeamMemberViewModel model,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var ownerUserId))
+        {
+            Response.StatusCode =
+                StatusCodes.Status401Unauthorized;
+
+            return Json(new
+            {
+                success = false,
+                message =
+                    "Login məlumatı tapılmadı. Yenidən sign in edin."
+            });
+        }
+
+        if (!ModelState.IsValid)
+        {
+            Response.StatusCode =
+                StatusCodes.Status400BadRequest;
+
+            var message = ModelState.Values
+                .SelectMany(item => item.Errors)
+                .Select(item => item.ErrorMessage)
+                .FirstOrDefault(
+                    item => !string.IsNullOrWhiteSpace(item))
+                ?? "Email və role məlumatlarını yoxlayın.";
+
+            return Json(new
+            {
+                success = false,
+                message
+            });
+        }
+
+        var result =
+            await _companyTeamApiService.InviteAsync(
+                ownerUserId,
+                model,
+                cancellationToken);
+
+        if (!result.Success)
+        {
+            Response.StatusCode =
+                StatusCodes.Status400BadRequest;
+
+            return Json(new
+            {
+                success = false,
+                message =
+                    string.IsNullOrWhiteSpace(result.Message)
+                        ? "Invitation göndərilmədi."
+                        : result.Message
+            });
+        }
+
+        return Json(new
+        {
+            success = true,
+            message =
+                string.IsNullOrWhiteSpace(result.Message)
+                    ? "Invitation email göndərildi."
+                    : result.Message
+        });
+    }
+
+    private bool TryGetEmployerUserId(out int userId)
+    {
+        return int.TryParse(
+                User.FindFirstValue(
+                    ClaimTypes.NameIdentifier),
+                out userId)
+            && userId > 0;
+    }
+
+    private static CompanyTeamMemberViewModel
+        ToTeamMemberViewModel(
+            CompanyTeamMemberApiItem item)
+    {
+        return new CompanyTeamMemberViewModel
+        {
+            InvitationId = item.InvitationId,
+            UserId = item.UserId,
+            DisplayName = item.DisplayName,
+            Email = item.Email,
+            Role = item.Role,
+            Status = item.Status,
+            InvitedAtUtc = item.InvitedAtUtc,
+            AcceptedAtUtc = item.AcceptedAtUtc
+        };
+    }
+
+    private static int RoleOrder(string role)
+    {
+        return role switch
+        {
+            "HR Admin" => 0,
+            "Hiring Manager" => 1,
+            "Recruiter" => 2,
+            _ => 3
+        };
     }
 
     private string GetDisplayName()

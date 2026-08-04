@@ -25,6 +25,9 @@ public sealed class RegistrationViewModel
         ErrorMessage = "Hesab növü düzgün deyil.")]
     public string AccountType { get; set; } = "employer";
 
+    [StringLength(150)]
+    public string? CompanyName { get; set; }
+
     [StringLength(30)]
     public string? CompanyType { get; set; } = "SME";
 
@@ -37,6 +40,19 @@ public sealed class RegistrationViewModel
         "true",
         ErrorMessage = "Şərtləri və məxfilik siyasətini qəbul edin.")]
     public bool AcceptedTerms { get; set; }
+
+    [StringLength(200)]
+    public string? InvitationToken { get; set; }
+
+    [StringLength(40)]
+    public string? InvitationRole { get; set; }
+
+    public string InvitationErrorMessage { get; set; } =
+        string.Empty;
+
+    public bool IsTeamInvitation =>
+        !string.IsNullOrWhiteSpace(
+            InvitationToken);
 }
 
 public sealed class VerifyRegistrationViewModel

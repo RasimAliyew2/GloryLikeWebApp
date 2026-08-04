@@ -33,8 +33,10 @@ internal sealed class BackendStartEmailRegistrationRequest
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public string AccountType { get; set; } = string.Empty;
+    public string? CompanyName { get; set; }
     public string? CompanyType { get; set; }
     public string? Industry { get; set; }
+    public string? InvitationToken { get; set; }
     public bool AcceptedTerms { get; set; }
 }
 

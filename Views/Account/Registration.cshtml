@@ -2,6 +2,10 @@
 @{
     Layout = null;
     ViewData["Title"] = "Registration";
+    var isTeamInvitation = Model.IsTeamInvitation;
+    var invitationUnavailable =
+        !string.IsNullOrWhiteSpace(
+            Model.InvitationErrorMessage);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -41,10 +45,14 @@
                 <div class="registration-content">
                     <header class="registration-heading">
                         <h1 id="registration-title">
-                            Create a profile in 1 minute
+                            @(isTeamInvitation
+                                ? $"Join {Model.CompanyName ?? "the company"}"
+                                : "Create a profile in 1 minute")
                         </h1>
                         <p>
-                            No extra steps. You can add to your profile later.
+                            @(isTeamInvitation
+                                ? "Complete your profile to accept the team invitation."
+                                : "No extra steps. You can add to your profile later.")
                         </p>
                     </header>
 
@@ -52,73 +60,106 @@
                         <h2
                             class="section-label"
                             id="quick-registration-title">
-                            QUICK REGISTRATION
+                            @(isTeamInvitation
+                                ? "TEAM INVITATION"
+                                : "QUICK REGISTRATION")
                         </h2>
 
-                        <div class="social-buttons">
-                            <button
-                                class="social-button google-button"
-                                type="button"
-                                title="Google registration is not connected yet">
-                                <span
-                                    class="google-mark"
-                                    aria-hidden="true">
-                                    G
-                                </span>
-                                <span>Continue with Google</span>
-                            </button>
+                        @if (!isTeamInvitation)
+                        {
+                            <div class="social-buttons">
+                                <button
+                                    class="social-button google-button"
+                                    type="button"
+                                    title="Google registration is not connected yet">
+                                    <span
+                                        class="google-mark"
+                                        aria-hidden="true">
+                                        G
+                                    </span>
+                                    <span>Continue with Google</span>
+                                </button>
 
-                            <button
-                                class="social-button apple-button"
-                                type="button"
-                                title="Apple registration is not connected yet">
-                                <span
-                                    class="apple-mark"
-                                    aria-hidden="true">
-                                    ●
-                                </span>
-                                <span>Continue with Apple</span>
-                            </button>
-                        </div>
+                                <button
+                                    class="social-button apple-button"
+                                    type="button"
+                                    title="Apple registration is not connected yet">
+                                    <span
+                                        class="apple-mark"
+                                        aria-hidden="true">
+                                        ●
+                                    </span>
+                                    <span>Continue with Apple</span>
+                                </button>
+                            </div>
 
-                        <div class="registration-divider">
-                            <span>or by email</span>
-                        </div>
+                            <div class="registration-divider">
+                                <span>or by email</span>
+                            </div>
 
-                        <div
-                            class="account-type-switch"
-                            role="group"
-                            aria-label="Choose profile type">
-                            <button
-                                class="account-type-button"
-                                type="button"
-                                data-account-type="candidate"
-                                aria-pressed="false">
-                                <span
-                                    class="account-type-icon"
-                                    aria-hidden="true">
-                                    🎯
-                                </span>
-                                <span>I am a candidate</span>
-                            </button>
+                            <div
+                                class="account-type-switch"
+                                role="group"
+                                aria-label="Choose profile type">
+                                <button
+                                    class="account-type-button"
+                                    type="button"
+                                    data-account-type="candidate"
+                                    aria-pressed="false">
+                                    <span
+                                        class="account-type-icon"
+                                        aria-hidden="true">
+                                        🎯
+                                    </span>
+                                    <span>I am a candidate</span>
+                                </button>
 
-                            <button
-                                class="account-type-button active"
-                                type="button"
-                                data-account-type="employer"
-                                aria-pressed="true">
-                                <span
-                                    class="account-type-icon"
-                                    aria-hidden="true">
-                                    🏢
-                                </span>
-                                <span>I am an employer</span>
-                            </button>
-                        </div>
+                                <button
+                                    class="account-type-button active"
+                                    type="button"
+                                    data-account-type="employer"
+                                    aria-pressed="true">
+                                    <span
+                                        class="account-type-icon"
+                                        aria-hidden="true">
+                                        🏢
+                                    </span>
+                                    <span>I am an employer</span>
+                                </button>
+                            </div>
+                        }
+                        else if (!invitationUnavailable)
+                        {
+                            <div class="invitation-summary">
+                                <span aria-hidden="true">✉</span>
+                                <div>
+                                    <strong>@Model.CompanyName</strong>
+                                    <p>
+                                        You were invited as
+                                        <b>@Model.InvitationRole</b>.
+                                    </p>
+                                </div>
+                            </div>
+                        }
 
-                        <form
+                        @if (invitationUnavailable)
+                        {
+                            <div
+                                class="invitation-error"
+                                role="alert">
+                                <strong>Invitation is unavailable</strong>
+                                <p>@Model.InvitationErrorMessage</p>
+                                <a href="/Registration">
+                                    Open regular registration
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <form
                             class="registration-form"
                             id="quickRegistrationForm"
+                            data-team-invitation="@isTeamInvitation.ToString().ToLowerInvariant()"
                             asp-controller="Account"
                             asp-action="Registration"
                             method="post"
@@ -128,21 +169,29 @@
                                 asp-for="AccountType"
                                 id="accountType"
                                 type="hidden" />
+                            <input
+                                asp-for="InvitationToken"
+                                type="hidden" />
+                            <input
+                                asp-for="InvitationRole"
+                                type="hidden" />
 
                             <div class="form-field">
                                 <label
                                     class="form-label"
                                     id="profileNameLabel"
                                     for="profileName">
-                                    COMPANY NAME
+                                    @(isTeamInvitation
+                                        ? "FULL NAME"
+                                        : "COMPANY NAME")
                                 </label>
                                 <input
                                     asp-for="ProfileName"
                                     class="form-input"
                                     id="profileName"
                                     type="text"
-                                    autocomplete="organization"
-                                    placeholder="Your Company Name"
+                                    autocomplete="@(isTeamInvitation ? "name" : "organization")"
+                                    placeholder="@(isTeamInvitation ? "Your Full Name" : "Your Company Name")"
                                     required
                                     maxlength="150" />
                                 <span
@@ -157,20 +206,59 @@
                                     for="registrationEmail">
                                     EMAIL
                                 </label>
-                                <input
-                                    asp-for="Email"
-                                    class="form-input"
-                                    id="registrationEmail"
-                                    type="email"
-                                    autocomplete="email"
-                                    placeholder="hr@company.com"
-                                    required
-                                    maxlength="150" />
+                                @if (isTeamInvitation)
+                                {
+                                    <input
+                                        asp-for="Email"
+                                        class="form-input readonly-input"
+                                        id="registrationEmail"
+                                        type="email"
+                                        autocomplete="email"
+                                        readonly
+                                        aria-readonly="true"
+                                        required
+                                        maxlength="150" />
+                                }
+                                else
+                                {
+                                    <input
+                                        asp-for="Email"
+                                        class="form-input"
+                                        id="registrationEmail"
+                                        type="email"
+                                        autocomplete="email"
+                                        placeholder="hr@company.com"
+                                        required
+                                        maxlength="150" />
+                                }
                                 <span
                                     class="field-validation"
                                     asp-validation-for="Email">
                                 </span>
                             </div>
+
+                            @if (isTeamInvitation)
+                            {
+                                <div class="form-field">
+                                    <label
+                                        class="form-label"
+                                        for="invitationCompanyName">
+                                        COMPANY
+                                    </label>
+                                    <input
+                                        asp-for="CompanyName"
+                                        class="form-input readonly-input"
+                                        id="invitationCompanyName"
+                                        type="text"
+                                        readonly
+                                        aria-readonly="true"
+                                        maxlength="150" />
+                                    <span
+                                        class="field-validation"
+                                        asp-validation-for="CompanyName">
+                                    </span>
+                                </div>
+                            }
 
                             <div class="form-field">
                                 <label
@@ -194,7 +282,19 @@
                                 </span>
                             </div>
 
-                            <fieldset
+                            @if (isTeamInvitation)
+                            {
+                                <input
+                                    asp-for="CompanyType"
+                                    type="hidden" />
+                                <input
+                                    asp-for="Industry"
+                                    id="industry"
+                                    type="hidden" />
+                            }
+                            else
+                            {
+                                <fieldset
                                 class="form-field employer-only-field"
                                 id="companyTypeField">
                                 <legend class="form-label">
@@ -233,9 +333,9 @@
                                     class="field-validation"
                                     asp-validation-for="CompanyType">
                                 </span>
-                            </fieldset>
+                                </fieldset>
 
-                            <div
+                                <div
                                 class="form-field employer-only-field"
                                 id="industryField">
                                 <label
@@ -256,7 +356,8 @@
                                     class="field-validation"
                                     asp-validation-for="Industry">
                                 </span>
-                            </div>
+                                </div>
+                            }
 
                             <label class="terms-row">
                                 <input
@@ -284,7 +385,9 @@
                                 id="registrationSubmit"
                                 type="submit"
                                 disabled="@(!Model.AcceptedTerms)">
-                                Create a Business Profile
+                                @(isTeamInvitation
+                                    ? "Accept Invitation"
+                                    : "Create a Business Profile")
                             </button>
 
                             <div
@@ -298,10 +401,12 @@
                             <p
                                 class="registration-note"
                                 id="registrationNote">
-                                You will be able to create your first vacancy
-                                immediately after registration.
+                                @(isTeamInvitation
+                                    ? "After email verification, your name will automatically appear in the company team."
+                                    : "You will be able to create your first vacancy immediately after registration.")
                             </p>
-                        </form>
+                            </form>
+                        }
 
                         <p class="login-prompt">
                             Already have an account?

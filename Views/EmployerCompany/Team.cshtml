@@ -1,0 +1,408 @@
+@model GloryLikeWebApp.Models.Employer.CompanyTeamPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Company Team";
+
+    var roleHeadings = new Dictionary<string, string>
+    {
+        ["HR Admin"] = "HR ADMIN",
+        ["Hiring Manager"] = "HIRING MANAGERS",
+        ["Recruiter"] = "RECRUITERS"
+    };
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SkillMatch</title>
+
+    <link
+        rel="stylesheet"
+        href="~/css/employer-home.css"
+        asp-append-version="true" />
+    <link
+        rel="stylesheet"
+        href="~/css/company-profile.css"
+        asp-append-version="true" />
+    <link
+        rel="stylesheet"
+        href="~/css/company-team.css"
+        asp-append-version="true" />
+</head>
+
+<body>
+    <div class="employer-shell company-shell">
+        <header class="employer-topbar">
+            <a
+                class="employer-brand"
+                asp-controller="EmployerHome"
+                asp-action="EmployerHome">
+                SkillMatch
+            </a>
+
+            <div class="employer-search">
+                <span aria-hidden="true">⌕</span>
+                <input
+                    type="search"
+                    placeholder="Search by candidates/vacancies"
+                    aria-label="Search candidates or vacancies" />
+            </div>
+
+            <div class="employer-account">
+                <span class="demo-badge">Employer</span>
+
+                <div class="employer-avatar">
+                    @Model.Initials
+                </div>
+
+                <div class="employer-account-copy">
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(Model.Email)
+                            ? Model.DisplayName
+                            : Model.Email)
+                    </strong>
+                    <span>Employer workspace</span>
+                </div>
+
+                <a
+                    class="switch-portal-link"
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    Switch
+                </a>
+            </div>
+        </header>
+
+        <aside
+            class="employer-sidebar"
+            id="employerSidebar">
+            <nav aria-label="Employer navigation">
+                <a
+                    asp-controller="EmployerHome"
+                    asp-action="EmployerHome">
+                    <span>⌁</span>
+                    <strong>Dashboard</strong>
+                </a>
+
+                <a
+                    asp-controller="EmployerVacancies"
+                    asp-action="Index">
+                    <span>▣</span>
+                    <strong>Vacancies</strong>
+                </a>
+
+                <a href="#">
+                    <span>▱</span>
+                    <strong>Recruitment requests</strong>
+                </a>
+
+                <a
+                    asp-controller="TalentRadar"
+                    asp-action="Index">
+                    <span>◎</span>
+                    <strong>Talent Radar</strong>
+                </a>
+
+                <a
+                    class="active"
+                    asp-controller="EmployerCompany"
+                    asp-action="Index">
+                    <span>▥</span>
+                    <strong>Company</strong>
+                </a>
+
+                <a href="#">
+                    <span>▧</span>
+                    <strong>Reports</strong>
+                </a>
+            </nav>
+
+            <div class="employer-sidebar-bottom">
+                <a
+                    asp-controller="Account"
+                    asp-action="SwitchPortal">
+                    ⇄ Switch workspace
+                </a>
+
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">↪ Sign out</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="employer-main company-main team-main">
+            <button
+                class="employer-menu-button"
+                type="button"
+                id="employerMenuButton"
+                aria-label="Open employer menu">
+                ☰
+            </button>
+
+            <div class="company-profile-content team-content">
+                <nav class="company-tabs" aria-label="Company sections">
+                    <a
+                        asp-controller="EmployerCompany"
+                        asp-action="Index">
+                        <span>♙</span>
+                        Profile
+                    </a>
+                    <button type="button" data-future-tab>
+                        <span>▱</span>
+                        Structure
+                    </button>
+                    <a
+                        class="active"
+                        asp-controller="EmployerCompany"
+                        asp-action="Team"
+                        aria-current="page">
+                        <span>♧</span>
+                        Team
+                    </a>
+                    <button type="button" data-future-tab>
+                        <span>◎</span>
+                        Hiring Plan
+                    </button>
+                </nav>
+
+                <section class="team-heading">
+                    <div>
+                        <div class="team-title-row">
+                            <h1>Team</h1>
+                            @if (!string.IsNullOrWhiteSpace(Model.CompanyName))
+                            {
+                                <span class="team-company-name">
+                                    @Model.CompanyName
+                                </span>
+                            }
+                        </div>
+                        <p>Manage member access</p>
+                    </div>
+
+                    <button
+                        class="team-invite-button"
+                        id="openTeamInvite"
+                        type="button">
+                        <span aria-hidden="true">♙+</span>
+                        Invite
+                    </button>
+                </section>
+
+                <div class="team-role-summary" aria-label="Team role counts">
+                    <span>
+                        <strong>@Model.HrAdminCount</strong>
+                        HR Admin
+                    </span>
+                    <i aria-hidden="true"></i>
+                    <span>
+                        <strong>@Model.HiringManagerCount</strong>
+                        Hiring Managers
+                    </span>
+                    <i aria-hidden="true"></i>
+                    <span>
+                        <strong>@Model.RecruiterCount</strong>
+                        Recruiters
+                    </span>
+                </div>
+
+                <details class="team-access-matrix">
+                    <summary>
+                        <span class="team-access-icon" aria-hidden="true">♢</span>
+                        <strong>Access matrix</strong>
+                        <span>— roles and rights in the system</span>
+                        <span class="team-access-chevron" aria-hidden="true">⌄</span>
+                    </summary>
+                    <div class="team-access-grid">
+                        <div>
+                            <strong>HR Admin</strong>
+                            <span>Team, company and vacancy management</span>
+                        </div>
+                        <div>
+                            <strong>Hiring Manager</strong>
+                            <span>Vacancies, candidates and hiring decisions</span>
+                        </div>
+                        <div>
+                            <strong>Recruiter</strong>
+                            <span>Candidate sourcing and funnel management</span>
+                        </div>
+                    </div>
+                </details>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div
+                        class="team-alert"
+                        role="alert">
+                        @Model.ErrorMessage
+                    </div>
+                }
+
+                <section
+                    class="team-members-card"
+                    aria-label="Company team members">
+                    @if (Model.Members.Count == 0)
+                    {
+                        <div class="team-empty-state">
+                            <div aria-hidden="true">♧</div>
+                            <h2>No team members yet</h2>
+                            <p>
+                                Use Invite to email your first team member.
+                                The invitation will appear here immediately.
+                            </p>
+                            <button type="button" data-open-team-invite>
+                                Invite a member
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var role in roleHeadings.Keys)
+                        {
+                            var members = Model.Members
+                                .Where(item => item.Role == role)
+                                .ToList();
+
+                            if (members.Count == 0)
+                                continue;
+
+                            <section class="team-role-group">
+                                <h2>@roleHeadings[role]</h2>
+
+                                @foreach (var member in members)
+                                {
+                                    <article class="team-member-row">
+                                        <div class="team-member-avatar">
+                                            @member.Initials
+                                        </div>
+
+                                        <div class="team-member-identity">
+                                            <strong>@member.DisplayName</strong>
+                                            <span>
+                                                @if (member.IsInvited)
+                                                {
+                                                    <text>
+                                                        Invitation sent · @member.Email
+                                                    </text>
+                                                }
+                                                else
+                                                {
+                                                    @member.Email
+                                                }
+                                            </span>
+                                        </div>
+
+                                        <span class="team-member-role">
+                                            @member.Role
+                                        </span>
+
+                                        <span class="team-member-status @(member.IsInvited ? "invited" : "active")">
+                                            @member.Status
+                                        </span>
+                                    </article>
+                                }
+                            </section>
+                        }
+                    }
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div
+        class="employer-backdrop"
+        id="employerBackdrop">
+    </div>
+
+    <div
+        class="team-modal"
+        id="teamInviteModal"
+        aria-hidden="true">
+        <div
+            class="team-modal-backdrop"
+            data-close-team-invite>
+        </div>
+
+        <section
+            class="team-modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="teamInviteTitle">
+            <header>
+                <h2 id="teamInviteTitle">Invite a member</h2>
+                <button
+                    type="button"
+                    data-close-team-invite
+                    aria-label="Close invitation form">
+                    ×
+                </button>
+            </header>
+
+            <form
+                id="teamInviteForm"
+                asp-controller="EmployerCompany"
+                asp-action="Invite"
+                method="post">
+                @Html.AntiForgeryToken()
+
+                <label for="teamInviteEmail">Email</label>
+                <input
+                    id="teamInviteEmail"
+                    name="Email"
+                    type="email"
+                    autocomplete="email"
+                    placeholder="user@company.az"
+                    required
+                    maxlength="150" />
+
+                <label for="teamInviteRole">Role</label>
+                <select
+                    id="teamInviteRole"
+                    name="Role"
+                    required>
+                    <option value="Recruiter">Recruiter</option>
+                    <option value="Hiring Manager">Hiring Manager</option>
+                    <option value="HR Admin">HR Admin</option>
+                </select>
+
+                <div
+                    class="team-modal-feedback"
+                    id="teamInviteFeedback"
+                    role="status"
+                    aria-live="polite"
+                    hidden>
+                </div>
+
+                <footer>
+                    <button
+                        class="team-modal-cancel"
+                        type="button"
+                        data-close-team-invite>
+                        Cancellation
+                    </button>
+                    <button
+                        class="team-modal-submit"
+                        id="teamInviteSubmit"
+                        type="submit">
+                        Send Invitation
+                    </button>
+                </footer>
+            </form>
+        </section>
+    </div>
+
+    <script
+        src="~/js/employer-home.js"
+        asp-append-version="true">
+    </script>
+    <script
+        src="~/js/company-team.js"
+        asp-append-version="true">
+    </script>
+</body>
+</html>

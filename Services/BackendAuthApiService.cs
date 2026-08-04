@@ -35,8 +35,10 @@ public class BackendAuthApiService : IBackendAuthApiService
                 Email = model.Email.Trim(),
                 Password = model.Password,
                 AccountType = model.AccountType,
+                CompanyName = model.CompanyName,
                 CompanyType = model.CompanyType,
                 Industry = model.Industry,
+                InvitationToken = model.InvitationToken,
                 AcceptedTerms = model.AcceptedTerms
             },
             cancellationToken);

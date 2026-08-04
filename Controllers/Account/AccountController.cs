@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using GloryLikeWebApp.Models.Auth;
+using GloryLikeWebApp.Models.Employer;
 using GloryLikeWebApp.Security;
 using GloryLikeWebApp.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -12,10 +13,14 @@ namespace GloryLikeWebApp.Controllers.Account;
 public sealed class AccountController : Controller
 {
     private readonly IBackendAuthApiService _authApiService;
+    private readonly ICompanyTeamApiService _companyTeamApiService;
 
-    public AccountController(IBackendAuthApiService authApiService)
+    public AccountController(
+        IBackendAuthApiService authApiService,
+        ICompanyTeamApiService companyTeamApiService)
     {
         _authApiService = authApiService;
+        _companyTeamApiService = companyTeamApiService;
     }
 
     [AllowAnonymous]
@@ -30,18 +35,45 @@ public sealed class AccountController : Controller
 
     [AllowAnonymous]
     [HttpGet("/Registration")]
-    public IActionResult Registration()
+    public async Task<IActionResult> Registration(
+        [FromQuery] string? invite,
+        CancellationToken cancellationToken)
     {
-        if (User.Identity?.IsAuthenticated != true)
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToSelectedPortal();
+
+        var model = new RegistrationViewModel
         {
-            return View(new RegistrationViewModel
-            {
-                AccountType = "employer",
-                CompanyType = "SME"
-            });
+            AccountType = "employer",
+            CompanyType = "SME"
+        };
+
+        if (string.IsNullOrWhiteSpace(invite))
+            return View(model);
+
+        model.InvitationToken = invite.Trim();
+
+        var invitation =
+            await _companyTeamApiService.ResolveInvitationAsync(
+                model.InvitationToken,
+                cancellationToken);
+
+        if (!invitation.Success
+            || invitation.Data is null)
+        {
+            model.InvitationErrorMessage =
+                string.IsNullOrWhiteSpace(invitation.Message)
+                    ? "Invitation link düzgün deyil və ya vaxtı bitib."
+                    : invitation.Message;
+
+            return View(model);
         }
 
-        return RedirectToSelectedPortal();
+        ApplyInvitationToRegistrationModel(
+            model,
+            invitation.Data);
+
+        return View(model);
     }
 
     [AllowAnonymous]
@@ -54,6 +86,40 @@ public sealed class AccountController : Controller
         if (User.Identity?.IsAuthenticated == true)
             return RedirectToSelectedPortal();
 
+        model.InvitationErrorMessage =
+            string.Empty;
+        model.InvitationToken =
+            model.InvitationToken?.Trim();
+        var isTeamInvitation =
+            model.IsTeamInvitation;
+
+        if (isTeamInvitation)
+        {
+            var invitation =
+                await _companyTeamApiService
+                    .ResolveInvitationAsync(
+                        model.InvitationToken!,
+                        cancellationToken);
+
+            if (!invitation.Success
+                || invitation.Data is null)
+            {
+                model.InvitationErrorMessage =
+                    string.IsNullOrWhiteSpace(
+                        invitation.Message)
+                        ? "Invitation link düzgün deyil və ya vaxtı bitib."
+                        : invitation.Message;
+
+                return View(model);
+            }
+
+            ApplyInvitationToRegistrationModel(
+                model,
+                invitation.Data);
+
+            RemoveInvitationManagedModelState();
+        }
+
         model.AccountType =
             model.AccountType?
                 .Trim()
@@ -63,12 +129,17 @@ public sealed class AccountController : Controller
             model.ProfileName?.Trim() ?? string.Empty;
         model.Email =
             model.Email?.Trim() ?? string.Empty;
+        model.CompanyName =
+            model.CompanyName?.Trim();
         model.CompanyType =
             model.CompanyType?.Trim();
         model.Industry =
             model.Industry?.Trim();
+        model.InvitationRole =
+            model.InvitationRole?.Trim();
 
-        if (model.AccountType == "employer")
+        if (model.AccountType == "employer"
+            && !isTeamInvitation)
         {
             if (model.CompanyType is not
                 ("Startup" or "SME" or "Corporate"))
@@ -84,11 +155,16 @@ public sealed class AccountController : Controller
                     nameof(model.Industry),
                     "Industry daxil edin.");
             }
+
+            model.CompanyName =
+                model.ProfileName;
         }
         else if (model.AccountType == "candidate")
         {
+            model.CompanyName = null;
             model.CompanyType = null;
             model.Industry = null;
+            ModelState.Remove(nameof(model.CompanyName));
             ModelState.Remove(nameof(model.CompanyType));
             ModelState.Remove(nameof(model.Industry));
         }
@@ -123,6 +199,36 @@ public sealed class AccountController : Controller
                 verificationId =
                     result.VerificationId.Value
             });
+    }
+
+    private static void ApplyInvitationToRegistrationModel(
+        RegistrationViewModel model,
+        ResolveCompanyTeamInvitationApiResponse invitation)
+    {
+        model.AccountType = "employer";
+        model.Email = invitation.Email;
+        model.CompanyName = invitation.CompanyName;
+        model.CompanyType = invitation.CompanyType;
+        model.Industry = invitation.Industry;
+        model.InvitationRole = invitation.Role;
+    }
+
+    private void RemoveInvitationManagedModelState()
+    {
+        ModelState.Remove(
+            nameof(RegistrationViewModel.AccountType));
+        ModelState.Remove(
+            nameof(RegistrationViewModel.Email));
+        ModelState.Remove(
+            nameof(RegistrationViewModel.CompanyName));
+        ModelState.Remove(
+            nameof(RegistrationViewModel.CompanyType));
+        ModelState.Remove(
+            nameof(RegistrationViewModel.Industry));
+        ModelState.Remove(
+            nameof(RegistrationViewModel.InvitationRole));
+        ModelState.Remove(
+            nameof(RegistrationViewModel.InvitationToken));
     }
 
     [AllowAnonymous]
