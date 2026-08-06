@@ -14,6 +14,8 @@ public sealed class CompanyTeamPageViewModel
 
     public string ErrorMessage { get; set; } = string.Empty;
 
+    public bool CanManageTeam { get; set; }
+
     public List<CompanyTeamMemberViewModel> Members { get; set; } = [];
 
     public int HrAdminCount =>
@@ -106,6 +108,8 @@ public sealed class CompanyTeamApiResponse
     public string ErrorCode { get; set; } = string.Empty;
 
     public string CompanyName { get; set; } = string.Empty;
+
+    public bool CanManageTeam { get; set; }
 
     public CompanyTeamMemberApiItem? Member { get; set; }
 

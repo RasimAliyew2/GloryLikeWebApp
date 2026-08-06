@@ -117,6 +117,55 @@ public sealed class CompanyTeamApiService : ICompanyTeamApiService
         }
     }
 
+    public async Task<CompanyTeamApiResult> RemoveMemberAsync(
+        int actorUserId,
+        Guid invitationId,
+        CancellationToken cancellationToken = default)
+    {
+        if (actorUserId <= 0 || invitationId == Guid.Empty)
+        {
+            return CompanyTeamApiResult.Fail(
+                "Team üzvü məlumatı düzgün deyil.");
+        }
+
+        try
+        {
+            var endpoint =
+                $"api/company/team/invitations/{invitationId}"
+                + $"?actorUserId={actorUserId}";
+
+            using var response =
+                await _httpClient.DeleteAsync(
+                    endpoint,
+                    cancellationToken);
+
+            var result =
+                await ReadCompanyTeamResponseAsync(
+                    response,
+                    cancellationToken);
+
+            return result is null
+                ? CompanyTeamApiResult.Fail(
+                    "Backend silmə cavabı oxunmadı.")
+                : CompanyTeamApiResult.From(result);
+        }
+        catch (OperationCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return CompanyTeamApiResult.Fail(
+                "Team üzvünün silinməsi vaxtında tamamlanmadı.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Team üzvü BackendApp-dən silinmədi.");
+
+            return CompanyTeamApiResult.Fail(
+                "BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
     public async Task<CompanyTeamInvitationResolveResult>
         ResolveInvitationAsync(
             string token,

@@ -13,6 +13,11 @@ public interface ICompanyTeamApiService
         InviteCompanyTeamMemberViewModel model,
         CancellationToken cancellationToken = default);
 
+    Task<CompanyTeamApiResult> RemoveMemberAsync(
+        int actorUserId,
+        Guid invitationId,
+        CancellationToken cancellationToken = default);
+
     Task<CompanyTeamInvitationResolveResult>
         ResolveInvitationAsync(
             string token,

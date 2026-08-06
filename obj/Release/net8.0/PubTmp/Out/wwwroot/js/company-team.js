@@ -1,6 +1,76 @@
 (() => {
     "use strict";
 
+    const removeForms = Array.from(
+        document.querySelectorAll("[data-team-remove]"));
+
+    removeForms.forEach((removeForm) => {
+        removeForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            if (removeForm.dataset.submitting === "true")
+                return;
+
+            const memberName =
+                removeForm.dataset.memberName
+                || "this team member";
+
+            if (!window.confirm(
+                `Remove ${memberName} from the team?`)) {
+                return;
+            }
+
+            const removeButton =
+                removeForm.querySelector("button[type='submit']");
+
+            removeForm.dataset.submitting = "true";
+
+            if (removeButton)
+                removeButton.disabled = true;
+
+            try {
+                const response = await fetch(
+                    removeForm.action,
+                    {
+                        method: "POST",
+                        body: new FormData(removeForm),
+                        headers: {
+                            "X-Requested-With":
+                                "XMLHttpRequest"
+                        }
+                    });
+
+                let result = null;
+
+                try {
+                    result = await response.json();
+                }
+                catch {
+                    result = null;
+                }
+
+                if (!response.ok || !result?.success) {
+                    throw new Error(
+                        result?.message
+                        || "Team member could not be removed.");
+                }
+
+                window.location.reload();
+            }
+            catch (error) {
+                window.alert(
+                    error instanceof Error
+                        ? error.message
+                        : "Team member could not be removed.");
+
+                removeForm.dataset.submitting = "false";
+
+                if (removeButton)
+                    removeButton.disabled = false;
+            }
+        });
+    });
+
     const modal =
         document.getElementById("teamInviteModal");
     const form =

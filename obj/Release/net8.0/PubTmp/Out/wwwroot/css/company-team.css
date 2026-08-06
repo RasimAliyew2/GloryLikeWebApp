@@ -263,6 +263,10 @@
     align-items: center;
 }
 
+.team-member-row.can-manage {
+    grid-template-columns: 42px minmax(240px, 1fr) minmax(130px, auto) 92px 40px;
+}
+
 .team-member-row + .team-member-row {
     border-top: 1px solid #ededf1;
 }
@@ -331,6 +335,49 @@
     color: #a66300;
     border: 1px solid #f4d9a7;
     background: #fff6e5;
+}
+
+.team-member-remove-form {
+    margin: 0;
+    justify-self: end;
+}
+
+.team-member-remove {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    color: #8a3340;
+    border: 1px solid #f0d7dc;
+    border-radius: 10px;
+    background: #fff7f8;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.team-member-remove:hover {
+    color: #fff;
+    border-color: #bd4052;
+    background: #bd4052;
+    transform: translateY(-1px);
+}
+
+.team-member-remove:focus-visible {
+    outline: 3px solid rgba(189, 64, 82, .2);
+    outline-offset: 2px;
+}
+
+.team-member-remove:disabled {
+    opacity: .55;
+    cursor: wait;
+    transform: none;
+}
+
+.team-member-remove svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
 }
 
 .team-modal {
@@ -488,6 +535,10 @@ body.team-modal-open {
         grid-template-columns: 42px minmax(0, 1fr) auto;
     }
 
+    .team-member-row.can-manage {
+        grid-template-columns: 42px minmax(0, 1fr) auto 38px;
+    }
+
     .team-member-role {
         grid-column: 2;
         grid-row: 2;
@@ -496,6 +547,11 @@ body.team-modal-open {
 
     .team-member-status {
         grid-column: 3;
+        grid-row: 1 / span 2;
+    }
+
+    .team-member-remove-form {
+        grid-column: 4;
         grid-row: 1 / span 2;
     }
 }
@@ -545,6 +601,10 @@ body.team-modal-open {
         gap: 10px;
     }
 
+    .team-member-row.can-manage {
+        grid-template-columns: 38px minmax(0, 1fr) 36px;
+    }
+
     .team-member-avatar {
         width: 36px;
         height: 36px;
@@ -555,6 +615,12 @@ body.team-modal-open {
         grid-column: 2;
         grid-row: auto;
         justify-self: start;
+    }
+
+    .team-member-remove-form {
+        grid-column: 3;
+        grid-row: 1 / span 3;
+        align-self: center;
     }
 
     .team-modal-dialog header {
@@ -574,7 +640,8 @@ body.team-modal-open {
 @media (prefers-reduced-motion: reduce) {
     .team-invite-button,
     .team-empty-state button,
-    .team-access-chevron {
+    .team-access-chevron,
+    .team-member-remove {
         transition: none;
     }
 }

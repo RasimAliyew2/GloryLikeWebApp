@@ -78,6 +78,7 @@ public sealed class EmployerCompanyController : Controller
         }
 
         model.CompanyName = result.Data.CompanyName;
+        model.CanManageTeam = result.Data.CanManageTeam;
         model.Members = result.Data.Members
             .Select(ToTeamMemberViewModel)
             .OrderBy(item => RoleOrder(item.Role))
@@ -153,6 +154,56 @@ public sealed class EmployerCompanyController : Controller
             message =
                 string.IsNullOrWhiteSpace(result.Message)
                     ? "Invitation email göndərildi."
+                    : result.Message
+        });
+    }
+
+    [HttpPost("/Employer/Company/Team/Remove/{invitationId:guid}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemoveMember(
+        Guid invitationId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            Response.StatusCode =
+                StatusCodes.Status401Unauthorized;
+
+            return Json(new
+            {
+                success = false,
+                message =
+                    "Login məlumatı tapılmadı. Yenidən sign in edin."
+            });
+        }
+
+        var result =
+            await _companyTeamApiService.RemoveMemberAsync(
+                actorUserId,
+                invitationId,
+                cancellationToken);
+
+        if (!result.Success)
+        {
+            Response.StatusCode =
+                StatusCodes.Status400BadRequest;
+
+            return Json(new
+            {
+                success = false,
+                message =
+                    string.IsNullOrWhiteSpace(result.Message)
+                        ? "Team üzvü silinmədi."
+                        : result.Message
+            });
+        }
+
+        return Json(new
+        {
+            success = true,
+            message =
+                string.IsNullOrWhiteSpace(result.Message)
+                    ? "Team üzvü silindi."
                     : result.Message
         });
     }

@@ -185,13 +185,16 @@
                         <p>Manage member access</p>
                     </div>
 
-                    <button
-                        class="team-invite-button"
-                        id="openTeamInvite"
-                        type="button">
-                        <span aria-hidden="true">♙+</span>
-                        Invite
-                    </button>
+                    @if (Model.CanManageTeam)
+                    {
+                        <button
+                            class="team-invite-button"
+                            id="openTeamInvite"
+                            type="button">
+                            <span aria-hidden="true">♙+</span>
+                            Invite
+                        </button>
+                    }
                 </section>
 
                 <div class="team-role-summary" aria-label="Team role counts">
@@ -251,13 +254,22 @@
                         <div class="team-empty-state">
                             <div aria-hidden="true">♧</div>
                             <h2>No team members yet</h2>
-                            <p>
-                                Use Invite to email your first team member.
-                                The invitation will appear here immediately.
-                            </p>
-                            <button type="button" data-open-team-invite>
-                                Invite a member
-                            </button>
+                            @if (Model.CanManageTeam)
+                            {
+                                <p>
+                                    Use Invite to email your first team member.
+                                    The invitation will appear here immediately.
+                                </p>
+                                <button type="button" data-open-team-invite>
+                                    Invite a member
+                                </button>
+                            }
+                            else
+                            {
+                                <p>
+                                    There are no visible members in this team.
+                                </p>
+                            }
                         </div>
                     }
                     else
@@ -276,7 +288,7 @@
 
                                 @foreach (var member in members)
                                 {
-                                    <article class="team-member-row">
+                                    <article class="team-member-row @(Model.CanManageTeam ? "can-manage" : string.Empty)">
                                         <div class="team-member-avatar">
                                             @member.Initials
                                         </div>
@@ -304,6 +316,31 @@
                                         <span class="team-member-status @(member.IsInvited ? "invited" : "active")">
                                             @member.Status
                                         </span>
+
+                                        @if (Model.CanManageTeam)
+                                        {
+                                            <form
+                                                class="team-member-remove-form"
+                                                asp-controller="EmployerCompany"
+                                                asp-action="RemoveMember"
+                                                asp-route-invitationId="@member.InvitationId"
+                                                method="post"
+                                                data-team-remove
+                                                data-member-name="@member.DisplayName">
+                                                @Html.AntiForgeryToken()
+                                                <button
+                                                    class="team-member-remove"
+                                                    type="submit"
+                                                    aria-label="Remove @member.Email from team"
+                                                    title="Remove from team">
+                                                    <svg
+                                                        viewBox="0 0 24 24"
+                                                        aria-hidden="true">
+                                                        <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-2 6h10l-1 11H8L7 9Zm3 2v6h2v-6h-2Zm4 0v6h2v-6h-2Z" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        }
                                     </article>
                                 }
                             </section>
@@ -319,36 +356,38 @@
         id="employerBackdrop">
     </div>
 
-    <div
-        class="team-modal"
-        id="teamInviteModal"
-        aria-hidden="true">
+    @if (Model.CanManageTeam)
+    {
         <div
-            class="team-modal-backdrop"
-            data-close-team-invite>
-        </div>
+            class="team-modal"
+            id="teamInviteModal"
+            aria-hidden="true">
+            <div
+                class="team-modal-backdrop"
+                data-close-team-invite>
+            </div>
 
-        <section
-            class="team-modal-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="teamInviteTitle">
-            <header>
-                <h2 id="teamInviteTitle">Invite a member</h2>
-                <button
-                    type="button"
-                    data-close-team-invite
-                    aria-label="Close invitation form">
-                    ×
-                </button>
-            </header>
+            <section
+                class="team-modal-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="teamInviteTitle">
+                <header>
+                    <h2 id="teamInviteTitle">Invite a member</h2>
+                    <button
+                        type="button"
+                        data-close-team-invite
+                        aria-label="Close invitation form">
+                        ×
+                    </button>
+                </header>
 
-            <form
-                id="teamInviteForm"
-                asp-controller="EmployerCompany"
-                asp-action="Invite"
-                method="post">
-                @Html.AntiForgeryToken()
+                <form
+                    id="teamInviteForm"
+                    asp-controller="EmployerCompany"
+                    asp-action="Invite"
+                    method="post">
+                    @Html.AntiForgeryToken()
 
                 <label for="teamInviteEmail">Email</label>
                 <input
@@ -392,9 +431,10 @@
                         Send Invitation
                     </button>
                 </footer>
-            </form>
-        </section>
-    </div>
+                </form>
+            </section>
+        </div>
+    }
 
     <script
         src="~/js/employer-home.js"
