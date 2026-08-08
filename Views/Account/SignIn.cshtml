@@ -2,6 +2,10 @@
 @{
     Layout = null;
     ViewData["Title"] = "Log in";
+    var googleAuthenticationEnabled =
+        ViewData["GoogleAuthenticationEnabled"] is true;
+    var appleAuthenticationEnabled =
+        ViewData["AppleAuthenticationEnabled"] is true;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -167,7 +171,13 @@
             gap: 13px;
             font-size: 16px;
             font-weight: 600;
-            cursor: default;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .social-button.disabled {
+            cursor: not-allowed;
+            opacity: .55;
         }
 
         .google {
@@ -325,16 +335,51 @@
 
                 <div class="section-label">LOG IN WITH</div>
 
-                <div class="social-stack">
-                    <button class="social-button google" type="button" title="Google login is not connected yet">
-                        <span class="social-icon">G</span>
-                        <span>Sign in with Google</span>
-                    </button>
+                @if (TempData["ExternalLoginError"] is string externalLoginError
+                    && !string.IsNullOrWhiteSpace(externalLoginError))
+                {
+                    <div class="validation-summary">@externalLoginError</div>
+                }
+                else if (ViewData["ExternalLoginError"] is string providerError
+                    && !string.IsNullOrWhiteSpace(providerError))
+                {
+                    <div class="validation-summary">@providerError</div>
+                }
 
-                    <button class="social-button apple" type="button" title="Apple login is not connected yet">
-                        <span class="social-icon">●</span>
-                        <span>Sign in with Apple</span>
-                    </button>
+                <div class="social-stack">
+                    @if (googleAuthenticationEnabled)
+                    {
+                        <a class="social-button google" href="/SignIn/External/google">
+                            <span class="social-icon">G</span>
+                            <span>Sign in with Google</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="social-button google disabled"
+                              aria-disabled="true"
+                              title="Google sign in is not configured">
+                            <span class="social-icon">G</span>
+                            <span>Sign in with Google</span>
+                        </span>
+                    }
+
+                    @if (appleAuthenticationEnabled)
+                    {
+                        <a class="social-button apple" href="/SignIn/External/apple">
+                            <span class="social-icon">●</span>
+                            <span>Sign in with Apple</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="social-button apple disabled"
+                              aria-disabled="true"
+                              title="Apple sign in is not configured">
+                            <span class="social-icon">●</span>
+                            <span>Sign in with Apple</span>
+                        </span>
+                    }
                 </div>
 
                 <div class="divider">or</div>

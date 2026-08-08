@@ -32,3 +32,14 @@ C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\rjs
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.OpenIdConnect.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLikeWebApp.csproj.AssemblyReference.cache
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Debug\net8.0\GloryLik.616DD1C9.Up2Date

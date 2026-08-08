@@ -25,4 +25,8 @@ public interface IBackendAuthApiService
         string login,
         string password,
         CancellationToken cancellationToken = default);
+
+    Task<AuthResponseDto> SocialLoginAsync(
+        SocialLoginRequestDto request,
+        CancellationToken cancellationToken = default);
 }

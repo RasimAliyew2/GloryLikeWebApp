@@ -5,3 +5,12 @@ C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\P
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\GloryLikeWebApp.deps.json
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\GloryLikeWebApp.runtimeconfig.json
 C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\GloryLikeWebApp.pdb
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\Microsoft.AspNetCore.Authentication.Google.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\Microsoft.AspNetCore.Authentication.OpenIdConnect.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.Logging.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.Protocols.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\Microsoft.IdentityModel.Tokens.dll
+C:\Users\Rasim\source\repos\GloryLikeWebApp\GloryLikeWebApp\obj\Release\net8.0\PubTmp\Out\System.IdentityModel.Tokens.Jwt.dll

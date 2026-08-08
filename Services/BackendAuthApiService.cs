@@ -13,13 +13,19 @@ public class BackendAuthApiService : IBackendAuthApiService
 
     private readonly HttpClient _httpClient;
     private readonly ILogger<BackendAuthApiService> _logger;
+    private readonly string _socialAuthSharedSecret;
 
     public BackendAuthApiService(
         HttpClient httpClient,
-        ILogger<BackendAuthApiService> logger)
+        ILogger<BackendAuthApiService> logger,
+        IConfiguration configuration)
     {
         _httpClient = httpClient;
         _logger = logger;
+        _socialAuthSharedSecret =
+            configuration[
+                "SocialAuth:BackendSharedSecret"]
+            ?? string.Empty;
     }
 
     public Task<EmailRegistrationResponseDto>
@@ -151,6 +157,103 @@ public class BackendAuthApiService : IBackendAuthApiService
                 Message = "Backend serverə qoşulmaq mümkün olmadı. BackendApp-in işlədiyini yoxlayın."
             };
         }
+    }
+
+    public async Task<AuthResponseDto> SocialLoginAsync(
+        SocialLoginRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(
+                _socialAuthSharedSecret))
+        {
+            return SocialLoginFailed(
+                "Social sign in server konfiqurasiyası tamamlanmayıb.");
+        }
+
+        try
+        {
+            using var httpRequest = new HttpRequestMessage(
+                HttpMethod.Post,
+                "api/Auth/social")
+            {
+                Content = JsonContent.Create(
+                    new BackendSocialLoginRequest
+                    {
+                        Provider = request.Provider,
+                        ProviderSubject =
+                            request.ProviderSubject,
+                        Email = request.Email,
+                        FirstName = request.FirstName,
+                        LastName = request.LastName
+                    })
+            };
+
+            httpRequest.Headers.TryAddWithoutValidation(
+                "X-GloryLike-Social-Auth",
+                _socialAuthSharedSecret);
+
+            using var response = await _httpClient.SendAsync(
+                httpRequest,
+                cancellationToken);
+            var result = await TryReadAuthResponseAsync(
+                response,
+                cancellationToken);
+
+            if (!response.IsSuccessStatusCode
+                || result?.Success != true
+                || result.User is null)
+            {
+                return SocialLoginFailed(
+                    string.IsNullOrWhiteSpace(result?.Message)
+                        ? "Social hesabla sign in tamamlanmadı."
+                        : result.Message);
+            }
+
+            return result;
+        }
+        catch (OperationCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return SocialLoginFailed(
+                "Backend cavab vermədi. Bir az sonra yenidən yoxlayın.");
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(
+                ex,
+                "GloryLike Backend social sign in API-yə qoşulmaq mümkün olmadı.");
+
+            return SocialLoginFailed(
+                "Backend serverə qoşulmaq mümkün olmadı.");
+        }
+    }
+
+    private static async Task<AuthResponseDto?>
+        TryReadAuthResponseAsync(
+            HttpResponseMessage response,
+            CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await response.Content
+                .ReadFromJsonAsync<AuthResponseDto>(
+                    JsonOptions,
+                    cancellationToken);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
+    private static AuthResponseDto SocialLoginFailed(
+        string message)
+    {
+        return new AuthResponseDto
+        {
+            Success = false,
+            Message = message
+        };
     }
 
     private async Task<EmailRegistrationResponseDto>

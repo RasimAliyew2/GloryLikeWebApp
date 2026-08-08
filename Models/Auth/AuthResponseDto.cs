@@ -27,6 +27,24 @@ internal sealed class BackendLoginRequest
     public string Password { get; set; } = string.Empty;
 }
 
+public sealed class SocialLoginRequestDto
+{
+    public string Provider { get; set; } = string.Empty;
+    public string ProviderSubject { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+}
+
+internal sealed class BackendSocialLoginRequest
+{
+    public string Provider { get; set; } = string.Empty;
+    public string ProviderSubject { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+}
+
 internal sealed class BackendStartEmailRegistrationRequest
 {
     public string ProfileName { get; set; } = string.Empty;
