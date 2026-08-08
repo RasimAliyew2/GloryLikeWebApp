@@ -28,8 +28,8 @@
         document.getElementById("companyNameError");
     const toast =
         document.getElementById("companyToast");
-    const storageKey =
-        form.dataset.storageKey || "skillmatch-company-profile";
+    const initialDataElement =
+        document.getElementById("companyProfileInitialData");
 
     let toastTimer = null;
     let galleryObjectUrls = [];
@@ -141,40 +141,19 @@
         updateCompletion();
     };
 
-    const serializeProfile = () => {
-        const fields = {};
-
-        Array.from(form.elements).forEach(element => {
-            if (!(element instanceof HTMLInputElement)
-                && !(element instanceof HTMLSelectElement)
-                && !(element instanceof HTMLTextAreaElement))
-            {
-                return;
-            }
-
-            if (!element.name || element.type === "file")
-                return;
-
-            fields[element.name] = element.value;
-        });
-
-        return {
-            fields,
-            benefits: getBenefits(),
-            savedAt: new Date().toISOString()
-        };
-    };
-
     const restoreProfile = () => {
         try
         {
-            const saved = window.localStorage.getItem(storageKey);
-            if (!saved)
+            const raw = initialDataElement?.textContent?.trim();
+            if (!raw)
                 return;
 
-            const profile = JSON.parse(saved);
+            const profile = JSON.parse(raw);
 
-            Object.entries(profile.fields || {}).forEach(([name, value]) => {
+            Object.entries(profile || {}).forEach(([name, value]) => {
+                if (name === "benefits" || name === "updatedAtUtc")
+                    return;
+
                 const element = form.elements.namedItem(name);
 
                 if (element instanceof HTMLInputElement
@@ -189,7 +168,7 @@
         }
         catch
         {
-            window.localStorage.removeItem(storageKey);
+            showToast("Company profile data could not be loaded.", true);
         }
     };
 
@@ -210,7 +189,7 @@
         return isValid;
     };
 
-    const saveProfile = () => {
+    const saveProfile = async () => {
         if (!validateCompanyName())
         {
             companyName?.focus();
@@ -224,16 +203,52 @@
             return;
         }
 
+        const formData = new FormData(form);
+        formData.delete("companyLogo");
+        formData.delete("companyCover");
+        formData.delete("companyGalleryFiles");
+        formData.delete("Benefits");
+
+        getBenefits().forEach(benefit => {
+            formData.append("Benefits", benefit);
+        });
+
+        saveButton.disabled = true;
+        const originalText = saveButton.textContent;
+        saveButton.textContent = "Saving...";
+
         try
         {
-            window.localStorage.setItem(
-                storageKey,
-                JSON.stringify(serializeProfile()));
-            showToast("Company profile saved in this browser.");
+            const response = await fetch(form.action, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+            const result = await response.json();
+
+            if (!response.ok || !result?.success)
+            {
+                throw new Error(
+                    result?.message || "Company profile could not be saved.");
+            }
+
+            showToast(
+                result.message || "Company profile saved for the whole team.");
         }
-        catch
+        catch (error)
         {
-            showToast("Company profile could not be saved.", true);
+            showToast(
+                error instanceof Error
+                    ? error.message
+                    : "Company profile could not be saved.",
+                true);
+        }
+        finally
+        {
+            saveButton.disabled = false;
+            saveButton.textContent = originalText;
         }
     };
 

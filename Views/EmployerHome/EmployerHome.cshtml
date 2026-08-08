@@ -57,12 +57,6 @@
                     <span>Employer workspace</span>
                 </div>
 
-                <a
-                    class="switch-portal-link"
-                    asp-controller="Account"
-                    asp-action="SwitchPortal">
-                    Switch
-                </a>
             </div>
         </header>
 
@@ -102,19 +96,15 @@
                     <strong>Company</strong>
                 </a>
 
-                <a href="#">
+                <a
+                    asp-controller="EmployerReports"
+                    asp-action="Index">
                     <span>▧</span>
                     <strong>Reports</strong>
                 </a>
             </nav>
 
             <div class="employer-sidebar-bottom">
-                <a
-                    asp-controller="Account"
-                    asp-action="SwitchPortal">
-                    ⇄ Switch workspace
-                </a>
-
                 <form method="post" action="/SignOut">
                     @Html.AntiForgeryToken()
 

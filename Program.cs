@@ -32,6 +32,32 @@ builder.Services.AddHttpClient<ICompanyTeamApiService, CompanyTeamApiService>((s
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
+builder.Services.AddHttpClient<ICompanyProfileApiService, CompanyProfileApiService>((sp, client) =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["Backend:BaseUrl"];
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new InvalidOperationException(
+            "Backend:BaseUrl appsettings.json daxilində təyin edilməyib.");
+
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.AddHttpClient<IOrganizationReportsApiService, OrganizationReportsApiService>((sp, client) =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["Backend:BaseUrl"];
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new InvalidOperationException(
+            "Backend:BaseUrl appsettings.json daxilində təyin edilməyib.");
+
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
 builder.Services.AddHttpClient<IUserProfileDataApiService, UserProfileDataApiService>((sp, client) =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
@@ -90,15 +116,19 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(
         PortalClaimTypes.EmployeePolicy,
-        policy => policy.RequireClaim(
-            PortalClaimTypes.ClaimName,
-            PortalClaimTypes.Employee));
+        policy => policy
+            .RequireClaim(
+                PortalClaimTypes.ClaimName,
+                PortalClaimTypes.Employee)
+            .RequireClaim("accountType", "candidate"));
 
     options.AddPolicy(
         PortalClaimTypes.EmployerPolicy,
-        policy => policy.RequireClaim(
-            PortalClaimTypes.ClaimName,
-            PortalClaimTypes.Employer));
+        policy => policy
+            .RequireClaim(
+                PortalClaimTypes.ClaimName,
+                PortalClaimTypes.Employer)
+            .RequireClaim("accountType", "employer"));
 });
 
 builder.Services

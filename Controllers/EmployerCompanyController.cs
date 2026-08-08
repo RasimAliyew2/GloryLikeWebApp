@@ -11,27 +11,101 @@ namespace GloryLikeWebApp.Controllers;
 public sealed class EmployerCompanyController : Controller
 {
     private readonly ICompanyTeamApiService _companyTeamApiService;
+    private readonly ICompanyProfileApiService _companyProfileApiService;
     private readonly ILogger<EmployerCompanyController> _logger;
 
     public EmployerCompanyController(
         ICompanyTeamApiService companyTeamApiService,
+        ICompanyProfileApiService companyProfileApiService,
         ILogger<EmployerCompanyController> logger)
     {
         _companyTeamApiService = companyTeamApiService;
+        _companyProfileApiService = companyProfileApiService;
         _logger = logger;
     }
 
     [HttpGet("/Employer/Company")]
-    public IActionResult Index()
+    public async Task<IActionResult> Index(
+        CancellationToken cancellationToken)
     {
         var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
         _ = int.TryParse(userIdValue, out var userId);
 
-        return View("CompanyProfile", new CompanyProfilePageViewModel
+        var model = new CompanyProfilePageViewModel
         {
             UserId = userId,
             DisplayName = GetDisplayName(),
             Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty
+        };
+
+        if (userId <= 0)
+        {
+            model.ErrorMessage =
+                "Login məlumatında employer user ID tapılmadı.";
+            return View("CompanyProfile", model);
+        }
+
+        var result = await _companyProfileApiService.GetAsync(
+            userId,
+            cancellationToken);
+
+        if (!result.Success
+            || result.Data?.Profile is null)
+        {
+            model.ErrorMessage = string.IsNullOrWhiteSpace(result.Message)
+                ? "Company profile yüklənmədi."
+                : result.Message;
+        }
+        else
+        {
+            model.Profile = result.Data.Profile;
+            model.Profile.Benefits ??= [];
+        }
+
+        return View("CompanyProfile", model);
+    }
+
+    [HttpPost("/Employer/Company/Profile")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveProfile(
+        CompanyProfileInput profile,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Json(new
+            {
+                success = false,
+                message = "Login məlumatı tapılmadı. Yenidən sign in edin."
+            });
+        }
+
+        profile.Benefits ??= [];
+
+        var result = await _companyProfileApiService.SaveAsync(
+            actorUserId,
+            profile,
+            cancellationToken);
+
+        if (!result.Success)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return Json(new
+            {
+                success = false,
+                message = string.IsNullOrWhiteSpace(result.Message)
+                    ? "Company profile saxlanmadı."
+                    : result.Message
+            });
+        }
+
+        return Json(new
+        {
+            success = true,
+            message = string.IsNullOrWhiteSpace(result.Message)
+                ? "Company profile bütün team üçün yeniləndi."
+                : result.Message
         });
     }
 
@@ -230,7 +304,8 @@ public sealed class EmployerCompanyController : Controller
             Role = item.Role,
             Status = item.Status,
             InvitedAtUtc = item.InvitedAtUtc,
-            AcceptedAtUtc = item.AcceptedAtUtc
+            AcceptedAtUtc = item.AcceptedAtUtc,
+            IsFounder = item.IsFounder
         };
     }
 
@@ -238,10 +313,11 @@ public sealed class EmployerCompanyController : Controller
     {
         return role switch
         {
-            "HR Admin" => 0,
-            "Hiring Manager" => 1,
-            "Recruiter" => 2,
-            _ => 3
+            "Admin" => 0,
+            "HR Admin" => 1,
+            "Hiring Manager" => 2,
+            "Recruiter" => 3,
+            _ => 4
         };
     }
 

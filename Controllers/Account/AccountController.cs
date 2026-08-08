@@ -318,9 +318,7 @@ public sealed class AccountController : Controller
                 ? PortalClaimTypes.Employer
                 : PortalClaimTypes.Employee;
 
-        await SignInUserAsync(
-            result.User,
-            portalType);
+        await SignInUserAsync(result.User);
 
         return portalType == PortalClaimTypes.Employer
             ? RedirectToAction(
@@ -389,90 +387,12 @@ public sealed class AccountController : Controller
             return View(model);
         }
 
-        await SignInUserAsync(
-            result.User,
-            portalType: null);
+        var portalType = ResolvePortalType(
+            result.User.AccountType);
 
-        // Login düzgündür. Portal hələ seçilməyib.
-        return RedirectToAction(nameof(ChoosePortal));
-    }
+        await SignInUserAsync(result.User);
 
-    [Authorize]
-    [HttpGet("/ChoosePortal")]
-    public IActionResult ChoosePortal()
-    {
-        return View(new PortalSelectionViewModel
-        {
-            PortalType =
-                User.FindFirstValue(PortalClaimTypes.ClaimName)
-                ?? string.Empty
-        });
-    }
-
-    [Authorize]
-    [HttpPost("/ChoosePortal")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ChoosePortal(
-        PortalSelectionViewModel model)
-    {
-        var normalizedPortal =
-            model.PortalType?
-                .Trim()
-                .ToLowerInvariant()
-            ?? string.Empty;
-
-        if (normalizedPortal is not
-            (PortalClaimTypes.Employee or PortalClaimTypes.Employer))
-        {
-            ModelState.AddModelError(
-                nameof(model.PortalType),
-                "Employee və ya Employer seçilməlidir.");
-
-            return View(model);
-        }
-
-        var authenticationResult =
-            await HttpContext.AuthenticateAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme);
-
-        if (!authenticationResult.Succeeded
-            || authenticationResult.Principal is null)
-        {
-            await HttpContext.SignOutAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme);
-
-            return RedirectToAction(nameof(SignIn));
-        }
-
-        var claims = authenticationResult.Principal.Claims
-            .Where(
-                claim => !string.Equals(
-                    claim.Type,
-                    PortalClaimTypes.ClaimName,
-                    StringComparison.Ordinal))
-            .ToList();
-
-        claims.Add(
-            new Claim(
-                PortalClaimTypes.ClaimName,
-                normalizedPortal));
-
-        var identity = new ClaimsIdentity(
-            claims,
-            CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var principal = new ClaimsPrincipal(identity);
-
-        var properties =
-            authenticationResult.Properties
-            ?? CreateAuthenticationProperties();
-
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal,
-            properties);
-
-        return normalizedPortal == PortalClaimTypes.Employer
+        return portalType == PortalClaimTypes.Employer
             ? RedirectToAction(
                 "EmployerHome",
                 "EmployerHome")
@@ -482,10 +402,26 @@ public sealed class AccountController : Controller
     }
 
     [Authorize]
+    [HttpGet("/ChoosePortal")]
+    public IActionResult ChoosePortal()
+    {
+        return RedirectToSelectedPortal();
+    }
+
+    [Authorize]
+    [HttpPost("/ChoosePortal")]
+    [ValidateAntiForgeryToken]
+    public IActionResult ChoosePortal(
+        PortalSelectionViewModel model)
+    {
+        return RedirectToSelectedPortal();
+    }
+
+    [Authorize]
     [HttpGet("/SwitchPortal")]
     public IActionResult SwitchPortal()
     {
-        return RedirectToAction(nameof(ChoosePortal));
+        return RedirectToSelectedPortal();
     }
 
     [HttpPost("/SignOut")]
@@ -500,32 +436,25 @@ public sealed class AccountController : Controller
 
     private IActionResult RedirectToSelectedPortal()
     {
-        var portalType =
-            User.FindFirstValue(
-                PortalClaimTypes.ClaimName);
+        var accountType = User.FindFirstValue("accountType");
 
-        return portalType switch
-        {
-            PortalClaimTypes.Employer =>
-                RedirectToAction(
+        return string.Equals(
+            accountType,
+            "employer",
+            StringComparison.OrdinalIgnoreCase)
+                ? RedirectToAction(
                     "EmployerHome",
-                    "EmployerHome"),
-
-            PortalClaimTypes.Employee =>
-                RedirectToAction(
-                    "Index",
-                    "Home"),
-
-            _ =>
-                RedirectToAction(
-                    nameof(ChoosePortal))
-        };
+                    "EmployerHome")
+                : RedirectToAction(
+                "Index",
+                "Home");
     }
 
     private async Task SignInUserAsync(
-        AuthUserDto user,
-        string? portalType)
+        AuthUserDto user)
     {
+        var portalType = ResolvePortalType(user.AccountType);
+
         var claims = new List<Claim>
         {
             new(
@@ -559,13 +488,10 @@ public sealed class AccountController : Controller
                 user.AccountType ?? string.Empty)
         };
 
-        if (!string.IsNullOrWhiteSpace(portalType))
-        {
-            claims.Add(
-                new Claim(
-                    PortalClaimTypes.ClaimName,
-                    portalType));
-        }
+        claims.Add(
+            new Claim(
+                PortalClaimTypes.ClaimName,
+                portalType));
 
         var identity = new ClaimsIdentity(
             claims,
@@ -577,6 +503,16 @@ public sealed class AccountController : Controller
             CookieAuthenticationDefaults.AuthenticationScheme,
             principal,
             CreateAuthenticationProperties());
+    }
+
+    private static string ResolvePortalType(string? accountType)
+    {
+        return string.Equals(
+            accountType,
+            "employer",
+            StringComparison.OrdinalIgnoreCase)
+                ? PortalClaimTypes.Employer
+                : PortalClaimTypes.Employee;
     }
 
     private static VerifyRegistrationViewModel

@@ -1,0 +1,145 @@
+@model GloryLikeWebApp.Models.Employer.OrganizationReportsPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Organization Reports";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/employer-reports.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="employer-shell">
+        <header class="employer-topbar">
+            <a class="employer-brand" asp-controller="EmployerHome" asp-action="EmployerHome">
+                SkillMatch
+            </a>
+
+            <div class="employer-search">
+                <span aria-hidden="true">⌕</span>
+                <input type="search" placeholder="Search by candidates/vacancies" aria-label="Search candidates or vacancies" />
+            </div>
+
+            <div class="employer-account">
+                <span class="demo-badge">Employer</span>
+                <div class="employer-avatar">@Model.Initials</div>
+                <div class="employer-account-copy">
+                    <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
+                    <span>Employer workspace</span>
+                </div>
+            </div>
+        </header>
+
+        <aside class="employer-sidebar" id="employerSidebar">
+            <nav aria-label="Employer navigation">
+                <a asp-controller="EmployerHome" asp-action="EmployerHome">
+                    <span>⌁</span><strong>Dashboard</strong>
+                </a>
+                <a asp-controller="EmployerVacancies" asp-action="Index">
+                    <span>▣</span><strong>Vacancies</strong>
+                </a>
+                <a href="#">
+                    <span>▱</span><strong>Recruitment requests</strong>
+                </a>
+                <a asp-controller="TalentRadar" asp-action="Index">
+                    <span>◎</span><strong>Talent Radar</strong>
+                </a>
+                <a asp-controller="EmployerCompany" asp-action="Index">
+                    <span>▥</span><strong>Company</strong>
+                </a>
+                <a class="active" asp-controller="EmployerReports" asp-action="Index" aria-current="page">
+                    <span>▧</span><strong>Reports</strong>
+                </a>
+            </nav>
+
+            <div class="employer-sidebar-bottom">
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">↪ Sign out</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="employer-main reports-main">
+            <button class="employer-menu-button" type="button" id="employerMenuButton" aria-label="Open employer menu">
+                ☰
+            </button>
+
+            <header class="reports-heading">
+                <div>
+                    <span class="reports-eyebrow">ORGANIZATION ANALYTICS</span>
+                    <h1>Reports</h1>
+                    <p>
+                        @(string.IsNullOrWhiteSpace(Model.CompanyName)
+                            ? "Recruitment, pipeline and team metrics"
+                            : $"{Model.CompanyName} · recruitment, pipeline and team metrics")
+                    </p>
+                </div>
+                @if (Model.GeneratedAtUtc.HasValue)
+                {
+                    <span class="reports-generated">
+                        Updated @Model.GeneratedAtUtc.Value.ToString("dd MMM yyyy, HH:mm") UTC
+                    </span>
+                }
+            </header>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="reports-alert" role="alert">@Model.ErrorMessage</div>
+            }
+            else if (Model.Categories.Count == 0)
+            {
+                <section class="reports-empty">
+                    <h2>No report data yet</h2>
+                    <p>Create a vacancy or invite a team member to start building organization reports.</p>
+                </section>
+            }
+            else
+            {
+                <div class="reports-category-list">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <section class="reports-category reports-category-@category.Key">
+                            <header>
+                                <div class="reports-category-icon" aria-hidden="true">
+                                    @(category.Key switch
+                                    {
+                                        "recruitment" => "▣",
+                                        "pipeline" => "◎",
+                                        "performance" => "↗",
+                                        "team" => "♧",
+                                        _ => "▧"
+                                    })
+                                </div>
+                                <div>
+                                    <h2>@category.Title</h2>
+                                    <p>@category.Description</p>
+                                </div>
+                            </header>
+
+                            <div class="reports-metric-grid">
+                                @foreach (var metric in category.Metrics)
+                                {
+                                    <article class="reports-metric reports-tone-@metric.Tone">
+                                        <span>@metric.Label</span>
+                                        <strong>@metric.Value</strong>
+                                        <small>@metric.Detail</small>
+                                    </article>
+                                }
+                            </div>
+                        </section>
+                    }
+                </div>
+            }
+        </main>
+    </div>
+
+    <div class="employer-backdrop" id="employerBackdrop"></div>
+    <script src="~/js/employer-home.js" asp-append-version="true"></script>
+</body>
+</html>

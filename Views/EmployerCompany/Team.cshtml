@@ -5,6 +5,7 @@
 
     var roleHeadings = new Dictionary<string, string>
     {
+        ["Admin"] = "ADMIN",
         ["HR Admin"] = "HR ADMIN",
         ["Hiring Manager"] = "HIRING MANAGERS",
         ["Recruiter"] = "RECRUITERS"
@@ -69,12 +70,6 @@
                     <span>Employer workspace</span>
                 </div>
 
-                <a
-                    class="switch-portal-link"
-                    asp-controller="Account"
-                    asp-action="SwitchPortal">
-                    Switch
-                </a>
             </div>
         </header>
 
@@ -116,19 +111,15 @@
                     <strong>Company</strong>
                 </a>
 
-                <a href="#">
+                <a
+                    asp-controller="EmployerReports"
+                    asp-action="Index">
                     <span>▧</span>
                     <strong>Reports</strong>
                 </a>
             </nav>
 
             <div class="employer-sidebar-bottom">
-                <a
-                    asp-controller="Account"
-                    asp-action="SwitchPortal">
-                    ⇄ Switch workspace
-                </a>
-
                 <form method="post" action="/SignOut">
                     @Html.AntiForgeryToken()
                     <button type="submit">↪ Sign out</button>
@@ -199,6 +190,11 @@
 
                 <div class="team-role-summary" aria-label="Team role counts">
                     <span>
+                        <strong>@Model.AdminCount</strong>
+                        Admin
+                    </span>
+                    <i aria-hidden="true"></i>
+                    <span>
                         <strong>@Model.HrAdminCount</strong>
                         HR Admin
                     </span>
@@ -222,6 +218,10 @@
                         <span class="team-access-chevron" aria-hidden="true">⌄</span>
                     </summary>
                     <div class="team-access-grid">
+                        <div>
+                            <strong>Admin</strong>
+                            <span>Founder account and full organization access</span>
+                        </div>
                         <div>
                             <strong>HR Admin</strong>
                             <span>Team, company and vacancy management</span>
@@ -317,7 +317,7 @@
                                             @member.Status
                                         </span>
 
-                                        @if (Model.CanManageTeam)
+                                        @if (Model.CanManageTeam && !member.IsFounder)
                                         {
                                             <form
                                                 class="team-member-remove-form"

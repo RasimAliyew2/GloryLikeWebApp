@@ -21,6 +21,9 @@ public sealed class CompanyTeamPageViewModel
     public int HrAdminCount =>
         Members.Count(item => item.Role == "HR Admin");
 
+    public int AdminCount =>
+        Members.Count(item => item.Role == "Admin");
+
     public int HiringManagerCount =>
         Members.Count(item => item.Role == "Hiring Manager");
 
@@ -71,6 +74,8 @@ public sealed class CompanyTeamMemberViewModel
     public DateTime InvitedAtUtc { get; set; }
 
     public DateTime? AcceptedAtUtc { get; set; }
+
+    public bool IsFounder { get; set; }
 
     public bool IsInvited =>
         string.Equals(
@@ -133,6 +138,8 @@ public sealed class CompanyTeamMemberApiItem
     public DateTime InvitedAtUtc { get; set; }
 
     public DateTime? AcceptedAtUtc { get; set; }
+
+    public bool IsFounder { get; set; }
 }
 
 public sealed class ResolveCompanyTeamInvitationApiResponse
