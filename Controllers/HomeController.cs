@@ -508,6 +508,8 @@ public class HomeController : Controller
             100);
     }
 
+    [AllowAnonymous]
+    [HttpGet("/privacy")]
     public IActionResult Privacy()
     {
         return View();

@@ -300,6 +300,28 @@
             font-size: 14px;
         }
 
+        .auth-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 0 20px 28px;
+            color: #98a2b3;
+            font-size: 13px;
+        }
+
+        .auth-footer a {
+            color: #667085;
+            font-weight: 650;
+            text-decoration: none;
+        }
+
+        .auth-footer a:hover,
+        .auth-footer a:focus-visible {
+            color: #3676ee;
+            text-decoration: underline;
+        }
+
         @@media (max-width: 620px) {
             .topbar { padding: 0 18px; }
             .top-login span { display: none; }
@@ -424,5 +446,11 @@
             </div>
         </section>
     </main>
+
+    <footer class="auth-footer">
+        <span>&copy; 2026 BothFind</span>
+        <span aria-hidden="true">&bull;</span>
+        <a href="/privacy">Privacy Policy</a>
+    </footer>
 </body>
 </html>
