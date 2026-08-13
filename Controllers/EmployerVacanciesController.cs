@@ -448,35 +448,35 @@ public sealed class EmployerVacanciesController : Controller
             return;
         }
 
-        var seniority =
-            jobFamily.Seniorities.FirstOrDefault(
-                item => item.Id == input.SeniorityId);
-
-        if (seniority is null)
-        {
-            ModelState.AddModelError(
-                "Input.SeniorityId",
-                "Seçilən Seniority bu Job-a aid deyil.");
-
-            return;
-        }
-
         var position =
-            seniority.Positions.FirstOrDefault(
+            jobFamily.Positions.FirstOrDefault(
                 item => item.Id == input.PositionId);
 
         if (position is null)
         {
             ModelState.AddModelError(
                 "Input.PositionId",
-                "Seçilən Position bu Seniority-yə aid deyil.");
+                "Seçilən Position bu Job-a aid deyil.");
+
+            return;
+        }
+
+        var seniority =
+            position.Seniorities.FirstOrDefault(
+                item => item.Id == input.SeniorityId);
+
+        if (seniority is null)
+        {
+            ModelState.AddModelError(
+                "Input.SeniorityId",
+                "Seçilən Seniority bu Position-a aid deyil.");
 
             return;
         }
 
         ValidateSkillRequirements(
             input,
-            jobFamilies);
+            position);
 
         input.RoleTitle = string.IsNullOrWhiteSpace(
             input.RoleTitle)
@@ -486,14 +486,12 @@ public sealed class EmployerVacanciesController : Controller
 
     private void ValidateSkillRequirements(
         CreateVacancyInput input,
-        IReadOnlyCollection<JobFamily> jobFamilies)
+        Position position)
     {
         NormalizeSkillRequirements(input);
 
-        var allSqlSkillIds = jobFamilies
-            .SelectMany(job => job.Seniorities)
-            .SelectMany(seniority => seniority.Positions)
-            .SelectMany(position => position.Skills)
+        var allSqlSkillIds = position.Seniorities
+            .SelectMany(seniority => seniority.Skills)
             .Where(skill => skill.Id > 0)
             .Select(skill => skill.Id)
             .ToHashSet();
@@ -526,7 +524,7 @@ public sealed class EmployerVacanciesController : Controller
             {
                 ModelState.AddModelError(
                     "Input.SelectedSkillIds",
-                    $"SkillId {requirement.SkillId} SQL taxonomy-də tapılmadı.");
+                    $"SkillId {requirement.SkillId} seçilən Position-a aid deyil.");
             }
 
             if (requirement.MinimumVerificationLevel is < 1 or > 100)

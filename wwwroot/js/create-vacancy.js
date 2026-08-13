@@ -32,9 +32,9 @@
         const flattened = [];
 
         taxonomy.forEach(job => {
-            (job.seniorities ?? []).forEach(seniority => {
-                (seniority.positions ?? []).forEach(position => {
-                    (position.skills ?? []).forEach(skill => {
+            (job.positions ?? []).forEach(position => {
+                (position.seniorities ?? []).forEach(seniority => {
+                    (seniority.skills ?? []).forEach(skill => {
                         if (
                             Number(skill.id) <= 0
                             || !String(
@@ -56,6 +56,8 @@
                                 String(
                                     job.jobName
                                     ?? "").trim(),
+                            positionId:
+                                Number(position.id),
                             seniorityName:
                                 String(
                                     seniority.name
@@ -242,30 +244,10 @@
             ?? null;
     };
 
-    const getCurrentSeniority = () => {
+    const getCurrentPosition = () => {
         const job = getCurrentJob();
 
         if (!job)
-            return null;
-
-        const id = Number(
-            senioritySelect?.value
-            ?? 0);
-
-        return (
-            job.seniorities
-            ?? []
-        ).find(
-            seniority =>
-                Number(seniority.id) === id)
-            ?? null;
-    };
-
-    const getCurrentPosition = () => {
-        const seniority =
-            getCurrentSeniority();
-
-        if (!seniority)
             return null;
 
         const id = Number(
@@ -273,11 +255,31 @@
             ?? 0);
 
         return (
-            seniority.positions
+            job.positions
             ?? []
         ).find(
             position =>
                 Number(position.id) === id)
+            ?? null;
+    };
+
+    const getCurrentSeniority = () => {
+        const position =
+            getCurrentPosition();
+
+        if (!position)
+            return null;
+
+        const id = Number(
+            senioritySelect?.value
+            ?? 0);
+
+        return (
+            position.seniorities
+            ?? []
+        ).find(
+            seniority =>
+                Number(seniority.id) === id)
             ?? null;
     };
 
@@ -328,36 +330,36 @@
             items.length === 0;
     };
 
-    const refreshSeniorities = (
+    const refreshPositions = (
         selectedValue = 0) => {
 
         const job = getCurrentJob();
 
         fillSelect(
-            senioritySelect,
-            job?.seniorities ?? [],
+            positionSelect,
+            job?.positions ?? [],
             job
-                ? "Select Seniority"
+                ? "Select Position"
                 : "Select Job first",
             item => item.id,
             item => item.name,
             selectedValue);
 
-        refreshPositions();
+        refreshSeniorities();
     };
 
-    const refreshPositions = (
+    const refreshSeniorities = (
         selectedValue = 0) => {
 
-        const seniority =
-            getCurrentSeniority();
+        const position =
+            getCurrentPosition();
 
         fillSelect(
-            positionSelect,
-            seniority?.positions ?? [],
-            seniority
-                ? "Select Position"
-                : "Select Seniority first",
+            senioritySelect,
+            position?.seniorities ?? [],
+            position
+                ? "Select Seniority"
+                : "Select Position first",
             item => item.id,
             item => item.name,
             selectedValue);
@@ -413,8 +415,8 @@
 
         if (skillLibraryMessage) {
             skillLibraryMessage.textContent =
-                `${allSqlSkills.length} skill SQL taxonomy-dən yükləndi. `
-                + `Məsələn “Fa” yazaraq uyğun skill-ləri tap.`;
+                "Skill-ləri görmək üçün əvvəl Job Family, "
+                + "Position və Seniority seç.";
         }
 
         skillSearchInput.addEventListener(
@@ -452,10 +454,16 @@
         const normalizedQuery =
             normalize(query);
 
-        if (!normalizedQuery)
+        const position = getCurrentPosition();
+        const seniority = getCurrentSeniority();
+
+        if (!normalizedQuery || !position || !seniority)
             return [];
 
         return allSqlSkills
+            .filter(skill =>
+                skill.positionId
+                    === Number(position.id))
             .filter(
                 skill =>
                     !selectedRequirements.has(
@@ -852,11 +860,42 @@
                 selectedRequirements.size > 0;
 
             if (selectedRequirements.size === 0) {
+                const position = getCurrentPosition();
+                const seniority = getCurrentSeniority();
+                const positionSkillCount = position
+                    ? allSqlSkills.filter(skill =>
+                        skill.positionId
+                            === Number(position.id)).length
+                    : 0;
+
                 skillLibraryMessage.textContent =
-                    `${allSqlSkills.length} skill SQL taxonomy-dən yükləndi. `
-                    + `Yuxarıdakı axtarış sahəsinə yazaraq skill əlavə et.`;
+                    !position || !seniority
+                        ? "Skill-ləri görmək üçün əvvəl Job Family, Position və Seniority seç."
+                        : `${positionSkillCount} skill seçilən Position üçün yükləndi. `
+                            + "Yuxarıdakı axtarış sahəsinə yazaraq skill əlavə et.";
             }
         }
+    };
+
+    const removeSkillsOutsideCurrentPosition = () => {
+        const position = getCurrentPosition();
+        const allowedSkillIds = new Set(
+            position
+                ? allSqlSkills
+                    .filter(skill =>
+                        skill.positionId
+                            === Number(position.id))
+                    .map(skill => skill.id)
+                : []);
+
+        Array.from(selectedRequirements.keys())
+            .filter(skillId =>
+                !allowedSkillIds.has(skillId))
+            .forEach(skillId =>
+                selectedRequirements.delete(skillId));
+
+        closeSuggestions();
+        renderSelectedSkills();
     };
 
     const initializeSelectedRequirements = () => {
@@ -934,14 +973,11 @@
     jobSelect?.addEventListener(
         "change",
         () => {
-            refreshSeniorities();
-            updateReview();
-        });
+            if (roleTitleInput)
+                roleTitleInput.value = "";
 
-    senioritySelect?.addEventListener(
-        "change",
-        () => {
             refreshPositions();
+            removeSkillsOutsideCurrentPosition();
             updateReview();
         });
 
@@ -951,7 +987,16 @@
             if (roleTitleInput)
                 roleTitleInput.value = "";
 
+            refreshSeniorities();
+            removeSkillsOutsideCurrentPosition();
+            updateReview();
+        });
+
+    senioritySelect?.addEventListener(
+        "change",
+        () => {
             updateRoleMatch();
+            renderSuggestions();
             updateReview();
         });
 
@@ -1177,18 +1222,6 @@
                     initialState.jobFamilyId);
         }
 
-        refreshSeniorities(
-            initialState.seniorityId);
-
-        if (
-            Number(initialState.seniorityId) > 0
-            && senioritySelect
-        ) {
-            senioritySelect.value =
-                String(
-                    initialState.seniorityId);
-        }
-
         refreshPositions(
             initialState.positionId);
 
@@ -1199,6 +1232,18 @@
             positionSelect.value =
                 String(
                     initialState.positionId);
+        }
+
+        refreshSeniorities(
+            initialState.seniorityId);
+
+        if (
+            Number(initialState.seniorityId) > 0
+            && senioritySelect
+        ) {
+            senioritySelect.value =
+                String(
+                    initialState.seniorityId);
         }
 
         updateRoleMatch();

@@ -1,3 +1,4 @@
+wwwroot\css\privacy.css
 wwwroot\css\candidate-dashboard.css
 wwwroot\css\choose-portal.css
 wwwroot\css\company-profile.css

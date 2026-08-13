@@ -403,16 +403,16 @@ public sealed class SkillsController : Controller
             .Select(x => x.SkillName.Trim())
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return selectedJob.Seniorities
+        return selectedJob.Positions
             .SelectMany(
-                seniority => seniority.Positions.Select(
-                    position => new
+                position => position.Seniorities.Select(
+                    seniority => new
                     {
                         Seniority = seniority,
                         Position = position
                     }))
             .SelectMany(
-                x => x.Position.Skills.Select(
+                x => x.Seniority.Skills.Select(
                     skill => new AvailableSkillItem
                     {
                         SkillId = skill.Id,
