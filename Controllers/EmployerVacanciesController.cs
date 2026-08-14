@@ -476,7 +476,7 @@ public sealed class EmployerVacanciesController : Controller
 
         ValidateSkillRequirements(
             input,
-            position);
+            jobFamilies);
 
         input.RoleTitle = string.IsNullOrWhiteSpace(
             input.RoleTitle)
@@ -486,11 +486,13 @@ public sealed class EmployerVacanciesController : Controller
 
     private void ValidateSkillRequirements(
         CreateVacancyInput input,
-        Position position)
+        IReadOnlyCollection<JobFamily> jobFamilies)
     {
         NormalizeSkillRequirements(input);
 
-        var allSqlSkillIds = position.Seniorities
+        var allSqlSkillIds = jobFamilies
+            .SelectMany(jobFamily => jobFamily.Positions)
+            .SelectMany(position => position.Seniorities)
             .SelectMany(seniority => seniority.Skills)
             .Where(skill => skill.Id > 0)
             .Select(skill => skill.Id)
@@ -524,7 +526,7 @@ public sealed class EmployerVacanciesController : Controller
             {
                 ModelState.AddModelError(
                     "Input.SelectedSkillIds",
-                    $"SkillId {requirement.SkillId} seçilən Position-a aid deyil.");
+                    $"SkillId {requirement.SkillId} SQL skill kataloqunda yoxdur.");
             }
 
             if (requirement.MinimumVerificationLevel is < 1 or > 100)

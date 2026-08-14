@@ -415,8 +415,9 @@
 
         if (skillLibraryMessage) {
             skillLibraryMessage.textContent =
-                "Skill-ləri görmək üçün əvvəl Job Family, "
-                + "Position və Seniority seç.";
+                "Position seçildikdə onun bütün skill-ləri avtomatik "
+                + "əlavə olunur. Manual axtarış bütün SQL skill "
+                + "kataloqunda işləyir.";
         }
 
         skillSearchInput.addEventListener(
@@ -455,15 +456,11 @@
             normalize(query);
 
         const position = getCurrentPosition();
-        const seniority = getCurrentSeniority();
 
-        if (!normalizedQuery || !position || !seniority)
+        if (!normalizedQuery || !position)
             return [];
 
         return allSqlSkills
-            .filter(skill =>
-                skill.positionId
-                    === Number(position.id))
             .filter(
                 skill =>
                     !selectedRequirements.has(
@@ -856,46 +853,50 @@
                 });
 
         if (skillLibraryMessage) {
-            skillLibraryMessage.hidden =
-                selectedRequirements.size > 0;
+            const position = getCurrentPosition();
+            const positionSkillCount = position
+                ? allSqlSkills.filter(skill =>
+                    skill.positionId
+                        === Number(position.id)).length
+                : 0;
 
-            if (selectedRequirements.size === 0) {
-                const position = getCurrentPosition();
-                const seniority = getCurrentSeniority();
-                const positionSkillCount = position
-                    ? allSqlSkills.filter(skill =>
-                        skill.positionId
-                            === Number(position.id)).length
-                    : 0;
-
-                skillLibraryMessage.textContent =
-                    !position || !seniority
-                        ? "Skill-ləri görmək üçün əvvəl Job Family, Position və Seniority seç."
-                        : `${positionSkillCount} skill seçilən Position üçün yükləndi. `
-                            + "Yuxarıdakı axtarış sahəsinə yazaraq skill əlavə et.";
-            }
+            skillLibraryMessage.hidden = false;
+            skillLibraryMessage.textContent = position
+                ? `${positionSkillCount} skill bu Position üçün default-dur. `
+                    + "Manual axtarış bütün SQL skill kataloqunda işləyir."
+                : "Position seçildikdə onun bütün skill-ləri avtomatik "
+                    + "əlavə olunur. Manual axtarış bütün SQL skill "
+                    + "kataloqunda işləyir.";
         }
     };
 
-    const removeSkillsOutsideCurrentPosition = () => {
+    const replaceWithCurrentPositionSkills = () => {
         const position = getCurrentPosition();
-        const allowedSkillIds = new Set(
-            position
-                ? allSqlSkills
-                    .filter(skill =>
-                        skill.positionId
-                            === Number(position.id))
-                    .map(skill => skill.id)
-                : []);
 
-        Array.from(selectedRequirements.keys())
-            .filter(skillId =>
-                !allowedSkillIds.has(skillId))
-            .forEach(skillId =>
-                selectedRequirements.delete(skillId));
+        selectedRequirements.clear();
+
+        if (position) {
+            allSqlSkills
+                .filter(skill =>
+                    skill.positionId
+                        === Number(position.id))
+                .forEach(skill => {
+                    selectedRequirements.set(
+                        skill.id,
+                        {
+                            skillId: skill.id,
+                            minimumVerificationLevel: 70,
+                            requirementType: "Required"
+                        });
+                });
+        }
+
+        if (skillSearchInput)
+            skillSearchInput.value = "";
 
         closeSuggestions();
         renderSelectedSkills();
+        updateReview();
     };
 
     const initializeSelectedRequirements = () => {
@@ -977,8 +978,7 @@
                 roleTitleInput.value = "";
 
             refreshPositions();
-            removeSkillsOutsideCurrentPosition();
-            updateReview();
+            replaceWithCurrentPositionSkills();
         });
 
     positionSelect?.addEventListener(
@@ -988,8 +988,7 @@
                 roleTitleInput.value = "";
 
             refreshSeniorities();
-            removeSkillsOutsideCurrentPosition();
-            updateReview();
+            replaceWithCurrentPositionSkills();
         });
 
     senioritySelect?.addEventListener(
