@@ -658,6 +658,298 @@
     background: #fff;
 }
 
+#skillAssessmentConfig {
+    display: none;
+}
+
+.assessment-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: none;
+    background: rgba(12, 18, 32, .54);
+    backdrop-filter: blur(4px);
+}
+
+.assessment-backdrop.visible {
+    display: block;
+}
+
+.skill-assessment-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 100;
+    width: min(820px, 94vw);
+    max-height: 92vh;
+    padding: 26px;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -47%) scale(.98);
+    border: 1px solid #dfe4ec;
+    border-radius: 26px;
+    background: #fff;
+    box-shadow: 0 34px 90px rgba(16, 24, 40, .28);
+    transition: opacity .18s ease, transform .18s ease;
+}
+
+.skill-assessment-modal.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.assessment-header {
+    padding-bottom: 18px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    border-bottom: 1px solid var(--skills-line);
+}
+
+.assessment-header h2 {
+    margin: 7px 0 6px;
+    font-size: 27px;
+    letter-spacing: -.03em;
+}
+
+.assessment-header p {
+    max-width: 590px;
+    margin: 0;
+    color: var(--skills-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.assessment-toolbar {
+    margin: 18px 0;
+    display: grid;
+    grid-template-columns: auto minmax(150px, 210px) 1fr;
+    align-items: center;
+    gap: 10px;
+}
+
+.assessment-toolbar label {
+    color: #4f596b;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.assessment-toolbar select {
+    min-height: 40px;
+    padding: 0 11px;
+    color: #273142;
+    border: 1px solid #dce2eb;
+    border-radius: 11px;
+    outline: 0;
+    background: #f9fafc;
+}
+
+.assessment-toolbar > span {
+    justify-self: end;
+    color: #69758a;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.assessment-loading {
+    min-height: 220px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 10px;
+    color: #475467;
+    text-align: center;
+}
+
+.assessment-loading[hidden],
+.assessment-error[hidden],
+.assessment-result[hidden] {
+    display: none;
+}
+
+.assessment-loading small {
+    color: #8a94a6;
+}
+
+.assessment-spinner {
+    width: 34px;
+    height: 34px;
+    border: 3px solid #e1e6f0;
+    border-top-color: #6659d6;
+    border-radius: 50%;
+    animation: assessment-spin .8s linear infinite;
+}
+
+@keyframes assessment-spin {
+    to { transform: rotate(360deg); }
+}
+
+.assessment-error {
+    margin-bottom: 14px;
+    padding: 13px 15px;
+    color: #a12f3c;
+    border: 1px solid #efc4ca;
+    border-radius: 13px;
+    background: #fff4f5;
+    font-size: 13px;
+}
+
+.assessment-question-list {
+    display: grid;
+    gap: 14px;
+}
+
+.assessment-question-card {
+    padding: 18px;
+    border: 1px solid var(--skills-line);
+    border-radius: 18px;
+    background: #fbfcfe;
+}
+
+.assessment-question-heading {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: start;
+    gap: 11px;
+}
+
+.assessment-question-heading > span {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    color: #4f5fc3;
+    border-radius: 10px;
+    background: #edf0ff;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.assessment-question-heading small {
+    color: #6878d1;
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.assessment-question-heading h3 {
+    margin: 4px 0 0;
+    color: #20293a;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.assessment-option-list {
+    margin-top: 14px;
+    display: grid;
+    gap: 8px;
+}
+
+.assessment-option {
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 12px;
+    display: grid;
+    grid-template-columns: 23px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    color: #4a5568;
+    text-align: left;
+    border: 1px solid #dfe4ec;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.assessment-option:hover {
+    border-color: #aebceb;
+    background: #f8f9ff;
+}
+
+.assessment-option.selected {
+    color: #35418f;
+    border-color: #7988dd;
+    background: #f0f2ff;
+}
+
+.assessment-option-marker {
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    border: 1px solid #cbd2df;
+    border-radius: 7px;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.assessment-option.selected .assessment-option-marker {
+    border-color: #626fd1;
+    background: #626fd1;
+}
+
+.assessment-result {
+    min-height: 280px;
+    padding: 30px;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 8px;
+    text-align: center;
+    border: 1px solid #cde9dd;
+    border-radius: 22px;
+    background: linear-gradient(145deg, #f3fff9, #f7f8ff);
+}
+
+.assessment-result-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    border-radius: 50%;
+    background: #17a873;
+    font-size: 23px;
+}
+
+.assessment-result small {
+    margin-top: 8px;
+    color: #6c7789;
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: .1em;
+}
+
+.assessment-result strong {
+    color: #243149;
+    font-size: 58px;
+    line-height: 1;
+}
+
+.assessment-result p {
+    margin: 4px 0 0;
+    color: #667085;
+    font-size: 13px;
+}
+
+.assessment-actions {
+    position: sticky;
+    bottom: -26px;
+    margin: 20px -26px -26px;
+    padding: 16px 26px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid var(--skills-line);
+    background: rgba(255, 255, 255, .96);
+    backdrop-filter: blur(8px);
+}
+
 @media (max-width: 1050px) {
     .skills-summary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -702,5 +994,32 @@
 
     .form-columns {
         grid-template-columns: 1fr;
+    }
+
+    .skill-assessment-modal {
+        width: 96vw;
+        max-height: 94vh;
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+    .assessment-toolbar {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .assessment-toolbar > span {
+        justify-self: start;
+    }
+
+    .assessment-actions {
+        bottom: -20px;
+        margin: 18px -20px -20px;
+        padding: 14px 20px;
+        flex-direction: column-reverse;
+    }
+
+    .assessment-actions button {
+        width: 100%;
     }
 }

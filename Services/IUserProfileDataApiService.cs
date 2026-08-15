@@ -10,6 +10,7 @@ public interface IUserProfileDataApiService
 
     Task<UserProfileDataApiResult> SaveAsync(
         int userId,
+        UserJobInfo? job,
         IReadOnlyCollection<UserSkillInfo> skills,
         IReadOnlyCollection<UserWorkExperienceInfo> experiences,
         CancellationToken cancellationToken = default);

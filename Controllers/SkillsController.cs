@@ -12,13 +12,16 @@ public sealed class SkillsController : Controller
 {
     private readonly IUserProfileDataApiService _userProfileDataApiService;
     private readonly ISkillAndJobApiService _skillAndJobApiService;
+    private readonly ISkillAssessmentApiService _skillAssessmentApiService;
 
     public SkillsController(
         IUserProfileDataApiService userProfileDataApiService,
-        ISkillAndJobApiService skillAndJobApiService)
+        ISkillAndJobApiService skillAndJobApiService,
+        ISkillAssessmentApiService skillAssessmentApiService)
     {
         _userProfileDataApiService = userProfileDataApiService;
         _skillAndJobApiService = skillAndJobApiService;
+        _skillAssessmentApiService = skillAssessmentApiService;
     }
 
     [HttpGet("/Skills")]
@@ -39,14 +42,87 @@ public sealed class SkillsController : Controller
         if (TempData["SkillsError"] is string error)
             model.ErrorMessage = error;
 
+        if (TempData["AssessmentSkillId"] is int skillId)
+            model.AutoAssessmentSkillId = skillId;
+
+        model.AutoAssessmentSkillName =
+            TempData["AssessmentSkillName"] as string
+            ?? string.Empty;
+
         return View("SkillsPage", model);
+    }
+
+    [HttpPost("/Skills/AddJob")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddJob(
+        [Bind(Prefix = "AddJob")] AddJobRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetRequiredUserId();
+
+        if (userId is null)
+            return Challenge();
+
+        if (!ModelState.IsValid)
+        {
+            TempData["SkillsError"] = "Job seçilməlidir.";
+            return RedirectToAction(nameof(SkillsPage));
+        }
+
+        var profileResult = await _userProfileDataApiService.GetAsync(
+            userId.Value,
+            cancellationToken);
+
+        if (!profileResult.Success || profileResult.Data is null)
+        {
+            TempData["SkillsError"] = profileResult.Message;
+            return RedirectToAction(nameof(SkillsPage));
+        }
+
+        var taxonomyResult = await _skillAndJobApiService
+            .GetJobFamiliesAsync(cancellationToken);
+
+        if (!taxonomyResult.Success)
+        {
+            TempData["SkillsError"] = taxonomyResult.Message;
+            return RedirectToAction(nameof(SkillsPage));
+        }
+
+        var selectedJob = taxonomyResult.JobFamilies.FirstOrDefault(
+            job => job.Id == request.JobFamilyId);
+
+        if (selectedJob is null)
+        {
+            TempData["SkillsError"] =
+                "Seçilən Job SQL taxonomy-də tapılmadı.";
+            return RedirectToAction(nameof(SkillsPage));
+        }
+
+        var saveResult = await _userProfileDataApiService.SaveAsync(
+            userId.Value,
+            new UserJobInfo
+            {
+                JobFamilyId = selectedJob.Id,
+                JobFamilyName = selectedJob.JobName
+            },
+            profileResult.Data.Skills ?? new List<UserSkillInfo>(),
+            profileResult.Data.Experiences
+                ?? new List<UserWorkExperienceInfo>(),
+            cancellationToken);
+
+        TempData[saveResult.Success
+            ? "SkillsSuccess"
+            : "SkillsError"] = saveResult.Success
+            ? $"{selectedJob.JobName} Job kimi saxlandı. İndi istənilən skill-i əlavə edə bilərsiniz."
+            : saveResult.Message;
+
+        return RedirectToAction(nameof(SkillsPage));
     }
 
     [HttpPost("/Skills/AddSkill")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddSkill(
-        [Bind(Prefix = "AddSkill")]
-    AddSkillRequest request,
+        [Bind(Prefix = "AddSkill")] AddSkillRequest request,
         CancellationToken cancellationToken)
     {
         var userId = GetRequiredUserId();
@@ -81,30 +157,28 @@ public sealed class SkillsController : Controller
         var experiences = profileResult.Data.Experiences
             ?? new List<UserWorkExperienceInfo>();
 
-        var taxonomyResult =
-            await _skillAndJobApiService.GetJobFamiliesAsync(
-                cancellationToken);
-
-        if (!taxonomyResult.Success)
+        var currentJob = profileResult.Data.Job;
+        if (currentJob is null || currentJob.JobFamilyId <= 0)
         {
-            TempData["SkillsError"] = taxonomyResult.Message;
+            TempData["SkillsError"] =
+                "Skill əlavə etməzdən əvvəl Job seçilməlidir.";
+
             return RedirectToAction(nameof(SkillsPage));
         }
 
-        var selectedJob = ResolveCurrentJob(
-            taxonomyResult.JobFamilies,
-            skills);
+        var skillLookupResult =
+            await _skillAndJobApiService.GetAllSkillsAsync(
+                cancellationToken);
 
-        if (selectedJob is null)
+        if (!skillLookupResult.Success)
         {
-            TempData["SkillsError"] =
-                "İstifadəçinin Job məlumatı tapılmadı. Skill-lər Job-a görə filtr olunmadan göstərilə bilməz.";
-
+            TempData["SkillsError"] = skillLookupResult.Message;
             return RedirectToAction(nameof(SkillsPage));
         }
 
         var availableSkills = BuildAvailableSkills(
-            selectedJob,
+            skillLookupResult.Skills,
+            currentJob.JobFamilyId,
             skills);
 
         var selectedSkill = availableSkills.FirstOrDefault(
@@ -116,7 +190,7 @@ public sealed class SkillsController : Controller
         if (selectedSkill is null)
         {
             TempData["SkillsError"] =
-                "Seçilən skill user-in Job-u üçün uyğun deyil və ya artıq əlavə olunub.";
+                "Seçilən skill tapılmadı və ya artıq əlavə olunub.";
 
             return RedirectToAction(nameof(SkillsPage));
         }
@@ -142,6 +216,7 @@ public sealed class SkillsController : Controller
 
         var saveResult = await _userProfileDataApiService.SaveAsync(
             userId.Value,
+            currentJob,
             skills,
             experiences,
             cancellationToken);
@@ -149,8 +224,14 @@ public sealed class SkillsController : Controller
         TempData[saveResult.Success
             ? "SkillsSuccess"
             : "SkillsError"] = saveResult.Success
-            ? $"{selectedSkill.SkillName} əlavə olundu və SQL-də saxlandı."
+            ? $"{selectedSkill.SkillName} əlavə olundu. AI skill testi açılır."
             : saveResult.Message;
+
+        if (saveResult.Success)
+        {
+            TempData["AssessmentSkillId"] = selectedSkill.SkillId;
+            TempData["AssessmentSkillName"] = selectedSkill.SkillName;
+        }
 
         return RedirectToAction(nameof(SkillsPage));
     }
@@ -158,8 +239,7 @@ public sealed class SkillsController : Controller
     [HttpPost("/Skills/AddExperience")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddExperience(
-        [Bind(Prefix = "AddExperience")]
-    AddExperienceRequest request,
+        [Bind(Prefix = "AddExperience")] AddExperienceRequest request,
         CancellationToken cancellationToken)
     {
         var userId = GetRequiredUserId();
@@ -229,6 +309,7 @@ public sealed class SkillsController : Controller
 
         var saveResult = await _userProfileDataApiService.SaveAsync(
             userId.Value,
+            profileResult.Data.Job,
             skills,
             experiences,
             cancellationToken);
@@ -240,6 +321,216 @@ public sealed class SkillsController : Controller
             : saveResult.Message;
 
         return RedirectToAction(nameof(SkillsPage));
+    }
+
+    [HttpPost("/Skills/Assessment/Generate")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateAssessment(
+        [FromBody] StartSkillAssessmentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetRequiredUserId();
+
+        if (userId is null)
+            return Unauthorized(new { success = false, message = "Sessiya tapılmadı." });
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Skill və test dili düzgün seçilməyib."
+            });
+        }
+
+        var profileResult = await _userProfileDataApiService.GetAsync(
+            userId.Value,
+            cancellationToken);
+
+        if (!profileResult.Success || profileResult.Data is null)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = profileResult.Message
+            });
+        }
+
+        var skill = FindUserSkill(
+            profileResult.Data.Skills,
+            request.SkillId,
+            request.SkillName);
+
+        if (skill is null)
+        {
+            return NotFound(new
+            {
+                success = false,
+                message = "Skill candidate profilində tapılmadı."
+            });
+        }
+
+        var apiResult = await _skillAssessmentApiService.GenerateAsync(
+            new GenerateSkillQuestionnaireRequest
+            {
+                Skill = skill.SkillName,
+                SkillComplexity = NormalizeAssessmentComplexity(
+                    skill.SkillComplexity),
+                Seniority = NormalizeAssessmentSeniority(
+                    skill.SeniorityName),
+                Language = request.Language.Trim().ToLowerInvariant()
+            },
+            cancellationToken);
+
+        if (!apiResult.Success || apiResult.Data is null)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = apiResult.Message
+            });
+        }
+
+        return Json(new
+        {
+            success = true,
+            questionnaire = apiResult.Data
+        });
+    }
+
+    [HttpPost("/Skills/Assessment/Submit")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SubmitAssessment(
+        [FromBody] CompleteSkillAssessmentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetRequiredUserId();
+
+        if (userId is null)
+            return Unauthorized(new { success = false, message = "Sessiya tapılmadı." });
+
+        if (!ModelState.IsValid || request.QuestionnaireId == Guid.Empty)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Bütün görünən suallar cavablandırılmalıdır."
+            });
+        }
+
+        var profileResult = await _userProfileDataApiService.GetAsync(
+            userId.Value,
+            cancellationToken);
+
+        if (!profileResult.Success || profileResult.Data is null)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = profileResult.Message
+            });
+        }
+
+        var skill = FindUserSkill(
+            profileResult.Data.Skills,
+            request.SkillId,
+            request.SkillName);
+
+        if (skill is null)
+        {
+            return NotFound(new
+            {
+                success = false,
+                message = "Skill candidate profilində tapılmadı."
+            });
+        }
+
+        var assessmentResult = await _skillAssessmentApiService.SubmitAsync(
+            new SubmitSkillDepthAssessmentRequest
+            {
+                QuestionnaireId = request.QuestionnaireId,
+                Answers = request.Answers
+            },
+            cancellationToken);
+
+        if (!assessmentResult.Success || assessmentResult.Data is null)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = assessmentResult.Message
+            });
+        }
+
+        var result = assessmentResult.Data;
+        if (!result.Skill.Equals(
+                skill.SkillName,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Questionnaire seçilən skill-ə aid deyil."
+            });
+        }
+
+        var complexityScore = Math.Round(
+            Math.Clamp(result.ComplexityRatio, 0d, 1d) * 100d,
+            2);
+        var ownershipScore = Math.Round(
+            Math.Clamp(result.OwnershipRatio, 0d, 1d) * 100d,
+            2);
+        var depthDimensionScore = Math.Round(
+            Math.Clamp(result.DepthRatio, 0d, 1d) * 100d,
+            2);
+
+        // Mobile App-dəki MVP scoring mapping-i ilə eyni saxlanılır.
+        skill.KnowledgeScore = result.DepthScore;
+        skill.ExperienceScore = complexityScore;
+        skill.DepthScore = result.DepthScore;
+        skill.CredibilityScore = Math.Clamp(
+            (skill.KnowledgeScore * 0.45d)
+            + (skill.ExperienceScore * 0.55d),
+            0d,
+            100d);
+        skill.ContextScore = result.DepthScore;
+        skill.ComplexityScore = complexityScore;
+        skill.OwnershipScore = ownershipScore;
+        skill.ResultScore = depthDimensionScore;
+        skill.TaskComplexity = result.TaskComplexity;
+        skill.OwnershipLevel = result.OwnershipLevel;
+        skill.DepthTier = result.DepthTier;
+        skill.Status = "verified";
+        skill.IsVerified = true;
+
+        var saveResult = await _userProfileDataApiService.SaveAsync(
+            userId.Value,
+            profileResult.Data.Job,
+            profileResult.Data.Skills ?? new List<UserSkillInfo>(),
+            profileResult.Data.Experiences
+                ?? new List<UserWorkExperienceInfo>(),
+            cancellationToken);
+
+        if (!saveResult.Success)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = saveResult.Message
+            });
+        }
+
+        return Json(new
+        {
+            success = true,
+            message = $"{skill.SkillName} üzrə nəticə SQL-də saxlandı.",
+            score = result.DepthScore,
+            credibilityScore = (int)Math.Floor(
+                skill.CredibilityScore + 0.5d),
+            result.DepthTier,
+            result.TaskComplexity,
+            result.OwnershipLevel
+        });
     }
 
     private async Task<SkillsPageViewModel> BuildPageModelAsync(
@@ -277,6 +568,16 @@ public sealed class SkillsController : Controller
                         x => ParseYear(x.StartYear))
                     .ToList()
                 ?? new List<UserWorkExperienceInfo>();
+
+            if (profileResult.Data.Job is not null)
+            {
+                model.CurrentJobFamilyId =
+                    profileResult.Data.Job.JobFamilyId;
+                model.CurrentJobName =
+                    profileResult.Data.Job.JobFamilyName;
+                model.AddJob.JobFamilyId =
+                    profileResult.Data.Job.JobFamilyId;
+            }
         }
         else
         {
@@ -293,105 +594,45 @@ public sealed class SkillsController : Controller
             return model;
         }
 
-        var currentJob = ResolveCurrentJob(
-            taxonomyResult.JobFamilies,
-            model.Skills);
+        model.AvailableJobs = taxonomyResult.JobFamilies
+            .OrderBy(job => job.JobName)
+            .ToList();
 
-        if (currentJob is null)
+        if (!model.HasCurrentJob)
         {
             model.JobFilterMessage =
-                "User-in Job məlumatı SQL-də tapılmadığı üçün əlavə edilə bilən skill siyahısı göstərilmir.";
+                "Əvvəlcə Job əlavə edin. Bundan sonra bütün sistem skill-ləri aktiv olacaq.";
 
             return model;
         }
 
-        model.CurrentJobName = currentJob.JobName;
+        var skillLookupResult =
+            await _skillAndJobApiService.GetAllSkillsAsync(
+                cancellationToken);
+
+        if (!skillLookupResult.Success)
+        {
+            model.JobFilterMessage = skillLookupResult.Message;
+            return model;
+        }
+
         model.AvailableSkills = BuildAvailableSkills(
-            currentJob,
+            skillLookupResult.Skills,
+            model.CurrentJobFamilyId,
             model.Skills);
 
         if (model.AvailableSkills.Count == 0)
         {
             model.JobFilterMessage =
-                "Bu Job üçün bütün uyğun skill-lər artıq profile əlavə olunub.";
+                "Sistemdəki bütün skill-lər artıq profile əlavə olunub.";
         }
 
         return model;
     }
 
-    private JobFamily? ResolveCurrentJob(
-        IReadOnlyCollection<JobFamily> jobFamilies,
-        IReadOnlyCollection<UserSkillInfo> existingSkills)
-    {
-        var claimJobFamilyId = User.FindFirstValue(
-            "jobFamilyId");
-
-        if (int.TryParse(
-                claimJobFamilyId,
-                out var jobFamilyId)
-            && jobFamilyId > 0)
-        {
-            var byClaimId = jobFamilies.FirstOrDefault(
-                x => x.Id == jobFamilyId);
-
-            if (byClaimId is not null)
-                return byClaimId;
-        }
-
-        var claimJobFamilyName = User.FindFirstValue(
-            "jobFamilyName");
-
-        if (!string.IsNullOrWhiteSpace(claimJobFamilyName))
-        {
-            var byClaimName = jobFamilies.FirstOrDefault(
-                x => x.JobName.Equals(
-                    claimJobFamilyName.Trim(),
-                    StringComparison.OrdinalIgnoreCase));
-
-            if (byClaimName is not null)
-                return byClaimName;
-        }
-
-        var mostFrequentJobFamilyId = existingSkills
-            .Where(x => x.JobFamilyId > 0)
-            .GroupBy(x => x.JobFamilyId)
-            .OrderByDescending(x => x.Count())
-            .Select(x => x.Key)
-            .FirstOrDefault();
-
-        if (mostFrequentJobFamilyId > 0)
-        {
-            var bySavedId = jobFamilies.FirstOrDefault(
-                x => x.Id == mostFrequentJobFamilyId);
-
-            if (bySavedId is not null)
-                return bySavedId;
-        }
-
-        var mostFrequentJobFamilyName = existingSkills
-            .Where(x => !string.IsNullOrWhiteSpace(
-                x.JobFamilyName))
-            .GroupBy(
-                x => x.JobFamilyName.Trim(),
-                StringComparer.OrdinalIgnoreCase)
-            .OrderByDescending(x => x.Count())
-            .Select(x => x.Key)
-            .FirstOrDefault();
-
-        if (!string.IsNullOrWhiteSpace(
-                mostFrequentJobFamilyName))
-        {
-            return jobFamilies.FirstOrDefault(
-                x => x.JobName.Equals(
-                    mostFrequentJobFamilyName,
-                    StringComparison.OrdinalIgnoreCase));
-        }
-
-        return null;
-    }
-
     private static List<AvailableSkillItem> BuildAvailableSkills(
-        JobFamily selectedJob,
+        IReadOnlyCollection<SkillLookupItem> allSkills,
+        int currentJobFamilyId,
         IReadOnlyCollection<UserSkillInfo> existingSkills)
     {
         var existingSkillIds = existingSkills
@@ -405,45 +646,90 @@ public sealed class SkillsController : Controller
             .Select(x => x.SkillName.Trim())
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        return selectedJob.Positions
-            .SelectMany(
-                position => position.Seniorities.Select(
-                    seniority => new
-                    {
-                        Seniority = seniority,
-                        Position = position
-                    }))
-            .SelectMany(
-                x => x.Seniority.Skills.Select(
-                    skill => new AvailableSkillItem
-                    {
-                        SkillId = skill.Id,
-                        SkillName = skill.SkillName,
-                        PositionId = x.Position.Id,
-                        PositionName = x.Position.Name,
-                        SeniorityId = x.Seniority.Id,
-                        SeniorityName = x.Seniority.Name,
-                        JobFamilyId = selectedJob.Id,
-                        JobFamilyName = selectedJob.JobName,
-                        SkillComplexity =
-                            string.IsNullOrWhiteSpace(
-                                skill.SkillComplexity)
-                                ? "medium"
-                                : skill.SkillComplexity
-                                    .Trim()
-                                    .ToLowerInvariant()
-                    }))
+        return allSkills
             .Where(x =>
                 !string.IsNullOrWhiteSpace(x.SkillName)
-                && !existingSkillIds.Contains(x.SkillId)
+                && !existingSkillIds.Contains(x.Id)
                 && !existingSkillNames.Contains(
                     x.SkillName.Trim()))
             .GroupBy(
                 x => x.SkillName.Trim(),
                 StringComparer.OrdinalIgnoreCase)
-            .Select(x => x.First())
+            .Select(group => group
+                .OrderByDescending(skill =>
+                    skill.JobFamilyId == currentJobFamilyId)
+                .ThenBy(skill => skill.JobFamilyName)
+                .ThenBy(skill => skill.PositionName)
+                .ThenBy(skill => skill.Id)
+                .First())
+            .Select(skill =>
+            {
+                var seniority = skill.Seniorities
+                    .OrderByDescending(option =>
+                        option.Name.Equals(
+                            "Middle",
+                            StringComparison.OrdinalIgnoreCase))
+                    .ThenBy(option => option.SortOrder)
+                    .FirstOrDefault();
+
+                return new AvailableSkillItem
+                {
+                    SkillId = skill.Id,
+                    SkillName = skill.SkillName.Trim(),
+                    PositionId = skill.PositionId,
+                    PositionName = skill.PositionName,
+                    SeniorityId = seniority?.Id ?? 0,
+                    SeniorityName = seniority?.Name ?? "Middle",
+                    JobFamilyId = skill.JobFamilyId,
+                    JobFamilyName = skill.JobFamilyName,
+                    SkillComplexity = string.IsNullOrWhiteSpace(
+                        skill.SkillComplexity)
+                        ? "medium"
+                        : skill.SkillComplexity
+                            .Trim()
+                            .ToLowerInvariant()
+                };
+            })
             .OrderBy(x => x.SkillName)
             .ToList();
+    }
+
+    private static UserSkillInfo? FindUserSkill(
+        IReadOnlyCollection<UserSkillInfo>? skills,
+        int skillId,
+        string? skillName)
+    {
+        if (skills is null)
+            return null;
+
+        return skills.FirstOrDefault(skill =>
+            (skillId > 0 && skill.SkillId == skillId)
+            || (!string.IsNullOrWhiteSpace(skillName)
+                && skill.SkillName.Equals(
+                    skillName.Trim(),
+                    StringComparison.OrdinalIgnoreCase)));
+    }
+
+    private static string NormalizeAssessmentComplexity(string? value)
+    {
+        return value?.Trim().ToLowerInvariant() switch
+        {
+            "low" => "low",
+            "high" => "high",
+            _ => "medium"
+        };
+    }
+
+    private static string NormalizeAssessmentSeniority(string? value)
+    {
+        return value?.Trim().ToLowerInvariant() switch
+        {
+            "junior" => "junior",
+            "senior" => "senior",
+            "lead" => "lead",
+            "head" => "lead",
+            _ => "middle"
+        };
     }
 
     private int? GetRequiredUserId()

@@ -8,17 +8,22 @@ public class SkillsPageViewModel
     public string Email { get; set; } = string.Empty;
 
     public string CurrentJobName { get; set; } = string.Empty;
+    public int CurrentJobFamilyId { get; set; }
 
     public List<UserSkillInfo> Skills { get; set; } = new();
     public List<UserWorkExperienceInfo> WorkExperiences { get; set; } = new();
     public List<AvailableSkillItem> AvailableSkills { get; set; } = new();
+    public List<JobFamily> AvailableJobs { get; set; } = new();
 
+    public AddJobRequest AddJob { get; set; } = new();
     public AddSkillRequest AddSkill { get; set; } = new();
     public AddExperienceRequest AddExperience { get; set; } = new();
 
     public string? ErrorMessage { get; set; }
     public string? SuccessMessage { get; set; }
     public string? JobFilterMessage { get; set; }
+    public int AutoAssessmentSkillId { get; set; }
+    public string AutoAssessmentSkillName { get; set; } = string.Empty;
 
     public bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);
     public bool HasSuccess => !string.IsNullOrWhiteSpace(SuccessMessage);
@@ -26,6 +31,8 @@ public class SkillsPageViewModel
     public bool HasExperiences => WorkExperiences.Count > 0;
     public bool HasAvailableSkills => AvailableSkills.Count > 0;
     public bool HasCurrentJob => !string.IsNullOrWhiteSpace(CurrentJobName);
+    public bool ShouldAutoOpenAssessment =>
+        !string.IsNullOrWhiteSpace(AutoAssessmentSkillName);
 
     public int VerifiedSkillsCount =>
         Skills.Count(x =>

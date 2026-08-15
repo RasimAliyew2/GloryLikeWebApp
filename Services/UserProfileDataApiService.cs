@@ -91,6 +91,7 @@ public sealed class UserProfileDataApiService : IUserProfileDataApiService
 
     public async Task<UserProfileDataApiResult> SaveAsync(
         int userId,
+        UserJobInfo? job,
         IReadOnlyCollection<UserSkillInfo> skills,
         IReadOnlyCollection<UserWorkExperienceInfo> experiences,
         CancellationToken cancellationToken = default)
@@ -101,6 +102,13 @@ public sealed class UserProfileDataApiService : IUserProfileDataApiService
         var request = new SaveUserProfileDataRequest
         {
             UserId = userId,
+            Job = job is null
+                ? null
+                : new UserJobInfo
+                {
+                    JobFamilyId = job.JobFamilyId,
+                    JobFamilyName = job.JobFamilyName
+                },
             Skills = skills
                 .Where(x => !string.IsNullOrWhiteSpace(x.SkillName))
                 .GroupBy(
@@ -142,6 +150,7 @@ public sealed class UserProfileDataApiService : IUserProfileDataApiService
                     Success = true,
                     UserId = userId,
                     Message = "Profile məlumatı SQL-də saxlandı.",
+                    Job = request.Job,
                     Skills = request.Skills.Select(ToModel).ToList(),
                     Experiences = request.Experiences.Select(ToModel).ToList()
                 };
@@ -295,6 +304,7 @@ public sealed class UserProfileDataApiService : IUserProfileDataApiService
 public sealed class SaveUserProfileDataRequest
 {
     public int UserId { get; set; }
+    public UserJobInfo? Job { get; set; }
     public List<UserSkillProfileDto> Skills { get; set; } = new();
     public List<UserWorkExperienceProfileDto> Experiences { get; set; } = new();
 }
@@ -305,6 +315,7 @@ public sealed class UserProfileDataResponse
     public string Message { get; set; } = string.Empty;
     public int UserId { get; set; }
 
+    public UserJobInfo? Job { get; set; }
     public List<UserSkillInfo>? Skills { get; set; } = new();
     public List<UserWorkExperienceInfo>? Experiences { get; set; } = new();
 }

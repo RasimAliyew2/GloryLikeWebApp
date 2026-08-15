@@ -172,8 +172,8 @@
                         <h1>Skills</h1>
 
                         <p>
-                            Add skills that belong to your selected Job
-                            and connect them with your professional experience.
+                            Select your Job, then build a skill passport from
+                            the complete company skill catalogue.
                         </p>
 
                         @if (Model.HasCurrentJob)
@@ -188,6 +188,13 @@
                         <button
                             type="button"
                             class="skills-secondary-button"
+                            data-open-panel="job">
+                            ＋ @(Model.HasCurrentJob ? "Change job" : "Add job")
+                        </button>
+
+                        <button
+                            type="button"
+                            class="skills-secondary-button"
                             data-open-panel="experience">
                             ＋ Add experience
                         </button>
@@ -196,7 +203,7 @@
                             type="button"
                             class="skills-primary-button"
                             data-open-panel="skill"
-                            disabled="@(!Model.HasAvailableSkills)">
+                            disabled="@(!Model.HasCurrentJob || !Model.HasAvailableSkills)">
                             ＋ Add skill
                         </button>
                     </div>
@@ -222,7 +229,7 @@
                     Model.JobFilterMessage))
                 {
                     <div class="skills-alert info">
-                        <strong>Skill filter</strong>
+                        <strong>Job &amp; skill setup</strong>
                         <span>@Model.JobFilterMessage</span>
                     </div>
                 }
@@ -273,8 +280,8 @@
                             <span class="skills-empty-icon">✦</span>
                             <h3>No skills saved yet</h3>
                             <p>
-                                Add a skill from the filtered list.
-                                Only skills related to your Job are shown.
+                                Add a Job first, then choose any skill from
+                                the complete system catalogue.
                             </p>
                         </div>
                     }
@@ -365,7 +372,10 @@
 
                                         <button
                                             type="button"
-                                            class="assess-depth-button">
+                                            class="assess-depth-button"
+                                            data-assess-skill
+                                            data-skill-id="@skill.SkillId"
+                                            data-skill-name="@skill.SkillName">
                                             <span>⚡</span>
                                             Assess depth
                                         </button>
@@ -455,6 +465,82 @@
 
     <aside
         class="skills-side-panel"
+        data-panel="job"
+        aria-hidden="true">
+
+        <div class="skills-panel-header">
+            <div>
+                <span class="skills-eyebrow">
+                    CAREER DIRECTION
+                </span>
+                <h2>@(Model.HasCurrentJob ? "Change job" : "Add job")</h2>
+                <p>
+                    Job is stored separately and is used for matching
+                    candidate opportunities. It does not limit skill selection.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="panel-close-button"
+                data-close-panel>
+                ×
+            </button>
+        </div>
+
+        <form
+            method="post"
+            asp-controller="Skills"
+            asp-action="AddJob"
+            class="skills-form">
+
+            @Html.AntiForgeryToken()
+
+            <label asp-for="AddJob.JobFamilyId">
+                Job
+            </label>
+
+            <select asp-for="AddJob.JobFamilyId">
+                <option value="0">Choose a job</option>
+
+                @foreach (var job in Model.AvailableJobs)
+                {
+                    <option value="@job.Id">@job.JobName</option>
+                }
+            </select>
+
+            <span
+                asp-validation-for="AddJob.JobFamilyId"
+                class="field-error">
+            </span>
+
+            <div class="form-note">
+                <strong>Independent profile data</strong>
+                <span>
+                    Job controls vacancy matching. Skills remain global,
+                    so an HR candidate can also select 1C or another skill.
+                </span>
+            </div>
+
+            <div class="skills-form-actions">
+                <button
+                    type="button"
+                    class="cancel-button"
+                    data-close-panel>
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="skills-primary-button">
+                    Save job
+                </button>
+            </div>
+        </form>
+    </aside>
+
+    <aside
+        class="skills-side-panel"
         data-panel="skill"
         aria-hidden="true">
 
@@ -465,10 +551,8 @@
                 </span>
                 <h2>Add skill</h2>
                 <p>
-                    The list is filtered by
-                    <strong>@(Model.HasCurrentJob
-                        ? Model.CurrentJobName
-                        : "your Job")</strong>.
+                    Choose from every skill in the system catalogue.
+                    Your selected Job does not filter this list.
                 </p>
             </div>
 
@@ -494,7 +578,7 @@
 
             <select
                 asp-for="AddSkill.SelectionKey"
-                disabled="@(!Model.HasAvailableSkills)">
+                disabled="@(!Model.HasCurrentJob || !Model.HasAvailableSkills)">
                 <option value="">Choose a skill</option>
 
                 @foreach (var skill in Model.AvailableSkills)
@@ -511,10 +595,10 @@
             </span>
 
             <div class="form-note">
-                <strong>Filtering rule</strong>
+                <strong>Global skill catalogue</strong>
                 <span>
-                    Skills are loaded from Backend SQL taxonomy
-                    and only the selected Job family is displayed.
+                    Skills are loaded from Backend SQL taxonomy and
+                    deduplicated by name across all Jobs and Positions.
                 </span>
             </div>
 
@@ -529,7 +613,7 @@
                 <button
                     type="submit"
                     class="skills-primary-button"
-                    disabled="@(!Model.HasAvailableSkills)">
+                    disabled="@(!Model.HasCurrentJob || !Model.HasAvailableSkills)">
                     Add skill
                 </button>
             </div>
@@ -639,6 +723,96 @@
             </div>
         </form>
     </aside>
+
+    <div
+        class="assessment-backdrop"
+        data-assessment-backdrop>
+    </div>
+
+    <section
+        class="skill-assessment-modal"
+        data-assessment-modal
+        aria-hidden="true"
+        aria-labelledby="assessmentTitle">
+
+        <div class="assessment-header">
+            <div>
+                <span class="skills-eyebrow">AI SKILL CHECK</span>
+                <h2 id="assessmentTitle">
+                    <span data-assessment-skill-name>Skill</span> test
+                </h2>
+                <p>
+                    AI questions and server-side scoring use the same
+                    assessment contract as Mobile App.
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="panel-close-button"
+                data-close-assessment
+                aria-label="Close test">
+                ×
+            </button>
+        </div>
+
+        <div class="assessment-toolbar">
+            <label for="assessmentLanguage">Question language</label>
+            <select id="assessmentLanguage" data-assessment-language>
+                <option value="az">Azərbaycanca</option>
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+            </select>
+
+            <span data-assessment-progress>0/0 answered</span>
+        </div>
+
+        <div class="assessment-loading" data-assessment-loading hidden>
+            <span class="assessment-spinner"></span>
+            <strong>AI questions are being prepared…</strong>
+            <small>This can take a few seconds.</small>
+        </div>
+
+        <div class="assessment-error" data-assessment-error hidden></div>
+
+        <div
+            class="assessment-question-list"
+            data-assessment-questions>
+        </div>
+
+        <div class="assessment-result" data-assessment-result hidden>
+            <span class="assessment-result-icon">✓</span>
+            <small>SKILL SCORE</small>
+            <strong data-assessment-score>0</strong>
+            <p data-assessment-result-copy></p>
+        </div>
+
+        <div class="assessment-actions">
+            <button
+                type="button"
+                class="cancel-button"
+                data-close-assessment>
+                Close
+            </button>
+
+            <button
+                type="button"
+                class="skills-primary-button"
+                data-submit-assessment
+                disabled>
+                Finish and save score
+            </button>
+        </div>
+    </section>
+
+    <div
+        id="skillAssessmentConfig"
+        data-generate-url="@Url.Action("GenerateAssessment", "Skills")"
+        data-submit-url="@Url.Action("SubmitAssessment", "Skills")"
+        data-auto-skill-id="@Model.AutoAssessmentSkillId"
+        data-auto-skill-name="@Model.AutoAssessmentSkillName">
+        @Html.AntiForgeryToken()
+    </div>
 
     <div
         class="sidebar-backdrop"
