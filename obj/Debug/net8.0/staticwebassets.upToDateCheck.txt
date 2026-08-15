@@ -1,4 +1,3 @@
-wwwroot\css\privacy.css
 wwwroot\css\candidate-dashboard.css
 wwwroot\css\choose-portal.css
 wwwroot\css\company-profile.css
@@ -14,6 +13,7 @@ wwwroot\css\employer-reports.css
 wwwroot\css\employer-vacancies-list.css
 wwwroot\css\employer-vacancy-detail.css
 wwwroot\css\opportunities-page.css
+wwwroot\css\privacy.css
 wwwroot\css\profile-page.css
 wwwroot\css\registration.css
 wwwroot\css\site.css

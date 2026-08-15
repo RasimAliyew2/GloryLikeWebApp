@@ -45,7 +45,8 @@ public sealed class SkillsController : Controller
     [HttpPost("/Skills/AddSkill")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddSkill(
-        AddSkillRequest request,
+        [Bind(Prefix = "AddSkill")]
+    AddSkillRequest request,
         CancellationToken cancellationToken)
     {
         var userId = GetRequiredUserId();
@@ -157,7 +158,8 @@ public sealed class SkillsController : Controller
     [HttpPost("/Skills/AddExperience")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> AddExperience(
-        AddExperienceRequest request,
+        [Bind(Prefix = "AddExperience")]
+    AddExperienceRequest request,
         CancellationToken cancellationToken)
     {
         var userId = GetRequiredUserId();
