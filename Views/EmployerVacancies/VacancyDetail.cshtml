@@ -214,6 +214,18 @@
                                 </span>
                             </button>
                         </form>
+
+                        @if (!vacancy.IsClosed)
+                        {
+                            <form
+                                id="vacancyCloseForm"
+                                data-close-url="@Url.Action("CloseStatus", "EmployerVacancies", new { vacancyId = vacancy.VacancyId })">
+                                @Html.AntiForgeryToken()
+                                <button class="vacancy-status-toggle close-vacancy" id="vacancyCloseButton" type="submit">
+                                    <span>✕</span><span>Close vacancy</span>
+                                </button>
+                            </form>
+                        }
                     </div>
                 </section>
 

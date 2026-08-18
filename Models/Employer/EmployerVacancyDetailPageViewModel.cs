@@ -71,11 +71,17 @@ public sealed class EmployerVacancyDetailViewModel
             "Paused",
             StringComparison.OrdinalIgnoreCase);
 
+    public bool IsClosed => Status.Equals(
+        "Closed",
+        StringComparison.OrdinalIgnoreCase);
+
     public bool CanToggleStatus => IsSuspended
         || Status.Equals("Published", StringComparison.OrdinalIgnoreCase)
         || Status.Equals("Active", StringComparison.OrdinalIgnoreCase);
 
-    public string StatusLabel => IsSuspended
+    public string StatusLabel => IsClosed
+        ? "Closed"
+        : IsSuspended
         ? "Suspended"
         : Status.Equals("Published", StringComparison.OrdinalIgnoreCase)
             || Status.Equals("Active", StringComparison.OrdinalIgnoreCase)
@@ -84,7 +90,9 @@ public sealed class EmployerVacancyDetailViewModel
                     ? "Unknown"
                     : Status;
 
-    public string StatusCssClass => IsSuspended
+    public string StatusCssClass => IsClosed
+        ? "closed"
+        : IsSuspended
         ? "suspended"
         : StatusLabel == "Active"
             ? "active"

@@ -459,6 +459,61 @@ public sealed class VacancyApiService : IVacancyApiService
         }
     }
 
+    public async Task<ToggleEmployerVacancyStatusApiResult>
+        CloseEmployerStatusAsync(
+            int employerUserId,
+            int vacancyId,
+            CancellationToken cancellationToken = default)
+    {
+        if (employerUserId <= 0 || vacancyId <= 0)
+            return ToggleEmployerVacancyStatusApiResult.Fail("Employer and vacancy ID are invalid.");
+
+        var request = new ToggleEmployerVacancyStatusApiRequest
+        {
+            EmployerUserId = employerUserId
+        };
+
+        try
+        {
+            using var response = await _httpClient.PostAsJsonAsync(
+                $"api/Vacancies/{vacancyId}/employer-status/close",
+                request,
+                JsonOptions,
+                cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            ToggleEmployerVacancyStatusApiResponse? apiResponse = null;
+
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<ToggleEmployerVacancyStatusApiResponse>(body, JsonOptions);
+                }
+                catch (JsonException exception)
+                {
+                    _logger.LogWarning(exception, "Vacancy close API response was not valid JSON.");
+                }
+            }
+
+            if (!response.IsSuccessStatusCode || apiResponse is null || !apiResponse.Success)
+            {
+                return ToggleEmployerVacancyStatusApiResult.Fail(
+                    ExtractMessage(body, apiResponse?.Message, $"Vacancy could not be closed. HTTP {(int)response.StatusCode}."));
+            }
+
+            return ToggleEmployerVacancyStatusApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return ToggleEmployerVacancyStatusApiResult.Fail("Vacancy close request timed out.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "Vacancy could not be closed in BackendApp.");
+            return ToggleEmployerVacancyStatusApiResult.Fail("BackendApp could not be reached.");
+        }
+    }
+
     public async Task<ApplyToVacancyApiResult> ApplyAsync(
         int vacancyId,
         int candidateUserId,

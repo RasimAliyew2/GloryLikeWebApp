@@ -143,10 +143,12 @@
                         <span>♧</span>
                         Team
                     </a>
-                    <button type="button" data-future-tab>
+                    <a
+                        asp-controller="EmployerCompany"
+                        asp-action="HiringPlan">
                         <span>◎</span>
                         Hiring Plan
-                    </button>
+                    </a>
                 </nav>
 
                 <section class="company-page-heading">
@@ -209,7 +211,7 @@
                                 id="companyName"
                                 name="companyName"
                                 type="text"
-                                maxlength="160"
+                                maxlength="150"
                                 placeholder="OOO Horns and Hooves"
                                 autocomplete="organization"
                                 data-profile-field

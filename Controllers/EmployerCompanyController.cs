@@ -12,16 +12,133 @@ public sealed class EmployerCompanyController : Controller
 {
     private readonly ICompanyTeamApiService _companyTeamApiService;
     private readonly ICompanyProfileApiService _companyProfileApiService;
+    private readonly ICompanyHiringPlanApiService _companyHiringPlanApiService;
+    private readonly ISkillAndJobApiService _skillAndJobApiService;
     private readonly ILogger<EmployerCompanyController> _logger;
 
     public EmployerCompanyController(
         ICompanyTeamApiService companyTeamApiService,
         ICompanyProfileApiService companyProfileApiService,
+        ICompanyHiringPlanApiService companyHiringPlanApiService,
+        ISkillAndJobApiService skillAndJobApiService,
         ILogger<EmployerCompanyController> logger)
     {
         _companyTeamApiService = companyTeamApiService;
         _companyProfileApiService = companyProfileApiService;
+        _companyHiringPlanApiService = companyHiringPlanApiService;
+        _skillAndJobApiService = skillAndJobApiService;
         _logger = logger;
+    }
+
+    [HttpGet("/Employer/Company/HiringPlan")]
+    public async Task<IActionResult> HiringPlan(CancellationToken cancellationToken)
+    {
+        var model = new CompanyHiringPlanPageViewModel
+        {
+            DisplayName = GetDisplayName(),
+            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty
+        };
+
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            model.ErrorMessage = "Employer sign in is required.";
+            return View("HiringPlan", model);
+        }
+
+        model.UserId = actorUserId;
+        var taxonomyTask = _skillAndJobApiService.GetJobFamiliesAsync(cancellationToken);
+        var planTask = _companyHiringPlanApiService.GetAsync(actorUserId, cancellationToken);
+        await Task.WhenAll(taxonomyTask, planTask);
+
+        var taxonomy = await taxonomyTask;
+        var plans = await planTask;
+
+        if (taxonomy.Success)
+        {
+            model.JobFamilies = taxonomy.JobFamilies
+                .Where(item => item.Id > 0)
+                .OrderBy(item => item.JobName)
+                .ToList();
+        }
+
+        if (plans.Success && plans.Data is not null)
+        {
+            model.Plans = plans.Data.Plans;
+        }
+
+        var errors = new[]
+        {
+            taxonomy.Success ? string.Empty : taxonomy.Message,
+            plans.Success ? string.Empty : plans.Message
+        }.Where(item => !string.IsNullOrWhiteSpace(item));
+        model.ErrorMessage = string.Join(" ", errors);
+
+        return View("HiringPlan", model);
+    }
+
+    [HttpPost("/Employer/Company/HiringPlan")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateHiringPlan(
+        SaveCompanyHiringPlanInput input,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+            return Unauthorized(new { success = false, message = "Employer sign in is required." });
+
+        if (!ModelState.IsValid)
+            return BadRequest(new { success = false, message = FirstModelError() });
+
+        var result = await _companyHiringPlanApiService.CreateAsync(
+            actorUserId,
+            input,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new { success = true, message = result.Message, plan = result.Data?.Plan })
+            : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpPost("/Employer/Company/HiringPlan/{planId:int}/Update")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateHiringPlan(
+        int planId,
+        SaveCompanyHiringPlanInput input,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+            return Unauthorized(new { success = false, message = "Employer sign in is required." });
+
+        if (!ModelState.IsValid)
+            return BadRequest(new { success = false, message = FirstModelError() });
+
+        var result = await _companyHiringPlanApiService.UpdateAsync(
+            actorUserId,
+            planId,
+            input,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new { success = true, message = result.Message, plan = result.Data?.Plan })
+            : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpPost("/Employer/Company/HiringPlan/{planId:int}/Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteHiringPlan(
+        int planId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+            return Unauthorized(new { success = false, message = "Employer sign in is required." });
+
+        var result = await _companyHiringPlanApiService.DeleteAsync(
+            actorUserId,
+            planId,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new { success = true, message = result.Message })
+            : BadRequest(new { success = false, message = result.Message });
     }
 
     [HttpGet("/Employer/Company")]
@@ -82,6 +199,20 @@ public sealed class EmployerCompanyController : Controller
         }
 
         profile.Benefits ??= [];
+
+        if (!ModelState.IsValid)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return Json(new
+            {
+                success = false,
+                message = ModelState.Values
+                    .SelectMany(item => item.Errors)
+                    .Select(item => item.ErrorMessage)
+                    .FirstOrDefault(item => !string.IsNullOrWhiteSpace(item))
+                    ?? "Please check the company profile fields."
+            });
+        }
 
         var result = await _companyProfileApiService.SaveAsync(
             actorUserId,
@@ -290,6 +421,12 @@ public sealed class EmployerCompanyController : Controller
                 out userId)
             && userId > 0;
     }
+
+    private string FirstModelError() => ModelState.Values
+        .SelectMany(item => item.Errors)
+        .Select(item => item.ErrorMessage)
+        .FirstOrDefault(item => !string.IsNullOrWhiteSpace(item))
+        ?? "Please check the hiring plan fields.";
 
     private static CompanyTeamMemberViewModel
         ToTeamMemberViewModel(

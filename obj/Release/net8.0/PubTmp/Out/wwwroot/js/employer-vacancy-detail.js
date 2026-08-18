@@ -11,6 +11,8 @@
     const statusLabel = document.getElementById("vacancyStatusToggleLabel");
     const statusIcon = document.getElementById("vacancyStatusToggleIcon");
     const statusMessage = document.getElementById("vacancyStatusMessage");
+    const closeForm = document.getElementById("vacancyCloseForm");
+    const closeButton = document.getElementById("vacancyCloseButton");
     const settingsStatus = document.getElementById("settingsStatusText");
     const answerDialog = document.getElementById("candidateAnswerDialog");
     const answerDialogContent = document.getElementById("candidateAnswerDialogContent");
@@ -152,6 +154,38 @@
         } finally {
             statusButton.disabled = false;
             statusButton.classList.remove("loading");
+        }
+    });
+
+    closeForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!closeButton || !window.confirm("Close this vacancy? This action marks the linked hiring plan vacancy as finished.")) return;
+
+        closeButton.disabled = true;
+        const antiForgeryToken = closeForm.querySelector("input[name='__RequestVerificationToken']")?.value ?? "";
+        try {
+            const response = await fetch(closeForm.dataset.closeUrl ?? "", {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "RequestVerificationToken": antiForgeryToken,
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                credentials: "same-origin"
+            });
+            const payload = await response.json();
+            if (!response.ok || payload.success !== true) throw new Error(payload.message || "Vacancy could not be closed.");
+
+            statusBadge.textContent = payload.statusLabel;
+            statusBadge.classList.remove("active", "suspended", "other");
+            statusBadge.classList.add("closed");
+            if (settingsStatus) settingsStatus.textContent = payload.statusLabel;
+            if (statusButton) statusButton.disabled = true;
+            closeForm.remove();
+            showStatusMessage(payload.message || "Vacancy closed.", false);
+        } catch (error) {
+            showStatusMessage(error instanceof Error ? error.message : "Vacancy could not be closed.", true);
+            closeButton.disabled = false;
         }
     });
 

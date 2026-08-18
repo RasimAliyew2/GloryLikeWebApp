@@ -144,6 +144,17 @@
     transform: translateY(-1px);
 }
 
+.vacancy-status-toggle.close-vacancy {
+    border-color: #f1b5b9;
+    background: #fff5f5;
+    color: #b42318;
+}
+
+.vacancy-detail-status.closed {
+    color: #475467;
+    background: #eaecf0;
+}
+
 .vacancy-status-toggle:disabled {
     opacity: .55;
     cursor: not-allowed;

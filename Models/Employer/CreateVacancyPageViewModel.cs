@@ -73,6 +73,8 @@ public sealed class CreateVacancyInput
         ErrorMessage = "SQL Position seçilməlidir.")]
     public int PositionId { get; set; }
 
+    public int? HiringPlanId { get; set; }
+
     [Required(ErrorMessage = "Role Title boş ola bilməz.")]
     [StringLength(200)]
     public string RoleTitle { get; set; } = string.Empty;

@@ -70,7 +70,7 @@ public sealed class CompanyProfileApiService : ICompanyProfileApiService
                 HttpMethod.Put,
                 "api/company/profile")
             {
-                Content = JsonContent.Create(request)
+                Content = JsonContent.Create(request, options: JsonOptions)
             },
             cancellationToken);
     }
@@ -105,13 +105,16 @@ public sealed class CompanyProfileApiService : ICompanyProfileApiService
                     }
                 }
 
-                if (apiResponse is not null)
+                if (apiResponse is not null
+                    && (apiResponse.Success
+                        || !string.IsNullOrWhiteSpace(apiResponse.Message)))
                     return CompanyProfileApiResult.From(apiResponse);
 
                 return CompanyProfileApiResult.Fail(
-                    response.IsSuccessStatusCode
-                        ? "Company profile cavabı oxunmadı."
-                        : $"Company profile sorğusu tamamlanmadı. HTTP {(int)response.StatusCode}.");
+                    ExtractProblemMessage(body)
+                    ?? (response.IsSuccessStatusCode
+                        ? "Company profile response could not be read."
+                        : $"Company profile request failed. HTTP {(int)response.StatusCode}."));
             }
         }
         catch (OperationCanceledException)
@@ -129,5 +132,47 @@ public sealed class CompanyProfileApiService : ICompanyProfileApiService
             return CompanyProfileApiResult.Fail(
                 "BackendApp-ə qoşulmaq mümkün olmadı.");
         }
+    }
+
+    private static string? ExtractProblemMessage(string body)
+    {
+        if (string.IsNullOrWhiteSpace(body))
+            return null;
+
+        try
+        {
+            using var document = JsonDocument.Parse(body);
+            var root = document.RootElement;
+
+            if (root.TryGetProperty("errors", out var errors))
+            {
+                foreach (var property in errors.EnumerateObject())
+                {
+                    var message = property.Value.EnumerateArray()
+                        .Select(item => item.GetString())
+                        .FirstOrDefault(item => !string.IsNullOrWhiteSpace(item));
+
+                    if (!string.IsNullOrWhiteSpace(message))
+                        return message;
+                }
+            }
+
+            if (root.TryGetProperty("detail", out var detail)
+                && !string.IsNullOrWhiteSpace(detail.GetString()))
+            {
+                return detail.GetString();
+            }
+
+            if (root.TryGetProperty("title", out var title)
+                && !string.IsNullOrWhiteSpace(title.GetString()))
+            {
+                return title.GetString();
+            }
+        }
+        catch (JsonException)
+        {
+        }
+
+        return null;
     }
 }

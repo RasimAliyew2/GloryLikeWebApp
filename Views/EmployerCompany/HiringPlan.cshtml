@@ -1,0 +1,153 @@
+@using System.Text.Json
+@model GloryLikeWebApp.Models.Employer.CompanyHiringPlanPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Hiring Plan";
+    var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-hiring-plan.css" asp-append-version="true" />
+</head>
+<body>
+<div class="employer-shell company-shell">
+    <header class="employer-topbar">
+        <a class="employer-brand" asp-controller="EmployerHome" asp-action="EmployerHome">SkillMatch</a>
+        <div class="employer-search"><span>⌕</span><input type="search" placeholder="Search by candidates/vacancies" /></div>
+        <div class="employer-account">
+            <span class="demo-badge">Employer</span>
+            <div class="employer-avatar">@Model.Initials</div>
+            <div class="employer-account-copy">
+                <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
+                <span>Employer workspace</span>
+            </div>
+        </div>
+    </header>
+    <aside class="employer-sidebar" id="employerSidebar">
+        <nav aria-label="Employer navigation">
+            <a asp-controller="EmployerHome" asp-action="EmployerHome"><span>⌁</span><strong>Dashboard</strong></a>
+            <a asp-controller="EmployerVacancies" asp-action="Index"><span>▣</span><strong>Vacancies</strong></a>
+            <a href="#"><span>▱</span><strong>Recruitment requests</strong></a>
+            <a asp-controller="TalentRadar" asp-action="Index"><span>◎</span><strong>Talent Radar</strong></a>
+            <a class="active" asp-controller="EmployerCompany" asp-action="Index"><span>▥</span><strong>Company</strong></a>
+            <a asp-controller="EmployerReports" asp-action="Index"><span>▧</span><strong>Reports</strong></a>
+        </nav>
+        <div class="employer-sidebar-bottom"><form method="post" action="/SignOut">@Html.AntiForgeryToken()<button type="submit">↪ Sign out</button></form></div>
+    </aside>
+    <main class="employer-main company-main hiring-plan-main">
+        <button class="employer-menu-button" type="button" id="employerMenuButton">☰</button>
+        <div class="company-profile-content hiring-plan-content">
+            <nav class="company-tabs" aria-label="Company sections">
+                <a asp-controller="EmployerCompany" asp-action="Index"><span>♙</span>Profile</a>
+                <button type="button" data-future-tab><span>▱</span>Structure</button>
+                <a asp-controller="EmployerCompany" asp-action="Team"><span>♧</span>Team</a>
+                <a class="active" asp-controller="EmployerCompany" asp-action="HiringPlan"><span>◎</span>Hiring Plan</a>
+            </nav>
+            <section class="hiring-plan-heading">
+                <div>
+                    <span class="hiring-plan-kicker">WORKFORCE PLANNING</span>
+                    <h1>Hiring Plan</h1>
+                    <p>Plan headcount, create linked vacancies, and track completion from SQL data.</p>
+                </div>
+                <button class="hiring-plan-add" type="button" id="addHiringPlanButton" disabled="@(Model.JobFamilies.Count == 0)">+ Add position</button>
+            </section>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="hiring-plan-alert error" role="alert">@Model.ErrorMessage</div>
+            }
+            <div class="hiring-plan-alert" id="hiringPlanMessage" role="status" hidden></div>
+
+            <section class="hiring-plan-card">
+                @if (Model.Plans.Count == 0)
+                {
+                    <div class="hiring-plan-empty" id="hiringPlanEmpty">
+                        <span>◎</span>
+                        <h2>No hiring plans yet</h2>
+                        <p>Add your first planned position. The list is stored in SQL and fills as you add rows.</p>
+                        <button type="button" data-open-plan disabled="@(Model.JobFamilies.Count == 0)">Add position</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="hiring-plan-table-wrap">
+                        <table class="hiring-plan-table">
+                            <thead><tr>
+                                <th>Position Title</th><th>Department</th><th>Headcount</th><th>Seniority</th>
+                                <th>Priority</th><th>Target Start Date</th><th>Employment Type</th><th>Status</th><th>Notes</th><th><span class="sr-only">Actions</span></th>
+                            </tr></thead>
+                            <tbody>
+                            @foreach (var plan in Model.Plans)
+                            {
+                                var statusClass = plan.Status.ToLowerInvariant().Replace(" ", "-");
+                                <tr data-plan-id="@plan.Id">
+                                    <td><strong>@plan.PositionName</strong><small>@plan.VacancyCount / @plan.Headcount vacancies</small></td>
+                                    <td>@plan.JobFamilyName</td>
+                                    <td>@plan.Headcount</td>
+                                    <td>@plan.SeniorityName</td>
+                                    <td><span class="priority priority-@plan.Priority.ToLowerInvariant()">@plan.Priority</span></td>
+                                    <td>@(plan.TargetStartDate?.ToString("dd MMM yyyy") ?? "Not set")</td>
+                                    <td>@plan.EmploymentType</td>
+                                    <td><span class="plan-status @statusClass">@plan.Status</span></td>
+                                    <td class="plan-notes" title="@plan.Notes">@(string.IsNullOrWhiteSpace(plan.Notes) ? "—" : plan.Notes)</td>
+                                    <td class="plan-actions">
+                                        <button type="button" class="plan-menu-button" data-plan-menu aria-label="Actions for @plan.PositionName">⋮</button>
+                                        <div class="plan-menu" hidden>
+                                            <button type="button" data-edit-plan="@plan.Id">Edit</button>
+                                            @if (plan.CanCreateVacancy)
+                                            {
+                                                <a asp-controller="EmployerVacancies" asp-action="CreateVacancy" asp-route-hiringPlanId="@plan.Id">Create vacancy</a>
+                                            }
+                                            else
+                                            {
+                                                <span class="disabled-action">Headcount filled</span>
+                                            }
+                                            <button type="button" class="danger" data-delete-plan="@plan.Id" data-delete-url="@Url.Action("DeleteHiringPlan", "EmployerCompany", new { planId = plan.Id })">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+        </div>
+    </main>
+</div>
+
+<div class="plan-modal" id="hiringPlanModal" hidden>
+    <div class="plan-modal-backdrop" data-close-plan></div>
+    <section class="plan-modal-panel" role="dialog" aria-modal="true" aria-labelledby="planModalTitle">
+        <button class="plan-modal-close" type="button" data-close-plan aria-label="Close">×</button>
+        <span class="hiring-plan-kicker">SQL HIRING PLAN</span>
+        <h2 id="planModalTitle">Add planned position</h2>
+        <p>Job, position, and seniority values come only from SQL taxonomy.</p>
+        <form id="hiringPlanForm" method="post" action="@Url.Action("CreateHiringPlan", "EmployerCompany")">
+            @Html.AntiForgeryToken()
+            <div class="plan-form-grid">
+                <label>Department (Job)<select name="JobFamilyId" id="planJobFamily" required><option value="">Select SQL Job</option></select></label>
+                <label>Position Title<select name="PositionId" id="planPosition" required disabled><option value="">Select SQL Position</option></select></label>
+                <label>Seniority<select name="SeniorityId" id="planSeniority" required disabled><option value="">Select SQL Seniority</option></select></label>
+                <label>Headcount<input name="Headcount" id="planHeadcount" type="number" min="1" max="1000" value="1" required /></label>
+                <label>Priority<select name="Priority" id="planPriority"><option>Critical</option><option>High</option><option selected>Medium</option><option>Low</option></select></label>
+                <label>Target Start Date<input name="TargetStartDate" id="planTargetDate" type="date" /></label>
+                <label>Employment Type<select name="EmploymentType" id="planEmploymentType"><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Temporary</option><option>Internship</option></select></label>
+                <label class="full">Notes<textarea name="Notes" id="planNotes" maxlength="1000" rows="3" placeholder="Optional context for this hiring need"></textarea></label>
+            </div>
+            <div class="plan-modal-actions"><button type="button" class="secondary" data-close-plan>Cancel</button><button type="submit" id="saveHiringPlanButton">Save plan</button></div>
+        </form>
+    </section>
+</div>
+
+<script id="hiringPlanTaxonomy" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.JobFamilies, jsonOptions))</script>
+<script id="hiringPlanRows" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Plans, jsonOptions))</script>
+<script src="~/js/company-hiring-plan.js" asp-append-version="true"></script>
+</body>
+</html>

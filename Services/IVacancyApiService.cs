@@ -28,6 +28,11 @@ public interface IVacancyApiService
         int vacancyId,
         CancellationToken cancellationToken = default);
 
+    Task<ToggleEmployerVacancyStatusApiResult> CloseEmployerStatusAsync(
+        int employerUserId,
+        int vacancyId,
+        CancellationToken cancellationToken = default);
+
     Task<ApplyToVacancyApiResult> ApplyAsync(
         int vacancyId,
         int candidateUserId,

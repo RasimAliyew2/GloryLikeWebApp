@@ -17,15 +17,18 @@ public sealed class EmployerVacanciesController : Controller
 
     private readonly ISkillAndJobApiService _skillAndJobApiService;
     private readonly IVacancyApiService _vacancyApiService;
+    private readonly ICompanyHiringPlanApiService _companyHiringPlanApiService;
     private readonly ILogger<EmployerVacanciesController> _logger;
 
     public EmployerVacanciesController(
         ISkillAndJobApiService skillAndJobApiService,
         IVacancyApiService vacancyApiService,
+        ICompanyHiringPlanApiService companyHiringPlanApiService,
         ILogger<EmployerVacanciesController> logger)
     {
         _skillAndJobApiService = skillAndJobApiService;
         _vacancyApiService = vacancyApiService;
+        _companyHiringPlanApiService = companyHiringPlanApiService;
         _logger = logger;
     }
 
@@ -177,25 +180,97 @@ public sealed class EmployerVacanciesController : Controller
         });
     }
 
-    [HttpGet("/Employer/Vacancies/Create")]
-    public async Task<IActionResult> CreateVacancy(
+    [HttpPost("/Employer/Vacancies/{vacancyId:int}/Close")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CloseStatus(
+        int vacancyId,
         CancellationToken cancellationToken)
     {
-        var model = await BuildPageModelAsync(
-            new CreateVacancyInput
-            {
-                PlatformVacancyId = GenerateVacancyId(),
-                ContactEmail =
-                    User.FindFirstValue(ClaimTypes.Email)
-                    ?? string.Empty,
-                PublishDate = DateTime.Today,
-                ScreeningQuestions = new List<VacancyScreeningQuestionInput>
-                {
-                    new()
-                },
-                FunnelStages = CreateDefaultFunnelStages()
-            },
+        if (!TryGetEmployerUserId(out var employerUserId))
+            return Unauthorized(new { success = false, message = "Employer sign in is required." });
+
+        var result = await _vacancyApiService.CloseEmployerStatusAsync(
+            employerUserId,
+            vacancyId,
             cancellationToken);
+
+        if (!result.Success || result.Data is null)
+            return BadRequest(new { success = false, message = result.Message });
+
+        return Ok(new
+        {
+            success = true,
+            message = result.Data.Message,
+            status = result.Data.Status,
+            statusLabel = "Closed",
+            statusClass = "closed"
+        });
+    }
+
+    [HttpGet("/Employer/Vacancies/Create")]
+    public async Task<IActionResult> CreateVacancy(
+        int? hiringPlanId,
+        CancellationToken cancellationToken)
+    {
+        var input = new CreateVacancyInput
+        {
+            PlatformVacancyId = GenerateVacancyId(),
+            ContactEmail = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+            PublishDate = DateTime.Today,
+            ScreeningQuestions = new List<VacancyScreeningQuestionInput> { new() },
+            FunnelStages = CreateDefaultFunnelStages()
+        };
+
+        string? planError = null;
+        if (hiringPlanId is > 0)
+        {
+            if (!TryGetEmployerUserId(out var employerUserId))
+                return Challenge();
+
+            var planResult = await _companyHiringPlanApiService.GetByIdAsync(
+                employerUserId,
+                hiringPlanId.Value,
+                cancellationToken);
+            var plan = planResult.Data?.Plan;
+
+            if (!planResult.Success || plan is null)
+            {
+                planError = string.IsNullOrWhiteSpace(planResult.Message)
+                    ? "Hiring plan row could not be loaded."
+                    : planResult.Message;
+            }
+            else if (!plan.CanCreateVacancy)
+            {
+                planError = "The planned headcount already has all required vacancies.";
+            }
+            else
+            {
+                input.HiringPlanId = plan.Id;
+                input.JobFamilyId = plan.JobFamilyId;
+                input.PositionId = plan.PositionId;
+                input.SeniorityId = plan.SeniorityId;
+                input.RoleTitle = plan.PositionName;
+                input.EmploymentType = plan.EmploymentType;
+                input.ClientRequisitionCode = $"HP-{plan.Id}";
+                input.PublishDate = plan.TargetStartDate?.Date >= DateTime.Today
+                    ? plan.TargetStartDate.Value.Date
+                    : DateTime.Today;
+                input.PublicationPriority = plan.Priority switch
+                {
+                    "Critical" => 10,
+                    "High" => 8,
+                    "Low" => 3,
+                    _ => 5
+                };
+            }
+        }
+
+        var model = await BuildPageModelAsync(
+            input,
+            cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(planError))
+            model.SubmissionErrorMessage = planError;
 
         model.SuccessMessage =
             TempData["VacancySuccessMessage"]
