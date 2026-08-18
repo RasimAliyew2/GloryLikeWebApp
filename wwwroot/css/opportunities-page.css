@@ -700,6 +700,18 @@
     background: #fff5f6;
 }
 
+.opportunity-state.success {
+    margin: 0 0 18px;
+    border-style: solid;
+    border-color: #bce8d4;
+    background: #f1fcf7;
+}
+
+.opportunity-state.success .state-icon {
+    color: #16885d;
+    background: #dff7eb;
+}
+
 .state-icon {
     width: 42px;
     height: 42px;

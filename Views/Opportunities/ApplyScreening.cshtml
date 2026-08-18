@@ -1,0 +1,160 @@
+@model GloryLikeWebApp.Models.ScreeningApplicationPageViewModel
+@{
+    Layout = null;
+    var vacancy = Model.Vacancy;
+    ViewData["Title"] = vacancy is null
+        ? "Screening application"
+        : $"Apply — {vacancy.RoleTitle}";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link rel="stylesheet" href="~/css/screening-application.css" asp-append-version="true" />
+</head>
+<body>
+    <main class="screening-application-shell">
+        <header class="screening-topbar">
+            <a asp-controller="Opportunities" asp-action="OpportunitiesPage" class="screening-brand">
+                <span>ϟ</span> SkillMatch
+            </a>
+            <div class="screening-account">
+                <span>@Model.Initials</span>
+                <strong>@Model.DisplayName</strong>
+            </div>
+        </header>
+
+        @if (vacancy is null)
+        {
+            <section class="screening-error-card">
+                <span>!</span>
+                <h1>Application could not be opened</h1>
+                <p>@Model.ErrorMessage</p>
+                <a asp-controller="Opportunities" asp-action="OpportunitiesPage">← Back to jobs</a>
+            </section>
+        }
+        else
+        {
+            <section class="screening-hero">
+                <a asp-controller="Opportunities" asp-action="OpportunitiesPage">← Back to opportunities</a>
+                <span class="screening-eyebrow">VACANCY SCREENING</span>
+                <h1>@vacancy.RoleTitle</h1>
+                <p>@vacancy.EmployerName · @vacancy.JobFamilyName · @vacancy.SeniorityName</p>
+                <div class="screening-progress">
+                    <strong>@vacancy.ScreeningQuestions.Count</strong>
+                    <span>questions · Answer all questions before submitting</span>
+                </div>
+            </section>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="screening-form-error" role="alert">
+                    <strong>Application was not submitted</strong>
+                    <span>@Model.ErrorMessage</span>
+                </div>
+            }
+
+            <form
+                class="screening-quiz-form"
+                id="screeningApplicationForm"
+                method="post"
+                action="/Opportunities/@vacancy.VacancyId/Apply">
+                @Html.AntiForgeryToken()
+
+                @if (vacancy.ScreeningQuestions.Count == 0)
+                {
+                    <article class="screening-question-card empty">
+                        <span>✓</span>
+                        <h2>No screening questions</h2>
+                        <p>This employer did not add screening questions. You can submit your application now.</p>
+                    </article>
+                }
+                else
+                {
+                    @for (var index = 0; index < vacancy.ScreeningQuestions.Count; index++)
+                    {
+                        var question = vacancy.ScreeningQuestions[index];
+                        var saved = Model.Input.Answers.FirstOrDefault(answer => answer.QuestionId == question.QuestionId);
+                        <article class="screening-question-card" data-screening-question data-answer-type="@question.AnswerType">
+                            <input type="hidden" name="Answers[@index].QuestionId" value="@question.QuestionId" />
+                            <header>
+                                <span class="screening-question-number">@(index + 1)</span>
+                                <div>
+                                    <small>@(question.RequirementType == "KnockOut" ? "KNOCKOUT QUESTION" : "REQUIRED QUESTION")</small>
+                                    <h2>@question.QuestionText</h2>
+                                </div>
+                            </header>
+
+                            <div class="screening-answer-area">
+                                @switch (question.AnswerType)
+                                {
+                                    case "TrueFalse":
+                                        <div class="screening-choice-grid two">
+                                            @foreach (var option in new[] { (Value: "true", Label: "Yes"), (Value: "false", Label: "No") })
+                                            {
+                                                <label class="screening-choice-option">
+                                                    <input type="radio" name="Answers[@index].AnswerText" value="@option.Value" required checked="@(saved?.AnswerText == option.Value ? "checked" : null)" />
+                                                    <span>@option.Label</span>
+                                                </label>
+                                            }
+                                        </div>
+                                        break;
+                                    case "OneChoice":
+                                        <div class="screening-choice-grid">
+                                            @foreach (var choice in question.Choices.OrderBy(choice => choice.SortOrder))
+                                            {
+                                                <label class="screening-choice-option">
+                                                    <input type="radio" name="Answers[@index].SelectedChoiceIds" value="@choice.ChoiceId" required checked="@(saved?.SelectedChoiceIds.Contains(choice.ChoiceId) == true ? "checked" : null)" />
+                                                    <span>@choice.ChoiceText</span>
+                                                </label>
+                                            }
+                                        </div>
+                                        break;
+                                    case "MultipleChoice":
+                                        <p class="screening-answer-hint">Select all answers that apply.</p>
+                                        <div class="screening-choice-grid" data-multiple-choice>
+                                            @foreach (var choice in question.Choices.OrderBy(choice => choice.SortOrder))
+                                            {
+                                                <label class="screening-choice-option multiple">
+                                                    <input type="checkbox" name="Answers[@index].SelectedChoiceIds" value="@choice.ChoiceId" checked="@(saved?.SelectedChoiceIds.Contains(choice.ChoiceId) == true ? "checked" : null)" />
+                                                    <span>@choice.ChoiceText</span>
+                                                </label>
+                                            }
+                                        </div>
+                                        break;
+                                    case "Number":
+                                        <input class="screening-text-answer" type="number" step="any" name="Answers[@index].AnswerText" value="@saved?.AnswerText" placeholder="Enter a number" required />
+                                        break;
+                                    case "Date":
+                                        <input class="screening-text-answer" type="date" name="Answers[@index].AnswerText" value="@saved?.AnswerText" required />
+                                        break;
+                                    case "ShortAnswer":
+                                        <input class="screening-text-answer" type="text" maxlength="4000" name="Answers[@index].AnswerText" value="@saved?.AnswerText" placeholder="Type your answer" required />
+                                        break;
+                                    default:
+                                        <textarea class="screening-text-answer" maxlength="4000" name="Answers[@index].AnswerText" placeholder="Type your answer" required>@saved?.AnswerText</textarea>
+                                        break;
+                                }
+                            </div>
+                        </article>
+                    }
+                }
+
+                <footer class="screening-submit-bar">
+                    <div>
+                        <strong>Ready to submit?</strong>
+                        <span>Your answers will be shared with the employer.</span>
+                    </div>
+                    <button type="submit" id="screeningSubmitButton">
+                        Submit application <span>→</span>
+                    </button>
+                </footer>
+            </form>
+        }
+    </main>
+
+    <script src="~/js/screening-application.js" asp-append-version="true"></script>
+</body>
+</html>

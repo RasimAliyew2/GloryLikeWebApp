@@ -14,6 +14,7 @@ public sealed class OpportunitiesPageViewModel
     public List<OpportunityItem> Opportunities { get; set; } = new();
 
     public string? ErrorMessage { get; set; }
+    public string? SuccessMessage { get; set; }
 
     public string EmptyMessage { get; set; } =
         "Your current Job üçün SQL-də uyğun aktiv Vacancy tapılmadı.";

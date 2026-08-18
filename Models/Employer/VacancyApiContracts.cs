@@ -88,8 +88,12 @@ public sealed class EmployerVacancyDetailApiItem
     public int ApplicantCount { get; set; }
     public int AverageMatchScore { get; set; }
     public int HighConfidenceCount { get; set; }
+    public int FailedApplicantCount { get; set; }
+    public int TotalApplicationCount { get; set; }
     public EmployerVacancyApplicantApiItem? BestMatch { get; set; }
     public List<EmployerVacancyApplicantApiItem> Applicants { get; set; } = new();
+    public List<EmployerVacancyApplicantApiItem> FailedApplicants { get; set; } =
+        new();
     public List<EmployerVacancySkillApiItem> Skills { get; set; } = new();
     public List<EmployerVacancyFunnelStageApiItem> FunnelStages { get; set; } = new();
 }
@@ -105,6 +109,18 @@ public sealed class EmployerVacancyApplicantApiItem
     public DateTime AppliedAtUtc { get; set; }
     public List<string> MatchedSkills { get; set; } = new();
     public List<string> MissingSkills { get; set; } = new();
+    public List<EmployerScreeningAnswerApiItem> ScreeningAnswers { get; set; } =
+        new();
+}
+
+public sealed class EmployerScreeningAnswerApiItem
+{
+    public int QuestionId { get; set; }
+    public string QuestionText { get; set; } = string.Empty;
+    public string AnswerType { get; set; } = string.Empty;
+    public string RequirementType { get; set; } = string.Empty;
+    public string Answer { get; set; } = string.Empty;
+    public bool? IsCorrect { get; set; }
 }
 
 public sealed class EmployerVacancySkillApiItem

@@ -52,9 +52,13 @@ public sealed class OpportunityItem
                     ? "medium"
                     : "low";
 
-    public string ApplicationStatusText => IsApplied
-        ? "No response yet"
-        : string.Empty;
+    public string ApplicationStatusText => !IsApplied
+        ? string.Empty
+        : ApplicationStatus.Equals("ScreeningFailed", StringComparison.OrdinalIgnoreCase)
+            ? "Application submitted"
+            : ApplicationStatus.Equals("ScreeningPassed", StringComparison.OrdinalIgnoreCase)
+                ? "Screening submitted"
+                : "No response yet";
 
     public string SearchText =>
         string.Join(

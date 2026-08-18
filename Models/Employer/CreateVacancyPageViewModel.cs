@@ -300,7 +300,7 @@ public sealed class VacancyScreeningQuestionInput
 
     [Required]
     [RegularExpression(
-        "^(Text|TrueFalse|OneChoice|ShortAnswer|Number|Date)$",
+        "^(Text|TrueFalse|OneChoice|MultipleChoice|ShortAnswer|Number|Date)$",
         ErrorMessage = "Screening cavab üsulu düzgün deyil.")]
     public string AnswerType { get; set; } = "Text";
 
@@ -309,6 +309,17 @@ public sealed class VacancyScreeningQuestionInput
         "^(Required|KnockOut)$",
         ErrorMessage = "Screening sualı Required və ya KnockOut olmalıdır.")]
     public string RequirementType { get; set; } = "Required";
+
+    public List<VacancyScreeningChoiceInput> Choices { get; set; } = new();
+}
+
+public sealed class VacancyScreeningChoiceInput
+{
+    [Required(ErrorMessage = "Choice mətni boş ola bilməz.")]
+    [StringLength(300)]
+    public string ChoiceText { get; set; } = string.Empty;
+
+    public bool IsCorrect { get; set; }
 }
 
 public sealed class VacancyFunnelStageInput

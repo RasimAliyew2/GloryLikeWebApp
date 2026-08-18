@@ -36,6 +36,7 @@
         { value: "Text", label: "Text" },
         { value: "TrueFalse", label: "True/False" },
         { value: "OneChoice", label: "One Choice" },
+        { value: "MultipleChoice", label: "Multiple Choice" },
         { value: "ShortAnswer", label: "Short Answer" },
         { value: "Number", label: "Number" },
         { value: "Date", label: "Date" }
@@ -63,6 +64,10 @@
             ?? question?.RequirementType
             ?? "Required").trim();
 
+        const rawChoices = question?.choices
+            ?? question?.Choices
+            ?? [];
+
         return {
             questionText: String(
                 question?.questionText
@@ -73,7 +78,18 @@
                 normalize(requestedRequirement)
                     === normalize("KnockOut")
                     ? "KnockOut"
-                    : "Required"
+                    : "Required",
+            choices: Array.isArray(rawChoices)
+                ? rawChoices.map(choice => ({
+                    choiceText: String(
+                        choice?.choiceText
+                        ?? choice?.ChoiceText
+                        ?? ""),
+                    isCorrect: Boolean(
+                        choice?.isCorrect
+                        ?? choice?.IsCorrect)
+                }))
+                : []
         };
     };
 
@@ -118,6 +134,97 @@
 
         label.append(input, indicator, text);
         return label;
+    };
+
+    const usesChoices = question =>
+        question.answerType === "OneChoice"
+        || question.answerType === "MultipleChoice";
+
+    const createChoiceEditor = (question, questionIndex) => {
+        const editor = document.createElement("div");
+        editor.className = "screening-choice-editor";
+
+        const heading = document.createElement("div");
+        heading.className = "screening-choice-heading";
+        heading.innerHTML = "<span>Answer choices</span><small>Mark the correct answer(s)</small>";
+
+        const list = document.createElement("div");
+        list.className = "screening-choice-list";
+
+        question.choices.forEach((choice, choiceIndex) => {
+            const row = document.createElement("div");
+            row.className = "screening-choice-row";
+
+            const correct = document.createElement("input");
+            correct.type = question.answerType === "OneChoice"
+                ? "radio"
+                : "checkbox";
+            correct.name = `screening-correct-${questionIndex}`;
+            correct.checked = choice.isCorrect;
+            correct.title = "Correct answer";
+            correct.setAttribute("aria-label", `Mark choice ${choiceIndex + 1} as correct`);
+            correct.addEventListener("change", () => {
+                if (question.answerType === "OneChoice") {
+                    question.choices.forEach(item => {
+                        item.isCorrect = false;
+                    });
+                }
+
+                choice.isCorrect = correct.checked;
+                renderQuestions();
+            });
+
+            const textInput = document.createElement("input");
+            textInput.type = "text";
+            textInput.name =
+                `Input.ScreeningQuestions[${questionIndex}].Choices[${choiceIndex}].ChoiceText`;
+            textInput.value = choice.choiceText;
+            textInput.maxLength = 300;
+            textInput.placeholder = `Choice ${choiceIndex + 1}`;
+            textInput.addEventListener("input", () => {
+                choice.choiceText = textInput.value;
+            });
+
+            const correctValue = document.createElement("input");
+            correctValue.type = "hidden";
+            correctValue.name =
+                `Input.ScreeningQuestions[${questionIndex}].Choices[${choiceIndex}].IsCorrect`;
+            correctValue.value = String(choice.isCorrect);
+
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "screening-choice-delete";
+            remove.textContent = "×";
+            remove.setAttribute("aria-label", `Delete choice ${choiceIndex + 1}`);
+            remove.addEventListener("click", () => {
+                question.choices.splice(choiceIndex, 1);
+                renderQuestions();
+            });
+
+            row.append(correct, textInput, correctValue, remove);
+            list.appendChild(row);
+        });
+
+        const addChoice = document.createElement("button");
+        addChoice.type = "button";
+        addChoice.className = "screening-add-choice";
+        addChoice.textContent = "+ Add choice";
+        addChoice.addEventListener("click", () => {
+            question.choices.push({
+                choiceText: "",
+                isCorrect: false
+            });
+            renderQuestions();
+
+            window.setTimeout(() => {
+                const inputs = questionList.querySelectorAll(
+                    `[data-question-index="${questionIndex}"] .screening-choice-row input[type="text"]`);
+                inputs[inputs.length - 1]?.focus();
+            }, 0);
+        });
+
+        editor.append(heading, list, addChoice);
+        return editor;
     };
 
     const createQuestionCard = (
@@ -199,6 +306,30 @@
 
         answerSelect.addEventListener("change", () => {
             question.answerType = answerSelect.value;
+
+            if (usesChoices(question) && question.choices.length < 2) {
+                question.choices = [
+                    { choiceText: "", isCorrect: true },
+                    { choiceText: "", isCorrect: false }
+                ];
+            }
+
+            if (!usesChoices(question)) {
+                question.choices = [];
+            }
+
+            if (question.answerType === "OneChoice") {
+                let foundCorrect = false;
+                question.choices.forEach(choice => {
+                    if (choice.isCorrect && !foundCorrect) {
+                        foundCorrect = true;
+                    } else {
+                        choice.isCorrect = false;
+                    }
+                });
+            }
+
+            renderQuestions();
         });
 
         answerControl.append(
@@ -236,6 +367,11 @@
             ruleControl);
 
         card.append(header, settings);
+
+        if (usesChoices(question)) {
+            card.appendChild(createChoiceEditor(question, index));
+        }
+
         return card;
     };
 
@@ -300,7 +436,8 @@
         questions.push({
             questionText: "",
             answerType: "Text",
-            requirementType: "Required"
+            requirementType: "Required",
+            choices: []
         });
 
         renderQuestions(newIndex);
@@ -311,12 +448,30 @@
             question =>
                 !String(question.questionText).trim());
 
-        if (invalidIndex < 0)
+        let message = "";
+        let targetIndex = invalidIndex;
+
+        if (invalidIndex >= 0) {
+            message = "Screening sualının mətni boş ola bilməz. Sualı doldurun və ya silin.";
+        } else {
+            targetIndex = questions.findIndex(question =>
+                usesChoices(question)
+                && (question.choices.length < 2
+                    || question.choices.some(choice =>
+                        !String(choice.choiceText).trim())
+                    || !question.choices.some(choice => choice.isCorrect)
+                    || (question.answerType === "OneChoice"
+                        && question.choices.filter(choice => choice.isCorrect).length !== 1)));
+
+            if (targetIndex >= 0) {
+                message = "Choice tipli sualda ən azı 2 dolu seçim və düzgün cavab qeyd edilməlidir.";
+            }
+        }
+
+        if (targetIndex < 0)
             return true;
 
-        window.alert(
-            "Screening sualının mətni boş ola bilməz. "
-            + "Sualı doldurun və ya silin.");
+        window.alert(message);
 
         document
             .querySelector(
@@ -326,8 +481,10 @@
         window.setTimeout(() => {
             questionList
                 .querySelector(
-                    `[data-question-index="${invalidIndex}"] `
-                    + ".screening-question-text")
+                    `[data-question-index="${targetIndex}"] `
+                    + (invalidIndex >= 0
+                        ? ".screening-question-text"
+                        : ".screening-choice-row input[type='text']"))
                 ?.focus();
         }, 0);
 

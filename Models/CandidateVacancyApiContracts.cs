@@ -33,6 +33,8 @@ public sealed class CandidateVacancyApiItem
     public DateTime CreatedAtUtc { get; set; }
     public int MatchScore { get; set; }
     public List<CandidateVacancySkillApiItem> Skills { get; set; } = new();
+    public List<CandidateScreeningQuestionApiItem> ScreeningQuestions { get; set; } =
+        new();
     public bool HasApplied { get; set; }
     public int? ApplicationId { get; set; }
     public string ApplicationStatus { get; set; } = string.Empty;
@@ -51,6 +53,31 @@ public sealed class CandidateVacancySkillApiItem
 public sealed class ApplyToVacancyApiRequest
 {
     public int CandidateUserId { get; set; }
+    public List<CandidateScreeningAnswerApiInput> Answers { get; set; } = new();
+}
+
+public sealed class CandidateScreeningQuestionApiItem
+{
+    public int QuestionId { get; set; }
+    public string QuestionText { get; set; } = string.Empty;
+    public string AnswerType { get; set; } = string.Empty;
+    public string RequirementType { get; set; } = string.Empty;
+    public int SortOrder { get; set; }
+    public List<CandidateScreeningChoiceApiItem> Choices { get; set; } = new();
+}
+
+public sealed class CandidateScreeningChoiceApiItem
+{
+    public int ChoiceId { get; set; }
+    public string ChoiceText { get; set; } = string.Empty;
+    public int SortOrder { get; set; }
+}
+
+public sealed class CandidateScreeningAnswerApiInput
+{
+    public int QuestionId { get; set; }
+    public string AnswerText { get; set; } = string.Empty;
+    public List<int> SelectedChoiceIds { get; set; } = new();
 }
 
 public sealed class ApplyToVacancyApiResponse

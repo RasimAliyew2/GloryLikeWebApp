@@ -31,6 +31,7 @@ public interface IVacancyApiService
     Task<ApplyToVacancyApiResult> ApplyAsync(
         int vacancyId,
         int candidateUserId,
+        IReadOnlyCollection<CandidateScreeningAnswerApiInput> answers,
         CancellationToken cancellationToken = default);
 
     Task<CreateVacancyApiResult> CreateAsync(

@@ -2,16 +2,6 @@
 @{
     Layout = null;
     ViewData["Title"] = "Verify email";
-    var expiresAt =
-        Model.ExpiresAtUtc?
-            .ToUniversalTime()
-            .ToString("O")
-        ?? string.Empty;
-    var resendAt =
-        Model.ResendAvailableAtUtc?
-            .ToUniversalTime()
-            .ToString("O")
-        ?? string.Empty;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -30,8 +20,8 @@
     <main
         class="verification-page"
         id="verificationPage"
-        data-expires-at="@expiresAt"
-        data-resend-at="@resendAt">
+        data-expires-in-seconds="@Math.Clamp(Model.ExpiresInSeconds, 0, 60)"
+        data-resend-in-seconds="@Math.Clamp(Model.ResendInSeconds, 0, 60)">
         <section
             class="verification-card"
             aria-labelledby="verificationTitle">

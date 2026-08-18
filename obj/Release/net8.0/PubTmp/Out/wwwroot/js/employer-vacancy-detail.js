@@ -12,6 +12,8 @@
     const statusIcon = document.getElementById("vacancyStatusToggleIcon");
     const statusMessage = document.getElementById("vacancyStatusMessage");
     const settingsStatus = document.getElementById("settingsStatusText");
+    const answerDialog = document.getElementById("candidateAnswerDialog");
+    const answerDialogContent = document.getElementById("candidateAnswerDialogContent");
 
     const selectTab = (name) => {
         tabButtons.forEach((button) => {
@@ -31,6 +33,41 @@
         button.addEventListener("click", () => {
             selectTab(button.dataset.detailTab ?? "analytics");
         });
+    });
+
+    const openCandidateAnswers = applicationId => {
+        if (!answerDialog || !answerDialogContent)
+            return;
+
+        const template = document.querySelector(
+            `[data-candidate-answer-template="${applicationId}"]`);
+
+        if (!(template instanceof HTMLTemplateElement))
+            return;
+
+        answerDialogContent.replaceChildren(
+            template.content.cloneNode(true));
+        answerDialog.showModal();
+    };
+
+    document.querySelectorAll("[data-candidate-details]").forEach(row => {
+        row.addEventListener("click", () => {
+            openCandidateAnswers(row.dataset.candidateDetails ?? "");
+        });
+        row.addEventListener("keydown", event => {
+            if (event.key !== "Enter" && event.key !== " ")
+                return;
+
+            event.preventDefault();
+            openCandidateAnswers(row.dataset.candidateDetails ?? "");
+        });
+    });
+
+    document.querySelector("[data-candidate-answer-close]")
+        ?.addEventListener("click", () => answerDialog?.close());
+    answerDialog?.addEventListener("click", event => {
+        if (event.target === answerDialog)
+            answerDialog.close();
     });
 
     const showStatusMessage = (message, isError) => {

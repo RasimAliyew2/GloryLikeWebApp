@@ -30,18 +30,17 @@
         return;
     }
 
-    const parseUtc = (value) => {
-        const milliseconds = Date.parse(value || "");
-
-        return Number.isFinite(milliseconds)
-            ? milliseconds
+    const readSeconds = value => {
+        const seconds = Number(value);
+        return Number.isFinite(seconds)
+            ? Math.max(0, Math.min(60, Math.ceil(seconds)))
             : 0;
     };
-
-    const expiresAt =
-        parseUtc(page.dataset.expiresAt);
-    const resendAt =
-        parseUtc(page.dataset.resendAt);
+    const startedAt = Date.now();
+    const expiresAt = startedAt
+        + readSeconds(page.dataset.expiresInSeconds) * 1000;
+    const resendAt = startedAt
+        + readSeconds(page.dataset.resendInSeconds) * 1000;
 
     const formatSeconds = (seconds) => {
         const minutes =
@@ -56,17 +55,13 @@
     const updateTimer = () => {
         const now = Date.now();
         const secondsRemaining =
-            expiresAt > 0
-                ? Math.max(
-                    0,
-                    Math.ceil((expiresAt - now) / 1000))
-                : 0;
+            Math.max(
+                0,
+                Math.ceil((expiresAt - now) / 1000));
         const canResend =
-            resendAt === 0
-            || now >= resendAt;
+            now >= resendAt;
         const expired =
-            expiresAt === 0
-            || secondsRemaining === 0;
+            secondsRemaining === 0;
 
         timer.textContent =
             expired

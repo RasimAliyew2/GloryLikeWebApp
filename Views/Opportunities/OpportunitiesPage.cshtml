@@ -160,6 +160,17 @@
             </header>
 
             <section class="opportunities-content">
+                @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+                {
+                    <section class="opportunity-state success" role="status">
+                        <span class="state-icon">✓</span>
+                        <div>
+                            <strong>Application submitted</strong>
+                            <p>@Model.SuccessMessage</p>
+                        </div>
+                    </section>
+                }
+
                 <section class="opportunities-hero">
                     <div>
                         <span class="opportunities-eyebrow">

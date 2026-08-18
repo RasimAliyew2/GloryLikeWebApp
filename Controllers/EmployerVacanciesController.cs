@@ -672,6 +672,18 @@ public sealed class EmployerVacanciesController : Controller
             question.RequirementType =
                 question.RequirementType?.Trim()
                 ?? string.Empty;
+            question.Choices ??= new List<VacancyScreeningChoiceInput>();
+            question.Choices = question.Choices
+                .Where(choice => choice is not null)
+                .Select(choice => new VacancyScreeningChoiceInput
+                {
+                    ChoiceText = choice.ChoiceText?.Trim() ?? string.Empty,
+                    IsCorrect = choice.IsCorrect
+                })
+                .ToList();
+
+            if (question.AnswerType is not ("OneChoice" or "MultipleChoice"))
+                question.Choices.Clear();
         }
     }
 
@@ -679,14 +691,51 @@ public sealed class EmployerVacanciesController : Controller
         CreateVacancyInput input)
     {
         if (input.ScreeningQuestions.Count
-            <= MaximumScreeningQuestionCount)
+            > MaximumScreeningQuestionCount)
         {
-            return;
+            ModelState.AddModelError(
+                "Input.ScreeningQuestions",
+                $"Maksimum {MaximumScreeningQuestionCount} screening sualı əlavə edilə bilər.");
         }
 
-        ModelState.AddModelError(
-            "Input.ScreeningQuestions",
-            $"Maksimum {MaximumScreeningQuestionCount} screening sualı əlavə edilə bilər.");
+        for (var index = 0; index < input.ScreeningQuestions.Count; index++)
+        {
+            var question = input.ScreeningQuestions[index];
+
+            if (question.AnswerType is not ("OneChoice" or "MultipleChoice"))
+                continue;
+
+            if (question.Choices.Count < 2)
+            {
+                ModelState.AddModelError(
+                    $"Input.ScreeningQuestions[{index}].Choices",
+                    "Choice tipli sualda ən azı 2 seçim olmalıdır.");
+            }
+
+            if (question.Choices.Any(choice =>
+                string.IsNullOrWhiteSpace(choice.ChoiceText)))
+            {
+                ModelState.AddModelError(
+                    $"Input.ScreeningQuestions[{index}].Choices",
+                    "Choice mətni boş ola bilməz.");
+            }
+
+            var correctCount = question.Choices.Count(choice => choice.IsCorrect);
+
+            if (question.AnswerType == "OneChoice" && correctCount != 1)
+            {
+                ModelState.AddModelError(
+                    $"Input.ScreeningQuestions[{index}].Choices",
+                    "One Choice sualında yalnız bir düzgün seçim olmalıdır.");
+            }
+
+            if (question.AnswerType == "MultipleChoice" && correctCount == 0)
+            {
+                ModelState.AddModelError(
+                    $"Input.ScreeningQuestions[{index}].Choices",
+                    "Multiple Choice sualında ən azı bir düzgün seçim olmalıdır.");
+            }
+        }
     }
 
     private static void NormalizeFunnelStages(
@@ -867,24 +916,12 @@ public sealed class EmployerVacanciesController : Controller
         var applicants = source.Applicants
             .OrderByDescending(applicant => applicant.MatchScore)
             .ThenBy(applicant => applicant.AppliedAtUtc)
-            .Select(applicant => new EmployerVacancyApplicantViewModel
-            {
-                ApplicationId = applicant.ApplicationId,
-                CandidateUserId = applicant.CandidateUserId,
-                CandidateName = applicant.CandidateName,
-                CurrentRole = applicant.CurrentRole,
-                MatchScore = Math.Clamp(applicant.MatchScore, 0, 100),
-                ApplicationStatus = applicant.ApplicationStatus,
-                AppliedAtUtc = applicant.AppliedAtUtc,
-                MatchedSkills = applicant.MatchedSkills
-                    .Where(skill => !string.IsNullOrWhiteSpace(skill))
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToList(),
-                MissingSkills = applicant.MissingSkills
-                    .Where(skill => !string.IsNullOrWhiteSpace(skill))
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToList()
-            })
+            .Select(MapApplicant)
+            .ToList();
+        var failedApplicants = source.FailedApplicants
+            .OrderByDescending(applicant => applicant.MatchScore)
+            .ThenBy(applicant => applicant.AppliedAtUtc)
+            .Select(MapApplicant)
             .ToList();
 
         return new EmployerVacancyDetailViewModel
@@ -911,7 +948,10 @@ public sealed class EmployerVacanciesController : Controller
             HighConfidenceCount = Math.Max(
                 source.HighConfidenceCount,
                 0),
+            FailedApplicantCount = failedApplicants.Count,
+            TotalApplicationCount = applicants.Count + failedApplicants.Count,
             Applicants = applicants,
+            FailedApplicants = failedApplicants,
             Skills = source.Skills
                 .Select(skill => new EmployerVacancySkillViewModel
                 {
@@ -929,6 +969,40 @@ public sealed class EmployerVacanciesController : Controller
                     Hours = Math.Max(stage.Hours, 0),
                     IsStandard = stage.IsStandard,
                     SortOrder = stage.SortOrder
+                })
+                .ToList()
+        };
+    }
+
+    private static EmployerVacancyApplicantViewModel MapApplicant(
+        EmployerVacancyApplicantApiItem applicant)
+    {
+        return new EmployerVacancyApplicantViewModel
+        {
+            ApplicationId = applicant.ApplicationId,
+            CandidateUserId = applicant.CandidateUserId,
+            CandidateName = applicant.CandidateName,
+            CurrentRole = applicant.CurrentRole,
+            MatchScore = Math.Clamp(applicant.MatchScore, 0, 100),
+            ApplicationStatus = applicant.ApplicationStatus,
+            AppliedAtUtc = applicant.AppliedAtUtc,
+            MatchedSkills = applicant.MatchedSkills
+                .Where(skill => !string.IsNullOrWhiteSpace(skill))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList(),
+            MissingSkills = applicant.MissingSkills
+                .Where(skill => !string.IsNullOrWhiteSpace(skill))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList(),
+            ScreeningAnswers = applicant.ScreeningAnswers
+                .Select(answer => new EmployerScreeningAnswerViewModel
+                {
+                    QuestionId = answer.QuestionId,
+                    QuestionText = answer.QuestionText,
+                    AnswerType = answer.AnswerType,
+                    RequirementType = answer.RequirementType,
+                    Answer = answer.Answer,
+                    IsCorrect = answer.IsCorrect
                 })
                 .ToList()
         };

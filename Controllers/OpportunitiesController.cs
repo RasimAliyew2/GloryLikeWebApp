@@ -30,6 +30,7 @@ public sealed class OpportunitiesController : Controller
             return Challenge();
 
         var model = CreateBaseModel(candidateUserId, search);
+        model.SuccessMessage = TempData["ApplicationSuccessMessage"] as string;
 
         try
         {
@@ -84,41 +85,122 @@ public sealed class OpportunitiesController : Controller
         return View("OpportunitiesPage", model);
     }
 
-    [HttpPost("/Opportunities/{vacancyId:int}/Apply")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Apply(
+    [HttpGet("/Opportunities/{vacancyId:int}/Apply")]
+    public async Task<IActionResult> ApplyScreening(
         int vacancyId,
         CancellationToken cancellationToken)
     {
         if (!TryGetCandidateUserId(out var candidateUserId))
-            return Unauthorized(new { success = false, message = "Sign in tələb olunur." });
+            return Challenge();
+
+        var model = await BuildScreeningApplicationModelAsync(
+            candidateUserId,
+            vacancyId,
+            cancellationToken);
+
+        if (model.Vacancy?.HasApplied == true)
+        {
+            TempData["ApplicationSuccessMessage"] =
+                "Bu vakansiya üçün müraciətiniz artıq mövcuddur.";
+            return RedirectToAction(nameof(OpportunitiesPage));
+        }
+
+        return View("ApplyScreening", model);
+    }
+
+    [HttpPost("/Opportunities/{vacancyId:int}/Apply")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SubmitScreening(
+        int vacancyId,
+        ScreeningApplicationSubmissionModel input,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetCandidateUserId(out var candidateUserId))
+            return Challenge();
+
+        input.Answers ??= new List<ScreeningApplicationAnswerInput>();
 
         var result = await _vacancyApiService.ApplyAsync(
             vacancyId,
+            candidateUserId,
+            input.Answers.Select(answer => new CandidateScreeningAnswerApiInput
+            {
+                QuestionId = answer.QuestionId,
+                AnswerText = answer.AnswerText?.Trim() ?? string.Empty,
+                SelectedChoiceIds = answer.SelectedChoiceIds?
+                    .Where(id => id > 0)
+                    .Distinct()
+                    .ToList() ?? new List<int>()
+            }).ToList(),
+            cancellationToken);
+
+        if (!result.Success || result.Data is null)
+        {
+            var model = await BuildScreeningApplicationModelAsync(
+                candidateUserId,
+                vacancyId,
+                cancellationToken);
+            model.Input = input;
+            model.ErrorMessage = string.IsNullOrWhiteSpace(result.Message)
+                ? "Müraciət SQL-də saxlanmadı."
+                : result.Message;
+
+            return View("ApplyScreening", model);
+        }
+
+        TempData["ApplicationSuccessMessage"] =
+            result.Data.Status.Equals("ScreeningFailed", StringComparison.OrdinalIgnoreCase)
+                ? "Müraciət göndərildi və screening cavabları qeydə alındı."
+                : "Müraciət və screening cavabları uğurla göndərildi.";
+
+        return RedirectToAction(nameof(OpportunitiesPage));
+    }
+
+    private async Task<ScreeningApplicationPageViewModel>
+        BuildScreeningApplicationModelAsync(
+            int candidateUserId,
+            int vacancyId,
+            CancellationToken cancellationToken)
+    {
+        var identity = CreateBaseModel(candidateUserId, null);
+        var model = new ScreeningApplicationPageViewModel
+        {
+            CandidateUserId = candidateUserId,
+            DisplayName = identity.DisplayName
+        };
+        var result = await _vacancyApiService.GetCandidateVacanciesAsync(
             candidateUserId,
             cancellationToken);
 
         if (!result.Success || result.Data is null)
         {
-            return BadRequest(new
-            {
-                success = false,
-                message = string.IsNullOrWhiteSpace(result.Message)
-                    ? "Müraciət SQL-də saxlanmadı."
-                    : result.Message
-            });
+            model.ErrorMessage = string.IsNullOrWhiteSpace(result.Message)
+                ? "Vakansiya screening məlumatları yüklənmədi."
+                : result.Message;
+            return model;
         }
 
-        return Ok(new
+        model.Vacancy = result.Data.Vacancies.FirstOrDefault(
+            vacancy => vacancy.VacancyId == vacancyId);
+
+        if (model.Vacancy is null)
         {
-            success = true,
-            message = result.Data.Message,
-            applicationId = result.Data.ApplicationId,
-            status = result.Data.Status,
-            statusText = "No response yet",
-            appliedAtUtc = result.Data.AppliedAtUtc,
-            alreadyApplied = result.Data.AlreadyApplied
-        });
+            model.ErrorMessage =
+                "Vakansiya tapılmadı və ya artıq müraciət üçün aktiv deyil.";
+            return model;
+        }
+
+        model.Vacancy.ScreeningQuestions = model.Vacancy.ScreeningQuestions
+            .OrderBy(question => question.SortOrder)
+            .ToList();
+        model.Input.Answers = model.Vacancy.ScreeningQuestions
+            .Select(question => new ScreeningApplicationAnswerInput
+            {
+                QuestionId = question.QuestionId
+            })
+            .ToList();
+
+        return model;
     }
 
     private bool TryGetCandidateUserId(out int candidateUserId)

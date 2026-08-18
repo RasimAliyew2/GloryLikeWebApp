@@ -47,7 +47,11 @@ public sealed class EmployerVacancyDetailViewModel
     public int ApplicantCount { get; set; }
     public int AverageMatchScore { get; set; }
     public int HighConfidenceCount { get; set; }
+    public int FailedApplicantCount { get; set; }
+    public int TotalApplicationCount { get; set; }
     public List<EmployerVacancyApplicantViewModel> Applicants { get; set; } = new();
+    public List<EmployerVacancyApplicantViewModel> FailedApplicants { get; set; } =
+        new();
     public List<EmployerVacancySkillViewModel> Skills { get; set; } = new();
     public List<EmployerVacancyFunnelStageViewModel> FunnelStages { get; set; } = new();
 
@@ -125,6 +129,8 @@ public sealed class EmployerVacancyApplicantViewModel
     public DateTime AppliedAtUtc { get; set; }
     public List<string> MatchedSkills { get; set; } = new();
     public List<string> MissingSkills { get; set; } = new();
+    public List<EmployerScreeningAnswerViewModel> ScreeningAnswers { get; set; } =
+        new();
 
     public string Initials
     {
@@ -154,12 +160,44 @@ public sealed class EmployerVacancyApplicantViewModel
         "NoResponseYet",
         StringComparison.OrdinalIgnoreCase)
         ? "No response yet"
+        : ApplicationStatus.Equals(
+            "ScreeningPassed",
+            StringComparison.OrdinalIgnoreCase)
+            ? "Screening submitted"
+            : ApplicationStatus.Equals(
+                "ScreeningFailed",
+                StringComparison.OrdinalIgnoreCase)
+                ? "Screening rejected"
         : string.IsNullOrWhiteSpace(ApplicationStatus)
             ? "Applied"
             : ApplicationStatus;
 
     public string AppliedText =>
         $"Applied {AppliedAtUtc.ToLocalTime():dd.MM.yyyy HH:mm}";
+}
+
+public sealed class EmployerScreeningAnswerViewModel
+{
+    public int QuestionId { get; set; }
+    public string QuestionText { get; set; } = string.Empty;
+    public string AnswerType { get; set; } = string.Empty;
+    public string RequirementType { get; set; } = string.Empty;
+    public string Answer { get; set; } = string.Empty;
+    public bool? IsCorrect { get; set; }
+
+    public string ResultLabel => IsCorrect switch
+    {
+        true => "Correct",
+        false => "Incorrect",
+        _ => "Recorded"
+    };
+
+    public string ResultCssClass => IsCorrect switch
+    {
+        true => "correct",
+        false => "incorrect",
+        _ => "recorded"
+    };
 }
 
 public sealed class EmployerVacancySkillViewModel

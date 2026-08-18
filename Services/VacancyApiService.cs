@@ -83,7 +83,17 @@ public sealed class VacancyApiService : IVacancyApiService
             apiResponse.Vacancies ??= new List<CandidateVacancyApiItem>();
 
             foreach (var vacancy in apiResponse.Vacancies)
+            {
                 vacancy.Skills ??= new List<CandidateVacancySkillApiItem>();
+                vacancy.ScreeningQuestions ??=
+                    new List<CandidateScreeningQuestionApiItem>();
+
+                foreach (var question in vacancy.ScreeningQuestions)
+                {
+                    question.Choices ??=
+                        new List<CandidateScreeningChoiceApiItem>();
+                }
+            }
 
             return CandidateVacancyListApiResult.Ok(apiResponse);
         }
@@ -238,15 +248,20 @@ public sealed class VacancyApiService : IVacancyApiService
 
             apiResponse.Vacancy.Applicants ??=
                 new List<EmployerVacancyApplicantApiItem>();
+            apiResponse.Vacancy.FailedApplicants ??=
+                new List<EmployerVacancyApplicantApiItem>();
             apiResponse.Vacancy.Skills ??=
                 new List<EmployerVacancySkillApiItem>();
             apiResponse.Vacancy.FunnelStages ??=
                 new List<EmployerVacancyFunnelStageApiItem>();
 
-            foreach (var applicant in apiResponse.Vacancy.Applicants)
+            foreach (var applicant in apiResponse.Vacancy.Applicants
+                .Concat(apiResponse.Vacancy.FailedApplicants))
             {
                 applicant.MatchedSkills ??= new List<string>();
                 applicant.MissingSkills ??= new List<string>();
+                applicant.ScreeningAnswers ??=
+                    new List<EmployerScreeningAnswerApiItem>();
             }
 
             if (apiResponse.Vacancy.BestMatch is not null)
@@ -447,6 +462,7 @@ public sealed class VacancyApiService : IVacancyApiService
     public async Task<ApplyToVacancyApiResult> ApplyAsync(
         int vacancyId,
         int candidateUserId,
+        IReadOnlyCollection<CandidateScreeningAnswerApiInput> answers,
         CancellationToken cancellationToken = default)
     {
         if (vacancyId <= 0 || candidateUserId <= 0)
@@ -457,7 +473,9 @@ public sealed class VacancyApiService : IVacancyApiService
 
         var request = new ApplyToVacancyApiRequest
         {
-            CandidateUserId = candidateUserId
+            CandidateUserId = candidateUserId,
+            Answers = answers?.ToList()
+                ?? new List<CandidateScreeningAnswerApiInput>()
         };
 
         try

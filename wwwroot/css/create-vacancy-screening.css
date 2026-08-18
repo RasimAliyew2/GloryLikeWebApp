@@ -245,6 +245,97 @@
     background: #dc4055;
 }
 
+.screening-choice-editor {
+    margin: 16px 44px 0 34px;
+    padding-top: 14px;
+    border-top: 1px solid #e5e6ec;
+}
+
+.screening-choice-heading {
+    margin-bottom: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.screening-choice-heading span {
+    color: #747987;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.screening-choice-heading small {
+    color: #8b90a0;
+    font-size: 9px;
+}
+
+.screening-choice-list {
+    display: grid;
+    gap: 8px;
+}
+
+.screening-choice-row {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr) 30px;
+    align-items: center;
+    gap: 9px;
+}
+
+.screening-choice-row > input[type="radio"],
+.screening-choice-row > input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--vacancy-indigo);
+    cursor: pointer;
+}
+
+.screening-choice-row > input[type="text"] {
+    min-height: 38px;
+    padding: 0 11px;
+    border: 1px solid #dfe0e6;
+    border-radius: 9px;
+    outline: 0;
+    background: #fff;
+    font: inherit;
+    font-size: 11px;
+}
+
+.screening-choice-row > input[type="text"]:focus {
+    border-color: #8c83ed;
+    box-shadow: 0 0 0 4px rgba(80, 68, 235, .07);
+}
+
+.screening-choice-delete {
+    width: 30px;
+    height: 30px;
+    color: #888e9b;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.screening-choice-delete:hover {
+    color: #d33e52;
+    background: #fff0f2;
+}
+
+.screening-add-choice {
+    margin-top: 9px;
+    padding: 8px 11px;
+    color: #5146d8;
+    border: 1px dashed #bcb6f2;
+    border-radius: 9px;
+    background: #f7f6ff;
+    font-size: 10px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
 .screening-empty-state {
     min-height: 145px;
     padding: 22px;
@@ -303,5 +394,9 @@
     .screening-question-settings {
         margin: 13px 0 0 34px;
         grid-template-columns: 1fr;
+    }
+
+    .screening-choice-editor {
+        margin: 14px 0 0 34px;
     }
 }

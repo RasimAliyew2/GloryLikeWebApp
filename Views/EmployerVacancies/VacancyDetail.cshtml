@@ -278,7 +278,7 @@
                         <span class="metric-icon">♙</span>
                         <div>
                             <small>Applications</small>
-                            <strong>@vacancy.ApplicantCount</strong>
+                            <strong>@vacancy.TotalApplicationCount</strong>
                             <p>saved in SQL</p>
                         </div>
                     </article>
@@ -390,6 +390,12 @@
                         data-detail-tab="candidates">
                         ♙ Candidates
                         <span>@vacancy.ApplicantCount</span>
+                    </button>
+                    <button
+                        type="button"
+                        data-detail-tab="failed">
+                        ⚠ Screening rejected
+                        <span>@vacancy.FailedApplicantCount</span>
                     </button>
                     <button
                         type="button"
@@ -509,7 +515,12 @@
                                 @for (var index = 0; index < vacancy.Applicants.Count; index++)
                                 {
                                     var applicant = vacancy.Applicants[index];
-                                    <article class="candidate-ranking-row">
+                                    <article
+                                        class="candidate-ranking-row candidate-ranking-clickable"
+                                        role="button"
+                                        tabindex="0"
+                                        data-candidate-details="@applicant.ApplicationId"
+                                        aria-label="View @applicant.CandidateName screening answers">
                                         <span class="candidate-rank">@(index + 1)</span>
                                         <span class="candidate-avatar">@applicant.Initials</span>
                                         <div class="candidate-ranking-copy">
@@ -520,6 +531,58 @@
                                         <span class="candidate-application-status">
                                             @applicant.ApplicationStatusLabel
                                         </span>
+                                        <div class="candidate-score @applicant.ScoreCssClass">
+                                            <strong>@($"{applicant.MatchScore}%")</strong>
+                                            <span>match</span>
+                                        </div>
+                                    </article>
+                                }
+                            </div>
+                        }
+                    </article>
+                </section>
+
+                <section
+                    class="vacancy-tab-panel"
+                    data-detail-panel="failed"
+                    hidden>
+                    <article class="detail-surface candidates-panel failed-candidates-panel">
+                        <div class="section-heading">
+                            <div>
+                                <span class="section-kicker">KNOCKOUT RESULTS</span>
+                                <h2>Screening rejected candidates</h2>
+                                <p>Candidates who selected an incorrect answer on a KnockOut question.</p>
+                            </div>
+                        </div>
+
+                        @if (vacancy.FailedApplicants.Count == 0)
+                        {
+                            <div class="panel-empty-state">
+                                <span>✓</span>
+                                <strong>No screening rejections</strong>
+                                <p>No candidate has failed a KnockOut question.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="candidate-ranking-list">
+                                @for (var index = 0; index < vacancy.FailedApplicants.Count; index++)
+                                {
+                                    var applicant = vacancy.FailedApplicants[index];
+                                    <article
+                                        class="candidate-ranking-row candidate-ranking-clickable failed"
+                                        role="button"
+                                        tabindex="0"
+                                        data-candidate-details="@applicant.ApplicationId"
+                                        aria-label="View @applicant.CandidateName screening answers">
+                                        <span class="candidate-rank">@(index + 1)</span>
+                                        <span class="candidate-avatar">@applicant.Initials</span>
+                                        <div class="candidate-ranking-copy">
+                                            <strong>@applicant.CandidateName</strong>
+                                            <span>@applicant.CurrentRole</span>
+                                            <small>@applicant.AppliedText</small>
+                                        </div>
+                                        <span class="candidate-application-status failed">Screening rejected</span>
                                         <div class="candidate-score @applicant.ScoreCssClass">
                                             <strong>@($"{applicant.MatchScore}%")</strong>
                                             <span>match</span>
@@ -602,6 +665,44 @@
                         </div>
                     </article>
                 </section>
+
+                @foreach (var applicant in vacancy.Applicants.Concat(vacancy.FailedApplicants))
+                {
+                    <template data-candidate-answer-template="@applicant.ApplicationId">
+                        <div class="candidate-answer-summary">
+                            <span class="candidate-avatar large">@applicant.Initials</span>
+                            <div>
+                                <h2>@applicant.CandidateName</h2>
+                                <p>@applicant.CurrentRole · @applicant.AppliedText</p>
+                            </div>
+                        </div>
+                        <div class="candidate-answer-list">
+                            @if (applicant.ScreeningAnswers.Count == 0)
+                            {
+                                <div class="candidate-answer-empty">No screening answers were submitted.</div>
+                            }
+                            else
+                            {
+                                @foreach (var answer in applicant.ScreeningAnswers)
+                                {
+                                    <article class="candidate-answer-item @answer.ResultCssClass">
+                                        <div>
+                                            <span>@answer.RequirementType · @answer.AnswerType</span>
+                                            <h3>@answer.QuestionText</h3>
+                                        </div>
+                                        <p>@answer.Answer</p>
+                                        <strong>@answer.ResultLabel</strong>
+                                    </article>
+                                }
+                            }
+                        </div>
+                    </template>
+                }
+
+                <dialog class="candidate-answer-dialog" id="candidateAnswerDialog">
+                    <button type="button" class="candidate-answer-close" data-candidate-answer-close aria-label="Close">×</button>
+                    <div id="candidateAnswerDialogContent"></div>
+                </dialog>
             }
         </main>
     </div>
