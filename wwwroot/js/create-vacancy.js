@@ -28,7 +28,7 @@
             .trim()
             .toLocaleLowerCase();
 
-    const allSqlSkills = (() => {
+    const skillInstances = (() => {
         const flattened = [];
 
         taxonomy.forEach(job => {
@@ -58,6 +58,12 @@
                                     ?? "").trim(),
                             positionId:
                                 Number(position.id),
+                            seniorityId:
+                                Number(seniority.id),
+                            senioritySortOrder:
+                                Number(
+                                    seniority.sortOrder
+                                    ?? 0),
                             seniorityName:
                                 String(
                                     seniority.name
@@ -65,6 +71,20 @@
                             positionName:
                                 String(
                                     position.name
+                                    ?? "").trim(),
+                            minimumSenioritySortOrder:
+                                Number(
+                                    skill.minimumSenioritySortOrder
+                                    ?? 1),
+                            isCore:
+                                Boolean(skill.isCore),
+                            assessmentType:
+                                String(
+                                    skill.assessmentType
+                                    ?? "TP").trim(),
+                            verificationMethod:
+                                String(
+                                    skill.verificationMethod
                                     ?? "").trim()
                         });
                     });
@@ -86,12 +106,44 @@
     })();
 
     const skillById = new Map(
-        allSqlSkills.map(skill => [
+        skillInstances.map(skill => [
             skill.id,
             skill
         ]));
 
+    // Manual search is a global skill catalogue. Core skills are duplicated
+    // per Position in SQL for automatic selection, so show one option per
+    // skill name instead of repeating the same catalogue item.
+    const allSqlSkills = (() => {
+        const byName = new Map();
+
+        skillInstances.forEach(skill => {
+            const key = normalize(skill.skillName);
+            const existing = byName.get(key);
+
+            if (!existing || skill.id < existing.id)
+                byName.set(key, skill);
+        });
+
+        return Array.from(byName.values())
+            .sort((left, right) =>
+                left.skillName.localeCompare(
+                    right.skillName));
+    })();
+
     const selectedRequirements = new Map();
+
+    const isSkillNameSelected = skillName => {
+        const normalizedName = normalize(skillName);
+
+        return Array.from(
+            selectedRequirements.keys())
+            .map(skillId => skillById.get(skillId))
+            .filter(Boolean)
+            .some(skill =>
+                normalize(skill.skillName)
+                === normalizedName);
+    };
 
     const stages = Array.from(
         document.querySelectorAll(
@@ -263,24 +315,84 @@
             ?? null;
     };
 
+    const getCurrentJobSeniorities = () => {
+        const job = getCurrentJob();
+
+        if (!job)
+            return [];
+
+        const senioritiesById = new Map();
+
+        (job.positions ?? []).forEach(position => {
+            (position.seniorities ?? []).forEach(seniority => {
+                const id = Number(seniority.id);
+
+                if (id > 0 && !senioritiesById.has(id))
+                    senioritiesById.set(id, seniority);
+            });
+        });
+
+        return Array.from(senioritiesById.values())
+            .sort((left, right) => {
+                const orderDifference =
+                    Number(left.sortOrder ?? 0)
+                    - Number(right.sortOrder ?? 0);
+
+                return orderDifference !== 0
+                    ? orderDifference
+                    : String(left.name ?? "").localeCompare(
+                        String(right.name ?? ""));
+            });
+    };
+
     const getCurrentSeniority = () => {
-        const position =
-            getCurrentPosition();
-
-        if (!position)
-            return null;
-
         const id = Number(
             senioritySelect?.value
             ?? 0);
 
-        return (
-            position.seniorities
-            ?? []
-        ).find(
+        return getCurrentJobSeniorities().find(
             seniority =>
                 Number(seniority.id) === id)
             ?? null;
+    };
+
+    const getPositionsForCurrentSeniority = () => {
+        const job = getCurrentJob();
+        const seniority = getCurrentSeniority();
+
+        if (!job || !seniority)
+            return [];
+
+        return (job.positions ?? []).filter(position =>
+            (position.seniorities ?? []).some(item =>
+                Number(item.id) === Number(seniority.id)));
+    };
+
+    const getCurrentAutomaticSkills = () => {
+        const position = getCurrentPosition();
+        const seniority = getCurrentSeniority();
+
+        if (!position || !seniority)
+            return [];
+
+        const positionSeniority =
+            (position.seniorities ?? []).find(item =>
+                Number(item.id) === Number(seniority.id));
+
+        if (!positionSeniority)
+            return [];
+
+        return (positionSeniority.skills ?? [])
+            .map(skill =>
+                skillById.get(Number(skill.id)))
+            .filter(Boolean)
+            .sort((left, right) => {
+                if (left.isCore !== right.isCore)
+                    return left.isCore ? -1 : 1;
+
+                return left.skillName.localeCompare(
+                    right.skillName);
+            });
     };
 
     const fillSelect = (
@@ -330,36 +442,35 @@
             items.length === 0;
     };
 
-    const refreshPositions = (
+    const refreshSeniorities = (
         selectedValue = 0) => {
 
         const job = getCurrentJob();
 
         fillSelect(
-            positionSelect,
-            job?.positions ?? [],
+            senioritySelect,
+            getCurrentJobSeniorities(),
             job
-                ? "Select Position"
+                ? "Select Seniority"
                 : "Select Job first",
             item => item.id,
             item => item.name,
             selectedValue);
 
-        refreshSeniorities();
+        refreshPositions();
     };
 
-    const refreshSeniorities = (
+    const refreshPositions = (
         selectedValue = 0) => {
 
-        const position =
-            getCurrentPosition();
+        const seniority = getCurrentSeniority();
 
         fillSelect(
-            senioritySelect,
-            position?.seniorities ?? [],
-            position
-                ? "Select Seniority"
-                : "Select Position first",
+            positionSelect,
+            getPositionsForCurrentSeniority(),
+            seniority
+                ? "Select Position"
+                : "Select Seniority first",
             item => item.id,
             item => item.name,
             selectedValue);
@@ -463,8 +574,8 @@
         return allSqlSkills
             .filter(
                 skill =>
-                    !selectedRequirements.has(
-                        skill.id))
+                    !isSkillNameSelected(
+                        skill.skillName))
             .filter(skill =>
                 normalize(skill.skillName)
                     .includes(normalizedQuery))
@@ -537,18 +648,6 @@
             title.textContent =
                 skill.skillName;
 
-            const context =
-                document.createElement("span");
-
-            context.textContent =
-                [
-                    skill.jobName,
-                    skill.positionName,
-                    skill.skillComplexity
-                ]
-                .filter(Boolean)
-                .join(" · ");
-
             const plus =
                 document.createElement("b");
 
@@ -556,7 +655,6 @@
 
             button.append(
                 title,
-                context,
                 plus);
 
             button.addEventListener(
@@ -570,7 +668,10 @@
     };
 
     const addSkill = skill => {
-        if (selectedRequirements.has(skill.id))
+        if (
+            selectedRequirements.has(skill.id)
+            || isSkillNameSelected(skill.skillName)
+        )
             return;
 
         selectedRequirements.set(
@@ -657,7 +758,8 @@
             document.createElement("span");
 
         tp.className = "vacancy-skill-tp";
-        tp.textContent = "[TP]";
+        tp.textContent =
+            `[${skill.assessmentType || "TP"}]`;
 
         const ai =
             document.createElement("span");
@@ -667,20 +769,7 @@
 
         titleRow.append(title, tp, ai);
 
-        const context =
-            document.createElement("small");
-
-        context.textContent =
-            [
-                skill.jobName,
-                skill.positionName
-            ]
-            .filter(Boolean)
-            .join(" · ");
-
-        titleArea.append(
-            titleRow,
-            context);
+        titleArea.append(titleRow);
 
         const removeButton =
             document.createElement("button");
@@ -854,18 +943,22 @@
 
         if (skillLibraryMessage) {
             const position = getCurrentPosition();
-            const positionSkillCount = position
-                ? allSqlSkills.filter(skill =>
-                    skill.positionId
-                        === Number(position.id)).length
-                : 0;
+            const automaticSkills =
+                getCurrentAutomaticSkills();
+            const coreSkillCount =
+                automaticSkills.filter(skill =>
+                    skill.isCore).length;
+            const positionSkillCount =
+                automaticSkills.length
+                - coreSkillCount;
 
             skillLibraryMessage.hidden = false;
             skillLibraryMessage.textContent = position
-                ? `${positionSkillCount} skill bu Position üçün default-dur. `
+                ? `${coreSkillCount} Core və ${positionSkillCount} Position skill-i `
+                    + "seçilən Seniority-yə uyğun olaraq avtomatik əlavə olunub. "
                     + "Manual axtarış bütün SQL skill kataloqunda işləyir."
-                : "Position seçildikdə onun bütün skill-ləri avtomatik "
-                    + "əlavə olunur. Manual axtarış bütün SQL skill "
+                : "Position seçildikdə uyğun Core və Position skill-ləri "
+                    + "avtomatik əlavə olunur. Manual axtarış bütün SQL skill "
                     + "kataloqunda işləyir.";
         }
     };
@@ -876,10 +969,7 @@
         selectedRequirements.clear();
 
         if (position) {
-            allSqlSkills
-                .filter(skill =>
-                    skill.positionId
-                        === Number(position.id))
+            getCurrentAutomaticSkills()
                 .forEach(skill => {
                     selectedRequirements.set(
                         skill.id,
@@ -977,16 +1067,6 @@
             if (roleTitleInput)
                 roleTitleInput.value = "";
 
-            refreshPositions();
-            replaceWithCurrentPositionSkills();
-        });
-
-    positionSelect?.addEventListener(
-        "change",
-        () => {
-            if (roleTitleInput)
-                roleTitleInput.value = "";
-
             refreshSeniorities();
             replaceWithCurrentPositionSkills();
         });
@@ -994,7 +1074,18 @@
     senioritySelect?.addEventListener(
         "change",
         () => {
+            if (roleTitleInput)
+                roleTitleInput.value = "";
+
+            refreshPositions();
+            replaceWithCurrentPositionSkills();
+        });
+
+    positionSelect?.addEventListener(
+        "change",
+        () => {
             updateRoleMatch();
+            replaceWithCurrentPositionSkills();
             renderSuggestions();
             updateReview();
         });
@@ -1221,18 +1312,6 @@
                     initialState.jobFamilyId);
         }
 
-        refreshPositions(
-            initialState.positionId);
-
-        if (
-            Number(initialState.positionId) > 0
-            && positionSelect
-        ) {
-            positionSelect.value =
-                String(
-                    initialState.positionId);
-        }
-
         refreshSeniorities(
             initialState.seniorityId);
 
@@ -1243,6 +1322,18 @@
             senioritySelect.value =
                 String(
                     initialState.seniorityId);
+        }
+
+        refreshPositions(
+            initialState.positionId);
+
+        if (
+            Number(initialState.positionId) > 0
+            && positionSelect
+        ) {
+            positionSelect.value =
+                String(
+                    initialState.positionId);
         }
 
         updateRoleMatch();

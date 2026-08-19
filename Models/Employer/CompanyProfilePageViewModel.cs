@@ -41,44 +41,44 @@ public class CompanyProfileInput
     public string CompanyName { get; set; } = string.Empty;
 
     [StringLength(30)]
-    public string CompanyType { get; set; } = string.Empty;
+    public string? CompanyType { get; set; }
 
     [StringLength(120)]
-    public string ActivityScope { get; set; } = string.Empty;
+    public string? ActivityScope { get; set; }
 
     [Range(1800, 2100, ErrorMessage = "Foundation year must be between 1800 and 2100.")]
     public int? FoundationYear { get; set; }
 
     [StringLength(30)]
-    public string EmployeeCount { get; set; } = string.Empty;
+    public string? EmployeeCount { get; set; }
 
     [StringLength(240)]
-    public string Website { get; set; } = string.Empty;
+    public string? Website { get; set; }
 
     [StringLength(40)]
-    public string PageLanguage { get; set; } = string.Empty;
+    public string? PageLanguage { get; set; }
 
     [StringLength(240)]
-    public string CompanyVideo { get; set; } = string.Empty;
+    public string? CompanyVideo { get; set; }
 
     [StringLength(2500)]
-    public string CompanyDescription { get; set; } = string.Empty;
+    public string? CompanyDescription { get; set; }
 
     [StringLength(1600)]
-    public string CompanyCulture { get; set; } = string.Empty;
+    public string? CompanyCulture { get; set; }
 
     [StringLength(1600)]
-    public string WhyWorkWithUs { get; set; } = string.Empty;
-    public List<string> Benefits { get; set; } = [];
-    public string CompanyAddress { get; set; } = string.Empty;
-    public string CompanyCountry { get; set; } = string.Empty;
-    public string CompanyCity { get; set; } = string.Empty;
-    public string LinkedInUrl { get; set; } = string.Empty;
-    public string InstagramUrl { get; set; } = string.Empty;
-    public string FacebookUrl { get; set; } = string.Empty;
-    public string YoutubeUrl { get; set; } = string.Empty;
-    public string TelegramUrl { get; set; } = string.Empty;
-    public string TiktokUrl { get; set; } = string.Empty;
+    public string? WhyWorkWithUs { get; set; }
+    public List<string>? Benefits { get; set; }
+    public string? CompanyAddress { get; set; }
+    public string? CompanyCountry { get; set; }
+    public string? CompanyCity { get; set; }
+    public string? LinkedInUrl { get; set; }
+    public string? InstagramUrl { get; set; }
+    public string? FacebookUrl { get; set; }
+    public string? YoutubeUrl { get; set; }
+    public string? TelegramUrl { get; set; }
+    public string? TiktokUrl { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
 }
 

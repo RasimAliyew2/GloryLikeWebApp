@@ -1,0 +1,159 @@
+/* Full-width hiring plan: page scrolls vertically, never horizontally. */
+.hiring-plan-main {
+    padding: 0 18px 96px;
+    overflow-x: hidden;
+}
+
+.hiring-plan-content {
+    width: 100%;
+    max-width: none;
+}
+
+.hiring-plan-card {
+    min-height: clamp(500px, calc(100vh - 285px), 720px);
+}
+
+.hiring-plan-table-wrap {
+    width: 100%;
+    min-height: inherit;
+    overflow-x: visible;
+}
+
+.hiring-plan-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+}
+
+.hiring-plan-table th {
+    height: 64px;
+    padding: 14px 10px;
+    font-size: 10px;
+    line-height: 1.3;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.hiring-plan-table td {
+    height: 84px;
+    padding: 18px 10px;
+    font-size: 13px;
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.hiring-plan-table th:nth-child(1),
+.hiring-plan-table td:nth-child(1) { width: 14%; }
+.hiring-plan-table th:nth-child(2),
+.hiring-plan-table td:nth-child(2) { width: 15%; }
+.hiring-plan-table th:nth-child(3),
+.hiring-plan-table td:nth-child(3) { width: 7%; }
+.hiring-plan-table th:nth-child(4),
+.hiring-plan-table td:nth-child(4) { width: 8%; }
+.hiring-plan-table th:nth-child(5),
+.hiring-plan-table td:nth-child(5) { width: 7%; }
+.hiring-plan-table th:nth-child(6),
+.hiring-plan-table td:nth-child(6) { width: 11%; }
+.hiring-plan-table th:nth-child(7),
+.hiring-plan-table td:nth-child(7) { width: 10%; }
+.hiring-plan-table th:nth-child(8),
+.hiring-plan-table td:nth-child(8) { width: 9%; }
+.hiring-plan-table th:nth-child(9),
+.hiring-plan-table td:nth-child(9) { width: 15%; }
+.hiring-plan-table th:nth-child(10),
+.hiring-plan-table td:nth-child(10) { width: 4%; }
+
+.priority,
+.plan-status {
+    padding: 7px 9px;
+    font-size: 11px;
+}
+
+.plan-notes {
+    max-width: none;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.plan-actions {
+    width: auto;
+}
+
+@media (max-width: 1100px) {
+    .hiring-plan-main { padding-inline: 12px; }
+
+    .hiring-plan-table th,
+    .hiring-plan-table td {
+        padding-inline: 7px;
+        font-size: 10px;
+    }
+
+    .priority,
+    .plan-status {
+        padding: 6px;
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 760px) {
+    .hiring-plan-card,
+    .hiring-plan-table-wrap { min-height: 520px; }
+
+    .hiring-plan-table,
+    .hiring-plan-table tbody,
+    .hiring-plan-table tr,
+    .hiring-plan-table td {
+        display: block;
+        width: 100% !important;
+    }
+
+    .hiring-plan-table thead { display: none; }
+
+    .hiring-plan-table tr {
+        position: relative;
+        padding: 18px;
+        border-bottom: 1px solid #e7eaf1;
+    }
+
+    .hiring-plan-table td {
+        height: auto;
+        min-height: 46px;
+        padding: 7px 52% 7px 0;
+        border: 0;
+        font-size: 13px;
+    }
+
+    .hiring-plan-table td::after {
+        position: absolute;
+        right: 18px;
+        width: 46%;
+        color: #667085;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: left;
+    }
+
+    .hiring-plan-table td:nth-child(1)::after { content: "Position Title"; }
+    .hiring-plan-table td:nth-child(2)::after { content: "Department"; }
+    .hiring-plan-table td:nth-child(3)::after { content: "Headcount"; }
+    .hiring-plan-table td:nth-child(4)::after { content: "Seniority"; }
+    .hiring-plan-table td:nth-child(5)::after { content: "Priority"; }
+    .hiring-plan-table td:nth-child(6)::after { content: "Target Start Date"; }
+    .hiring-plan-table td:nth-child(7)::after { content: "Employment Type"; }
+    .hiring-plan-table td:nth-child(8)::after { content: "Status"; }
+    .hiring-plan-table td:nth-child(9)::after { content: "Notes"; }
+
+    .hiring-plan-table td.plan-actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 40px !important;
+        min-height: 0;
+        padding: 0;
+    }
+
+    .hiring-plan-table td.plan-actions::after { content: none; }
+}

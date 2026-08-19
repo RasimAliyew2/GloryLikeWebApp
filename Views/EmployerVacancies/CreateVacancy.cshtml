@@ -405,26 +405,6 @@
                         </div>
 
                         <div class="form-field full">
-                            <label asp-for="Input.PositionId">
-                                Role / Position *
-                            </label>
-
-                            <select
-                                asp-for="Input.PositionId"
-                                id="positionSelect"
-                                disabled>
-                                <option value="">
-                                    Select Job first
-                                </option>
-                            </select>
-
-                            <span
-                                asp-validation-for="Input.PositionId"
-                                class="field-error">
-                            </span>
-                        </div>
-
-                        <div class="form-field full">
                             <label asp-for="Input.SeniorityId">
                                 Seniority Level *
                             </label>
@@ -434,12 +414,32 @@
                                 id="senioritySelect"
                                 disabled>
                                 <option value="">
-                                    Select Position first
+                                    Select Job first
                                 </option>
                             </select>
 
                             <span
                                 asp-validation-for="Input.SeniorityId"
+                                class="field-error">
+                            </span>
+                        </div>
+
+                        <div class="form-field full">
+                            <label asp-for="Input.PositionId">
+                                Role / Position *
+                            </label>
+
+                            <select
+                                asp-for="Input.PositionId"
+                                id="positionSelect"
+                                disabled>
+                                <option value="">
+                                    Select Seniority first
+                                </option>
+                            </select>
+
+                            <span
+                                asp-validation-for="Input.PositionId"
                                 class="field-error">
                             </span>
                         </div>

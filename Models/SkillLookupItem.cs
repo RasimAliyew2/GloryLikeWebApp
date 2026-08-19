@@ -14,6 +14,10 @@ public sealed class SkillLookupItem
     public List<SeniorityOption> Seniorities { get; set; } = new();
 
     public string SkillComplexity { get; set; } = "medium";
+    public int MinimumSenioritySortOrder { get; set; } = 1;
+    public bool IsCore { get; set; }
+    public string AssessmentType { get; set; } = "TP";
+    public string VerificationMethod { get; set; } = string.Empty;
 }
 
 public sealed class SeniorityOption
