@@ -16,6 +16,11 @@ public sealed class CompanyTeamPageViewModel
 
     public bool CanManageTeam { get; set; }
 
+    public string ActorRole { get; set; } = string.Empty;
+
+    public bool CanInviteHrAdmin =>
+        string.Equals(ActorRole, "Admin", StringComparison.OrdinalIgnoreCase);
+
     public List<CompanyTeamMemberViewModel> Members { get; set; } = [];
 
     public int HrAdminCount =>
@@ -77,6 +82,10 @@ public sealed class CompanyTeamMemberViewModel
 
     public bool IsFounder { get; set; }
 
+    public bool CanChangeRole { get; set; }
+
+    public List<string> AllowedRoles { get; set; } = [];
+
     public bool IsInvited =>
         string.Equals(
             Status,
@@ -116,6 +125,8 @@ public sealed class CompanyTeamApiResponse
 
     public bool CanManageTeam { get; set; }
 
+    public string ActorRole { get; set; } = string.Empty;
+
     public CompanyTeamMemberApiItem? Member { get; set; }
 
     public List<CompanyTeamMemberApiItem> Members { get; set; } = [];
@@ -140,6 +151,10 @@ public sealed class CompanyTeamMemberApiItem
     public DateTime? AcceptedAtUtc { get; set; }
 
     public bool IsFounder { get; set; }
+
+    public bool CanChangeRole { get; set; }
+
+    public List<string> AllowedRoles { get; set; } = [];
 }
 
 public sealed class ResolveCompanyTeamInvitationApiResponse
@@ -169,5 +184,18 @@ internal sealed class BackendInviteCompanyTeamMemberRequest
 
     public string Email { get; set; } = string.Empty;
 
+    public string Role { get; set; } = string.Empty;
+}
+
+public sealed class UpdateCompanyTeamMemberRoleViewModel
+{
+    [Required]
+    [RegularExpression("^(HR Admin|Hiring Manager|Recruiter)$")]
+    public string Role { get; set; } = string.Empty;
+}
+
+internal sealed class BackendUpdateCompanyTeamMemberRoleRequest
+{
+    public int ActorUserId { get; set; }
     public string Role { get; set; } = string.Empty;
 }

@@ -71,6 +71,51 @@
         });
     });
 
+    const roleForms = Array.from(
+        document.querySelectorAll("[data-team-role-form]"));
+
+    roleForms.forEach((roleForm) => {
+        const select = roleForm.querySelector("[data-team-role-select]");
+
+        select?.addEventListener("change", async () => {
+            if (roleForm.dataset.submitting === "true")
+                return;
+
+            const originalRole = select.dataset.originalRole || "";
+            const formData = new FormData(roleForm);
+            roleForm.dataset.submitting = "true";
+            select.disabled = true;
+
+            try {
+                const response = await fetch(roleForm.action, {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                });
+
+                const result = await response.json();
+                if (!response.ok || !result?.success) {
+                    throw new Error(
+                        result?.message || "Access level could not be updated.");
+                }
+
+                select.dataset.originalRole = select.value;
+                window.location.reload();
+            }
+            catch (error) {
+                select.value = originalRole;
+                window.alert(
+                    error instanceof Error
+                        ? error.message
+                        : "Access level could not be updated.");
+                roleForm.dataset.submitting = "false";
+                select.disabled = false;
+            }
+        });
+    });
+
     const modal =
         document.getElementById("teamInviteModal");
     const form =

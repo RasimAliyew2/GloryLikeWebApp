@@ -22,6 +22,30 @@
         document.getElementById("addBenefitButton");
     const benefitList =
         document.getElementById("companyBenefitList");
+    const benefitSuggestions =
+        document.getElementById("companyBenefitSuggestions");
+    const benefitCatalogElement =
+        document.getElementById("companyBenefitCatalog");
+    const locationList =
+        document.getElementById("companyLocationList");
+    const addLocationButton =
+        document.getElementById("addCompanyLocationButton");
+    const websiteInput =
+        document.getElementById("website");
+    const logoInput =
+        document.getElementById("companyLogo");
+    const logoDataUrlInput =
+        document.getElementById("companyLogoDataUrl");
+    const logoPreview =
+        document.getElementById("companyLogoUploadPreview");
+    const cropDialog =
+        document.getElementById("companyLogoCropDialog");
+    const cropCanvas =
+        document.getElementById("companyLogoCropCanvas");
+    const cropStage =
+        document.getElementById("companyLogoCropStage");
+    const cropZoom =
+        document.getElementById("companyLogoCropZoom");
     const companyName =
         document.getElementById("companyName");
     const companyNameError =
@@ -33,6 +57,25 @@
 
     let toastTimer = null;
     let galleryObjectUrls = [];
+    let benefitCatalog = [];
+    let cropImage = null;
+    let cropSourceUrl = "";
+    let cropZoomValue = 1;
+    let cropOffsetX = 0;
+    let cropOffsetY = 0;
+    let cropDragging = false;
+    let cropPointerX = 0;
+    let cropPointerY = 0;
+
+    try
+    {
+        benefitCatalog = JSON.parse(
+            benefitCatalogElement?.textContent || "[]");
+    }
+    catch
+    {
+        benefitCatalog = [];
+    }
 
     const showToast = (message, isError = false) => {
         if (!toast)
@@ -83,16 +126,41 @@
             completionValue.textContent = `${percentage}% Filled`;
     };
 
-    const setSuggestionState = benefit => {
-        document.querySelectorAll("[data-benefit-suggestion]")
-            .forEach(button => {
-                if (button.dataset.benefitSuggestion !== benefit)
-                    return;
+    const renderBenefitSuggestions = rawQuery => {
+        if (!benefitSuggestions)
+            return;
 
-                const isSelected = getBenefits().includes(benefit);
-                button.disabled = isSelected;
-                button.hidden = isSelected;
+        const query = String(rawQuery || "").trim().toLowerCase();
+        benefitSuggestions.replaceChildren();
+
+        if (!query)
+        {
+            benefitSuggestions.hidden = true;
+            return;
+        }
+
+        const selected = new Set(
+            getBenefits().map(item => item.toLowerCase()));
+        const matches = benefitCatalog
+            .filter(item => String(item).toLowerCase().includes(query))
+            .filter(item => !selected.has(String(item).toLowerCase()))
+            .slice(0, 8);
+
+        matches.forEach(benefit => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.dataset.benefitSuggestion = benefit;
+            button.textContent = benefit;
+            button.addEventListener("click", () => {
+                addBenefit(benefit);
+                benefitInput.value = "";
+                renderBenefitSuggestions("");
+                benefitInput.focus();
             });
+            benefitSuggestions.append(button);
+        });
+
+        benefitSuggestions.hidden = matches.length === 0;
     };
 
     const addBenefit = rawValue => {
@@ -131,14 +199,259 @@
         remove.textContent = "×";
         remove.addEventListener("click", () => {
             chip.remove();
-            setSuggestionState(value);
+            renderBenefitSuggestions(benefitInput?.value);
             updateCompletion();
         });
 
         chip.append(label, remove);
         benefitList.append(chip);
-        setSuggestionState(value);
+        renderBenefitSuggestions(benefitInput?.value);
         updateCompletion();
+    };
+
+    const locationField = (
+        labelText,
+        fieldName,
+        value,
+        maxLength,
+        placeholder) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "company-field";
+
+        const label = document.createElement("label");
+        label.textContent = labelText;
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.dataset.locationField = fieldName;
+        input.value = value || "";
+        input.maxLength = maxLength;
+        input.placeholder = placeholder;
+        input.dataset.profileField = "";
+
+        wrapper.append(label, input);
+        return wrapper;
+    };
+
+    const reindexLocations = () => {
+        if (!locationList)
+            return;
+
+        Array.from(locationList.children).forEach((card, index) => {
+            card.dataset.locationIndex = String(index);
+            const title = card.querySelector("[data-location-title]");
+            if (title)
+                title.textContent = `Location ${index + 1}`;
+
+            card.querySelectorAll("[data-location-field]")
+                .forEach(input => {
+                    input.name = `Locations[${index}].${input.dataset.locationField}`;
+                });
+        });
+
+        updateCompletion();
+    };
+
+    const addLocation = (location = {}) => {
+        if (!locationList)
+            return;
+
+        if (locationList.children.length >= 20)
+        {
+            showToast("You can add up to 20 locations.", true);
+            return;
+        }
+
+        const card = document.createElement("article");
+        card.className = "company-location-card";
+
+        const header = document.createElement("header");
+        const heading = document.createElement("strong");
+        heading.dataset.locationTitle = "";
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "company-location-remove";
+        remove.setAttribute("aria-label", "Remove location");
+        remove.textContent = "×";
+        remove.addEventListener("click", () => {
+            card.remove();
+            if (locationList.children.length === 0)
+                addLocation();
+            reindexLocations();
+        });
+        header.append(heading, remove);
+
+        const id = document.createElement("input");
+        id.type = "hidden";
+        id.dataset.locationField = "Id";
+        id.value = Number(location.id) > 0 ? String(location.id) : "";
+
+        const grid = document.createElement("div");
+        grid.className = "company-location-grid";
+        grid.append(
+            locationField(
+                "Location name",
+                "Name",
+                location.name,
+                120,
+                "e.g. Head Office or Ganjlik Branch"),
+            locationField(
+                "Address",
+                "Address",
+                location.address,
+                240,
+                "Street, building, office"),
+            locationField(
+                "Country",
+                "Country",
+                location.country,
+                100,
+                "Azerbaijan"),
+            locationField(
+                "City",
+                "City",
+                location.city,
+                100,
+                "Baku"));
+
+        card.append(header, id, grid);
+        locationList.append(card);
+        reindexLocations();
+    };
+
+    const normalizeWebsite = () => {
+        if (!websiteInput)
+            return;
+
+        const value = websiteInput.value.trim();
+        if (!value)
+            return;
+
+        if (value.startsWith("//"))
+            websiteInput.value = `https:${value}`;
+        else if (!/^[a-z][a-z\d+.-]*:\/\//i.test(value))
+            websiteInput.value = `https://${value}`;
+    };
+
+    const setLogoDataUrl = dataUrl => {
+        if (logoDataUrlInput)
+            logoDataUrlInput.value = dataUrl || "";
+
+        if (logoPreview)
+        {
+            logoPreview.src = dataUrl || "";
+            logoPreview.hidden = !dataUrl;
+        }
+
+        const tile = logoInput?.closest(".company-upload-tile");
+        tile?.classList.toggle("has-file", Boolean(dataUrl));
+        updateCompletion();
+    };
+
+    const closeCropDialog = () => {
+        if (cropDialog?.open)
+            cropDialog.close();
+
+        if (cropSourceUrl)
+        {
+            URL.revokeObjectURL(cropSourceUrl);
+            cropSourceUrl = "";
+        }
+
+        cropImage = null;
+        if (logoInput)
+            logoInput.value = "";
+    };
+
+    const drawCrop = () => {
+        if (!cropCanvas || !cropImage)
+            return;
+
+        const context = cropCanvas.getContext("2d");
+        const size = cropCanvas.width;
+        const baseScale = Math.max(
+            size / cropImage.naturalWidth,
+            size / cropImage.naturalHeight);
+        const scale = baseScale * cropZoomValue;
+        const width = cropImage.naturalWidth * scale;
+        const height = cropImage.naturalHeight * scale;
+        const maxOffsetX = Math.max(0, (width - size) / 2);
+        const maxOffsetY = Math.max(0, (height - size) / 2);
+        cropOffsetX = Math.max(-maxOffsetX, Math.min(maxOffsetX, cropOffsetX));
+        cropOffsetY = Math.max(-maxOffsetY, Math.min(maxOffsetY, cropOffsetY));
+
+        context.clearRect(0, 0, size, size);
+        context.fillStyle = "#171923";
+        context.fillRect(0, 0, size, size);
+        context.drawImage(
+            cropImage,
+            (size - width) / 2 + cropOffsetX,
+            (size - height) / 2 + cropOffsetY,
+            width,
+            height);
+    };
+
+    const openLogoCrop = file => {
+        if (!cropDialog || !cropCanvas)
+            return;
+
+        if (cropSourceUrl)
+            URL.revokeObjectURL(cropSourceUrl);
+
+        cropSourceUrl = URL.createObjectURL(file);
+        const image = new Image();
+        image.onload = () => {
+            cropImage = image;
+            cropZoomValue = 1;
+            cropOffsetX = 0;
+            cropOffsetY = 0;
+            if (cropZoom)
+                cropZoom.value = "1";
+            drawCrop();
+            cropDialog.showModal();
+        };
+        image.onerror = () => {
+            closeCropDialog();
+            showToast("The selected logo could not be opened.", true);
+        };
+        image.src = cropSourceUrl;
+    };
+
+    const canvasBlob = (canvas, quality) => new Promise(resolve => {
+        canvas.toBlob(resolve, "image/jpeg", quality);
+    });
+
+    const blobToDataUrl = blob => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+
+    const createCroppedLogo = async () => {
+        if (!cropCanvas || !cropImage)
+            return null;
+
+        const sizes = [512, 448, 384];
+        const qualities = [0.9, 0.82, 0.74, 0.66, 0.58];
+
+        for (const size of sizes)
+        {
+            const output = document.createElement("canvas");
+            output.width = size;
+            output.height = size;
+            const context = output.getContext("2d");
+            context.drawImage(cropCanvas, 0, 0, size, size);
+
+            for (const quality of qualities)
+            {
+                const blob = await canvasBlob(output, quality);
+                if (blob && blob.size <= 350 * 1024)
+                    return blobToDataUrl(blob);
+            }
+        }
+
+        return null;
     };
 
     const restoreProfile = () => {
@@ -146,12 +459,20 @@
         {
             const raw = initialDataElement?.textContent?.trim();
             if (!raw)
+            {
+                addLocation();
                 return;
+            }
 
             const profile = JSON.parse(raw);
 
             Object.entries(profile || {}).forEach(([name, value]) => {
-                if (name === "benefits" || name === "updatedAtUtc")
+                if ([
+                    "benefits",
+                    "locations",
+                    "logoDataUrl",
+                    "updatedAtUtc"
+                ].includes(name))
                     return;
 
                 const element = form.elements.namedItem(name);
@@ -165,9 +486,36 @@
             });
 
             (profile.benefits || []).forEach(addBenefit);
+
+            const locations = Array.isArray(profile.locations)
+                ? profile.locations
+                : [];
+
+            if (locations.length > 0)
+            {
+                locations.forEach(addLocation);
+            }
+            else if (profile.companyAddress
+                || profile.companyCountry
+                || profile.companyCity)
+            {
+                addLocation({
+                    address: profile.companyAddress,
+                    country: profile.companyCountry,
+                    city: profile.companyCity
+                });
+            }
+            else
+            {
+                addLocation();
+            }
+
+            setLogoDataUrl(profile.logoDataUrl || "");
         }
         catch
         {
+            if (locationList?.children.length === 0)
+                addLocation();
             showToast("Company profile data could not be loaded.", true);
         }
     };
@@ -190,6 +538,8 @@
     };
 
     const saveProfile = async () => {
+        normalizeWebsite();
+
         if (!validateCompanyName())
         {
             companyName?.focus();
@@ -396,10 +746,20 @@
         {
             if (input.id === "companyGalleryFiles")
                 clearGalleryPreviews();
+            else if (input.id === "companyLogo")
+                setLogoDataUrl(logoDataUrlInput?.value);
             else
                 updateSingleUpload(input);
 
             updateCompletion();
+            return;
+        }
+
+        if (input.id === "companyLogo")
+        {
+            const file = input.files?.[0];
+            if (file)
+                openLogoCrop(file);
             return;
         }
 
@@ -410,6 +770,87 @@
 
         updateCompletion();
     });
+
+    cropZoom?.addEventListener("input", () => {
+        cropZoomValue = Number(cropZoom.value || 1);
+        drawCrop();
+    });
+
+    cropStage?.addEventListener("pointerdown", event => {
+        if (!cropImage)
+            return;
+
+        cropDragging = true;
+        cropPointerX = event.clientX;
+        cropPointerY = event.clientY;
+        cropStage.setPointerCapture(event.pointerId);
+    });
+
+    cropStage?.addEventListener("pointermove", event => {
+        if (!cropDragging)
+            return;
+
+        cropOffsetX += event.clientX - cropPointerX;
+        cropOffsetY += event.clientY - cropPointerY;
+        cropPointerX = event.clientX;
+        cropPointerY = event.clientY;
+        drawCrop();
+    });
+
+    const stopCropDrag = () => {
+        cropDragging = false;
+    };
+
+    cropStage?.addEventListener("pointerup", stopCropDrag);
+    cropStage?.addEventListener("pointercancel", stopCropDrag);
+
+    document.getElementById("companyLogoCropSave")
+        ?.addEventListener("click", async event => {
+            const button = event.currentTarget;
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = "Saving...";
+
+            try
+            {
+                const dataUrl = await createCroppedLogo();
+                if (!dataUrl)
+                    throw new Error("The cropped logo could not be reduced below 350KB.");
+
+                setLogoDataUrl(dataUrl);
+                const title = logoInput
+                    ?.closest(".company-upload-tile")
+                    ?.querySelector("[data-upload-title]");
+                if (title)
+                    title.textContent = "Logo ready";
+                closeCropDialog();
+            }
+            catch (error)
+            {
+                showToast(
+                    error instanceof Error
+                        ? error.message
+                        : "The cropped logo could not be saved.",
+                    true);
+            }
+            finally
+            {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        });
+
+    ["companyLogoCropClose", "companyLogoCropCancel"]
+        .forEach(id => document.getElementById(id)
+            ?.addEventListener("click", closeCropDialog));
+
+    cropDialog?.addEventListener("cancel", event => {
+        event.preventDefault();
+        closeCropDialog();
+    });
+
+    addLocationButton?.addEventListener("click", () => addLocation());
+    websiteInput?.addEventListener("blur", normalizeWebsite);
 
     addBenefitButton?.addEventListener("click", () => {
         addBenefit(benefitInput?.value);
@@ -429,12 +870,22 @@
         addBenefitButton?.click();
     });
 
-    document.querySelectorAll("[data-benefit-suggestion]")
-        .forEach(button => {
-            button.addEventListener("click", () => {
-                addBenefit(button.dataset.benefitSuggestion);
-            });
-        });
+    benefitInput?.addEventListener("input", () => {
+        renderBenefitSuggestions(benefitInput.value);
+    });
+
+    benefitInput?.addEventListener("focus", () => {
+        renderBenefitSuggestions(benefitInput.value);
+    });
+
+    document.addEventListener("click", event => {
+        if (event.target === benefitInput
+            || benefitSuggestions?.contains(event.target))
+            return;
+
+        if (benefitSuggestions)
+            benefitSuggestions.hidden = true;
+    });
 
     document.querySelectorAll("[data-future-tab]")
         .forEach(button => {

@@ -1,7 +1,7 @@
 wwwroot\css\company-hiring-plan-wide.css
 wwwroot\css\company-hiring-plan.css
-wwwroot\css\company-profile.css
-wwwroot\css\company-team.css
+wwwroot\js\create-vacancy.js
+wwwroot\js\company-team.js
 wwwroot\css\create-vacancy-application-requirements.css
 wwwroot\css\create-vacancy-funnel.css
 wwwroot\css\create-vacancy-publication.css
@@ -25,12 +25,12 @@ wwwroot\favicon.ico
 wwwroot\js\candidate-dashboard.js
 wwwroot\js\company-hiring-plan.js
 wwwroot\js\company-profile.js
-wwwroot\js\company-team.js
+wwwroot\css\company-team.css
 wwwroot\js\create-vacancy-application-requirements.js
 wwwroot\js\create-vacancy-funnel.js
 wwwroot\js\create-vacancy-publication.js
 wwwroot\js\create-vacancy-screening.js
-wwwroot\js\create-vacancy.js
+wwwroot\css\company-profile.css
 wwwroot\js\employer-home.js
 wwwroot\js\employer-vacancies-list.js
 wwwroot\js\employer-vacancy-detail.js

@@ -254,6 +254,10 @@
         document.getElementById(
             "roleTitleInput");
 
+    const companyLocationSelect =
+        document.getElementById(
+            "companyLocationSelect");
+
     const skillRequirements =
         document.getElementById(
             "skillRequirements");
@@ -1095,7 +1099,8 @@
             jobSelect,
             senioritySelect,
             positionSelect,
-            roleTitleInput
+            roleTitleInput,
+            companyLocationSelect
         ];
 
         const missingElement =
@@ -1109,8 +1114,8 @@
             missingElement.focus();
 
             window.alert(
-                "Job Family, Seniority, Position "
-                + "və Role Title doldurulmalıdır.");
+                "Job Family, Seniority, Position, Role Title "
+                + "və Company Location doldurulmalıdır.");
 
             return false;
         }

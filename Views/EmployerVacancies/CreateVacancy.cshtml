@@ -480,6 +480,46 @@
                                 </span>
                             </div>
                         </div>
+
+                        <div class="form-field full">
+                            <label asp-for="Input.CompanyLocationId">
+                                Company Location *
+                            </label>
+
+                            <select
+                                asp-for="Input.CompanyLocationId"
+                                id="companyLocationSelect"
+                                disabled="@(!Model.HasCompanyLocations)">
+                                <option value="">Select a company location</option>
+                                @foreach (var location in Model.CompanyLocations)
+                                {
+                                    var label = string.IsNullOrWhiteSpace(location.DisplayName)
+                                        ? string.Join(", ", new[]
+                                        {
+                                            location.City,
+                                            location.Address,
+                                            location.Country
+                                        }.Where(item => !string.IsNullOrWhiteSpace(item)))
+                                        : location.DisplayName;
+                                    <option value="@location.Id">@label</option>
+                                }
+                            </select>
+
+                            <span
+                                asp-validation-for="Input.CompanyLocationId"
+                                class="field-error">
+                            </span>
+
+                            @if (!Model.HasCompanyLocations)
+                            {
+                                <small class="sql-source-note">
+                                    No company location exists.
+                                    <a
+                                        asp-controller="EmployerCompany"
+                                        asp-action="Index">Add one in Company Profile</a>.
+                                </small>
+                            }
+                        </div>
                     </article>
 
                     <article class="vacancy-section-card">
@@ -1678,7 +1718,7 @@
                         type="button"
                         class="vacancy-primary-action"
                         id="nextStepButton"
-                        disabled="@(!Model.HasTaxonomy)">
+                        disabled="@(!Model.HasTaxonomy || !Model.HasCompanyLocations)">
                         Continue →
                     </button>
 
@@ -1687,7 +1727,7 @@
                         class="vacancy-primary-action"
                         id="publishVacancyButton"
                         hidden
-                        disabled="@(!Model.HasTaxonomy)">
+                        disabled="@(!Model.HasTaxonomy || !Model.HasCompanyLocations)">
                         @submitLabel&nbsp; ✓
                     </button>
                 </footer>

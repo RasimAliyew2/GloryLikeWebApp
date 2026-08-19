@@ -316,6 +316,36 @@
     font-weight: 750;
 }
 
+.team-member-role-form {
+    margin: 0;
+    justify-self: end;
+}
+
+.team-member-role-form select {
+    min-width: 148px;
+    height: 36px;
+    padding: 0 30px 0 11px;
+    color: #242833;
+    border: 1px solid #dddde6;
+    border-radius: 10px;
+    outline: 0;
+    background: #f7f7fa;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.team-member-role-form select:focus {
+    border-color: #7167ef;
+    box-shadow: 0 0 0 3px rgba(80, 69, 232, .1);
+}
+
+.team-member-role-form select:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
 .team-member-status {
     min-width: 72px;
     justify-self: end;

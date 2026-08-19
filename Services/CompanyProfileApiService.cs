@@ -54,6 +54,8 @@ public sealed class CompanyProfileApiService : ICompanyProfileApiService
             CompanyCulture = profile.CompanyCulture,
             WhyWorkWithUs = profile.WhyWorkWithUs,
             Benefits = profile.Benefits ?? [],
+            LogoDataUrl = profile.LogoDataUrl,
+            Locations = profile.Locations ?? [],
             CompanyAddress = profile.CompanyAddress,
             CompanyCountry = profile.CompanyCountry,
             CompanyCity = profile.CompanyCity,

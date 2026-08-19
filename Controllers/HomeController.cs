@@ -253,6 +253,9 @@ public class HomeController : Controller
                         vacancy.JobDescription)
                         ? "Employer vacancy matching your Job."
                         : vacancy.JobDescription.Trim(),
+                    Location = string.IsNullOrWhiteSpace(vacancy.LocationName)
+                        ? "Location not specified"
+                        : vacancy.LocationName.Trim(),
                     Level = string.Join(
                         " · ",
                         new[]

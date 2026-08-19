@@ -11,6 +11,8 @@ public sealed class CreateVacancyPageViewModel
 
     public List<JobFamily> JobFamilies { get; set; } = new();
 
+    public List<CompanyLocationInput> CompanyLocations { get; set; } = new();
+
     public CreateVacancyInput Input { get; set; } = new();
 
     public string? ErrorMessage { get; set; }
@@ -23,6 +25,9 @@ public sealed class CreateVacancyPageViewModel
 
     public bool HasTaxonomy =>
         JobFamilies.Count > 0;
+
+    public bool HasCompanyLocations =>
+        CompanyLocations.Any(item => item.Id is > 0);
 
     public string Initials
     {
@@ -74,6 +79,12 @@ public sealed class CreateVacancyInput
     public int PositionId { get; set; }
 
     public int? HiringPlanId { get; set; }
+
+    [Range(
+        1,
+        int.MaxValue,
+        ErrorMessage = "Company location seçilməlidir.")]
+    public int CompanyLocationId { get; set; }
 
     [Required(ErrorMessage = "Role Title boş ola bilməz.")]
     [StringLength(200)]

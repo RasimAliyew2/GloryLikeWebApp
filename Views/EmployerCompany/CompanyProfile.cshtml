@@ -195,6 +195,12 @@
                     novalidate>
                     @Html.AntiForgeryToken()
 
+                    <input
+                        id="companyLogoDataUrl"
+                        name="LogoDataUrl"
+                        type="hidden"
+                        data-profile-field />
+
                     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
                     {
                         <div class="company-profile-alert" role="alert">
@@ -321,14 +327,19 @@
                                         id="companyLogo"
                                         name="companyLogo"
                                         type="file"
-                                        accept="image/png,image/svg+xml"
-                                        data-max-size="2097152"
+                                        accept="image/jpeg,image/png"
+                                        data-max-size="5242880"
                                         data-upload-kind="Logo"
                                         data-profile-field />
+                                    <img
+                                        class="company-logo-upload-preview"
+                                        id="companyLogoUploadPreview"
+                                        alt="Company logo preview"
+                                        hidden />
                                     <span class="company-upload-icon">⇧</span>
                                     <strong data-upload-title>Logo</strong>
                                     <small data-upload-caption>
-                                        Recommended size: 400×400 px · PNG or SVG · Max. 2MB
+                                        JPG or PNG source · Max. 5MB. Saved as 512×512 px and max. 350KB; crop is available before saving.
                                     </small>
                                 </label>
                             </div>
@@ -447,72 +458,35 @@
                                 data-profile-field>
                             </div>
 
-                            <div class="company-benefit-suggestions" aria-label="Benefit suggestions">
-                                @foreach (var benefit in new[]
-                                {
-                                    "VHI",
-                                    "Flexible schedule",
-                                    "Remote work",
-                                    "Free lunches",
-                                    "Corporate Training",
-                                    "Fitness",
-                                    "Parking",
-                                    "Bonuses"
-                                })
-                                {
-                                    <button
-                                        type="button"
-                                        data-benefit-suggestion="@benefit">
-                                        + @benefit
-                                    </button>
-                                }
+                            <div
+                                class="company-benefit-suggestions"
+                                id="companyBenefitSuggestions"
+                                aria-label="Benefit suggestions"
+                                hidden>
                             </div>
+                            <small>
+                                Start typing to search the Employee Benefits List. You can also add your own custom benefit.
+                            </small>
                         </div>
                     </section>
 
                     <section class="company-form-card">
-                        <h2>Location</h2>
-
-                        <div class="company-field full-width">
-                            <label for="companyAddress">Address</label>
-                            <input
-                                id="companyAddress"
-                                name="companyAddress"
-                                type="text"
-                                maxlength="240"
-                                placeholder="Street, building, office"
-                                autocomplete="street-address"
-                                data-profile-field />
+                        <div class="company-card-heading-row">
+                            <div>
+                                <h2>Locations</h2>
+                                <p>Add every office or branch that can hire employees.</p>
+                            </div>
+                            <button
+                                class="company-secondary-button company-add-location"
+                                id="addCompanyLocationButton"
+                                type="button">
+                                ＋ Add location
+                            </button>
                         </div>
 
-                        <div class="company-form-grid">
-                            <div class="company-field">
-                                <label for="companyCountry">Country</label>
-                                <input
-                                    id="companyCountry"
-                                    name="companyCountry"
-                                    type="text"
-                                    maxlength="100"
-                                    placeholder="Azerbaijan"
-                                    autocomplete="country-name"
-                                    data-profile-field />
-                            </div>
-                            <div class="company-field">
-                                <label for="companyCity">City</label>
-                                <input
-                                    id="companyCity"
-                                    name="companyCity"
-                                    type="text"
-                                    maxlength="100"
-                                    placeholder="Baku"
-                                    autocomplete="address-level2"
-                                    data-profile-field />
-                            </div>
-                        </div>
-
-                        <div class="company-map-placeholder">
-                            <span>⌖</span>
-                            <small>Map integration coming soon</small>
+                        <div
+                            class="company-location-list"
+                            id="companyLocationList">
                         </div>
                     </section>
 
@@ -625,6 +599,56 @@
         <div class="company-preview-benefits" id="companyPreviewBenefits"></div>
     </dialog>
 
+    <dialog class="company-logo-crop-dialog" id="companyLogoCropDialog">
+        <div class="company-logo-crop-header">
+            <div>
+                <span>COMPANY LOGO</span>
+                <h2>Crop image</h2>
+            </div>
+            <button
+                type="button"
+                id="companyLogoCropClose"
+                aria-label="Close crop editor">×</button>
+        </div>
+
+        <div class="company-logo-crop-body">
+            <div class="company-logo-crop-stage" id="companyLogoCropStage">
+                <canvas
+                    id="companyLogoCropCanvas"
+                    width="520"
+                    height="520"
+                    aria-label="Company logo crop preview"></canvas>
+                <div class="company-logo-crop-guide" aria-hidden="true"></div>
+            </div>
+
+            <div class="company-logo-crop-controls">
+                <label for="companyLogoCropZoom">Zoom</label>
+                <input
+                    id="companyLogoCropZoom"
+                    type="range"
+                    min="1"
+                    max="3"
+                    value="1"
+                    step="0.01" />
+                <p>
+                    Drag the image to position it inside the circle. The saved
+                    file is limited to 512×512 px and 350KB.
+                </p>
+            </div>
+        </div>
+
+        <div class="company-logo-crop-footer">
+            <button
+                class="company-secondary-button"
+                id="companyLogoCropCancel"
+                type="button">Cancel</button>
+            <button
+                class="company-primary-button"
+                id="companyLogoCropSave"
+                type="button">Save crop</button>
+        </div>
+    </dialog>
+
     <div
         class="company-toast"
         id="companyToast"
@@ -637,6 +661,7 @@
         asp-append-version="true">
     </script>
     <script type="application/json" id="companyProfileInitialData">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Profile, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)))</script>
+    <script type="application/json" id="companyBenefitCatalog">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BenefitSuggestions))</script>
     <script
         src="~/js/company-profile.js"
         asp-append-version="true">

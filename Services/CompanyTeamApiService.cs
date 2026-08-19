@@ -166,6 +166,64 @@ public sealed class CompanyTeamApiService : ICompanyTeamApiService
         }
     }
 
+    public async Task<CompanyTeamApiResult> UpdateMemberRoleAsync(
+        int actorUserId,
+        Guid invitationId,
+        string role,
+        CancellationToken cancellationToken = default)
+    {
+        if (actorUserId <= 0
+            || invitationId == Guid.Empty
+            || string.IsNullOrWhiteSpace(role))
+        {
+            return CompanyTeamApiResult.Fail(
+                "Access level məlumatı düzgün deyil.");
+        }
+
+        try
+        {
+            using var request = new HttpRequestMessage(
+                HttpMethod.Put,
+                $"api/company/team/invitations/{invitationId}/role")
+            {
+                Content = JsonContent.Create(
+                    new BackendUpdateCompanyTeamMemberRoleRequest
+                    {
+                        ActorUserId = actorUserId,
+                        Role = role.Trim()
+                    },
+                    options: JsonOptions)
+            };
+
+            using var response = await _httpClient.SendAsync(
+                request,
+                cancellationToken);
+            var result = await ReadCompanyTeamResponseAsync(
+                response,
+                cancellationToken);
+
+            return result is null
+                ? CompanyTeamApiResult.Fail(
+                    "Backend access level cavabı oxunmadı.")
+                : CompanyTeamApiResult.From(result);
+        }
+        catch (OperationCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return CompanyTeamApiResult.Fail(
+                "Access level yenilənməsi vaxtında tamamlanmadı.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Team access level BackendApp-də yenilənmədi.");
+
+            return CompanyTeamApiResult.Fail(
+                "BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
     public async Task<CompanyTeamInvitationResolveResult>
         ResolveInvitationAsync(
             string token,

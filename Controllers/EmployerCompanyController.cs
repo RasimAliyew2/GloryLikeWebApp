@@ -177,6 +177,7 @@ public sealed class EmployerCompanyController : Controller
         {
             model.Profile = result.Data.Profile;
             model.Profile.Benefits ??= [];
+            model.Profile.Locations ??= [];
         }
 
         return View("CompanyProfile", model);
@@ -199,6 +200,7 @@ public sealed class EmployerCompanyController : Controller
         }
 
         profile.Benefits ??= [];
+        profile.Locations ??= [];
 
         if (!ModelState.IsValid)
         {
@@ -284,6 +286,7 @@ public sealed class EmployerCompanyController : Controller
 
         model.CompanyName = result.Data.CompanyName;
         model.CanManageTeam = result.Data.CanManageTeam;
+        model.ActorRole = result.Data.ActorRole;
         model.Members = result.Data.Members
             .Select(ToTeamMemberViewModel)
             .OrderBy(item => RoleOrder(item.Role))
@@ -413,6 +416,54 @@ public sealed class EmployerCompanyController : Controller
         });
     }
 
+    [HttpPost("/Employer/Company/Team/Role/{invitationId:guid}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateMemberRole(
+        Guid invitationId,
+        UpdateCompanyTeamMemberRoleViewModel model,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Login məlumatı tapılmadı. Yenidən sign in edin."
+            });
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Access level düzgün seçilməyib."
+            });
+        }
+
+        var result = await _companyTeamApiService.UpdateMemberRoleAsync(
+            actorUserId,
+            invitationId,
+            model.Role,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new
+            {
+                success = true,
+                message = string.IsNullOrWhiteSpace(result.Message)
+                    ? "Access level yeniləndi."
+                    : result.Message
+            })
+            : BadRequest(new
+            {
+                success = false,
+                message = string.IsNullOrWhiteSpace(result.Message)
+                    ? "Access level dəyişdirilmədi."
+                    : result.Message
+            });
+    }
+
     private bool TryGetEmployerUserId(out int userId)
     {
         return int.TryParse(
@@ -442,7 +493,9 @@ public sealed class EmployerCompanyController : Controller
             Status = item.Status,
             InvitedAtUtc = item.InvitedAtUtc,
             AcceptedAtUtc = item.AcceptedAtUtc,
-            IsFounder = item.IsFounder
+            IsFounder = item.IsFounder,
+            CanChangeRole = item.CanChangeRole,
+            AllowedRoles = item.AllowedRoles ?? []
         };
     }
 

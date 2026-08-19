@@ -18,17 +18,20 @@ public sealed class EmployerVacanciesController : Controller
     private readonly ISkillAndJobApiService _skillAndJobApiService;
     private readonly IVacancyApiService _vacancyApiService;
     private readonly ICompanyHiringPlanApiService _companyHiringPlanApiService;
+    private readonly ICompanyProfileApiService _companyProfileApiService;
     private readonly ILogger<EmployerVacanciesController> _logger;
 
     public EmployerVacanciesController(
         ISkillAndJobApiService skillAndJobApiService,
         IVacancyApiService vacancyApiService,
         ICompanyHiringPlanApiService companyHiringPlanApiService,
+        ICompanyProfileApiService companyProfileApiService,
         ILogger<EmployerVacanciesController> logger)
     {
         _skillAndJobApiService = skillAndJobApiService;
         _vacancyApiService = vacancyApiService;
         _companyHiringPlanApiService = companyHiringPlanApiService;
+        _companyProfileApiService = companyProfileApiService;
         _logger = logger;
     }
 
@@ -479,6 +482,30 @@ public sealed class EmployerVacanciesController : Controller
                 .GetJobFamiliesAsync(
                     cancellationToken);
 
+        if (TryGetEmployerUserId(out var actorUserId))
+        {
+            var profileResult = await _companyProfileApiService.GetAsync(
+                actorUserId,
+                cancellationToken);
+
+            if (profileResult.Success
+                && profileResult.Data?.Profile is not null)
+            {
+                model.CompanyLocations = profileResult.Data.Profile.Locations?
+                    .Where(item => item.Id is > 0)
+                    .OrderBy(item => item.SortOrder)
+                    .ThenBy(item => item.DisplayName)
+                    .ToList() ?? [];
+            }
+            else if (string.IsNullOrWhiteSpace(model.SubmissionErrorMessage))
+            {
+                model.SubmissionErrorMessage = string.IsNullOrWhiteSpace(
+                    profileResult.Message)
+                    ? "Company locations could not be loaded."
+                    : profileResult.Message;
+            }
+        }
+
         if (!result.Success)
         {
             model.ErrorMessage =
@@ -502,6 +529,13 @@ public sealed class EmployerVacanciesController : Controller
             model.ErrorMessage =
                 "SQL-də Job Family tapılmadı. "
                 + "Vacancy formunda statik Job göstərilmir.";
+        }
+
+        if (!model.HasCompanyLocations
+            && string.IsNullOrWhiteSpace(model.SubmissionErrorMessage))
+        {
+            model.SubmissionErrorMessage =
+                "Add at least one Company location before creating a vacancy.";
         }
 
         return model;

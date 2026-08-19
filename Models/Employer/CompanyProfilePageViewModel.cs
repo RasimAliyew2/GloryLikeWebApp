@@ -12,6 +12,9 @@ public sealed class CompanyProfilePageViewModel
 
     public CompanyProfileInput Profile { get; set; } = new();
 
+    public IReadOnlyList<string> BenefitSuggestions =>
+        EmployeeBenefitCatalog.All;
+
     public string Initials
     {
         get
@@ -70,6 +73,8 @@ public class CompanyProfileInput
     [StringLength(1600)]
     public string? WhyWorkWithUs { get; set; }
     public List<string>? Benefits { get; set; }
+    public string? LogoDataUrl { get; set; }
+    public List<CompanyLocationInput>? Locations { get; set; }
     public string? CompanyAddress { get; set; }
     public string? CompanyCountry { get; set; }
     public string? CompanyCity { get; set; }
@@ -80,6 +85,26 @@ public class CompanyProfileInput
     public string? TelegramUrl { get; set; }
     public string? TiktokUrl { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
+}
+
+public sealed class CompanyLocationInput
+{
+    public int? Id { get; set; }
+
+    [StringLength(120)]
+    public string? Name { get; set; }
+
+    [StringLength(240)]
+    public string? Address { get; set; }
+
+    [StringLength(100)]
+    public string? Country { get; set; }
+
+    [StringLength(100)]
+    public string? City { get; set; }
+
+    public int SortOrder { get; set; }
+    public string DisplayName { get; set; } = string.Empty;
 }
 
 public sealed class CompanyProfileApiResponse

@@ -41,7 +41,13 @@
                 <a asp-controller="Opportunities" asp-action="OpportunitiesPage">← Back to opportunities</a>
                 <span class="screening-eyebrow">VACANCY SCREENING</span>
                 <h1>@vacancy.RoleTitle</h1>
-                <p>@vacancy.EmployerName · @vacancy.JobFamilyName · @vacancy.SeniorityName</p>
+                <p>
+                    @vacancy.EmployerName · @vacancy.JobFamilyName · @vacancy.SeniorityName
+                    @if (!string.IsNullOrWhiteSpace(vacancy.LocationName))
+                    {
+                        <text> · @vacancy.LocationName</text>
+                    }
+                </p>
                 <div class="screening-progress">
                     <strong>@vacancy.ScreeningQuestions.Count</strong>
                     <span>questions · Answer all questions before submitting</span>

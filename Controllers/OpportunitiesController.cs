@@ -317,9 +317,9 @@ public sealed class OpportunitiesController : Controller
                 EmployerName = vacancy.EmployerName,
                 Title = title,
                 Level = vacancy.SeniorityName,
-                Location = string.IsNullOrWhiteSpace(vacancy.EmployerName)
-                    ? "Employer vacancy"
-                    : vacancy.EmployerName.Trim(),
+                Location = string.IsNullOrWhiteSpace(vacancy.LocationName)
+                    ? "Location not specified"
+                    : vacancy.LocationName.Trim(),
                 WorkType = vacancy.EmploymentType,
                 Salary = BuildSalaryText(vacancy),
                 Score = Math.Clamp(vacancy.MatchScore, 0, 100),

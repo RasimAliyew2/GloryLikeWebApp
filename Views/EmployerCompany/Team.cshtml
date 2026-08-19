@@ -290,7 +290,7 @@
 
                                 @foreach (var member in members)
                                 {
-                                    <article class="team-member-row @(Model.CanManageTeam ? "can-manage" : string.Empty)">
+                                    <article class="team-member-row @(member.CanChangeRole ? "can-manage" : string.Empty)">
                                         <div class="team-member-avatar">
                                             @member.Initials
                                         </div>
@@ -311,15 +311,48 @@
                                             </span>
                                         </div>
 
-                                        <span class="team-member-role">
-                                            @member.Role
-                                        </span>
+                                        @if (member.CanChangeRole)
+                                        {
+                                            <form
+                                                class="team-member-role-form"
+                                                asp-controller="EmployerCompany"
+                                                asp-action="UpdateMemberRole"
+                                                asp-route-invitationId="@member.InvitationId"
+                                                method="post"
+                                                data-team-role-form>
+                                                @Html.AntiForgeryToken()
+                                                <label class="sr-only" for="role-@member.InvitationId">
+                                                    Access level for @member.DisplayName
+                                                </label>
+                                                <select
+                                                    id="role-@member.InvitationId"
+                                                    name="Role"
+                                                    data-team-role-select
+                                                    data-original-role="@member.Role"
+                                                    aria-label="Access level for @member.DisplayName">
+                                                    @foreach (var allowedRole in member.AllowedRoles)
+                                                    {
+                                                        <option
+                                                            value="@allowedRole"
+                                                            selected="@(allowedRole == member.Role ? "selected" : null)">
+                                                            @allowedRole
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <span class="team-member-role">
+                                                @member.Role
+                                            </span>
+                                        }
 
                                         <span class="team-member-status @(member.IsInvited ? "invited" : "active")">
                                             @member.Status
                                         </span>
 
-                                        @if (Model.CanManageTeam && !member.IsFounder)
+                                        @if (member.CanChangeRole && !member.IsFounder)
                                         {
                                             <form
                                                 class="team-member-remove-form"
@@ -408,7 +441,10 @@
                     required>
                     <option value="Recruiter">Recruiter</option>
                     <option value="Hiring Manager">Hiring Manager</option>
-                    <option value="HR Admin">HR Admin</option>
+                    @if (Model.CanInviteHrAdmin)
+                    {
+                        <option value="HR Admin">HR Admin</option>
+                    }
                 </select>
 
                 <div

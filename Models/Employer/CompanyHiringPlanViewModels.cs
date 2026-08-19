@@ -50,7 +50,7 @@ public class SaveCompanyHiringPlanInput
     public string EmploymentType { get; set; } = "Full-time";
 
     [StringLength(1000)]
-    public string Notes { get; set; } = string.Empty;
+    public string? Notes { get; set; }
 }
 
 public sealed class CompanyHiringPlanApiResponse
