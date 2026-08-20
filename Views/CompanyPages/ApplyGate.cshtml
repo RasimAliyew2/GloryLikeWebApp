@@ -1,0 +1,35 @@
+@model GloryLikeWebApp.Models.Employer.PublicCompanyPageViewModel
+@{
+    Layout = null;
+    var returnUrl = ViewData["ReturnUrl"] as string ?? "/";
+    var employerAccount = ViewData["EmployerAccount"] is true;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Apply — SkillMatch</title>
+    <link rel="stylesheet" href="~/css/company-public.css" asp-append-version="true" />
+</head>
+<body class="company-public-body">
+    <header class="company-public-nav"><a class="company-public-brand" href="/companies/@Model.CompanyOwnerUserId">@Model.Profile.CompanyName</a></header>
+    <main class="company-public-gate">
+        <p class="company-public-eyebrow">Application access</p>
+        <h1>@Model.SelectedVacancy?.RoleTitle</h1>
+        @if (employerAccount)
+        {
+            <p>This action needs a candidate account. You are currently signed in as an employer.</p>
+            <div class="company-public-gate-actions"><a class="company-public-button" href="/ChoosePortal">Open my employer account</a></div>
+        }
+        else
+        {
+            <p>Sign in to your candidate account or create one. You will return directly to this application.</p>
+            <div class="company-public-gate-actions">
+                <a class="company-public-button primary" href="/SignIn?returnUrl=@Uri.EscapeDataString(returnUrl)">Sign in and apply</a>
+                <a class="company-public-button" href="/Registration?accountType=candidate&amp;returnUrl=@Uri.EscapeDataString(returnUrl)">Create candidate account</a>
+            </div>
+        }
+    </main>
+</body>
+</html>

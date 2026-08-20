@@ -12,6 +12,29 @@ public interface ICompanyProfileApiService
         int actorUserId,
         CompanyProfileInput profile,
         CancellationToken cancellationToken = default);
+
+    Task<PublicCompanyProfileApiResult> GetPublicAsync(
+        int companyOwnerUserId,
+        CancellationToken cancellationToken = default);
+
+    Task<CompanyAboutAiApiResult> CustomizeWithAiAsync(
+        int actorUserId,
+        CompanyAboutAiInput input,
+        CancellationToken cancellationToken = default);
+}
+
+public sealed class PublicCompanyProfileApiResult
+{
+    public bool Success { get; init; }
+    public string Message { get; init; } = string.Empty;
+    public PublicCompanyProfileApiResponse? Data { get; init; }
+}
+
+public sealed class CompanyAboutAiApiResult
+{
+    public bool Success { get; init; }
+    public string Message { get; init; } = string.Empty;
+    public CompanyAboutAiApiResponse? Data { get; init; }
 }
 
 public sealed class CompanyProfileApiResult

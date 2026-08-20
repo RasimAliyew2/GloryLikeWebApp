@@ -347,7 +347,7 @@
     <main class="page-shell">
         <section class="auth-card" aria-labelledby="login-title">
             <div class="tabs">
-                <a class="tab" href="/Registration">Registration</a>
+                <a class="tab" href="/Registration?accountType=candidate&amp;returnUrl=@Uri.EscapeDataString(Model.ReturnUrl)">Registration</a>
                 <a class="tab active" href="/SignIn">Login</a>
             </div>
 
@@ -371,7 +371,7 @@
                 <div class="social-stack">
                     @if (googleAuthenticationEnabled)
                     {
-                        <a class="social-button google" href="/SignIn/External/google">
+                        <a class="social-button google" href="/SignIn/External/google?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl)">
                             <span class="social-icon">G</span>
                             <span>Sign in with Google</span>
                         </a>
@@ -388,7 +388,7 @@
 
                     @if (appleAuthenticationEnabled)
                     {
-                        <a class="social-button apple" href="/SignIn/External/apple">
+                        <a class="social-button apple" href="/SignIn/External/apple?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl)">
                             <span class="social-icon">●</span>
                             <span>Sign in with Apple</span>
                         </a>
@@ -408,6 +408,7 @@
 
                 <form asp-controller="Account" asp-action="SignIn" method="post" novalidate>
                     @Html.AntiForgeryToken()
+                    <input asp-for="ReturnUrl" type="hidden" />
 
                     <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
@@ -441,7 +442,7 @@
 
                 <div class="create-row">
                     Don't have an account?
-                    <a href="/Registration">Create a profile</a>
+                    <a href="/Registration?accountType=candidate&amp;returnUrl=@Uri.EscapeDataString(Model.ReturnUrl)">Create a profile</a>
                 </div>
             </div>
         </section>

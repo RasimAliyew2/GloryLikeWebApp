@@ -1,0 +1,65 @@
+@model GloryLikeWebApp.Models.Employer.PublicCompanyPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = $"{Model.Profile.CompanyName} vacancies";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — SkillMatch</title>
+    <link rel="stylesheet" href="~/css/company-public.css" asp-append-version="true" />
+</head>
+<body class="company-public-body">
+    <header class="company-public-nav">
+        <a class="company-public-brand" href="/companies/@Model.CompanyOwnerUserId">@(string.IsNullOrWhiteSpace(Model.Profile.CompanyName) ? "SkillMatch" : Model.Profile.CompanyName)</a>
+        <nav class="company-public-nav-actions">
+            <a href="/companies/@Model.CompanyOwnerUserId">About</a>
+            @if (User.Identity?.IsAuthenticated != true)
+            {
+                <a href="/SignIn">Sign in</a>
+                <a class="primary" href="/Registration?accountType=candidate">Sign up</a>
+            }
+        </nav>
+    </header>
+    <main class="company-public-vacancy-shell">
+        <header class="company-public-vacancy-heading">
+            <div>
+                <p class="company-public-eyebrow">Open opportunities</p>
+                <h1>Join @Model.Profile.CompanyName</h1>
+                <p>Browse open roles without creating an account. Sign in is needed only when you apply.</p>
+            </div>
+            <a class="company-public-button" href="/companies/@Model.CompanyOwnerUserId">← About company</a>
+        </header>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="company-public-error">@Model.ErrorMessage</div>
+        }
+        else if (Model.Vacancies.Count == 0)
+        {
+            <div class="company-public-empty">There are no public vacancies right now.</div>
+        }
+        else
+        {
+            <section class="company-public-vacancy-grid" aria-label="Open vacancies">
+                @foreach (var vacancy in Model.Vacancies)
+                {
+                    <a class="company-public-vacancy-card" href="/companies/@Model.CompanyOwnerUserId/vacancies/@vacancy.Id">
+                        <div>
+                            <h2>@(string.IsNullOrWhiteSpace(vacancy.RoleTitle) ? vacancy.PositionName : vacancy.RoleTitle)</h2>
+                            <div class="company-public-vacancy-meta">
+                                @if (!string.IsNullOrWhiteSpace(vacancy.LocationName)) { <span>⌖ @vacancy.LocationName</span> }
+                                @if (!string.IsNullOrWhiteSpace(vacancy.EmploymentType)) { <span>◷ @vacancy.EmploymentType</span> }
+                                @if (!string.IsNullOrWhiteSpace(vacancy.SeniorityName)) { <span>◇ @vacancy.SeniorityName</span> }
+                            </div>
+                        </div>
+                        <span class="company-public-vacancy-arrow" aria-hidden="true">→</span>
+                    </a>
+                }
+            </section>
+        }
+    </main>
+</body>
+</html>

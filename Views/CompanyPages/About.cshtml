@@ -1,0 +1,56 @@
+@model GloryLikeWebApp.Models.Employer.PublicCompanyPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.Profile.CompanyName)
+        ? "Company"
+        : Model.Profile.CompanyName;
+    var payload = new
+    {
+        profile = Model.Profile,
+        config = new
+        {
+            vacanciesUrl = $"/companies/{Model.CompanyOwnerUserId}/vacancies",
+            vacancyCount = Model.Vacancies.Count
+        }
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — SkillMatch</title>
+    <link rel="stylesheet" href="~/css/company-public.css" asp-append-version="true" />
+</head>
+<body class="company-public-body">
+    <header class="company-public-nav">
+        <a class="company-public-brand" href="/">SkillMatch</a>
+        <nav class="company-public-nav-actions" aria-label="Company page">
+            <a href="/companies/@Model.CompanyOwnerUserId/vacancies">Vacancies (@Model.Vacancies.Count)</a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="primary" href="/ChoosePortal">My account</a>
+            }
+            else
+            {
+                <a href="/SignIn">Sign in</a>
+                <a class="primary" href="/Registration?accountType=candidate">Sign up</a>
+            }
+        </nav>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <main class="company-public-vacancy-shell">
+            <div class="company-public-error">@Model.ErrorMessage</div>
+        </main>
+    }
+    else
+    {
+        <main class="company-public-root" data-company-public-root data-company-source="companyPublicData"></main>
+        <script type="application/json" id="companyPublicData">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(payload, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)))</script>
+    }
+
+    <script src="~/js/company-public.js" asp-append-version="true"></script>
+</body>
+</html>

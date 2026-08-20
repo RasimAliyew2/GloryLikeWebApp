@@ -1,0 +1,49 @@
+@model GloryLikeWebApp.Models.Employer.PublicCompanyPageViewModel
+@{
+    Layout = null;
+    var vacancy = Model.SelectedVacancy;
+    ViewData["Title"] = vacancy is null ? "Vacancy" : vacancy.RoleTitle;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — SkillMatch</title>
+    <link rel="stylesheet" href="~/css/company-public.css" asp-append-version="true" />
+</head>
+<body class="company-public-body">
+    <header class="company-public-nav">
+        <a class="company-public-brand" href="/companies/@Model.CompanyOwnerUserId">@Model.Profile.CompanyName</a>
+        <nav class="company-public-nav-actions"><a href="/companies/@Model.CompanyOwnerUserId/vacancies">All vacancies</a></nav>
+    </header>
+    <main class="company-public-vacancy-shell">
+        @if (vacancy is null)
+        {
+            <div class="company-public-error">@Model.ErrorMessage</div>
+        }
+        else
+        {
+            <div class="company-public-vacancy-detail">
+                <article class="company-public-card">
+                    <p class="company-public-eyebrow">@vacancy.JobFamilyName · @vacancy.SeniorityName</p>
+                    <h1>@(string.IsNullOrWhiteSpace(vacancy.RoleTitle) ? vacancy.PositionName : vacancy.RoleTitle)</h1>
+                    <div class="company-public-vacancy-meta">
+                        <span>⌖ @vacancy.LocationName</span>
+                        <span>◷ @vacancy.EmploymentType</span>
+                        @if (vacancy.ApplicationDeadline.HasValue) { <span>Apply by @vacancy.ApplicationDeadline.Value.ToString("dd MMM yyyy")</span> }
+                    </div>
+                    <hr />
+                    <h2>About the role</h2>
+                    <div class="company-public-vacancy-description">@vacancy.JobDescription</div>
+                </article>
+                <aside class="company-public-apply-panel">
+                    <h2>Interested?</h2>
+                    <p>You can read the vacancy publicly. An account is required only to submit your application.</p>
+                    <a class="company-public-button primary" href="/companies/@Model.CompanyOwnerUserId/vacancies/@vacancy.Id/apply">Apply now</a>
+                </aside>
+            </div>
+        }
+    </main>
+</body>
+</html>

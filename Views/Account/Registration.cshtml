@@ -165,6 +165,7 @@
                             method="post"
                             novalidate>
                             @Html.AntiForgeryToken()
+                            <input asp-for="ReturnUrl" type="hidden" />
                             <input
                                 asp-for="AccountType"
                                 id="accountType"
@@ -410,7 +411,7 @@
 
                         <p class="login-prompt">
                             Already have an account?
-                            <a href="/SignIn">Log in</a>
+                            <a href="/SignIn?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl)">Log in</a>
                         </p>
                     </section>
                 </div>

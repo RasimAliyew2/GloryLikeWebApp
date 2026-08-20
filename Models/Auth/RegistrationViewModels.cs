@@ -4,6 +4,8 @@ namespace GloryLikeWebApp.Models.Auth;
 
 public sealed class RegistrationViewModel
 {
+    public string ReturnUrl { get; set; } = string.Empty;
+
     [Required(ErrorMessage = "Profil və ya şirkət adını daxil edin.")]
     [StringLength(150)]
     public string ProfileName { get; set; } = string.Empty;
@@ -57,6 +59,8 @@ public sealed class RegistrationViewModel
 
 public sealed class VerifyRegistrationViewModel
 {
+    public string ReturnUrl { get; set; } = string.Empty;
+
     public Guid VerificationId { get; set; }
 
     [Required(ErrorMessage = "Təsdiq kodunu daxil edin.")]

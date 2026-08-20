@@ -36,6 +36,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxWZXJpZnlSZWdpc3RyYXRpb24uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/CompanyPages/About.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcGFueVBhZ2VzXEFib3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/CompanyPages/ApplyGate.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcGFueVBhZ2VzXEFwcGx5R2F0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/CompanyPages/Vacancies.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcGFueVBhZ2VzXFZhY2FuY2llcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/CompanyPages/Vacancy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcGFueVBhZ2VzXFZhY2FuY3kuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/EmployerCompany/CompanyProfile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZXJDb21wYW55XENvbXBhbnlQcm9maWxlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

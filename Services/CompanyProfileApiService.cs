@@ -55,6 +55,10 @@ public sealed class CompanyProfileApiService : ICompanyProfileApiService
             WhyWorkWithUs = profile.WhyWorkWithUs,
             Benefits = profile.Benefits ?? [],
             LogoDataUrl = profile.LogoDataUrl,
+            CoverImageDataUrl = profile.CoverImageDataUrl,
+            AboutPageLayoutJson = profile.AboutPageLayoutJson,
+            AboutPageCustomHtml = profile.AboutPageCustomHtml,
+            UseCustomAboutPageHtml = profile.UseCustomAboutPageHtml,
             Locations = profile.Locations ?? [],
             CompanyAddress = profile.CompanyAddress,
             CompanyCountry = profile.CompanyCountry,
@@ -75,6 +79,82 @@ public sealed class CompanyProfileApiService : ICompanyProfileApiService
                 Content = JsonContent.Create(request, options: JsonOptions)
             },
             cancellationToken);
+    }
+
+    public async Task<PublicCompanyProfileApiResult> GetPublicAsync(
+        int companyOwnerUserId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            using var response = await _httpClient.GetAsync(
+                $"api/company/profile/public/{companyOwnerUserId}",
+                cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            var data = Deserialize<PublicCompanyProfileApiResponse>(body);
+
+            return new PublicCompanyProfileApiResult
+            {
+                Success = response.IsSuccessStatusCode && data?.Success == true,
+                Message = data?.Message
+                    ?? ExtractProblemMessage(body)
+                    ?? $"Public company page request failed. HTTP {(int)response.StatusCode}.",
+                Data = data
+            };
+        }
+        catch (Exception exception) when (exception is HttpRequestException
+            or TaskCanceledException)
+        {
+            _logger.LogError(exception, "Public company page BackendApp-dən yüklənmədi.");
+            return new PublicCompanyProfileApiResult
+            {
+                Success = false,
+                Message = "Public company page hazırda yüklənə bilmir."
+            };
+        }
+    }
+
+    public async Task<CompanyAboutAiApiResult> CustomizeWithAiAsync(
+        int actorUserId,
+        CompanyAboutAiInput input,
+        CancellationToken cancellationToken = default)
+    {
+        var payload = new BackendCompanyAboutAiRequest
+        {
+            ActorUserId = actorUserId,
+            Prompt = input.Prompt,
+            CurrentHtml = input.CurrentHtml
+        };
+
+        try
+        {
+            using var response = await _httpClient.PostAsJsonAsync(
+                "api/company/profile/about-html/ai",
+                payload,
+                JsonOptions,
+                cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            var data = Deserialize<CompanyAboutAiApiResponse>(body);
+
+            return new CompanyAboutAiApiResult
+            {
+                Success = response.IsSuccessStatusCode && data?.Success == true,
+                Message = data?.Message
+                    ?? ExtractProblemMessage(body)
+                    ?? "AI about page response could not be read.",
+                Data = data
+            };
+        }
+        catch (Exception exception) when (exception is HttpRequestException
+            or TaskCanceledException)
+        {
+            _logger.LogError(exception, "Company About AI BackendApp ilə işləmədi.");
+            return new CompanyAboutAiApiResult
+            {
+                Success = false,
+                Message = "AI dizayn xidməti ilə əlaqə qurulmadı."
+            };
+        }
     }
 
     private async Task<CompanyProfileApiResult> SendAsync(
@@ -176,5 +256,20 @@ public sealed class CompanyProfileApiService : ICompanyProfileApiService
         }
 
         return null;
+    }
+
+    private static T? Deserialize<T>(string body)
+    {
+        if (string.IsNullOrWhiteSpace(body))
+            return default;
+
+        try
+        {
+            return JsonSerializer.Deserialize<T>(body, JsonOptions);
+        }
+        catch (JsonException)
+        {
+            return default;
+        }
     }
 }

@@ -99,6 +99,7 @@
                 <input
                     asp-for="VerificationId"
                     type="hidden" />
+                <input asp-for="ReturnUrl" type="hidden" />
 
                 <label for="verificationCode">
                     Verification code
@@ -151,6 +152,7 @@
                         name="verificationId"
                         type="hidden"
                         value="@Model.VerificationId" />
+                    <input name="returnUrl" type="hidden" value="@Model.ReturnUrl" />
                     <button
                         class="resend-button"
                         id="resendButton"

@@ -1,0 +1,136 @@
+:root {
+    --company-public-ink: #151a2d;
+    --company-public-muted: #667085;
+    --company-public-primary: #5b4cf0;
+    --company-public-soft: #f4f2ff;
+    --company-public-line: #e7e9f1;
+}
+
+* { box-sizing: border-box; }
+
+body.company-public-body {
+    margin: 0;
+    color: var(--company-public-ink);
+    background: #f7f8fc;
+    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.company-public-nav {
+    min-height: 72px;
+    padding: 14px max(22px, calc((100vw - 1180px) / 2));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: rgba(255,255,255,.96);
+    border-bottom: 1px solid var(--company-public-line);
+}
+
+.company-public-brand {
+    color: var(--company-public-ink);
+    font-size: 21px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.company-public-nav-actions { display: flex; align-items: center; gap: 10px; }
+
+.company-public-nav-actions a,
+.company-public-button {
+    display: inline-flex;
+    min-height: 44px;
+    padding: 0 18px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--company-public-line);
+    border-radius: 12px;
+    color: var(--company-public-ink);
+    background: #fff;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.company-public-nav-actions a.primary,
+.company-public-button.primary {
+    color: #fff;
+    background: var(--company-public-primary);
+    border-color: var(--company-public-primary);
+}
+
+.company-public-root { min-height: calc(100vh - 72px); padding-bottom: 72px; }
+.company-public-page { width: min(1180px, calc(100% - 40px)); margin: 30px auto 0; }
+.company-public-section { margin-top: 24px; }
+
+.company-public-media {
+    position: relative;
+    overflow: hidden;
+    min-height: 430px;
+    border-radius: 30px;
+    color: #fff;
+    background: linear-gradient(135deg, #242a46, #6858ef);
+    box-shadow: 0 28px 70px rgba(29,36,65,.18);
+}
+
+.company-public-cover { width: 100%; height: 430px; display: block; object-fit: cover; }
+.company-public-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 28%, rgba(12,15,29,.82)); }
+.company-public-identity { position: absolute; z-index: 1; left: 38px; right: 38px; bottom: 34px; display: flex; align-items: flex-end; gap: 22px; }
+.company-public-logo { width: 112px; height: 112px; flex: 0 0 auto; object-fit: cover; border: 5px solid rgba(255,255,255,.9); border-radius: 28px; background: #fff; box-shadow: 0 15px 35px rgba(0,0,0,.2); }
+.company-public-logo-fallback { display: grid; place-items: center; color: var(--company-public-primary); font-size: 34px; font-weight: 900; }
+.company-public-identity h1 { margin: 0; font-size: clamp(34px, 5vw, 58px); line-height: 1; letter-spacing: -.045em; }
+.company-public-identity p { margin: 12px 0 0; color: rgba(255,255,255,.82); font-size: 17px; }
+
+.company-public-card { padding: clamp(28px, 5vw, 58px); border: 1px solid var(--company-public-line); border-radius: 26px; background: #fff; box-shadow: 0 16px 45px rgba(28,35,60,.06); }
+.company-public-eyebrow { margin: 0 0 12px; color: var(--company-public-primary); font-size: 12px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+.company-public-card h2 { margin: 0 0 18px; font-size: clamp(26px, 3.5vw, 38px); letter-spacing: -.035em; }
+.company-public-copy { margin: 0; color: #4f5b71; font-size: 18px; line-height: 1.78; white-space: pre-line; }
+.company-public-two-column { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 24px; }
+.company-public-feature { padding: 34px; border-radius: 24px; background: #fff; border: 1px solid var(--company-public-line); }
+.company-public-feature:nth-child(2) { background: var(--company-public-soft); }
+.company-public-feature h2 { margin: 0 0 14px; font-size: 25px; }
+.company-public-benefits { display: flex; flex-wrap: wrap; gap: 12px; }
+.company-public-benefit { padding: 12px 16px; border-radius: 999px; color: #4236c9; background: var(--company-public-soft); font-weight: 800; }
+.company-public-locations { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.company-public-location { padding: 20px; border: 1px solid var(--company-public-line); border-radius: 18px; background: #fafbff; }
+.company-public-location strong { display:block; margin-bottom:8px; }
+.company-public-location span { color: var(--company-public-muted); line-height:1.55; }
+.company-public-cta { display:flex; align-items:center; justify-content:space-between; gap:25px; padding:42px; border-radius:28px; color:#fff; background:linear-gradient(135deg,#181d31,#493acb); }
+.company-public-cta h2 { margin:0 0 9px; font-size:34px; }
+.company-public-cta p { margin:0; color:rgba(255,255,255,.72); }
+.company-public-cta .company-public-button { flex:0 0 auto; border:0; color:#3f34c4; background:#fff; }
+.company-public-contact { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; padding:28px; }
+.company-public-contact a { color:var(--company-public-primary); font-weight:800; text-decoration:none; }
+
+.company-public-vacancy-shell { width:min(1180px,calc(100% - 40px)); margin:38px auto; }
+.company-public-vacancy-heading { display:flex; align-items:end; justify-content:space-between; gap:20px; margin-bottom:26px; }
+.company-public-vacancy-heading h1 { margin:0; font-size:clamp(34px,5vw,56px); letter-spacing:-.045em; }
+.company-public-vacancy-heading p { margin:9px 0 0; color:var(--company-public-muted); }
+.company-public-vacancy-grid { display:grid; gap:14px; }
+.company-public-vacancy-card { display:grid; grid-template-columns:1fr auto; gap:22px; padding:26px; border:1px solid var(--company-public-line); border-radius:20px; background:#fff; text-decoration:none; color:inherit; transition:transform .15s ease,box-shadow .15s ease; }
+.company-public-vacancy-card:hover { transform:translateY(-2px); box-shadow:0 14px 34px rgba(28,35,60,.09); }
+.company-public-vacancy-card h2 { margin:0 0 10px; font-size:22px; }
+.company-public-vacancy-meta { display:flex; flex-wrap:wrap; gap:8px 14px; color:var(--company-public-muted); }
+.company-public-vacancy-arrow { align-self:center; color:var(--company-public-primary); font-size:26px; }
+.company-public-empty,.company-public-error { padding:40px; text-align:center; border:1px dashed #ccd1df; border-radius:22px; color:var(--company-public-muted); background:#fff; }
+.company-public-vacancy-detail { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:24px; }
+.company-public-vacancy-description { white-space:pre-line; line-height:1.75; color:#4f5b71; }
+.company-public-apply-panel { align-self:start; position:sticky; top:20px; padding:24px; border-radius:20px; background:#fff; border:1px solid var(--company-public-line); }
+.company-public-apply-panel .company-public-button { width:100%; }
+.company-public-gate { width:min(560px,calc(100% - 40px)); margin:70px auto; padding:38px; text-align:center; border-radius:26px; background:#fff; border:1px solid var(--company-public-line); box-shadow:0 20px 50px rgba(28,35,60,.08); }
+.company-public-gate h1 { margin:0 0 12px; }
+.company-public-gate p { color:var(--company-public-muted); line-height:1.6; }
+.company-public-gate-actions { display:grid; gap:12px; margin-top:26px; }
+
+@media (max-width: 760px) {
+    .company-public-nav { align-items:flex-start; }
+    .company-public-nav-actions { flex-wrap:wrap; justify-content:flex-end; }
+    .company-public-media,.company-public-cover { min-height:360px; height:360px; }
+    .company-public-identity { left:22px; right:22px; bottom:24px; align-items:center; }
+    .company-public-logo { width:78px; height:78px; border-radius:20px; }
+    .company-public-two-column,.company-public-locations,.company-public-vacancy-detail { grid-template-columns:1fr; }
+    .company-public-cta { align-items:flex-start; flex-direction:column; }
+    .company-public-vacancy-heading { align-items:flex-start; flex-direction:column; }
+    .company-public-apply-panel { position:static; }
+    .company-public-custom [data-company-section="culture"],
+    .company-public-custom [data-company-field="locations"] { grid-template-columns:1fr !important; }
+    .company-public-custom [data-company-section="media"] img[data-company-field="cover"] { height:260px !important; }
+}

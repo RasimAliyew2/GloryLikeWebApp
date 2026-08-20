@@ -175,6 +175,7 @@ public sealed class EmployerCompanyController : Controller
         }
         else
         {
+            model.CompanyOwnerUserId = result.Data.CompanyOwnerUserId;
             model.Profile = result.Data.Profile;
             model.Profile.Benefits ??= [];
             model.Profile.Locations ??= [];
@@ -238,8 +239,47 @@ public sealed class EmployerCompanyController : Controller
             success = true,
             message = string.IsNullOrWhiteSpace(result.Message)
                 ? "Company profile bütün team üçün yeniləndi."
-                : result.Message
+                : result.Message,
+            companyOwnerUserId = result.Data?.CompanyOwnerUserId,
+            profile = result.Data?.Profile
         });
+    }
+
+    [HttpPost("/Employer/Company/AboutPage/Ai")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CustomizeAboutPageWithAi(
+        CompanyAboutAiInput input,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+            return Unauthorized(new { success = false, message = "Employer sign in is required." });
+
+        if (!ModelState.IsValid)
+            return BadRequest(new { success = false, message = FirstModelError() });
+
+        var result = await _companyProfileApiService.CustomizeWithAiAsync(
+            actorUserId,
+            input,
+            cancellationToken);
+
+        var data = result.Data;
+        return result.Success && data is not null
+            ? Ok(new
+            {
+                success = true,
+                allowed = data.Allowed,
+                message = data.Message,
+                html = data.Html
+            })
+            : BadRequest(new
+            {
+                success = false,
+                allowed = data?.Allowed ?? false,
+                message = string.IsNullOrWhiteSpace(result.Message)
+                    ? "AI about page dizaynı hazırlanmadı."
+                    : result.Message,
+                html = data?.Html ?? input.CurrentHtml
+            });
     }
 
     [HttpGet("/Employer/Company/Team")]

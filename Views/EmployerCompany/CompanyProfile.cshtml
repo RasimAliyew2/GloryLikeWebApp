@@ -1,4 +1,5 @@
 @model GloryLikeWebApp.Models.Employer.CompanyProfilePageViewModel
+@using GloryLikeWebApp.Models.Employer
 @{
     Layout = null;
     ViewData["Title"] = "Company Profile";
@@ -22,6 +23,7 @@
         rel="stylesheet"
         href="~/css/company-profile.css"
         asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-public.css" asp-append-version="true" />
 </head>
 
 <body>
@@ -164,6 +166,14 @@
                         <button
                             class="company-secondary-button"
                             type="button"
+                            id="companyShareButton"
+                            @(Model.CompanyOwnerUserId <= 0 || !Model.Profile.UpdatedAtUtc.HasValue ? "disabled" : null)>
+                            <span>↗</span>
+                            Share
+                        </button>
+                        <button
+                            class="company-secondary-button"
+                            type="button"
                             id="companyPreviewButton">
                             <span>⊙</span>
                             Preview
@@ -200,6 +210,10 @@
                         name="LogoDataUrl"
                         type="hidden"
                         data-profile-field />
+                    <input id="companyCoverImageDataUrl" name="CoverImageDataUrl" type="hidden" data-profile-field />
+                    <input id="companyAboutPageLayoutJson" name="AboutPageLayoutJson" type="hidden" value="@CompanyAboutPageDefaults.LayoutJson" />
+                    <textarea id="companyAboutPageCustomHtml" name="AboutPageCustomHtml" hidden></textarea>
+                    <input id="companyUseCustomAboutPageHtml" name="UseCustomAboutPageHtml" type="hidden" value="false" />
 
                     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
                     {
@@ -355,10 +369,15 @@
                                         data-max-size="5242880"
                                         data-upload-kind="Cover"
                                         data-profile-field />
+                                    <img
+                                        class="company-cover-upload-preview"
+                                        id="companyCoverUploadPreview"
+                                        alt="Company cover preview"
+                                        hidden />
                                     <span class="company-upload-icon">⇧</span>
                                     <strong data-upload-title>Cover</strong>
                                     <small data-upload-caption>
-                                        Recommended size: 1440×400 px · JPG or PNG · Max. 5MB
+                                        JPG or PNG source · Max. 5MB. Saved as 1600×600 px and max. 700KB; crop is available before saving.
                                     </small>
                                 </label>
                             </div>
@@ -394,6 +413,45 @@
                                 placeholder="https://youtube.com/watch?v=..."
                                 data-profile-field />
                         </div>
+                    </section>
+
+                    <section class="company-form-card company-about-builder-card">
+                        <div class="company-card-heading-row">
+                            <div>
+                                <h2>About page layout</h2>
+                                <p>Move sections up or down. This order is used by Preview and the public share link.</p>
+                            </div>
+                            <span class="company-about-mode" id="companyAboutMode">Standard layout</span>
+                        </div>
+
+                        <div class="company-layout-list" id="companyLayoutList">
+                            @foreach (var layoutSection in new[]
+                            {
+                                ("media", "Cover & logo", "Company imagery and identity"),
+                                ("about", "About", "Company description"),
+                                ("culture", "Culture", "Culture and why work with us"),
+                                ("benefits", "Benefits", "Bonuses and benefits"),
+                                ("locations", "Locations", "Offices and branches"),
+                                ("vacancies", "Vacancies", "Public job opportunities"),
+                                ("contact", "Contact", "Website and social links")
+                            })
+                            {
+                                <article class="company-layout-item" data-layout-key="@layoutSection.Item1">
+                                    <span class="company-layout-handle" aria-hidden="true">⋮⋮</span>
+                                    <div><strong>@layoutSection.Item2</strong><small>@layoutSection.Item3</small></div>
+                                    <div class="company-layout-actions">
+                                        <button type="button" data-layout-up aria-label="Move @layoutSection.Item2 up">↑</button>
+                                        <button type="button" data-layout-down aria-label="Move @layoutSection.Item2 down">↓</button>
+                                    </div>
+                                </article>
+                            }
+                        </div>
+
+                        <div class="company-customize-actions">
+                            <button class="company-secondary-button" id="companyCustomizeHtmlButton" type="button">&lt;/&gt; Customize your about page with HTML</button>
+                            <button class="company-ai-button" id="companyCustomizeAiButton" type="button"><span>✦</span> Customize your about page with AI</button>
+                        </div>
+                        <p class="company-security-note">Custom HTML is sanitized before it is saved. Scripts, forms, tracking, redirects and external embeds are not allowed.</p>
                     </section>
 
                     <section class="company-form-card">
@@ -577,12 +635,11 @@
         id="employerBackdrop">
     </div>
 
-    <dialog class="company-preview-dialog" id="companyPreviewDialog">
-        <div class="company-preview-header">
-            <div class="company-preview-logo" id="companyPreviewInitials">CO</div>
+    <dialog class="company-preview-dialog company-full-preview-dialog" id="companyPreviewDialog">
+        <div class="company-preview-toolbar">
             <div>
-                <h2 id="companyPreviewName">Company name</h2>
-                <p id="companyPreviewMeta">Company profile preview</p>
+                <strong>Live company page preview</strong>
+                <span>Exactly the same renderer is used by the public link.</span>
             </div>
             <button
                 type="button"
@@ -591,12 +648,11 @@
                 ×
             </button>
         </div>
-
-        <p class="company-preview-description" id="companyPreviewDescription">
-            Add a company description to see it here.
-        </p>
-
-        <div class="company-preview-benefits" id="companyPreviewBenefits"></div>
+        <div class="company-public-nav company-preview-public-nav">
+            <span class="company-public-brand">SkillMatch</span>
+            <div class="company-public-nav-actions"><span>About</span><span>Vacancies</span><span class="primary">Sign up</span></div>
+        </div>
+        <div class="company-public-root company-editor-preview-root" id="companyPreviewRoot"></div>
     </dialog>
 
     <dialog class="company-logo-crop-dialog" id="companyLogoCropDialog">
@@ -649,6 +705,76 @@
         </div>
     </dialog>
 
+    <dialog class="company-logo-crop-dialog company-cover-crop-dialog" id="companyCoverCropDialog">
+        <div class="company-logo-crop-header">
+            <div><span>COMPANY COVER</span><h2>Crop cover image</h2></div>
+            <button type="button" id="companyCoverCropClose" aria-label="Close cover crop editor">×</button>
+        </div>
+        <div class="company-logo-crop-body">
+            <div class="company-logo-crop-stage company-cover-crop-stage" id="companyCoverCropStage">
+                <canvas id="companyCoverCropCanvas" width="800" height="300" aria-label="Company cover crop preview"></canvas>
+                <div class="company-cover-crop-guide" aria-hidden="true"></div>
+            </div>
+            <div class="company-logo-crop-controls">
+                <label for="companyCoverCropZoom">Zoom</label>
+                <input id="companyCoverCropZoom" type="range" min="1" max="3" value="1" step="0.01" />
+                <p>Drag the image to position it inside the 8:3 frame. The saved file is 1600×600 px and max. 700KB.</p>
+            </div>
+        </div>
+        <div class="company-logo-crop-footer">
+            <button class="company-secondary-button" id="companyCoverCropCancel" type="button">Cancel</button>
+            <button class="company-primary-button" id="companyCoverCropSave" type="button">Save crop</button>
+        </div>
+    </dialog>
+
+    <dialog class="company-share-dialog" id="companyShareDialog">
+        <div class="company-dialog-heading">
+            <div><span>PUBLIC COMPANY PAGE</span><h2>Share company page</h2></div>
+            <button type="button" id="companyShareCloseIcon" aria-label="Close share dialog">×</button>
+        </div>
+        <p>Anyone with this link can view the company page and public vacancies without signing in.</p>
+        <div class="company-share-link-row">
+            <input id="companyShareLink" type="text" readonly />
+            <button class="company-primary-button" id="companyCopyShareLink" type="button">Copy</button>
+        </div>
+        <div class="company-dialog-footer"><button class="company-secondary-button" id="companyShareClose" type="button">Close</button></div>
+    </dialog>
+
+    <dialog class="company-html-dialog" id="companyHtmlDialog" data-ai-url="/Employer/Company/AboutPage/Ai">
+        <div class="company-dialog-heading">
+            <div><span>SAFE HTML CUSTOMIZER</span><h2>Customize your about page</h2></div>
+            <button type="button" id="companyHtmlClose" aria-label="Close HTML editor">×</button>
+        </div>
+        <div class="company-html-dialog-body">
+            <div class="company-html-editor-panel">
+                <div class="company-html-tabs" role="tablist">
+                    <button class="active" id="companyHtmlTab" type="button">HTML</button>
+                    <button id="companyAiTab" type="button"><span>✦</span> AI designer</button>
+                </div>
+                <div id="companyHtmlPanel">
+                    <label for="companyHtmlEditor">About page HTML</label>
+                    <textarea id="companyHtmlEditor" spellcheck="false" maxlength="60000">@(string.IsNullOrWhiteSpace(Model.Profile.AboutPageCustomHtml) ? CompanyAboutPageDefaults.CustomHtml : Model.Profile.AboutPageCustomHtml)</textarea>
+                    <small>Use the existing <code>data-company-field</code> hooks to keep profile content dynamic.</small>
+                </div>
+                <div id="companyAiPanel" hidden>
+                    <label for="companyAiPrompt">Describe your desired design</label>
+                    <textarea id="companyAiPrompt" maxlength="1500" placeholder="Example: Use a clean dark hero, softer cards and a more editorial typography style. Keep all current sections."></textarea>
+                    <button class="company-ai-button" id="companyRunAiButton" type="button"><span>✦</span> Generate safe HTML</button>
+                    <div class="company-ai-message" id="companyAiMessage" role="status" aria-live="polite"></div>
+                </div>
+                <label class="company-custom-html-toggle"><input id="companyCustomHtmlEnabled" type="checkbox" /> Use custom HTML on the public page</label>
+            </div>
+            <div class="company-html-preview-panel">
+                <strong>Safe preview</strong>
+                <div class="company-public-root" id="companyHtmlPreviewRoot"></div>
+            </div>
+        </div>
+        <div class="company-dialog-footer">
+            <button class="company-secondary-button" id="companyHtmlCancel" type="button">Cancel</button>
+            <button class="company-primary-button" id="companyHtmlApply" type="button">Apply design</button>
+        </div>
+    </dialog>
+
     <div
         class="company-toast"
         id="companyToast"
@@ -662,6 +788,8 @@
     </script>
     <script type="application/json" id="companyProfileInitialData">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Profile, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web)))</script>
     <script type="application/json" id="companyBenefitCatalog">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BenefitSuggestions))</script>
+    <script type="application/json" id="companyPageContext">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(new { companyOwnerUserId = Model.CompanyOwnerUserId }))</script>
+    <script src="~/js/company-public.js" asp-append-version="true"></script>
     <script
         src="~/js/company-profile.js"
         asp-append-version="true">

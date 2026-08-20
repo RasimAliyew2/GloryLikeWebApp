@@ -49,7 +49,7 @@ builder.Services.AddHttpClient<ICompanyProfileApiService, CompanyProfileApiServi
             "Backend:BaseUrl appsettings.json daxilində təyin edilməyib.");
 
     client.BaseAddress = new Uri(baseUrl);
-    client.Timeout = TimeSpan.FromSeconds(30);
+    client.Timeout = TimeSpan.FromSeconds(120);
 });
 builder.Services.AddHttpClient<ICompanyHiringPlanApiService, CompanyHiringPlanApiService>((sp, client) =>
 {

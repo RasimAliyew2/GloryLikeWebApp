@@ -29,7 +29,8 @@ public sealed class AccountController : Controller
     [AllowAnonymous]
     [HttpGet("/SignIn")]
     public IActionResult SignIn(
-        [FromQuery] string? externalError)
+        [FromQuery] string? externalError,
+        [FromQuery] string? returnUrl)
     {
         if (User.Identity?.IsAuthenticated != true)
         {
@@ -41,16 +42,21 @@ public sealed class AccountController : Controller
                     "Social sign in ləğv edildi və ya provayder cavab vermədi.";
             }
 
-            return View(new LoginViewModel());
+            return View(new LoginViewModel
+            {
+                ReturnUrl = NormalizeReturnUrl(returnUrl)
+            });
         }
 
-        return RedirectToSelectedPortal();
+        return RedirectAfterAuthentication(returnUrl);
     }
 
     [AllowAnonymous]
     [HttpGet("/Registration")]
     public async Task<IActionResult> Registration(
         [FromQuery] string? invite,
+        [FromQuery] string? accountType,
+        [FromQuery] string? returnUrl,
         CancellationToken cancellationToken)
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -58,8 +64,11 @@ public sealed class AccountController : Controller
 
         var model = new RegistrationViewModel
         {
-            AccountType = "employer",
-            CompanyType = "SME"
+            AccountType = string.Equals(accountType, "candidate", StringComparison.OrdinalIgnoreCase)
+                ? "candidate"
+                : "employer",
+            CompanyType = "SME",
+            ReturnUrl = NormalizeReturnUrl(returnUrl)
         };
 
         if (string.IsNullOrWhiteSpace(invite))
@@ -151,6 +160,7 @@ public sealed class AccountController : Controller
             model.Industry?.Trim();
         model.InvitationRole =
             model.InvitationRole?.Trim();
+        model.ReturnUrl = NormalizeReturnUrl(model.ReturnUrl);
 
         if (model.AccountType == "employer"
             && !isTeamInvitation)
@@ -211,7 +221,8 @@ public sealed class AccountController : Controller
             new
             {
                 verificationId =
-                    result.VerificationId.Value
+                    result.VerificationId.Value,
+                returnUrl = model.ReturnUrl
             });
     }
 
@@ -249,6 +260,7 @@ public sealed class AccountController : Controller
     [HttpGet("/Registration/Verify/{verificationId:guid}")]
     public async Task<IActionResult> VerifyRegistration(
         Guid verificationId,
+        [FromQuery] string? returnUrl,
         CancellationToken cancellationToken)
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -262,6 +274,7 @@ public sealed class AccountController : Controller
         var model = BuildVerifyRegistrationViewModel(
             verificationId,
             result);
+        model.ReturnUrl = NormalizeReturnUrl(returnUrl);
 
         model.SuccessMessage =
             TempData["RegistrationSuccessMessage"]
@@ -299,6 +312,7 @@ public sealed class AccountController : Controller
                     model.VerificationId,
                     status);
             invalidModel.Code = model.Code;
+            invalidModel.ReturnUrl = NormalizeReturnUrl(model.ReturnUrl);
 
             return View(
                 nameof(VerifyRegistration),
@@ -318,6 +332,7 @@ public sealed class AccountController : Controller
                     model.VerificationId,
                     result);
             failedModel.Code = string.Empty;
+            failedModel.ReturnUrl = NormalizeReturnUrl(model.ReturnUrl);
 
             return View(
                 nameof(VerifyRegistration),
@@ -334,6 +349,10 @@ public sealed class AccountController : Controller
 
         await SignInUserAsync(result.User);
 
+        if (portalType == PortalClaimTypes.Employee
+            && !string.IsNullOrWhiteSpace(NormalizeReturnUrl(model.ReturnUrl)))
+            return LocalRedirect(NormalizeReturnUrl(model.ReturnUrl));
+
         return portalType == PortalClaimTypes.Employer
             ? RedirectToAction(
                 "EmployerHome",
@@ -345,7 +364,9 @@ public sealed class AccountController : Controller
 
     [AllowAnonymous]
     [HttpGet("/SignIn/External/{provider}")]
-    public async Task<IActionResult> ExternalLogin(string provider)
+    public async Task<IActionResult> ExternalLogin(
+        string provider,
+        [FromQuery] string? returnUrl)
     {
         if (User.Identity?.IsAuthenticated == true)
             return RedirectToSelectedPortal();
@@ -367,6 +388,7 @@ public sealed class AccountController : Controller
                 "Account")
         };
         properties.Items["LoginProvider"] = scheme;
+        properties.Items["ReturnUrl"] = NormalizeReturnUrl(returnUrl);
 
         await ClearExternalCookieAsync();
 
@@ -394,9 +416,13 @@ public sealed class AccountController : Controller
 
         var principal = externalResult.Principal;
         string? scheme = null;
+        string? returnUrl = null;
         externalResult.Properties?.Items.TryGetValue(
             "LoginProvider",
             out scheme);
+        externalResult.Properties?.Items.TryGetValue(
+            "ReturnUrl",
+            out returnUrl);
         var provider = scheme switch
         {
             ExternalAuthenticationDefaults.GoogleScheme =>
@@ -463,6 +489,10 @@ public sealed class AccountController : Controller
 
         await SignInUserAsync(result.User);
 
+        if (ResolvePortalType(result.User.AccountType) == PortalClaimTypes.Employee
+            && !string.IsNullOrWhiteSpace(NormalizeReturnUrl(returnUrl)))
+            return LocalRedirect(NormalizeReturnUrl(returnUrl));
+
         return ResolvePortalType(result.User.AccountType)
             == PortalClaimTypes.Employer
                 ? RedirectToAction(
@@ -478,6 +508,7 @@ public sealed class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ResendRegistrationCode(
         Guid verificationId,
+        string? returnUrl,
         CancellationToken cancellationToken)
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -502,7 +533,11 @@ public sealed class AccountController : Controller
 
         return RedirectToAction(
             nameof(VerifyRegistration),
-            new { verificationId });
+            new
+            {
+                verificationId,
+                returnUrl = NormalizeReturnUrl(returnUrl)
+            });
     }
 
     [AllowAnonymous]
@@ -539,6 +574,10 @@ public sealed class AccountController : Controller
             result.User.AccountType);
 
         await SignInUserAsync(result.User);
+
+        if (portalType == PortalClaimTypes.Employee
+            && !string.IsNullOrWhiteSpace(NormalizeReturnUrl(model.ReturnUrl)))
+            return LocalRedirect(NormalizeReturnUrl(model.ReturnUrl));
 
         return portalType == PortalClaimTypes.Employer
             ? RedirectToAction(
@@ -596,6 +635,25 @@ public sealed class AccountController : Controller
                 : RedirectToAction(
                 "Index",
                 "Home");
+    }
+
+    private IActionResult RedirectAfterAuthentication(string? returnUrl)
+    {
+        var normalized = NormalizeReturnUrl(returnUrl);
+        var accountType = User.FindFirstValue("accountType");
+
+        return !string.IsNullOrWhiteSpace(normalized)
+            && string.Equals(accountType, "candidate", StringComparison.OrdinalIgnoreCase)
+                ? LocalRedirect(normalized)
+                : RedirectToSelectedPortal();
+    }
+
+    private string NormalizeReturnUrl(string? returnUrl)
+    {
+        return !string.IsNullOrWhiteSpace(returnUrl)
+            && Url.IsLocalUrl(returnUrl)
+                ? returnUrl
+                : string.Empty;
     }
 
     private async Task SignInUserAsync(
