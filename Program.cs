@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using GloryLikeWebApp.Security;
 using GloryLikeWebApp.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -10,6 +11,7 @@ using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IAppleClientSecretGenerator,
     AppleClientSecretGenerator>();
 
@@ -83,6 +85,32 @@ builder.Services.AddHttpClient<IUserProfileDataApiService, UserProfileDataApiSer
 
     client.BaseAddress = new Uri(baseUrl);
     client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.AddHttpClient<IUserPersonalProfileApiService, UserPersonalProfileApiService>((sp, client) =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["Backend:BaseUrl"];
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new InvalidOperationException(
+            "Backend:BaseUrl appsettings.json daxilində təyin edilməyib.");
+
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.AddHttpClient<ILocationLookupService, NominatimLocationLookupService>((sp, client) =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["LocationServices:NominatimBaseUrl"]
+        ?? "https://nominatim.openstreetmap.org/";
+
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(12);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd(
+        "BothFind/1.0 (+https://bothfind.com)");
+    client.DefaultRequestHeaders.Referrer = new Uri("https://bothfind.com/");
 });
 
 builder.Services.AddHttpClient<ISkillAndJobApiService, SkillAndJobApiService>((sp, client) =>
@@ -204,13 +232,50 @@ var authenticationBuilder = builder.Services
     .AddCookie(options =>
     {
         options.LoginPath = "/SignIn";
-        options.AccessDeniedPath = "/ChoosePortal";
+        options.AccessDeniedPath = "/Portal/Home";
         options.Cookie.Name = "GloryLikeWebApp.Auth";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnValidatePrincipal = async context =>
+            {
+                var principal = context.Principal;
+                var userIdValue = principal?.FindFirstValue(
+                    ClaimTypes.NameIdentifier);
+                var rawAccountType = principal?.FindFirstValue("accountType")
+                    ?.Trim();
+                var accountType = rawAccountType?.ToLowerInvariant();
+                var portalType = principal?.FindFirstValue(
+                    PortalClaimTypes.ClaimName);
+
+                var validUserId = int.TryParse(userIdValue, out var userId)
+                    && userId > 0;
+                var validAccountType = rawAccountType is "candidate" or "employer";
+                var expectedPortal = accountType == "employer"
+                    ? PortalClaimTypes.Employer
+                    : PortalClaimTypes.Employee;
+                var validPortal = string.Equals(
+                    portalType,
+                    expectedPortal,
+                    StringComparison.OrdinalIgnoreCase);
+
+                if (validUserId && validAccountType && validPortal)
+                    return;
+
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+            },
+            OnRedirectToAccessDenied = context =>
+            {
+                context.Response.Redirect("/Portal/Home");
+                return Task.CompletedTask;
+            }
+        };
     })
     .AddCookie(
         ExternalAuthenticationDefaults.ExternalCookieScheme,

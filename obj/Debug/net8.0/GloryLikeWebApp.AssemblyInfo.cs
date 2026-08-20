@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GloryLikeWebApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+17bbe653a7a85bf177d6e747269ef6f84b06466b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+11438a48b889a6d430d41c7782d88d304d607826")]
 [assembly: System.Reflection.AssemblyProductAttribute("GloryLikeWebApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GloryLikeWebApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

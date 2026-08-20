@@ -16,7 +16,7 @@
 <body>
     <div class="employer-shell">
         <header class="employer-topbar">
-            <a class="employer-brand" asp-controller="EmployerHome" asp-action="EmployerHome">
+            <a class="employer-brand" href="/Portal/Home">
                 SkillMatch
             </a>
 
@@ -25,14 +25,14 @@
                 <input type="search" placeholder="Search by candidates/vacancies" aria-label="Search candidates or vacancies" />
             </div>
 
-            <div class="employer-account">
+            <a class="employer-account" href="/Profile" aria-label="Open profile">
                 <span class="demo-badge">Employer</span>
                 <div class="employer-avatar">@Model.Initials</div>
                 <div class="employer-account-copy">
                     <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
                     <span>Employer workspace</span>
                 </div>
-            </div>
+            </a>
         </header>
 
         <aside class="employer-sidebar" id="employerSidebar">

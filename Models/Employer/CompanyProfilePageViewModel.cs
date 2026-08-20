@@ -181,6 +181,9 @@ public sealed class CompanyAboutAiApiResponse
     public bool Allowed { get; set; }
     public string Message { get; set; } = string.Empty;
     public string Html { get; set; } = string.Empty;
+    public string Mode { get; set; } = string.Empty;
+    public string ChangeSummary { get; set; } = string.Empty;
+    public List<string> ChangedSelectors { get; set; } = [];
 }
 
 internal sealed class BackendCompanyAboutAiRequest : CompanyAboutAiInput

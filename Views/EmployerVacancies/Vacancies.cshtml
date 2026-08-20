@@ -29,8 +29,7 @@
         <header class="employer-topbar">
             <a
                 class="employer-brand"
-                asp-controller="EmployerHome"
-                asp-action="EmployerHome">
+                href="/Portal/Home">
                 SkillMatch
             </a>
 
@@ -43,7 +42,7 @@
                     aria-label="Search vacancies" />
             </div>
 
-            <div class="employer-account">
+            <a class="employer-account" href="/Profile" aria-label="Open profile">
                 <span class="demo-badge">Employer</span>
 
                 <div class="employer-avatar">
@@ -59,7 +58,7 @@
                     <span>Employer workspace</span>
                 </div>
 
-            </div>
+            </a>
         </header>
 
         <aside

@@ -254,6 +254,14 @@ button {
     display: flex;
     align-items: center;
     gap: 10px;
+    color: inherit;
+    border-radius: 12px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.account-chip:hover {
+    background: #f6f8fc;
 }
 
 .avatar,
@@ -592,6 +600,17 @@ button {
     background: #f4f6f9;
     border-radius: 999px;
     font-size: 12px;
+}
+
+.profile-meta .location-attribution {
+    align-self: center;
+    color: #8b94a5;
+    font-size: 9px;
+    text-decoration: none;
+}
+
+.profile-meta .location-attribution:hover {
+    text-decoration: underline;
 }
 
 .profile-card-progress {

@@ -98,6 +98,14 @@ input {
     justify-content: flex-end;
     align-items: center;
     gap: 10px;
+    color: inherit;
+    border-radius: 13px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.employer-account:hover {
+    background: #f6f6f9;
 }
 
 .demo-badge {

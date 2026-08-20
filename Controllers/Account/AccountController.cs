@@ -660,6 +660,12 @@ public sealed class AccountController : Controller
         AuthUserDto user)
     {
         var portalType = ResolvePortalType(user.AccountType);
+        var accountType = string.Equals(
+            user.AccountType,
+            "employer",
+            StringComparison.OrdinalIgnoreCase)
+                ? "employer"
+                : "candidate";
 
         var claims = new List<Claim>
         {
@@ -691,7 +697,7 @@ public sealed class AccountController : Controller
 
             new(
                 "accountType",
-                user.AccountType ?? string.Empty)
+                accountType)
         };
 
         claims.Add(

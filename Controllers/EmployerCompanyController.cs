@@ -269,7 +269,10 @@ public sealed class EmployerCompanyController : Controller
                 success = true,
                 allowed = data.Allowed,
                 message = data.Message,
-                html = data.Html
+                html = data.Html,
+                mode = data.Mode,
+                changeSummary = data.ChangeSummary,
+                changedSelectors = data.ChangedSelectors
             })
             : BadRequest(new
             {

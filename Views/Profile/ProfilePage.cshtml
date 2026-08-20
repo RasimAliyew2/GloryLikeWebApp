@@ -2,6 +2,7 @@
 @{
     Layout = null;
     ViewData["Title"] = "Profile";
+    var today = DateTime.UtcNow.ToString("yyyy-MM-dd");
 }
 
 <!DOCTYPE html>
@@ -10,423 +11,358 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SkillMatch</title>
-
-    <link
-        rel="stylesheet"
-        href="~/css/candidate-dashboard.css"
-        asp-append-version="true" />
-
-    <link
-        rel="stylesheet"
-        href="~/css/profile-page.css"
-        asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/candidate-dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/profile-page.css" asp-append-version="true" />
 </head>
 <body>
     <div class="dashboard-shell">
         <aside class="sidebar" id="dashboardSidebar">
-            <a class="brand" asp-controller="Home" asp-action="Index">
+            <a class="brand" href="/Portal/Home" aria-label="Go to home page">
                 <span class="brand-mark">ϟ</span>
                 <span>SkillMatch</span>
             </a>
 
-            <nav class="nav-menu" aria-label="Candidate navigation">
-                <a class="nav-link" asp-controller="Home" asp-action="Index">
-                    <span class="nav-icon">⌂</span>
-                    <span>Dashboard</span>
-                </a>
-
-                <a
-                    class="nav-link"
-                    asp-controller="Opportunities"
-                    asp-action="OpportunitiesPage">
-                    <span class="nav-icon">⌕</span>
-                    <span>Jobs</span>
-                </a>
-
-                <a class="nav-link" href="#">
-                    <span class="nav-icon">▣</span>
-                    <span>Applications</span>
-                </a>
-
-                <a class="nav-link" asp-controller="Skills" asp-action="SkillsPage">
-                    <span class="nav-icon">✦</span>
-                    <span>Skills</span>
-                </a>
-
-                <a class="nav-link active" asp-controller="Profile" asp-action="ProfilePage">
-                    <span class="nav-icon">○</span>
-                    <span>Profile</span>
-                </a>
-            </nav>
+            @if (Model.IsEmployer)
+            {
+                <nav class="nav-menu" aria-label="Employer navigation">
+                    <a class="nav-link" href="/EmployerHome"><span class="nav-icon">⌁</span><span>Dashboard</span></a>
+                    <a class="nav-link" href="/Employer/Vacancies"><span class="nav-icon">▣</span><span>Vacancies</span></a>
+                    <a class="nav-link" href="/Employer/TalentRadar"><span class="nav-icon">◎</span><span>Talent Radar</span></a>
+                    <a class="nav-link" href="/Employer/Company"><span class="nav-icon">▥</span><span>Company</span></a>
+                    <a class="nav-link" href="/Employer/Reports"><span class="nav-icon">▧</span><span>Reports</span></a>
+                    <a class="nav-link active" href="/Profile"><span class="nav-icon">○</span><span>Profile</span></a>
+                </nav>
+            }
+            else
+            {
+                <nav class="nav-menu" aria-label="Candidate navigation">
+                    <a class="nav-link" href="/"><span class="nav-icon">⌂</span><span>Dashboard</span></a>
+                    <a class="nav-link" href="/Opportunities"><span class="nav-icon">⌕</span><span>Jobs</span></a>
+                    <a class="nav-link" href="#"><span class="nav-icon">▣</span><span>Applications</span></a>
+                    <a class="nav-link" href="/Skills"><span class="nav-icon">✦</span><span>Skills</span></a>
+                    <a class="nav-link active" href="/Profile"><span class="nav-icon">○</span><span>Profile</span></a>
+                </nav>
+            }
 
             <div class="sidebar-bottom">
-                <div class="growth-card">
-                    <span class="growth-icon">✦</span>
-                    <strong>Build profile trust</strong>
-                    <p>
-                        Add verified skills and professional evidence to strengthen your profile.
-                    </p>
-                    <a asp-controller="Skills" asp-action="SkillsPage">Manage skills</a>
-                </div>
+                @if (!Model.IsEmployer)
+                {
+                    <div class="growth-card">
+                        <span class="growth-icon">✦</span>
+                        <strong>Build profile trust</strong>
+                        <p>Add verified skills and professional evidence to strengthen your profile.</p>
+                        <a href="/Skills">Manage skills</a>
+                    </div>
+                }
 
                 <form method="post" action="/SignOut">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="signout-button">
-                        <span>↪</span>
-                        <span>Sign out</span>
-                    </button>
+                    <button type="submit" class="signout-button"><span>↪</span><span>Sign out</span></button>
                 </form>
             </div>
         </aside>
 
         <main class="main-area profile-main-area">
             <header class="topbar">
-                <button
-                    class="mobile-menu-button"
-                    id="mobileMenuButton"
-                    type="button"
-                    aria-label="Open menu">
-                    ☰
-                </button>
+                <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-label="Open menu">☰</button>
 
                 <div class="profile-breadcrumb">
-                    <a asp-controller="Home" asp-action="Index">Dashboard</a>
+                    <a href="/Portal/Home">Dashboard</a>
                     <span>›</span>
                     <strong>Profile</strong>
                 </div>
 
                 <div class="topbar-actions">
                     <button class="icon-button" type="button" aria-label="Notifications">
-                        ♢
-                        <span class="notification-dot"></span>
+                        ♢<span class="notification-dot"></span>
                     </button>
 
-                    <div class="account-chip">
-                        <div class="avatar">@Model.Initials</div>
+                    <a class="account-chip" href="/Profile" aria-label="Open profile">
+                        @if (Model.HasProfileImage)
+                        {
+                            <img class="avatar profile-nav-image" src="@Model.Personal.ProfileImageDataUrl" alt="@Model.DisplayName" />
+                        }
+                        else
+                        {
+                            <div class="avatar">@Model.Initials</div>
+                        }
                         <div class="account-copy">
                             <strong>@Model.DisplayName</strong>
-                            <span>Candidate</span>
+                            <span>@Model.AccountLabel</span>
                         </div>
                         <span class="chevron">⌄</span>
-                    </div>
+                    </a>
                 </div>
             </header>
 
             <section class="profile-page-content">
-                @if (Model.HasError)
+                @if (Model.HasSuccess)
                 {
-                    <div class="profile-alert">
-                        <strong>Profile data could not be loaded</strong>
-                        <span>@Model.ErrorMessage</span>
+                    <div class="profile-alert profile-alert-success" role="status">
+                        <strong>Saved</strong><span>@Model.SuccessMessage</span>
                     </div>
                 }
 
-                <section class="profile-hero-card">
-                    <div class="profile-hero-user">
-                        <div class="profile-large-avatar accent-@Model.AvatarAccentIndex">
-                            @Model.Initials
+                @if (Model.HasError)
+                {
+                    <div class="profile-alert" role="alert">
+                        <strong>Profile data could not be loaded</strong><span>@Model.ErrorMessage</span>
+                    </div>
+                }
+
+                @if (Model.IsEditMode)
+                {
+                    <form class="profile-edit-card" method="post" action="/Profile" novalidate>
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="All" class="profile-validation-summary"></div>
+
+                        <div class="profile-edit-heading">
+                            <div>
+                                <span class="profile-eyebrow">EDIT @Model.AccountLabel.ToUpperInvariant() PROFILE</span>
+                                <h1>Personal information</h1>
+                                <p>Your personal profile is shared between the Web experience and your account.</p>
+                            </div>
+                            <a class="profile-secondary-button" href="/Profile">Cancel</a>
                         </div>
 
-                        <div class="profile-identity">
-                            <span class="profile-eyebrow">CANDIDATE PROFILE</span>
-                            <h1>@Model.DisplayName</h1>
+                        <div class="profile-editor-grid">
+                            <div class="profile-photo-editor">
+                                <div class="profile-photo-preview accent-@Model.AvatarAccentIndex" id="profilePhotoPreview">
+                                    @if (Model.HasProfileImage)
+                                    {
+                                        <img src="@Model.Personal.ProfileImageDataUrl" alt="Profile preview" />
+                                    }
+                                    else
+                                    {
+                                        <span>@Model.Initials</span>
+                                    }
+                                </div>
+                                <label class="profile-photo-button" for="profilePhotoInput">Choose photo</label>
+                                <input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp" hidden />
+                                <input asp-for="Personal.ProfileImageDataUrl" id="profileImageDataUrl" type="hidden" />
+                                <button class="profile-photo-remove" id="profilePhotoRemove" type="button">Remove photo</button>
+                                <small>JPG, PNG or WEBP. The image is cropped to a square and optimized below 500 KB.</small>
+                                <span class="profile-photo-error" id="profilePhotoError" role="alert"></span>
+                            </div>
 
-                            <div class="profile-identity-meta">
-                                @if (!string.IsNullOrWhiteSpace(Model.UserName))
-                                {
-                                    <span>@@@Model.UserName</span>
-                                }
+                            <div class="profile-form-fields">
+                                <div class="profile-field-row">
+                                    <label class="profile-field">
+                                        <span>First name *</span>
+                                        <input asp-for="Personal.FirstName" autocomplete="given-name" />
+                                        <span asp-validation-for="Personal.FirstName" class="field-validation-error"></span>
+                                    </label>
+                                    <label class="profile-field">
+                                        <span>Last name *</span>
+                                        <input asp-for="Personal.LastName" autocomplete="family-name" />
+                                        <span asp-validation-for="Personal.LastName" class="field-validation-error"></span>
+                                    </label>
+                                </div>
 
-                                @if (Model.HasCurrentJob)
+                                <label class="profile-field">
+                                    <span>Date of birth</span>
+                                    <input asp-for="Personal.BirthDate" type="date" max="@today" autocomplete="bday" />
+                                    <span asp-validation-for="Personal.BirthDate" class="field-validation-error"></span>
+                                </label>
+
+                                <label class="profile-field">
+                                    <span>About</span>
+                                    <textarea asp-for="Personal.About" rows="7" maxlength="1000" placeholder="Tell people a little about yourself..."></textarea>
+                                    <span asp-validation-for="Personal.About" class="field-validation-error"></span>
+                                </label>
+
+                                <div class="profile-form-actions">
+                                    <a class="profile-secondary-button" href="/Profile">Cancel</a>
+                                    <button class="profile-primary-button" type="submit">Save profile</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <section class="profile-hero-card">
+                        <div class="profile-hero-user">
+                            <div class="profile-large-avatar accent-@Model.AvatarAccentIndex">
+                                @if (Model.HasProfileImage)
                                 {
-                                    <span>@Model.CurrentJobName</span>
+                                    <img src="@Model.Personal.ProfileImageDataUrl" alt="@Model.DisplayName" />
                                 }
                                 else
                                 {
-                                    <span>Job not selected</span>
+                                    @Model.Initials
                                 }
                             </div>
 
-                            <div class="profile-contact-row">
-                                @if (!string.IsNullOrWhiteSpace(Model.Email))
-                                {
-                                    <span>✉ @Model.Email</span>
-                                }
+                            <div class="profile-identity">
+                                <span class="profile-eyebrow">@Model.ProfileKindLabel</span>
+                                <h1>@Model.DisplayName</h1>
 
-                                @if (!string.IsNullOrWhiteSpace(Model.PhoneNumber))
-                                {
-                                    <span>☎ @Model.PhoneNumber</span>
-                                }
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="profile-hero-actions">
-                        <a
-                            class="profile-secondary-button"
-                            asp-controller="Skills"
-                            asp-action="SkillsPage">
-                            Manage skills
-                        </a>
-
-                        <button class="profile-primary-button" type="button">
-                            Edit profile
-                        </button>
-                    </div>
-                </section>
-
-                <section class="profile-summary-grid">
-                    <article class="profile-summary-card">
-                        <span>Profile completion</span>
-                        <strong>@Model.ProfileCompletion%</strong>
-                        <div class="profile-progress-track">
-                            <span style="width:@Model.ProfileCompletion%"></span>
-                        </div>
-                    </article>
-
-                    <article class="profile-summary-card">
-                        <span>Total skills</span>
-                        <strong>@Model.Skills.Count</strong>
-                        <small>@Model.VerifiedSkillsCount verified</small>
-                    </article>
-
-                    <article class="profile-summary-card">
-                        <span>Average credibility</span>
-                        <strong>@Model.AverageCredibility</strong>
-                        <small>Out of 100</small>
-                    </article>
-
-                    <article class="profile-summary-card">
-                        <span>Experience records</span>
-                        <strong>@Model.WorkExperiences.Count</strong>
-                        <small>Saved in SQL</small>
-                    </article>
-                </section>
-
-                <section class="profile-content-grid">
-                    <div class="profile-main-column">
-                        <section class="profile-section">
-                            <div class="profile-section-heading">
-                                <div>
-                                    <span class="profile-eyebrow">SKILL PASSPORT</span>
-                                    <h2>Skills and scores</h2>
-                                </div>
-
-                                <a asp-controller="Skills" asp-action="SkillsPage">
-                                    Manage skills
-                                </a>
-                            </div>
-
-                            @if (!Model.HasSkills)
-                            {
-                                <div class="profile-empty-state">
-                                    <span class="profile-empty-icon">✦</span>
-                                    <h3>No skills saved yet</h3>
-                                    <p>
-                                        Add skills from the Skills page. They will be saved in SQL and shared with Mobile App.
-                                    </p>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="profile-skill-list">
-                                    @foreach (var skill in Model.Skills)
+                                <div class="profile-identity-meta">
+                                    @if (!string.IsNullOrWhiteSpace(Model.UserName))
                                     {
-                                        <article class="profile-skill-card">
-                                            <div class="profile-skill-header">
-                                                <div class="profile-skill-icon">✦</div>
-
-                                                <div class="profile-skill-title">
-                                                    <h3>@skill.SkillName</h3>
-                                                    <p>@skill.UsedInText</p>
-                                                </div>
-
-                                                <div class="profile-skill-score">
-                                                    <strong>@skill.CredibilityDisplay</strong>
-                                                    <span>credibility</span>
-                                                </div>
-                                            </div>
-
-                                            <div class="profile-skill-tags">
-                                                <span class="profile-status @skill.StatusClass">
-                                                    @skill.StatusText
-                                                </span>
-
-                                                @if (!string.IsNullOrWhiteSpace(skill.SeniorityName))
-                                                {
-                                                    <span>@skill.SeniorityName</span>
-                                                }
-
-                                                @if (!string.IsNullOrWhiteSpace(skill.SkillComplexity))
-                                                {
-                                                    <span>@skill.SkillComplexity</span>
-                                                }
-                                            </div>
-
-                                            <div class="profile-metrics-grid">
-                                                <div class="profile-metric">
-                                                    <div>
-                                                        <span>Knowledge</span>
-                                                        <strong>@skill.KnowledgeDisplay</strong>
-                                                    </div>
-                                                    <div class="profile-metric-track">
-                                                        <span style="width:@skill.KnowledgeDisplay%"></span>
-                                                    </div>
-                                                </div>
-
-                                                <div class="profile-metric">
-                                                    <div>
-                                                        <span>Experience</span>
-                                                        <strong>@skill.ExperienceDisplay</strong>
-                                                    </div>
-                                                    <div class="profile-metric-track experience">
-                                                        <span style="width:@skill.ExperienceDisplay%"></span>
-                                                    </div>
-                                                </div>
-
-                                                <div class="profile-metric">
-                                                    <div>
-                                                        <span>Depth</span>
-                                                        <strong>@skill.DepthDisplay</strong>
-                                                    </div>
-                                                    <div class="profile-metric-track depth">
-                                                        <span style="width:@skill.DepthDisplay%"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </article>
+                                        <span>@@@Model.UserName</span>
+                                    }
+                                    <span>Born: @Model.BirthDateDisplay</span>
+                                    @if (!Model.IsEmployer)
+                                    {
+                                        <span>@(Model.HasCurrentJob ? Model.CurrentJobName : "Job not selected")</span>
                                     }
                                 </div>
-                            }
-                        </section>
 
-                        <section class="profile-section">
-                            <div class="profile-section-heading">
-                                <div>
-                                    <span class="profile-eyebrow">WORK HISTORY</span>
-                                    <h2>Experience</h2>
-                                </div>
-
-                                <a asp-controller="Skills" asp-action="SkillsPage">
-                                    Add experience
-                                </a>
-                            </div>
-
-                            @if (!Model.HasExperiences)
-                            {
-                                <div class="profile-empty-state">
-                                    <span class="profile-empty-icon">▣</span>
-                                    <h3>No experience records yet</h3>
-                                    <p>
-                                        Add professional experience to show where your skills were used.
-                                    </p>
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="profile-experience-list">
-                                    @foreach (var experience in Model.WorkExperiences)
+                                <div class="profile-contact-row">
+                                    @if (!string.IsNullOrWhiteSpace(Model.Email))
                                     {
-                                        <article class="profile-experience-card">
-                                            <div class="profile-experience-logo">
-                                                @experience.CompanyInitial
-                                            </div>
-
-                                            <div class="profile-experience-copy">
-                                                <div class="profile-experience-heading">
-                                                    <div>
-                                                        <h3>@experience.CompanyName</h3>
-                                                        <p>@experience.PositionName</p>
-                                                    </div>
-
-                                                    <span>@experience.PeriodText</span>
-                                                </div>
-
-                                                <div class="profile-experience-footer">
-                                                    <span>Professional experience</span>
-
-                                                    @if (!string.IsNullOrWhiteSpace(experience.FileName))
-                                                    {
-                                                        <span class="profile-evidence-file">
-                                                            ▣ @experience.FileName
-                                                        </span>
-                                                    }
-                                                </div>
-                                            </div>
-                                        </article>
+                                        <span>✉ @Model.Email</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(Model.PhoneNumber))
+                                    {
+                                        <span>☎ @Model.PhoneNumber</span>
                                     }
                                 </div>
-                            }
-                        </section>
-                    </div>
 
-                    <aside class="profile-side-column">
-                        <article class="profile-side-card">
-                            <span class="profile-eyebrow">PROFILE STATUS</span>
-                            <h2>Evidence overview</h2>
-
-                            <div class="profile-status-list">
-                                <div>
-                                    <span>Verified skills</span>
-                                    <strong>@Model.VerifiedSkillsCount</strong>
-                                </div>
-
-                                <div>
-                                    <span>Self-declared</span>
-                                    <strong>@Model.SelfDeclaredSkillsCount</strong>
-                                </div>
-
-                                <div>
-                                    <span>Experience entries</span>
-                                    <strong>@Model.WorkExperiences.Count</strong>
-                                </div>
+                                <p class="profile-about-text">
+                                    @(Model.HasAbout ? Model.Personal.About : "No about information has been added yet.")
+                                </p>
                             </div>
+                        </div>
+
+                        <div class="profile-hero-actions">
+                            @if (!Model.IsEmployer)
+                            {
+                                <a class="profile-secondary-button" href="/Skills">Manage skills</a>
+                            }
+                            <a class="profile-primary-button" href="/Profile?edit=true">Edit profile</a>
+                        </div>
+                    </section>
+
+                    <section class="profile-summary-grid">
+                        <article class="profile-summary-card">
+                            <span>Profile completion</span><strong>@Model.ProfileCompletion%</strong>
+                            <div class="profile-progress-track"><span style="width:@Model.ProfileCompletion%"></span></div>
                         </article>
+                        @if (Model.IsEmployer)
+                        {
+                            <article class="profile-summary-card"><span>Account type</span><strong>Employer</strong><small>Employer workspace</small></article>
+                            <article class="profile-summary-card"><span>Date of birth</span><strong class="profile-summary-date">@Model.BirthDateDisplay</strong><small>Personal information</small></article>
+                            <article class="profile-summary-card"><span>About</span><strong>@(Model.HasAbout ? "Added" : "Empty")</strong><small>Up to 1000 characters</small></article>
+                        }
+                        else
+                        {
+                            <article class="profile-summary-card"><span>Total skills</span><strong>@Model.Skills.Count</strong><small>@Model.VerifiedSkillsCount verified</small></article>
+                            <article class="profile-summary-card"><span>Average credibility</span><strong>@Model.AverageCredibility</strong><small>Out of 100</small></article>
+                            <article class="profile-summary-card"><span>Experience records</span><strong>@Model.WorkExperiences.Count</strong><small>Saved in SQL</small></article>
+                        }
+                    </section>
 
-                        <article class="profile-side-card profile-recommendation-card">
-                            <div class="profile-recommendation-icon">✦</div>
-                            <span class="profile-eyebrow">NEXT STEP</span>
+                    @if (!Model.IsEmployer)
+                    {
+                        <section class="profile-content-grid">
+                            <div class="profile-main-column">
+                                <section class="profile-section">
+                                    <div class="profile-section-heading">
+                                        <div><span class="profile-eyebrow">SKILL PASSPORT</span><h2>Skills and scores</h2></div>
+                                        <a href="/Skills">Manage skills</a>
+                                    </div>
 
-                            @if (Model.VerifiedSkillsCount == 0 && Model.HasSkills)
-                            {
-                                <h3>Verify your first skill</h3>
-                                <p>
-                                    Verified evidence increases trust and improves the quality of role matching.
-                                </p>
-                            }
-                            else if (!Model.HasExperiences)
-                            {
-                                <h3>Add work experience</h3>
-                                <p>
-                                    Link your skills to real professional experience to strengthen credibility.
-                                </p>
-                            }
-                            else
-                            {
-                                <h3>Keep your profile current</h3>
-                                <p>
-                                    Review skill scores and add new evidence whenever your experience grows.
-                                </p>
-                            }
+                                    @if (!Model.HasSkills)
+                                    {
+                                        <div class="profile-empty-state">
+                                            <span class="profile-empty-icon">✦</span><h3>No skills saved yet</h3>
+                                            <p>Add skills from the Skills page. They will be saved in SQL and shared with Mobile App.</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="profile-skill-list">
+                                            @foreach (var skill in Model.Skills)
+                                            {
+                                                <article class="profile-skill-card">
+                                                    <div class="profile-skill-header">
+                                                        <div class="profile-skill-icon">✦</div>
+                                                        <div class="profile-skill-title"><h3>@skill.SkillName</h3></div>
+                                                        <div class="profile-skill-score"><strong>@skill.CredibilityDisplay</strong><span>credibility</span></div>
+                                                    </div>
+                                                    <div class="profile-skill-tags">
+                                                        <span class="profile-status @skill.StatusClass">@skill.StatusText</span>
+                                                        @if (!string.IsNullOrWhiteSpace(skill.SeniorityName))
+                                                        {
+                                                            <span>@skill.SeniorityName</span>
+                                                        }
+                                                        @if (!string.IsNullOrWhiteSpace(skill.SkillComplexity))
+                                                        {
+                                                            <span>@skill.SkillComplexity</span>
+                                                        }
+                                                    </div>
+                                                    <div class="profile-metrics-grid">
+                                                        <div class="profile-metric"><div><span>Knowledge</span><strong>@skill.KnowledgeDisplay</strong></div><div class="profile-metric-track"><span style="width:@skill.KnowledgeDisplay%"></span></div></div>
+                                                        <div class="profile-metric"><div><span>Experience</span><strong>@skill.ExperienceDisplay</strong></div><div class="profile-metric-track experience"><span style="width:@skill.ExperienceDisplay%"></span></div></div>
+                                                        <div class="profile-metric"><div><span>Depth</span><strong>@skill.DepthDisplay</strong></div><div class="profile-metric-track depth"><span style="width:@skill.DepthDisplay%"></span></div></div>
+                                                    </div>
+                                                </article>
+                                            }
+                                        </div>
+                                    }
+                                </section>
 
-                            <a
-                                class="profile-primary-button full"
-                                asp-controller="Skills"
-                                asp-action="SkillsPage">
-                                Open skill passport
-                            </a>
-                        </article>
-                    </aside>
-                </section>
+                                <section class="profile-section">
+                                    <div class="profile-section-heading">
+                                        <div><span class="profile-eyebrow">WORK HISTORY</span><h2>Experience</h2></div>
+                                        <a href="/Skills">Add experience</a>
+                                    </div>
+
+                                    @if (!Model.HasExperiences)
+                                    {
+                                        <div class="profile-empty-state"><span class="profile-empty-icon">▣</span><h3>No experience records yet</h3><p>Add professional experience to show where your skills were used.</p></div>
+                                    }
+                                    else
+                                    {
+                                        <div class="profile-experience-list">
+                                            @foreach (var experience in Model.WorkExperiences)
+                                            {
+                                                <article class="profile-experience-card">
+                                                    <div class="profile-experience-logo">@experience.CompanyInitial</div>
+                                                    <div class="profile-experience-copy">
+                                                        <div class="profile-experience-heading"><div><h3>@experience.CompanyName</h3><p>@experience.PositionName</p></div><span>@experience.PeriodText</span></div>
+                                                        <div class="profile-experience-footer">
+                                                            <span>Professional experience</span>
+                                                            @if (!string.IsNullOrWhiteSpace(experience.FileName))
+                                                            {
+                                                                <span class="profile-evidence-file">▣ @experience.FileName</span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </article>
+                                            }
+                                        </div>
+                                    }
+                                </section>
+                            </div>
+
+                            <aside class="profile-side-column">
+                                <article class="profile-side-card">
+                                    <span class="profile-eyebrow">PROFILE STATUS</span><h2>Evidence overview</h2>
+                                    <div class="profile-status-list">
+                                        <div><span>Verified skills</span><strong>@Model.VerifiedSkillsCount</strong></div>
+                                        <div><span>Self-declared</span><strong>@Model.SelfDeclaredSkillsCount</strong></div>
+                                        <div><span>Experience entries</span><strong>@Model.WorkExperiences.Count</strong></div>
+                                    </div>
+                                </article>
+                                <article class="profile-side-card profile-recommendation-card">
+                                    <div class="profile-recommendation-icon">✦</div><span class="profile-eyebrow">NEXT STEP</span>
+                                    <h3>Keep your profile current</h3><p>Review skill scores and add new evidence whenever your experience grows.</p>
+                                    <a class="profile-primary-button full" href="/Skills">Open skill passport</a>
+                                </article>
+                            </aside>
+                        </section>
+                    }
+                }
             </section>
         </main>
     </div>
 
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-
-    <script
-        src="~/js/candidate-dashboard.js"
-        asp-append-version="true">
-    </script>
+    <script src="~/js/candidate-dashboard.js" asp-append-version="true"></script>
+    <script src="~/js/profile-page.js" asp-append-version="true"></script>
 </body>
 </html>

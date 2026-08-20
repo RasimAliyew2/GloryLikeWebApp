@@ -19,16 +19,16 @@
 <body>
 <div class="employer-shell company-shell">
     <header class="employer-topbar">
-        <a class="employer-brand" asp-controller="EmployerHome" asp-action="EmployerHome">SkillMatch</a>
+        <a class="employer-brand" href="/Portal/Home">SkillMatch</a>
         <div class="employer-search"><span>⌕</span><input type="search" placeholder="Search by candidates/vacancies" /></div>
-        <div class="employer-account">
+        <a class="employer-account" href="/Profile" aria-label="Open profile">
             <span class="demo-badge">Employer</span>
             <div class="employer-avatar">@Model.Initials</div>
             <div class="employer-account-copy">
                 <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
                 <span>Employer workspace</span>
             </div>
-        </div>
+        </a>
     </header>
     <aside class="employer-sidebar" id="employerSidebar">
         <nav aria-label="Employer navigation">

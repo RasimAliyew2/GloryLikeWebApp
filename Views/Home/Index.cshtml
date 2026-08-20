@@ -21,7 +21,7 @@
 <body>
     <div class="dashboard-shell">
         <aside class="sidebar" id="dashboardSidebar">
-            <a class="brand" asp-controller="Home" asp-action="Index">
+            <a class="brand" href="/Portal/Home">
                 <span class="brand-mark">ϟ</span>
                 <span>SkillMatch</span>
             </a>
@@ -82,14 +82,14 @@
                         <span class="notification-dot"></span>
                     </button>
 
-                    <div class="account-chip">
+                    <a class="account-chip" href="/Profile" aria-label="Open profile">
                         <div class="avatar">@initials</div>
                         <div class="account-copy">
                             <strong>@Model.DisplayName</strong>
                             <span>Candidate</span>
                         </div>
                         <span class="chevron">⌄</span>
-                    </div>
+                    </a>
                 </div>
             </header>
 
@@ -164,8 +164,18 @@
                         <p>@(string.IsNullOrWhiteSpace(Model.CurrentJobName) ? "No Job selected" : Model.CurrentJobName)</p>
 
                         <div class="profile-meta">
-                            <span>⌖ Almaty, KZ</span>
-                            <span>Hybrid</span>
+                            <span
+                                id="candidateCurrentLocation"
+                                data-location-url="/Candidate/CurrentLocation">
+                                ⌖ Detecting location...
+                            </span>
+                            <a
+                                class="location-attribution"
+                                href="https://www.openstreetmap.org/copyright"
+                                target="_blank"
+                                rel="noopener noreferrer">
+                                © OpenStreetMap
+                            </a>
                         </div>
 
                         <div class="profile-card-progress">

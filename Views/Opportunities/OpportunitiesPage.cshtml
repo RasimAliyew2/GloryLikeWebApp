@@ -37,8 +37,7 @@
 
             <a
                 class="brand"
-                asp-controller="Home"
-                asp-action="Index">
+                href="/Portal/Home">
                 <span class="brand-mark">ϟ</span>
                 <span>SkillMatch</span>
             </a>
@@ -144,7 +143,7 @@
                         <span class="notification-dot"></span>
                     </button>
 
-                    <div class="account-chip">
+                    <a class="account-chip" href="/Profile" aria-label="Open profile">
                         <div class="avatar">
                             @Model.Initials
                         </div>
@@ -155,7 +154,7 @@
                         </div>
 
                         <span class="chevron">⌄</span>
-                    </div>
+                    </a>
                 </div>
             </header>
 
