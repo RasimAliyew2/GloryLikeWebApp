@@ -15,6 +15,7 @@
     const job = document.getElementById("planJobFamily");
     const position = document.getElementById("planPosition");
     const seniority = document.getElementById("planSeniority");
+    const excelInput = document.getElementById("hiringPlanExcelInput");
     let editingId = null;
 
     const option = (value, text) => {
@@ -78,6 +79,35 @@
     document.getElementById("addHiringPlanButton")?.addEventListener("click", () => open());
     document.querySelectorAll("[data-open-plan]").forEach(button => button.addEventListener("click", () => open()));
     document.querySelectorAll("[data-close-plan]").forEach(button => button.addEventListener("click", close));
+
+    document.getElementById("uploadHiringPlanButton")?.addEventListener("click", () => {
+        excelInput.value = "";
+        excelInput.click();
+    });
+
+    excelInput?.addEventListener("change", async () => {
+        const file = excelInput.files?.[0];
+        if (!file) return;
+
+        const token = form.querySelector('input[name="__RequestVerificationToken"]')?.value || "";
+        const data = new FormData();
+        data.append("__RequestVerificationToken", token);
+        data.append("file", file);
+        showMessage("Uploading Hiring Plan Excel...");
+
+        try {
+            const response = await fetch("/Employer/Company/HiringPlan/Import", {
+                method: "POST",
+                body: data
+            });
+            const payload = await response.json();
+            if (!response.ok || !payload.success)
+                throw new Error(payload.message || "Hiring Plan Excel could not be imported.");
+            window.location.reload();
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    });
 
     document.querySelectorAll("[data-plan-menu]").forEach(button => button.addEventListener("click", (event) => {
         event.stopPropagation();

@@ -28,6 +28,12 @@ public interface ICompanyHiringPlanApiService
         int actorUserId,
         int planId,
         CancellationToken cancellationToken = default);
+
+    Task<CompanyHiringPlanApiResult> ImportAsync(
+        int actorUserId,
+        Stream content,
+        string fileName,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class CompanyHiringPlanApiResult

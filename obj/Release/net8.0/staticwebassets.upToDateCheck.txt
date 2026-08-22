@@ -78,7 +78,7 @@ wwwroot\css\skills-page.css
 wwwroot\css\site.css
 wwwroot\css\screening-application.css
 wwwroot\css\registration.css
-wwwroot\css\profile-page.css
+wwwroot\css\company-structure-responsive.css
 wwwroot\css\privacy.css
 wwwroot\css\opportunities-page.css
 wwwroot\css\employer-vacancy-detail.css
@@ -89,7 +89,7 @@ wwwroot\css\create-vacancy.css
 wwwroot\css\create-vacancy-skill-search.css
 wwwroot\css\create-vacancy-screening.css
 wwwroot\css\create-vacancy-publication.css
-wwwroot\js\company-hiring-plan.js
+wwwroot\css\company-hiring-plan-excel.css
 wwwroot\css\create-vacancy-application-requirements.css
 wwwroot\css\company-team.css
 wwwroot\css\company-public.css
@@ -103,3 +103,8 @@ wwwroot\css\candidate-dashboard.css
 wwwroot\lib\bootstrap\dist\css\bootstrap.min.css
 wwwroot\lib\bootstrap\dist\css\bootstrap.css.map
 wwwroot\lib\jquery\LICENSE.txt
+wwwroot\css\company-structure.css
+wwwroot\css\profile-page.css
+wwwroot\js\company-hiring-plan.js
+wwwroot\js\company-structure.js
+wwwroot\templates\BothFind-HiringPlan-Template.xlsx

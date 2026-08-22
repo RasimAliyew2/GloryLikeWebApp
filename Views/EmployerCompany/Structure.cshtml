@@ -1,0 +1,170 @@
+@using System.Text.Json
+@model GloryLikeWebApp.Models.Employer.CompanyStructurePageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Company Structure";
+    var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-structure.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-structure-responsive.css" asp-append-version="true" />
+</head>
+<body>
+<div class="employer-shell company-shell">
+    <header class="employer-topbar">
+        <a class="employer-brand" href="/Portal/Home">SkillMatch</a>
+        <div class="employer-search"><span>⌕</span><input type="search" placeholder="Search by candidates/vacancies" /></div>
+        <a class="employer-account" href="/Profile" aria-label="Open profile">
+            <span class="demo-badge">Employer</span>
+            <div class="employer-avatar">@Model.Initials</div>
+            <div class="employer-account-copy">
+                <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
+                <span>Employer workspace</span>
+            </div>
+        </a>
+    </header>
+    <aside class="employer-sidebar" id="employerSidebar">
+        <nav aria-label="Employer navigation">
+            <a asp-controller="EmployerHome" asp-action="EmployerHome"><span>⌁</span><strong>Dashboard</strong></a>
+            <a asp-controller="EmployerVacancies" asp-action="Index"><span>▣</span><strong>Vacancies</strong></a>
+            <a href="#"><span>▱</span><strong>Recruitment requests</strong></a>
+            <a asp-controller="TalentRadar" asp-action="Index"><span>◎</span><strong>Talent Radar</strong></a>
+            <a class="active" asp-controller="EmployerCompany" asp-action="Index"><span>▥</span><strong>Company</strong></a>
+            <a asp-controller="EmployerReports" asp-action="Index"><span>▧</span><strong>Reports</strong></a>
+        </nav>
+        <div class="employer-sidebar-bottom"><form method="post" action="/SignOut">@Html.AntiForgeryToken()<button type="submit">↪ Sign out</button></form></div>
+    </aside>
+    <main class="employer-main company-main structure-main">
+        <button class="employer-menu-button" type="button" id="employerMenuButton">☰</button>
+        <div class="company-profile-content structure-content">
+            <nav class="company-tabs" aria-label="Company sections">
+                <a asp-controller="EmployerCompany" asp-action="Index"><span>♙</span>Profile</a>
+                <a class="active" asp-controller="EmployerCompany" asp-action="Structure" aria-current="page"><span>▱</span>Structure</a>
+                <a asp-controller="EmployerCompany" asp-action="Team"><span>♧</span>Team</a>
+                <a asp-controller="EmployerCompany" asp-action="HiringPlan"><span>◎</span>Hiring Plan</a>
+            </nav>
+
+            <section class="structure-heading">
+                <div>
+                    <span class="structure-kicker">ORGANIZATION</span>
+                    <h1>Company Structure</h1>
+                    <p>Create departments, divisions, and the positions working inside them.</p>
+                </div>
+                <div class="structure-heading-actions">
+                    <a class="structure-button secondary" asp-action="ExportStructure">Download Excel</a>
+                    <button class="structure-button secondary" type="button" id="structureUploadButton">Upload Excel</button>
+                    <button class="structure-button primary" type="button" data-structure-action="add-department">+ Department</button>
+                </div>
+            </section>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="structure-alert error" role="alert">@Model.ErrorMessage</div>
+            }
+            <div class="structure-alert" id="structureMessage" role="status" hidden></div>
+
+            <section class="structure-card">
+                <header class="structure-card-header">
+                    <span>TREE</span>
+                    <span>@Model.Departments.Count department@(Model.Departments.Count == 1 ? string.Empty : "s")</span>
+                </header>
+
+                @if (Model.Departments.Count == 0)
+                {
+                    <div class="structure-empty">
+                        <span>▱</span>
+                        <h2>No company structure yet</h2>
+                        <p>Add your first department manually or upload the Structure Excel template.</p>
+                        <button type="button" data-structure-action="add-department">+ Add department</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="structure-tree">
+                        @for (var departmentIndex = 0; departmentIndex < Model.Departments.Count; departmentIndex++)
+                        {
+                            var department = Model.Departments[departmentIndex];
+                            <details class="structure-department" open>
+                                <summary>
+                                    <span class="structure-chevron">⌄</span>
+                                    <span class="structure-icon department-icon">▦</span>
+                                    <strong>@department.Name</strong>
+                                    <span class="structure-count">@department.Divisions.Count division@(department.Divisions.Count == 1 ? string.Empty : "s")</span>
+                                    <span class="structure-node-actions">
+                                        <button type="button" data-structure-action="add-division" data-department-index="@departmentIndex">+ Division</button>
+                                        <button type="button" data-structure-action="rename-department" data-department-index="@departmentIndex" aria-label="Rename @department.Name">Edit</button>
+                                        <button class="danger" type="button" data-structure-action="delete-department" data-department-index="@departmentIndex" aria-label="Delete @department.Name">Delete</button>
+                                    </span>
+                                </summary>
+                                <div class="structure-children">
+                                    @for (var divisionIndex = 0; divisionIndex < department.Divisions.Count; divisionIndex++)
+                                    {
+                                        var division = department.Divisions[divisionIndex];
+                                        <details class="structure-division" open>
+                                            <summary>
+                                                <span class="structure-chevron">⌄</span>
+                                                <span class="structure-icon division-icon">⌘</span>
+                                                <strong>@division.Name</strong>
+                                                <span class="structure-count">@division.Positions.Count position@(division.Positions.Count == 1 ? string.Empty : "s")</span>
+                                                <span class="structure-node-actions">
+                                                    <button type="button" data-structure-action="add-position" data-department-index="@departmentIndex" data-division-index="@divisionIndex">+ Position</button>
+                                                    <button type="button" data-structure-action="rename-division" data-department-index="@departmentIndex" data-division-index="@divisionIndex">Edit</button>
+                                                    <button class="danger" type="button" data-structure-action="delete-division" data-department-index="@departmentIndex" data-division-index="@divisionIndex">Delete</button>
+                                                </span>
+                                            </summary>
+                                            <div class="structure-positions">
+                                                @for (var positionIndex = 0; positionIndex < division.Positions.Count; positionIndex++)
+                                                {
+                                                    var position = division.Positions[positionIndex];
+                                                    <div class="structure-position">
+                                                        <span class="structure-icon position-icon">▣</span>
+                                                        <span>@position.Name</span>
+                                                        <span class="structure-node-actions">
+                                                            <button type="button" data-structure-action="rename-position" data-department-index="@departmentIndex" data-division-index="@divisionIndex" data-position-index="@positionIndex">Edit</button>
+                                                            <button class="danger" type="button" data-structure-action="delete-position" data-department-index="@departmentIndex" data-division-index="@divisionIndex" data-position-index="@positionIndex">Delete</button>
+                                                        </span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </details>
+                                    }
+                                </div>
+                            </details>
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+    </main>
+</div>
+
+<div class="structure-modal" id="structureNameModal" hidden>
+    <div class="structure-modal-backdrop" data-close-structure-modal></div>
+    <section class="structure-modal-panel" role="dialog" aria-modal="true" aria-labelledby="structureModalTitle">
+        <button class="structure-modal-close" type="button" data-close-structure-modal aria-label="Close">×</button>
+        <span class="structure-kicker">COMPANY STRUCTURE</span>
+        <h2 id="structureModalTitle">Add department</h2>
+        <form id="structureNameForm">
+            <label id="structureNameLabel" for="structureNameInput">Department name</label>
+            <input id="structureNameInput" type="text" maxlength="160" autocomplete="off" required />
+            <div class="structure-modal-actions">
+                <button class="secondary" type="button" data-close-structure-modal>Cancel</button>
+                <button class="primary" type="submit" id="structureSaveNameButton">Save</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<form id="structureSecurityToken" hidden>@Html.AntiForgeryToken()</form>
+<input id="structureExcelInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden />
+<script id="companyStructureData" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Departments, jsonOptions))</script>
+<script src="~/js/company-structure.js" asp-append-version="true"></script>
+</body>
+</html>

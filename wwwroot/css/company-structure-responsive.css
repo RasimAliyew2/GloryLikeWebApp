@@ -1,0 +1,19 @@
+.structure-department:not([open]) > summary .structure-chevron {
+    transform: rotate(-90deg);
+}
+
+@media (max-width: 640px) {
+    .structure-node-actions {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .structure-node-actions button {
+        padding: 5px;
+        font-size: 10px;
+    }
+
+    .structure-node-actions button::before {
+        content: none;
+    }
+}

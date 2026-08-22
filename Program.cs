@@ -60,6 +60,13 @@ builder.Services.AddHttpClient<ICompanyHiringPlanApiService, CompanyHiringPlanAp
     client.BaseAddress = new Uri(backendUrl);
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+builder.Services.AddHttpClient<ICompanyStructureApiService, CompanyStructureApiService>((sp, client) =>
+{
+    var backendUrl = sp.GetRequiredService<IConfiguration>()["Backend:BaseUrl"]
+        ?? throw new InvalidOperationException("Backend:BaseUrl is not configured.");
+    client.BaseAddress = new Uri(backendUrl);
+    client.Timeout = TimeSpan.FromSeconds(60);
+});
 
 builder.Services.AddHttpClient<IOrganizationReportsApiService, OrganizationReportsApiService>((sp, client) =>
 {

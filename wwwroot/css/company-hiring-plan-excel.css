@@ -1,0 +1,47 @@
+.hiring-plan-heading-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.hiring-plan-tool {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    box-sizing: border-box;
+    border: 1px solid #d9deea;
+    border-radius: 14px;
+    background: #fff;
+    color: #344054;
+    padding: 0 18px;
+    font: inherit;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.hiring-plan-tool:hover {
+    border-color: #b9b3ff;
+    background: #fbfaff;
+    color: #5146df;
+}
+
+@media (max-width: 900px) {
+    .hiring-plan-heading-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 760px) {
+    .hiring-plan-heading-actions {
+        width: 100%;
+    }
+
+    .hiring-plan-tool,
+    .hiring-plan-add {
+        flex: 1 1 calc(50% - 8px);
+    }
+}

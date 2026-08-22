@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using GloryLikeWebApp.Models.Employer;
@@ -76,6 +77,28 @@ public sealed class CompanyHiringPlanApiService : ICompanyHiringPlanApiService
             new HttpRequestMessage(
                 HttpMethod.Delete,
                 $"api/company/hiring-plan/{planId}?actorUserId={actorUserId}"),
+            cancellationToken);
+    }
+
+    public async Task<CompanyHiringPlanApiResult> ImportAsync(
+        int actorUserId,
+        Stream content,
+        string fileName,
+        CancellationToken cancellationToken = default)
+    {
+        using var form = new MultipartFormDataContent();
+        using var streamContent = new StreamContent(content);
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        form.Add(streamContent, "file", fileName);
+
+        return await SendAsync(
+            new HttpRequestMessage(
+                HttpMethod.Post,
+                $"api/company/hiring-plan/import?actorUserId={actorUserId}")
+            {
+                Content = form
+            },
             cancellationToken);
     }
 

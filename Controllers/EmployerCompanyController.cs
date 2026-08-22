@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using GloryLikeWebApp.Models;
 using GloryLikeWebApp.Models.Employer;
 using GloryLikeWebApp.Security;
 using GloryLikeWebApp.Services;
@@ -13,6 +14,7 @@ public sealed class EmployerCompanyController : Controller
     private readonly ICompanyTeamApiService _companyTeamApiService;
     private readonly ICompanyProfileApiService _companyProfileApiService;
     private readonly ICompanyHiringPlanApiService _companyHiringPlanApiService;
+    private readonly ICompanyStructureApiService _companyStructureApiService;
     private readonly ISkillAndJobApiService _skillAndJobApiService;
     private readonly ILogger<EmployerCompanyController> _logger;
 
@@ -20,12 +22,14 @@ public sealed class EmployerCompanyController : Controller
         ICompanyTeamApiService companyTeamApiService,
         ICompanyProfileApiService companyProfileApiService,
         ICompanyHiringPlanApiService companyHiringPlanApiService,
+        ICompanyStructureApiService companyStructureApiService,
         ISkillAndJobApiService skillAndJobApiService,
         ILogger<EmployerCompanyController> logger)
     {
         _companyTeamApiService = companyTeamApiService;
         _companyProfileApiService = companyProfileApiService;
         _companyHiringPlanApiService = companyHiringPlanApiService;
+        _companyStructureApiService = companyStructureApiService;
         _skillAndJobApiService = skillAndJobApiService;
         _logger = logger;
     }
@@ -48,17 +52,18 @@ public sealed class EmployerCompanyController : Controller
         model.UserId = actorUserId;
         var taxonomyTask = _skillAndJobApiService.GetJobFamiliesAsync(cancellationToken);
         var planTask = _companyHiringPlanApiService.GetAsync(actorUserId, cancellationToken);
-        await Task.WhenAll(taxonomyTask, planTask);
+        var structureTask = _companyStructureApiService.GetAsync(actorUserId, cancellationToken);
+        await Task.WhenAll(taxonomyTask, planTask, structureTask);
 
         var taxonomy = await taxonomyTask;
         var plans = await planTask;
+        var structure = await structureTask;
 
-        if (taxonomy.Success)
+        if (taxonomy.Success && structure.Success && structure.Data is not null)
         {
-            model.JobFamilies = taxonomy.JobFamilies
-                .Where(item => item.Id > 0)
-                .OrderBy(item => item.JobName)
-                .ToList();
+            model.JobFamilies = FilterTaxonomyToStructure(
+                taxonomy.JobFamilies,
+                structure.Data.Departments);
         }
 
         if (plans.Success && plans.Data is not null)
@@ -69,7 +74,8 @@ public sealed class EmployerCompanyController : Controller
         var errors = new[]
         {
             taxonomy.Success ? string.Empty : taxonomy.Message,
-            plans.Success ? string.Empty : plans.Message
+            plans.Success ? string.Empty : plans.Message,
+            structure.Success ? string.Empty : structure.Message
         }.Where(item => !string.IsNullOrWhiteSpace(item));
         model.ErrorMessage = string.Join(" ", errors);
 
@@ -139,6 +145,139 @@ public sealed class EmployerCompanyController : Controller
         return result.Success
             ? Ok(new { success = true, message = result.Message })
             : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpPost("/Employer/Company/HiringPlan/Import")]
+    [ValidateAntiForgeryToken]
+    [RequestSizeLimit(5 * 1024 * 1024)]
+    public async Task<IActionResult> ImportHiringPlan(
+        IFormFile? file,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+            return Unauthorized(new { success = false, message = "Employer sign in is required." });
+
+        var fileError = ValidateExcelFile(file);
+        if (!string.IsNullOrWhiteSpace(fileError))
+            return BadRequest(new { success = false, message = fileError });
+
+        await using var stream = file!.OpenReadStream();
+        var result = await _companyHiringPlanApiService.ImportAsync(
+            actorUserId,
+            stream,
+            file.FileName,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new { success = true, message = result.Message })
+            : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpGet("/Employer/Company/Structure")]
+    public async Task<IActionResult> Structure(CancellationToken cancellationToken)
+    {
+        var model = new CompanyStructurePageViewModel
+        {
+            DisplayName = GetDisplayName(),
+            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+            ErrorMessage = TempData["CompanyStructureError"] as string ?? string.Empty
+        };
+
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            model.ErrorMessage = "Employer sign in is required.";
+            return View("Structure", model);
+        }
+
+        model.UserId = actorUserId;
+        var result = await _companyStructureApiService.GetAsync(
+            actorUserId,
+            cancellationToken);
+        if (result.Success && result.Data is not null)
+            model.Departments = result.Data.Departments;
+        else if (string.IsNullOrWhiteSpace(model.ErrorMessage))
+            model.ErrorMessage = result.Message;
+
+        return View("Structure", model);
+    }
+
+    [HttpPost("/Employer/Company/Structure/Save")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveStructure(
+        [FromBody] SaveCompanyStructureInput? input,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+            return Unauthorized(new { success = false, message = "Employer sign in is required." });
+
+        if (input is null)
+            return BadRequest(new { success = false, message = "Company structure data is required." });
+
+        input.Departments ??= new();
+        if (!ModelState.IsValid)
+            return BadRequest(new { success = false, message = FirstModelError() });
+
+        var result = await _companyStructureApiService.SaveAsync(
+            actorUserId,
+            input,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new
+            {
+                success = true,
+                message = result.Message,
+                departments = result.Data?.Departments
+            })
+            : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpPost("/Employer/Company/Structure/Import")]
+    [ValidateAntiForgeryToken]
+    [RequestSizeLimit(5 * 1024 * 1024)]
+    public async Task<IActionResult> ImportStructure(
+        IFormFile? file,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+            return Unauthorized(new { success = false, message = "Employer sign in is required." });
+
+        var fileError = ValidateExcelFile(file);
+        if (!string.IsNullOrWhiteSpace(fileError))
+            return BadRequest(new { success = false, message = fileError });
+
+        await using var stream = file!.OpenReadStream();
+        var result = await _companyStructureApiService.ImportAsync(
+            actorUserId,
+            stream,
+            file.FileName,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new { success = true, message = result.Message })
+            : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpGet("/Employer/Company/Structure/Export")]
+    public async Task<IActionResult> ExportStructure(
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+            return Unauthorized();
+
+        var result = await _companyStructureApiService.ExportAsync(
+            actorUserId,
+            cancellationToken);
+        if (!result.Success)
+        {
+            TempData["CompanyStructureError"] = result.Message;
+            return RedirectToAction(nameof(Structure));
+        }
+
+        return File(
+            result.Content,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            result.FileName);
     }
 
     [HttpGet("/Employer/Company")]
@@ -516,11 +655,69 @@ public sealed class EmployerCompanyController : Controller
             && userId > 0;
     }
 
+    private static List<JobFamily> FilterTaxonomyToStructure(
+        IEnumerable<JobFamily> jobFamilies,
+        IEnumerable<CompanyStructureDepartmentItem> departments)
+    {
+        var departmentLookup = departments.ToDictionary(
+            item => NormalizeName(item.Name),
+            item => item.Divisions
+                .SelectMany(division => division.Positions)
+                .Select(position => NormalizeName(position.Name))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase),
+            StringComparer.OrdinalIgnoreCase);
+
+        return jobFamilies
+            .Where(job => job.Id > 0
+                && departmentLookup.ContainsKey(NormalizeName(job.JobName)))
+            .Select(job =>
+            {
+                var positionNames = departmentLookup[NormalizeName(job.JobName)];
+                return new JobFamily
+                {
+                    Id = job.Id,
+                    JobName = job.JobName,
+                    Positions = job.Positions
+                        .Where(position => positionNames.Contains(
+                            NormalizeName(position.Name)))
+                        .OrderBy(position => position.Name)
+                        .ToList()
+                };
+            })
+            .Where(job => job.Positions.Count > 0)
+            .OrderBy(job => job.JobName)
+            .ToList();
+    }
+
+    private static string ValidateExcelFile(IFormFile? file)
+    {
+        if (file is null || file.Length == 0)
+            return "Select a non-empty .xlsx file.";
+        if (file.Length > 5 * 1024 * 1024)
+            return "Excel file cannot be larger than 5 MB.";
+        if (!string.Equals(
+                Path.GetExtension(file.FileName),
+                ".xlsx",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return "Only .xlsx files are supported.";
+        }
+
+        return string.Empty;
+    }
+
+    private static string NormalizeName(string? value) =>
+        string.Join(
+            ' ',
+            (value ?? string.Empty).Split(
+                (char[]?)null,
+                StringSplitOptions.RemoveEmptyEntries));
+
     private string FirstModelError() => ModelState.Values
         .SelectMany(item => item.Errors)
         .Select(item => item.ErrorMessage)
         .FirstOrDefault(item => !string.IsNullOrWhiteSpace(item))
-        ?? "Please check the hiring plan fields.";
+        ?? "Please check the submitted fields.";
 
     private static CompanyTeamMemberViewModel
         ToTeamMemberViewModel(

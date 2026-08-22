@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="~/css/company-profile.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/company-hiring-plan.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/company-hiring-plan-wide.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-hiring-plan-excel.css" asp-append-version="true" />
 </head>
 <body>
 <div class="employer-shell company-shell">
@@ -46,7 +47,7 @@
         <div class="company-profile-content hiring-plan-content">
             <nav class="company-tabs" aria-label="Company sections">
                 <a asp-controller="EmployerCompany" asp-action="Index"><span>♙</span>Profile</a>
-                <button type="button" data-future-tab><span>▱</span>Structure</button>
+                <a asp-controller="EmployerCompany" asp-action="Structure"><span>▱</span>Structure</a>
                 <a asp-controller="EmployerCompany" asp-action="Team"><span>♧</span>Team</a>
                 <a class="active" asp-controller="EmployerCompany" asp-action="HiringPlan"><span>◎</span>Hiring Plan</a>
             </nav>
@@ -56,12 +57,27 @@
                     <h1>Hiring Plan</h1>
                     <p>Plan headcount, create linked vacancies, and track completion from SQL data.</p>
                 </div>
-                <button class="hiring-plan-add" type="button" id="addHiringPlanButton" disabled="@(Model.JobFamilies.Count == 0)">+ Add position</button>
+                <div class="hiring-plan-heading-actions">
+                    <a
+                        class="hiring-plan-tool"
+                        href="/templates/BothFind-HiringPlan-Template.xlsx"
+                        download="BothFind-HiringPlan-Template.xlsx">
+                        Download template
+                    </a>
+                    <button class="hiring-plan-tool" type="button" id="uploadHiringPlanButton">Upload from Excel</button>
+                    <button class="hiring-plan-add" type="button" id="addHiringPlanButton" disabled="@(Model.JobFamilies.Count == 0)">+ Add position</button>
+                </div>
             </section>
 
             @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
             {
                 <div class="hiring-plan-alert error" role="alert">@Model.ErrorMessage</div>
+            }
+            else if (Model.JobFamilies.Count == 0)
+            {
+                <div class="hiring-plan-alert error" role="alert">
+                    Add departments and positions in Company Structure first. Hiring Plan only shows SQL taxonomy entries that match your structure.
+                </div>
             }
             <div class="hiring-plan-alert" id="hiringPlanMessage" role="status" hidden></div>
 
@@ -149,6 +165,7 @@
 
 <script id="hiringPlanTaxonomy" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.JobFamilies, jsonOptions))</script>
 <script id="hiringPlanRows" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Plans, jsonOptions))</script>
+<input id="hiringPlanExcelInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden />
 <script src="~/js/company-hiring-plan.js" asp-append-version="true"></script>
 </body>
 </html>
