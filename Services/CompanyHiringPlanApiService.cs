@@ -111,8 +111,8 @@ public sealed class CompanyHiringPlanApiService : ICompanyHiringPlanApiService
         var request = new BackendSaveCompanyHiringPlanRequest
         {
             ActorUserId = actorUserId,
-            JobFamilyId = input.JobFamilyId,
-            PositionId = input.PositionId,
+            DepartmentName = input.DepartmentName,
+            PositionName = input.PositionName,
             SeniorityId = input.SeniorityId,
             Headcount = input.Headcount,
             Priority = input.Priority,

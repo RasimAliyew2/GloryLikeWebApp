@@ -249,8 +249,10 @@ public sealed class EmployerVacanciesController : Controller
             else
             {
                 input.HiringPlanId = plan.Id;
-                input.JobFamilyId = plan.JobFamilyId;
-                input.PositionId = plan.PositionId;
+                if (plan.JobFamilyId is > 0)
+                    input.JobFamilyId = plan.JobFamilyId.Value;
+                if (plan.PositionId is > 0)
+                    input.PositionId = plan.PositionId.Value;
                 input.SeniorityId = plan.SeniorityId;
                 input.RoleTitle = plan.PositionName;
                 input.EmploymentType = plan.EmploymentType;

@@ -6,13 +6,14 @@
         catch { return []; }
     };
 
-    const taxonomy = readJson("hiringPlanTaxonomy");
+    const structure = readJson("hiringPlanStructure");
+    const seniorities = readJson("hiringPlanSeniorities");
     const plans = readJson("hiringPlanRows");
     const modal = document.getElementById("hiringPlanModal");
     const form = document.getElementById("hiringPlanForm");
     const message = document.getElementById("hiringPlanMessage");
     const title = document.getElementById("planModalTitle");
-    const job = document.getElementById("planJobFamily");
+    const department = document.getElementById("planDepartment");
     const position = document.getElementById("planPosition");
     const seniority = document.getElementById("planSeniority");
     const excelInput = document.getElementById("hiringPlanExcelInput");
@@ -24,26 +25,24 @@
         return item;
     };
 
-    const fillJobs = () => {
-        job.innerHTML = '<option value="">Select SQL Job</option>';
-        taxonomy.forEach(item => job.append(option(item.id, item.jobName)));
+    const fillDepartments = () => {
+        department.innerHTML = '<option value="">Select department</option>';
+        structure.forEach(item => department.append(option(item.name, item.name)));
     };
 
-    const fillPositions = (selectedId = null) => {
-        position.innerHTML = '<option value="">Select SQL Position</option>';
-        const selectedJob = taxonomy.find(item => item.id === Number(job.value));
-        (selectedJob?.positions || []).forEach(item => position.append(option(item.id, item.name)));
-        position.disabled = !selectedJob;
-        if (selectedId) position.value = String(selectedId);
+    const fillPositions = (selectedName = null) => {
+        position.innerHTML = '<option value="">Select position</option>';
+        const selectedDepartment = structure.find(item => item.name === department.value);
+        (selectedDepartment?.positions || []).forEach(item => position.append(option(item.name, item.name)));
+        position.disabled = !selectedDepartment;
+        if (selectedName) position.value = selectedName;
         fillSeniorities();
     };
 
     const fillSeniorities = (selectedId = null) => {
         seniority.innerHTML = '<option value="">Select SQL Seniority</option>';
-        const selectedJob = taxonomy.find(item => item.id === Number(job.value));
-        const selectedPosition = selectedJob?.positions?.find(item => item.id === Number(position.value));
-        (selectedPosition?.seniorities || []).forEach(item => seniority.append(option(item.id, item.name)));
-        seniority.disabled = !selectedPosition;
+        seniorities.forEach(item => seniority.append(option(item.id, item.name)));
+        seniority.disabled = !position.value;
         if (selectedId) seniority.value = String(selectedId);
     };
 
@@ -53,9 +52,14 @@
         form.action = editingId
             ? `/Employer/Company/HiringPlan/${editingId}/Update`
             : "/Employer/Company/HiringPlan";
-        fillJobs();
+        fillDepartments();
         if (plan) {
-            job.value = String(plan.jobFamilyId); fillPositions(plan.positionId); fillSeniorities(plan.seniorityId);
+            const matchingDepartment = structure.find(item => item.name === plan.departmentName)
+                || structure.find(item => (item.positions || []).some(positionItem =>
+                    positionItem.name === plan.positionName));
+            department.value = matchingDepartment?.name || "";
+            fillPositions(plan.positionName);
+            fillSeniorities(plan.seniorityId);
             document.getElementById("planHeadcount").value = plan.headcount;
             document.getElementById("planPriority").value = plan.priority;
             document.getElementById("planTargetDate").value = plan.targetStartDate?.slice(0, 10) || "";
@@ -64,7 +68,7 @@
         } else {
             fillPositions(); document.getElementById("planHeadcount").value = "1";
         }
-        modal.hidden = false; document.body.style.overflow = "hidden"; job.focus();
+        modal.hidden = false; document.body.style.overflow = "hidden"; department.focus();
     };
 
     const close = () => { modal.hidden = true; document.body.style.overflow = ""; };
@@ -73,8 +77,8 @@
         message.scrollIntoView({ behavior: "smooth", block: "center" });
     };
 
-    fillJobs();
-    job?.addEventListener("change", () => fillPositions());
+    fillDepartments();
+    department?.addEventListener("change", () => fillPositions());
     position?.addEventListener("change", () => fillSeniorities());
     document.getElementById("addHiringPlanButton")?.addEventListener("click", () => open());
     document.querySelectorAll("[data-open-plan]").forEach(button => button.addEventListener("click", () => open()));

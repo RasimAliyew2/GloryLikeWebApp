@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using GloryLikeWebApp.Models;
 using GloryLikeWebApp.Models.Employer;
 using GloryLikeWebApp.Security;
 using GloryLikeWebApp.Services;
@@ -59,11 +58,31 @@ public sealed class EmployerCompanyController : Controller
         var plans = await planTask;
         var structure = await structureTask;
 
-        if (taxonomy.Success && structure.Success && structure.Data is not null)
+        if (structure.Success && structure.Data is not null)
         {
-            model.JobFamilies = FilterTaxonomyToStructure(
-                taxonomy.JobFamilies,
+            model.Departments = BuildHiringPlanStructureOptions(
                 structure.Data.Departments);
+        }
+
+        if (taxonomy.Success)
+        {
+            model.Seniorities = taxonomy.JobFamilies
+                .SelectMany(job => job.Positions)
+                .SelectMany(position => position.Seniorities)
+                .Where(seniority => seniority.Id > 0)
+                .GroupBy(seniority => seniority.Id)
+                .Select(group => group
+                    .OrderBy(seniority => seniority.SortOrder)
+                    .First())
+                .OrderBy(seniority => seniority.SortOrder)
+                .ThenBy(seniority => seniority.Name)
+                .Select(seniority => new CompanyHiringPlanSeniorityOption
+                {
+                    Id = seniority.Id,
+                    Name = seniority.Name,
+                    SortOrder = seniority.SortOrder
+                })
+                .ToList();
         }
 
         if (plans.Success && plans.Data is not null)
@@ -655,37 +674,25 @@ public sealed class EmployerCompanyController : Controller
             && userId > 0;
     }
 
-    private static List<JobFamily> FilterTaxonomyToStructure(
-        IEnumerable<JobFamily> jobFamilies,
+    private static List<CompanyHiringPlanDepartmentOption> BuildHiringPlanStructureOptions(
         IEnumerable<CompanyStructureDepartmentItem> departments)
     {
-        var departmentLookup = departments.ToDictionary(
-            item => NormalizeName(item.Name),
-            item => item.Divisions
-                .SelectMany(division => division.Positions)
-                .Select(position => NormalizeName(position.Name))
-                .ToHashSet(StringComparer.OrdinalIgnoreCase),
-            StringComparer.OrdinalIgnoreCase);
-
-        return jobFamilies
-            .Where(job => job.Id > 0
-                && departmentLookup.ContainsKey(NormalizeName(job.JobName)))
-            .Select(job =>
+        return departments
+            .Select(department => new CompanyHiringPlanDepartmentOption
             {
-                var positionNames = departmentLookup[NormalizeName(job.JobName)];
-                return new JobFamily
-                {
-                    Id = job.Id,
-                    JobName = job.JobName,
-                    Positions = job.Positions
-                        .Where(position => positionNames.Contains(
-                            NormalizeName(position.Name)))
-                        .OrderBy(position => position.Name)
-                        .ToList()
-                };
+                Name = department.Name,
+                Positions = department.Divisions
+                    .SelectMany(division => division.Positions)
+                    .GroupBy(position => NormalizeName(position.Name))
+                    .Select(group => new CompanyHiringPlanPositionOption
+                    {
+                        Name = group.First().Name
+                    })
+                    .OrderBy(position => position.Name)
+                    .ToList()
             })
-            .Where(job => job.Positions.Count > 0)
-            .OrderBy(job => job.JobName)
+            .Where(department => department.Positions.Count > 0)
+            .OrderBy(department => department.Name)
             .ToList();
     }
 

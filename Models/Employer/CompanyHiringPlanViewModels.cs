@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using GloryLikeWebApp.Models;
 
 namespace GloryLikeWebApp.Models.Employer;
 
@@ -9,8 +8,13 @@ public sealed class CompanyHiringPlanPageViewModel
     public string DisplayName { get; set; } = "Employer";
     public string Email { get; set; } = string.Empty;
     public string ErrorMessage { get; set; } = string.Empty;
-    public List<JobFamily> JobFamilies { get; set; } = new();
+    public List<CompanyHiringPlanDepartmentOption> Departments { get; set; } = new();
+    public List<CompanyHiringPlanSeniorityOption> Seniorities { get; set; } = new();
     public List<CompanyHiringPlanItem> Plans { get; set; } = new();
+
+    public bool CanAddPlan =>
+        Departments.Any(department => department.Positions.Count > 0)
+        && Seniorities.Count > 0;
 
     public string Initials
     {
@@ -27,13 +31,33 @@ public sealed class CompanyHiringPlanPageViewModel
     }
 }
 
+public sealed class CompanyHiringPlanDepartmentOption
+{
+    public string Name { get; set; } = string.Empty;
+    public List<CompanyHiringPlanPositionOption> Positions { get; set; } = new();
+}
+
+public sealed class CompanyHiringPlanPositionOption
+{
+    public string Name { get; set; } = string.Empty;
+}
+
+public sealed class CompanyHiringPlanSeniorityOption
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public int SortOrder { get; set; }
+}
+
 public class SaveCompanyHiringPlanInput
 {
-    [Range(1, int.MaxValue)]
-    public int JobFamilyId { get; set; }
+    [Required]
+    [StringLength(120)]
+    public string DepartmentName { get; set; } = string.Empty;
 
-    [Range(1, int.MaxValue)]
-    public int PositionId { get; set; }
+    [Required]
+    [StringLength(160)]
+    public string PositionName { get; set; } = string.Empty;
 
     [Range(1, int.MaxValue)]
     public int SeniorityId { get; set; }
@@ -66,9 +90,10 @@ public sealed class CompanyHiringPlanApiResponse
 public sealed class CompanyHiringPlanItem
 {
     public int Id { get; set; }
-    public int JobFamilyId { get; set; }
+    public int? JobFamilyId { get; set; }
     public string JobFamilyName { get; set; } = string.Empty;
-    public int PositionId { get; set; }
+    public string DepartmentName { get; set; } = string.Empty;
+    public int? PositionId { get; set; }
     public string PositionName { get; set; } = string.Empty;
     public int SeniorityId { get; set; }
     public string SeniorityName { get; set; } = string.Empty;

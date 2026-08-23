@@ -65,7 +65,7 @@
                         Download template
                     </a>
                     <button class="hiring-plan-tool" type="button" id="uploadHiringPlanButton">Upload from Excel</button>
-                    <button class="hiring-plan-add" type="button" id="addHiringPlanButton" disabled="@(Model.JobFamilies.Count == 0)">+ Add position</button>
+                    <button class="hiring-plan-add" type="button" id="addHiringPlanButton" disabled="@(!Model.CanAddPlan)">+ Add position</button>
                 </div>
             </section>
 
@@ -73,10 +73,16 @@
             {
                 <div class="hiring-plan-alert error" role="alert">@Model.ErrorMessage</div>
             }
-            else if (Model.JobFamilies.Count == 0)
+            else if (!Model.Departments.Any(department => department.Positions.Count > 0))
             {
                 <div class="hiring-plan-alert error" role="alert">
-                    Add departments and positions in Company Structure first. Hiring Plan only shows SQL taxonomy entries that match your structure.
+                    Add at least one department and position in Company Structure first.
+                </div>
+            }
+            else if (Model.Seniorities.Count == 0)
+            {
+                <div class="hiring-plan-alert error" role="alert">
+                    Add seniority levels to SQL before creating a hiring plan.
                 </div>
             }
             <div class="hiring-plan-alert" id="hiringPlanMessage" role="status" hidden></div>
@@ -88,7 +94,7 @@
                         <span>◎</span>
                         <h2>No hiring plans yet</h2>
                         <p>Add your first planned position. The list is stored in SQL and fills as you add rows.</p>
-                        <button type="button" data-open-plan disabled="@(Model.JobFamilies.Count == 0)">Add position</button>
+                        <button type="button" data-open-plan disabled="@(!Model.CanAddPlan)">Add position</button>
                     </div>
                 }
                 else
@@ -105,7 +111,7 @@
                                 var statusClass = plan.Status.ToLowerInvariant().Replace(" ", "-");
                                 <tr data-plan-id="@plan.Id">
                                     <td><strong>@plan.PositionName</strong><small>@plan.VacancyCount / @plan.Headcount vacancies</small></td>
-                                    <td>@plan.JobFamilyName</td>
+                                    <td>@plan.DepartmentName</td>
                                     <td>@plan.Headcount</td>
                                     <td>@plan.SeniorityName</td>
                                     <td><span class="priority priority-@plan.Priority.ToLowerInvariant()">@plan.Priority</span></td>
@@ -145,12 +151,12 @@
         <button class="plan-modal-close" type="button" data-close-plan aria-label="Close">×</button>
         <span class="hiring-plan-kicker">SQL HIRING PLAN</span>
         <h2 id="planModalTitle">Add planned position</h2>
-        <p>Job, position, and seniority values come only from SQL taxonomy.</p>
+        <p>Department and position come directly from Company Structure. Seniority comes from SQL.</p>
         <form id="hiringPlanForm" method="post" action="@Url.Action("CreateHiringPlan", "EmployerCompany")">
             @Html.AntiForgeryToken()
             <div class="plan-form-grid">
-                <label>Department (Job)<select name="JobFamilyId" id="planJobFamily" required><option value="">Select SQL Job</option></select></label>
-                <label>Position Title<select name="PositionId" id="planPosition" required disabled><option value="">Select SQL Position</option></select></label>
+                <label>Department<select name="DepartmentName" id="planDepartment" required><option value="">Select department</option></select></label>
+                <label>Position Title<select name="PositionName" id="planPosition" required disabled><option value="">Select position</option></select></label>
                 <label>Seniority<select name="SeniorityId" id="planSeniority" required disabled><option value="">Select SQL Seniority</option></select></label>
                 <label>Headcount<input name="Headcount" id="planHeadcount" type="number" min="1" max="1000" value="1" required /></label>
                 <label>Priority<select name="Priority" id="planPriority"><option>Critical</option><option>High</option><option selected>Medium</option><option>Low</option></select></label>
@@ -163,7 +169,8 @@
     </section>
 </div>
 
-<script id="hiringPlanTaxonomy" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.JobFamilies, jsonOptions))</script>
+<script id="hiringPlanStructure" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Departments, jsonOptions))</script>
+<script id="hiringPlanSeniorities" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Seniorities, jsonOptions))</script>
 <script id="hiringPlanRows" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Plans, jsonOptions))</script>
 <input id="hiringPlanExcelInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden />
 <script src="~/js/company-hiring-plan.js" asp-append-version="true"></script>
