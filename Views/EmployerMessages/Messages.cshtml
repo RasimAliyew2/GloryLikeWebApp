@@ -1,0 +1,117 @@
+@model GloryLikeWebApp.Models.Employer.EmployerMessagesPageViewModel
+@using System.Text.Json
+@{
+    Layout = null;
+    ViewData["Title"] = "Messages";
+    var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/employer-candidate.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/employer-messages.css" asp-append-version="true" />
+</head>
+<body>
+<div class="employer-shell messages-page-shell">
+    <header class="employer-topbar">
+        <a class="employer-brand" href="/Portal/Home">SkillMatch</a>
+        <div class="employer-search"><span>⌕</span><input type="search" placeholder="Search messages" aria-label="Search messages" id="messageSearch" /></div>
+        <a class="employer-account" href="/Profile" aria-label="Open profile">
+            <span class="demo-badge">Employer</span>
+            <div class="employer-avatar">@Model.Initials</div>
+            <div class="employer-account-copy">
+                <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
+                <span>Employer workspace</span>
+            </div>
+        </a>
+    </header>
+
+    <aside class="employer-sidebar" id="employerSidebar">
+        <nav aria-label="Employer navigation">
+            <a href="/EmployerHome"><span>⌁</span><strong>Dashboard</strong></a>
+            <a href="/Employer/Vacancies"><span>▣</span><strong>Vacancies</strong></a>
+            <a href="#"><span>▱</span><strong>Recruitment requests</strong></a>
+            <a href="/Employer/TalentRadar"><span>◎</span><strong>Talent Radar</strong></a>
+            <a href="/Employer/Company"><span>▥</span><strong>Company</strong></a>
+            <a href="/Employer/Reports"><span>▧</span><strong>Reports</strong></a>
+        </nav>
+        <div class="employer-sidebar-bottom">
+            <form method="post" action="/SignOut">@Html.AntiForgeryToken()<button type="submit">↪ Sign out</button></form>
+        </div>
+    </aside>
+
+    <main class="employer-main messages-main">
+        <button class="employer-menu-button" type="button" id="employerMenuButton" aria-label="Open employer menu">☰</button>
+        <section class="messages-heading">
+            <div><span class="messages-kicker">COMPANY COMMUNICATIONS</span><h1>Messages</h1><p>Discuss candidates privately with members of your company team.</p></div>
+            <div class="messages-unread-summary"><strong>@Model.Overview.UnreadCount</strong><span>unread</span></div>
+        </section>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="messages-error" role="alert">@Model.ErrorMessage</div>
+        }
+
+        <section class="messages-workspace">
+            <aside class="messages-conversations">
+                <header><strong>Inbox</strong><span>@Model.Overview.Conversations.Count conversations</span></header>
+                <div id="messageConversationList">
+                    @if (Model.Overview.Conversations.Count == 0)
+                    {
+                        <div class="messages-list-empty">No messages yet. Open a candidate profile and choose <strong>Discuss</strong> to start one.</div>
+                    }
+                    else
+                    {
+                        @foreach (var conversation in Model.Overview.Conversations)
+                        {
+                            var conversationSearch = $"{conversation.OtherDisplayName} {conversation.CandidateDisplayName} {conversation.LastMessage}".ToLowerInvariant();
+                            <button type="button" class="message-conversation-item" data-message-conversation data-other-user-id="@conversation.OtherUserId" data-other-name="@conversation.OtherDisplayName" data-candidate-user-id="@conversation.CandidateUserId" data-candidate-name="@conversation.CandidateDisplayName" data-search="@conversationSearch">
+                                <span class="message-conversation-avatar">@conversation.Initials</span>
+                                <span class="message-conversation-copy">
+                                    <span><strong>@conversation.OtherDisplayName</strong><time>@conversation.LastMessageAtUtc.ToLocalTime().ToString("dd MMM, HH:mm")</time></span>
+                                    <small>Re: @conversation.CandidateDisplayName</small>
+                                    <span class="message-conversation-preview">@conversation.LastMessage</span>
+                                </span>
+                                @if (conversation.UnreadCount > 0)
+                                {
+                                    <span class="message-conversation-unread">@conversation.UnreadCount</span>
+                                }
+                            </button>
+                        }
+                    }
+                </div>
+            </aside>
+
+            <div class="messages-thread">
+                <header>
+                    <div><span class="messages-kicker">CONVERSATION</span><strong id="messagesThreadTitle">Select a conversation</strong><a id="messagesCandidateLink" href="#" hidden></a></div>
+                </header>
+                <div class="messages-thread-body" id="messagesThreadBody">
+                    <div class="messages-thread-empty"><span>✉</span><strong>Your company inbox</strong><p>Select a conversation to read messages and reply.</p></div>
+                </div>
+                <form class="messages-reply" id="messagesReplyForm">
+                    <div class="candidate-mention-menu" id="messagesMentionMenu" hidden></div>
+                    <textarea id="messagesReplyInput" maxlength="4000" rows="3" placeholder="Write a reply..." disabled></textarea>
+                    <div><span id="messagesReplyFeedback" role="status"></span><button id="messagesReplySend" type="submit" disabled>Send reply</button></div>
+                </form>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div class="employer-backdrop" id="employerBackdrop"></div>
+<form id="messagesSecurityToken" hidden>@Html.AntiForgeryToken()</form>
+<script id="messagesPageContext" type="application/json">@Html.Raw(JsonSerializer.Serialize(new
+{
+    actorUserId = Model.ActorUserId,
+    teamMembers = Model.Overview.TeamMembers
+}, jsonOptions))</script>
+<script src="~/js/employer-home.js" asp-append-version="true"></script>
+<script src="~/js/employer-messages.js" asp-append-version="true"></script>
+</body>
+</html>

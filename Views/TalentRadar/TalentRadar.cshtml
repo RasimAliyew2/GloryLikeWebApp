@@ -208,8 +208,10 @@
                             })
                             .ToLowerInvariant();
 
-                        <article
+                        <a
                             class="talent-radar-card"
+                            href="/Employer/Candidates/@candidate.UserId"
+                            aria-label="Open @candidate.Name candidate profile"
                             data-radar-card
                             data-search-value="@searchValue">
                             <div class="radar-candidate-profile">
@@ -276,7 +278,7 @@
                                     @candidate.TemplateSkillsCount skills
                                 </small>
                             </div>
-                        </article>
+                        </a>
                     }
                 </section>
 

@@ -60,7 +60,7 @@ wwwroot\js\profile-page.js
 wwwroot\js\opportunities-page.js
 wwwroot\js\employer-vacancy-detail.js
 wwwroot\js\employer-vacancies-list.js
-wwwroot\js\employer-home.js
+wwwroot\css\employer-candidate.css
 wwwroot\js\create-vacancy.js
 wwwroot\js\create-vacancy-screening.js
 wwwroot\js\create-vacancy-publication.js
@@ -73,7 +73,7 @@ wwwroot\css\create-vacancy-funnel.css
 wwwroot\js\candidate-dashboard.js
 wwwroot\favicon.ico
 wwwroot\css\verify-registration.css
-wwwroot\css\talent-radar.css
+wwwroot\css\employer-home.css
 wwwroot\css\skills-page.css
 wwwroot\css\site.css
 wwwroot\css\screening-application.css
@@ -84,7 +84,7 @@ wwwroot\css\opportunities-page.css
 wwwroot\css\employer-vacancy-detail.css
 wwwroot\css\employer-vacancies-list.css
 wwwroot\css\employer-reports.css
-wwwroot\css\employer-home.css
+wwwroot\css\employer-messages.css
 wwwroot\css\create-vacancy.css
 wwwroot\css\create-vacancy-skill-search.css
 wwwroot\css\create-vacancy-screening.css
@@ -108,3 +108,7 @@ wwwroot\css\profile-page.css
 wwwroot\js\company-hiring-plan.js
 wwwroot\js\company-structure.js
 wwwroot\templates\BothFind-HiringPlan-Template.xlsx
+wwwroot\css\talent-radar.css
+wwwroot\js\employer-candidate-profile.js
+wwwroot\js\employer-home.js
+wwwroot\js\employer-messages.js

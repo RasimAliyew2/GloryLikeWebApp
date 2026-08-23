@@ -173,6 +173,7 @@
 <script id="hiringPlanSeniorities" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Seniorities, jsonOptions))</script>
 <script id="hiringPlanRows" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Plans, jsonOptions))</script>
 <input id="hiringPlanExcelInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden />
+<script src="~/js/employer-home.js" asp-append-version="true"></script>
 <script src="~/js/company-hiring-plan.js" asp-append-version="true"></script>
 </body>
 </html>

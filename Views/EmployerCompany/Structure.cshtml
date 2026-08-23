@@ -165,6 +165,7 @@
 <form id="structureSecurityToken" hidden>@Html.AntiForgeryToken()</form>
 <input id="structureExcelInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden />
 <script id="companyStructureData" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Departments, jsonOptions))</script>
+<script src="~/js/employer-home.js" asp-append-version="true"></script>
 <script src="~/js/company-structure.js" asp-append-version="true"></script>
 </body>
 </html>

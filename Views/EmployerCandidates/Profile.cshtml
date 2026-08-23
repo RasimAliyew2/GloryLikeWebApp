@@ -1,0 +1,236 @@
+@model GloryLikeWebApp.Models.Employer.EmployerCandidatePageViewModel
+@using System.Text.Json
+@{
+    Layout = null;
+    ViewData["Title"] = Model.Candidate is null
+        ? "Candidate profile"
+        : $"{Model.Candidate.DisplayName} · Candidate";
+    var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/employer-candidate.css" asp-append-version="true" />
+</head>
+<body>
+<div class="employer-shell candidate-workspace-shell">
+    <header class="employer-topbar">
+        <a class="employer-brand" href="/Portal/Home">SkillMatch</a>
+        <div class="employer-search candidate-profile-search">
+            <span>⌕</span>
+            <input type="search" placeholder="Search by candidates/vacancies" aria-label="Search" disabled />
+        </div>
+        <a class="employer-account" href="/Profile" aria-label="Open profile">
+            <span class="demo-badge">Employer</span>
+            <div class="employer-avatar">@Model.Initials</div>
+            <div class="employer-account-copy">
+                <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
+                <span>Employer workspace</span>
+            </div>
+        </a>
+    </header>
+
+    <aside class="employer-sidebar" id="employerSidebar">
+        <nav aria-label="Employer navigation">
+            <a href="/EmployerHome"><span>⌁</span><strong>Dashboard</strong></a>
+            <a href="/Employer/Vacancies"><span>▣</span><strong>Vacancies</strong></a>
+            <a href="#"><span>▱</span><strong>Recruitment requests</strong></a>
+            <a class="active" href="/Employer/TalentRadar"><span>◎</span><strong>Talent Radar</strong></a>
+            <a href="/Employer/Company"><span>▥</span><strong>Company</strong></a>
+            <a href="/Employer/Reports"><span>▧</span><strong>Reports</strong></a>
+        </nav>
+        <div class="employer-sidebar-bottom">
+            <form method="post" action="/SignOut">
+                @Html.AntiForgeryToken()
+                <button type="submit">↪ Sign out</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="employer-main employer-candidate-main">
+        <button class="employer-menu-button" type="button" id="employerMenuButton" aria-label="Open employer menu">☰</button>
+        <nav class="candidate-breadcrumb" aria-label="Breadcrumb">
+            <a href="/Employer/TalentRadar">Talent Radar</a><span>›</span><strong>Candidate profile</strong>
+        </nav>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage) || Model.Candidate is null)
+        {
+            <section class="candidate-profile-state error" role="alert">
+                <span>!</span>
+                <h1>Candidate profile could not be loaded</h1>
+                <p>@Model.ErrorMessage</p>
+                <a href="/Employer/TalentRadar">Back to Talent Radar</a>
+            </section>
+        }
+        else
+        {
+            var candidate = Model.Candidate;
+            <section class="candidate-profile-hero">
+                <div class="candidate-profile-avatar">
+                    @if (!string.IsNullOrWhiteSpace(candidate.ProfileImageDataUrl))
+                    {
+                        <img src="@candidate.ProfileImageDataUrl" alt="@candidate.DisplayName" />
+                    }
+                    else
+                    {
+                        <span>@candidate.Initials</span>
+                    }
+                </div>
+                <div class="candidate-profile-identity">
+                    <span class="candidate-kicker">CANDIDATE PROFILE</span>
+                    <h1>@candidate.DisplayName</h1>
+                    <div class="candidate-profile-meta">
+                        @if (!string.IsNullOrWhiteSpace(candidate.UserName))
+                        {
+                            <span>@@@candidate.UserName</span>
+                        }
+                        <span>Born: @candidate.BirthDateDisplay</span>
+                        <span>@(string.IsNullOrWhiteSpace(candidate.CurrentJobName) ? "Role not provided" : candidate.CurrentJobName)</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(candidate.Email))
+                    {
+                        <a class="candidate-email" href="mailto:@candidate.Email">✉ @candidate.Email</a>
+                    }
+                    <p>@(string.IsNullOrWhiteSpace(candidate.About) ? "No about information has been added yet." : candidate.About)</p>
+                </div>
+                <div class="candidate-profile-actions">
+                    <button class="candidate-history-button" type="button" id="candidateHistoryOpen">
+                        <span>↺</span> Candidate History
+                        <small>@candidate.VacancyHistory.Count</small>
+                    </button>
+                </div>
+            </section>
+
+            <section class="candidate-profile-grid">
+                <div class="candidate-profile-column">
+                    <div class="candidate-section-heading">
+                        <div><span class="candidate-kicker">SKILL PASSPORT</span><h2>Skills and scores</h2></div>
+                        <span>@candidate.Skills.Count total</span>
+                    </div>
+                    <div class="candidate-skill-grid">
+                        @if (candidate.Skills.Count == 0)
+                        {
+                            <div class="candidate-empty-card">No skills have been added yet.</div>
+                        }
+                        else
+                        {
+                            @foreach (var skill in candidate.Skills)
+                            {
+                                <article class="candidate-skill-card">
+                                    <span class="candidate-skill-icon">✦</span>
+                                    <div><strong>@skill.SkillName</strong><small>@(skill.IsVerified ? "Verified" : "Self-declared")</small></div>
+                                    <div class="candidate-skill-score"><strong>@skill.CredibilityScore</strong><small>credibility</small></div>
+                                </article>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <aside class="candidate-experience-column">
+                    <div class="candidate-section-heading">
+                        <div><span class="candidate-kicker">CAREER</span><h2>Experience</h2></div>
+                    </div>
+                    <div class="candidate-experience-list">
+                        @if (candidate.Experiences.Count == 0)
+                        {
+                            <div class="candidate-empty-card">No work experience has been added yet.</div>
+                        }
+                        else
+                        {
+                            @foreach (var experience in candidate.Experiences)
+                            {
+                                <article class="candidate-experience-card">
+                                    <span>▣</span>
+                                    <div>
+                                        <strong>@experience.PositionName</strong>
+                                        <p>@experience.CompanyName</p>
+                                        <small>@experience.StartYear — @(string.IsNullOrWhiteSpace(experience.EndYear) ? "Present" : experience.EndYear)</small>
+                                    </div>
+                                </article>
+                            }
+                        }
+                    </div>
+                </aside>
+            </section>
+
+            <button class="candidate-chat-fab" id="candidateChatOpen" type="button" aria-label="Discuss this candidate with your team">
+                <span>✉</span><strong>Discuss</strong>
+            </button>
+
+            <section class="candidate-chat-panel" id="candidateChatPanel" aria-label="Company team chat" hidden>
+                <aside class="candidate-chat-members">
+                    <header><span>COMPANY TEAM</span><strong>Choose a teammate</strong></header>
+                    <div id="candidateChatMemberList">
+                        @foreach (var member in candidate.TeamMembers)
+                        {
+                            <button type="button" data-chat-member data-user-id="@member.UserId" data-display-name="@member.DisplayName">
+                                <span>@member.Initials</span>
+                                <span><strong>@member.DisplayName</strong><small>@member.Role</small></span>
+                            </button>
+                        }
+                    </div>
+                </aside>
+                <div class="candidate-chat-conversation">
+                    <header>
+                        <div><span>DISCUSS CANDIDATE</span><strong id="candidateChatTitle">Select a team member</strong></div>
+                        <button type="button" id="candidateChatClose" aria-label="Close chat">×</button>
+                    </header>
+                    <div class="candidate-chat-messages" id="candidateChatMessages">
+                        <div class="candidate-chat-placeholder">Choose a teammate on the left to start the conversation.</div>
+                    </div>
+                    <form class="candidate-chat-compose" id="candidateChatForm">
+                        <div class="candidate-mention-menu" id="candidateMentionMenu" hidden></div>
+                        <textarea id="candidateChatInput" rows="3" maxlength="4000" placeholder="Write a message..." disabled></textarea>
+                        <div><span id="candidateChatFeedback" role="status"></span><button type="submit" id="candidateChatSend" disabled>Send</button></div>
+                    </form>
+                </div>
+            </section>
+
+            <dialog class="candidate-history-dialog" id="candidateHistoryDialog">
+                <header>
+                    <div><span class="candidate-kicker">APPLICATIONS TO YOUR COMPANY</span><h2>Candidate History</h2></div>
+                    <button type="button" id="candidateHistoryClose" aria-label="Close">×</button>
+                </header>
+                <div class="candidate-history-list">
+                    @if (candidate.VacancyHistory.Count == 0)
+                    {
+                        <div class="candidate-empty-card">This candidate has not applied to your company's vacancies yet.</div>
+                    }
+                    else
+                    {
+                        @foreach (var item in candidate.VacancyHistory)
+                        {
+                            var appliedAtValue = item.AppliedAtUtc.ToString("O");
+                            <article>
+                                <div><span>@item.PlatformVacancyId</span><h3>@item.RoleTitle</h3><p>@item.JobFamilyName · @item.LocationName</p></div>
+                                <div><strong>Applied</strong><time datetime="@appliedAtValue">@item.AppliedAtUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</time></div>
+                            </article>
+                        }
+                    }
+                </div>
+            </dialog>
+
+            <form id="candidateMessagingSecurityToken" hidden>@Html.AntiForgeryToken()</form>
+            <script id="candidateMessagingContext" type="application/json">@Html.Raw(JsonSerializer.Serialize(new
+            {
+                actorUserId = Model.ActorUserId,
+                candidateUserId = candidate.UserId,
+                candidateName = candidate.DisplayName,
+                teamMembers = candidate.TeamMembers
+            }, jsonOptions))</script>
+        }
+    </main>
+</div>
+<div class="employer-backdrop" id="employerBackdrop"></div>
+<script src="~/js/employer-home.js" asp-append-version="true"></script>
+@if (Model.Candidate is not null)
+{
+    <script src="~/js/employer-candidate-profile.js" asp-append-version="true"></script>
+}
+</body>
+</html>
