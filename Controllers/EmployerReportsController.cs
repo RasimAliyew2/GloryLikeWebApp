@@ -11,15 +11,7 @@ namespace GloryLikeWebApp.Controllers;
 public sealed class EmployerReportsController : Controller
 {
     private static readonly HashSet<string> AllowedFields =
-    [
-        VacancyCreationReportPageViewModel.EmployeeEmailField,
-        VacancyCreationReportPageViewModel.EmployeeRoleField,
-        VacancyCreationReportPageViewModel.VacancyCountField,
-        VacancyCreationReportPageViewModel.EmployeeDatesField,
-        VacancyCreationReportPageViewModel.VacanciesField,
-        VacancyCreationReportPageViewModel.VacancyDateField,
-        VacancyCreationReportPageViewModel.VacancyStatusField
-    ];
+        VacancyCreationReportPageViewModel.AllFieldKeys();
 
     private readonly IOrganizationReportsApiService _reportsApiService;
 
@@ -64,17 +56,25 @@ public sealed class EmployerReportsController : Controller
         CancellationToken cancellationToken)
     {
         var today = DateTime.UtcNow.Date;
+        var hierarchy = ParseHierarchy(query.Layout);
+        var selectedFields = query.Execute
+            ? (query.Fields ?? [])
+                .Where(AllowedFields.Contains)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase)
+            : VacancyCreationReportPageViewModel.DefaultFields();
+        selectedFields.Add(VacancyCreationReportPageViewModel.EmployeeField);
+
         var model = new VacancyCreationReportPageViewModel
         {
             DateFrom = query.DateFrom?.Date
                 ?? new DateTime(today.Year, today.Month, 1),
             DateTo = query.DateTo?.Date ?? today,
             WasExecuted = query.Execute,
-            SelectedFields = query.Execute
-                ? query.Fields
-                    .Where(AllowedFields.Contains)
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase)
-                : VacancyCreationReportPageViewModel.DefaultFields()
+            SelectedFields = selectedFields,
+            HierarchyLevels = hierarchy,
+            HierarchyLayout =
+                VacancyCreationReportPageViewModel.SerializeHierarchy(
+                    hierarchy)
         };
         PopulateShell(model);
 
@@ -187,5 +187,124 @@ public sealed class EmployerReportsController : Controller
     private static string ResolveError(string message, string fallback)
     {
         return string.IsNullOrWhiteSpace(message) ? fallback : message;
+    }
+
+    private static List<ReportHierarchyLevelViewModel> ParseHierarchy(
+        string? layout)
+    {
+        var levels = VacancyCreationReportPageViewModel.DefaultHierarchy();
+        if (string.IsNullOrWhiteSpace(layout))
+            return levels;
+
+        var parsedByScope = new Dictionary<
+            string,
+            List<string>>(StringComparer.OrdinalIgnoreCase)
+        {
+            [VacancyCreationReportPageViewModel.EmployeeScope] = [],
+            [VacancyCreationReportPageViewModel.VacancyScope] = []
+        };
+        var seenFields = new HashSet<string>(
+            StringComparer.OrdinalIgnoreCase);
+
+        foreach (var segment in layout.Split(
+                     '|',
+                     StringSplitOptions.RemoveEmptyEntries
+                     | StringSplitOptions.TrimEntries))
+        {
+            var parts = segment.Split(':', 2);
+            if (parts.Length != 2
+                || !parsedByScope.TryGetValue(parts[0], out var fieldList))
+            {
+                continue;
+            }
+
+            foreach (var field in parts[1].Split(
+                         ',',
+                         StringSplitOptions.RemoveEmptyEntries
+                         | StringSplitOptions.TrimEntries))
+            {
+                if (AllowedFields.Contains(field) && seenFields.Add(field))
+                    fieldList.Add(field);
+            }
+        }
+
+        foreach (var missingField in VacancyCreationReportPageViewModel
+                     .DefaultHierarchy()
+                     .SelectMany(level => level.FieldKeys)
+                     .Where(field => !seenFields.Contains(field)))
+        {
+            parsedByScope[
+                VacancyCreationReportPageViewModel.DefaultScopeFor(
+                    missingField)].Add(missingField);
+        }
+
+        EnsureFieldScope(
+            parsedByScope,
+            VacancyCreationReportPageViewModel.EmployeeField,
+            VacancyCreationReportPageViewModel.EmployeeScope);
+
+        EnsureNonEmptyLevel(
+            parsedByScope,
+            VacancyCreationReportPageViewModel.EmployeeScope,
+            VacancyCreationReportPageViewModel.EmployeeField);
+        EnsureNonEmptyLevel(
+            parsedByScope,
+            VacancyCreationReportPageViewModel.VacancyScope,
+            VacancyCreationReportPageViewModel.VacanciesField);
+
+        return
+        [
+            new ReportHierarchyLevelViewModel
+            {
+                Scope = VacancyCreationReportPageViewModel.EmployeeScope,
+                FieldKeys = parsedByScope[
+                    VacancyCreationReportPageViewModel.EmployeeScope]
+            },
+            new ReportHierarchyLevelViewModel
+            {
+                Scope = VacancyCreationReportPageViewModel.VacancyScope,
+                FieldKeys = parsedByScope[
+                    VacancyCreationReportPageViewModel.VacancyScope]
+            }
+        ];
+    }
+
+    private static void EnsureNonEmptyLevel(
+        IDictionary<string, List<string>> levels,
+        string targetScope,
+        string fallbackField)
+    {
+        if (levels[targetScope].Count > 0)
+            return;
+
+        foreach (var level in levels.Values)
+            level.RemoveAll(field => string.Equals(
+                field,
+                fallbackField,
+                StringComparison.OrdinalIgnoreCase));
+
+        levels[targetScope].Add(fallbackField);
+    }
+
+    private static void EnsureFieldScope(
+        IDictionary<string, List<string>> levels,
+        string field,
+        string targetScope)
+    {
+        if (levels[targetScope].Any(candidate => string.Equals(
+                candidate,
+                field,
+                StringComparison.OrdinalIgnoreCase)))
+        {
+            return;
+        }
+
+        foreach (var level in levels.Values)
+            level.RemoveAll(candidate => string.Equals(
+                candidate,
+                field,
+                StringComparison.OrdinalIgnoreCase));
+
+        levels[targetScope].Insert(0, field);
     }
 }

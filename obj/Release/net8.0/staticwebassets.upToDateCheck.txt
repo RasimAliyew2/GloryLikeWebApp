@@ -83,7 +83,7 @@ wwwroot\css\privacy.css
 wwwroot\css\opportunities-page.css
 wwwroot\css\employer-vacancy-detail.css
 wwwroot\css\employer-vacancies-list.css
-wwwroot\css\employer-reports.css
+wwwroot\js\employer-reports.js
 wwwroot\css\employer-messages.css
 wwwroot\css\create-vacancy.css
 wwwroot\css\create-vacancy-skill-search.css
@@ -113,4 +113,4 @@ wwwroot\js\employer-candidate-profile.js
 wwwroot\js\employer-home.js
 wwwroot\js\employer-messages.js
 wwwroot\js\company-structure.js
-wwwroot\js\employer-reports.js
+wwwroot\css\employer-reports.css

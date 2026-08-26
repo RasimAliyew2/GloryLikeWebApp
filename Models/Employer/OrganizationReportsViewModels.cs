@@ -21,6 +21,9 @@ public sealed class OrganizationReportsPageViewModel
 public sealed class VacancyCreationReportPageViewModel
     : EmployerReportsShellViewModel
 {
+    public const string EmployeeScope = "employee";
+    public const string VacancyScope = "vacancy";
+    public const string EmployeeField = "employee";
     public const string EmployeeEmailField = "employee-email";
     public const string EmployeeRoleField = "employee-role";
     public const string VacancyCountField = "vacancy-count";
@@ -38,12 +41,84 @@ public sealed class VacancyCreationReportPageViewModel
     public int TotalVacancyCount { get; set; }
     public HashSet<string> SelectedFields { get; set; } =
         DefaultFields();
+    public List<ReportHierarchyLevelViewModel> HierarchyLevels { get; set; } =
+        DefaultHierarchy();
+    public string HierarchyLayout { get; set; } = string.Empty;
     public List<VacancyCreatorReportRowViewModel> Employees { get; set; } = [];
 
     public bool Shows(string field) => SelectedFields.Contains(field);
 
+    public string LabelFor(string field) => FieldDefinitionsByKey.TryGetValue(
+        field,
+        out var definition)
+            ? definition.Label
+            : field;
+
+    public string TypeFor(string field) => FieldDefinitionsByKey.TryGetValue(
+        field,
+        out var definition)
+            ? definition.ValueType
+            : "String";
+
+    public string EmployeeValue(
+        string field,
+        VacancyCreatorReportRowViewModel employee)
+    {
+        return field switch
+        {
+            EmployeeEmailField => employee.Email,
+            EmployeeRoleField => employee.Role,
+            VacancyCountField => employee.VacancyCount.ToString(),
+            EmployeeDatesField => employee.VacancyCreationDatesUtc.Count == 0
+                ? "—"
+                : string.Join(
+                    ", ",
+                    employee.VacancyCreationDatesUtc.Select(
+                        date => date.ToString("dd.MM.yyyy"))),
+            VacancyDateField => employee.Vacancies.Count == 0
+                ? "—"
+                : string.Join(
+                    ", ",
+                    employee.Vacancies.Select(
+                        vacancy => vacancy.CreatedAtUtc.ToString(
+                            "dd.MM.yyyy HH:mm"))),
+            VacancyStatusField => employee.Vacancies.Count == 0
+                ? "—"
+                : string.Join(
+                    ", ",
+                    employee.Vacancies
+                        .Select(vacancy => vacancy.Status)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)),
+            _ => string.Empty
+        };
+    }
+
+    public string VacancyValue(
+        string field,
+        VacancyCreatorReportRowViewModel employee,
+        VacancyCreationReportItemViewModel vacancy)
+    {
+        return field switch
+        {
+            EmployeeEmailField => employee.Email,
+            EmployeeRoleField => employee.Role,
+            VacancyCountField => employee.VacancyCount.ToString(),
+            EmployeeDatesField => employee.VacancyCreationDatesUtc.Count == 0
+                ? "—"
+                : string.Join(
+                    ", ",
+                    employee.VacancyCreationDatesUtc.Select(
+                        date => date.ToString("dd.MM.yyyy"))),
+            VacancyDateField => vacancy.CreatedAtUtc.ToString(
+                "dd.MM.yyyy HH:mm"),
+            VacancyStatusField => vacancy.Status,
+            _ => string.Empty
+        };
+    }
+
     public static HashSet<string> DefaultFields() =>
     [
+        EmployeeField,
         EmployeeEmailField,
         EmployeeRoleField,
         VacancyCountField,
@@ -52,6 +127,72 @@ public sealed class VacancyCreationReportPageViewModel
         VacancyDateField,
         VacancyStatusField
     ];
+
+    public static HashSet<string> AllFieldKeys() => FieldDefinitions
+        .Select(definition => definition.Key)
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    public static List<ReportHierarchyLevelViewModel> DefaultHierarchy() =>
+    [
+        new ReportHierarchyLevelViewModel
+        {
+            Scope = EmployeeScope,
+            FieldKeys =
+            [
+                EmployeeField,
+                EmployeeEmailField,
+                EmployeeRoleField,
+                VacancyCountField,
+                EmployeeDatesField
+            ]
+        },
+        new ReportHierarchyLevelViewModel
+        {
+            Scope = VacancyScope,
+            FieldKeys =
+            [
+                VacanciesField,
+                VacancyDateField,
+                VacancyStatusField
+            ]
+        }
+    ];
+
+    public static string DefaultScopeFor(string field) => field switch
+    {
+        VacanciesField or VacancyDateField or VacancyStatusField =>
+            VacancyScope,
+        _ => EmployeeScope
+    };
+
+    public static string SerializeHierarchy(
+        IEnumerable<ReportHierarchyLevelViewModel> levels)
+    {
+        return string.Join(
+            "|",
+            levels.Select(level =>
+                $"{level.Scope}:{string.Join(',', level.FieldKeys)}"));
+    }
+
+    private static readonly IReadOnlyList<ReportFieldDefinitionViewModel>
+        FieldDefinitions =
+        [
+            new(EmployeeField, "Employee", "Custom"),
+            new(EmployeeEmailField, "Email", "String"),
+            new(EmployeeRoleField, "Access role", "String"),
+            new(VacancyCountField, "Vacancy count", "Integer"),
+            new(EmployeeDatesField, "Creation dates", "Date list"),
+            new(VacanciesField, "Created vacancies", "Custom"),
+            new(VacancyDateField, "Vacancy creation date", "Date"),
+            new(VacancyStatusField, "Vacancy status", "String")
+        ];
+
+    private static readonly IReadOnlyDictionary<
+        string,
+        ReportFieldDefinitionViewModel> FieldDefinitionsByKey =
+        FieldDefinitions.ToDictionary(
+            definition => definition.Key,
+            StringComparer.OrdinalIgnoreCase);
 }
 
 public sealed class VacancyCreationReportQuery
@@ -60,7 +201,19 @@ public sealed class VacancyCreationReportQuery
     public DateTime? DateTo { get; set; }
     public bool Execute { get; set; }
     public List<string> Fields { get; set; } = [];
+    public string Layout { get; set; } = string.Empty;
 }
+
+public sealed class ReportHierarchyLevelViewModel
+{
+    public string Scope { get; set; } = string.Empty;
+    public List<string> FieldKeys { get; set; } = [];
+}
+
+public sealed record ReportFieldDefinitionViewModel(
+    string Key,
+    string Label,
+    string ValueType);
 
 public sealed class ReportEmployeeProfilePageViewModel
     : EmployerReportsShellViewModel

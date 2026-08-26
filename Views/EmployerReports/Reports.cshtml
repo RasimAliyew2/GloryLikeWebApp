@@ -2,75 +2,54 @@
 @{
     Layout = "_EmployerReportsLayout";
     ViewData["Title"] = "Reports";
+    ViewData["ReportsMainClass"] = "reports-index-main";
 }
 
-<header class="reports-page-heading">
-    <div>
-        <span class="reports-eyebrow">COMPANY REPORTING</span>
-        <h1>Reports</h1>
-        <p>
-            @(string.IsNullOrWhiteSpace(Model.CompanyName)
-                ? "Select a report to configure and execute."
-                : $"{Model.CompanyName} · select a report to configure and execute.")
-        </p>
-    </div>
-</header>
-
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-{
-    <div class="reports-alert" role="alert">@Model.ErrorMessage</div>
-}
-else
-{
-    <section class="one-c-window report-catalog" aria-labelledby="reportCatalogTitle">
-        <header class="one-c-titlebar">
-            <span class="one-c-document-icon" aria-hidden="true">▤</span>
-            <strong id="reportCatalogTitle">Available reports</strong>
-        </header>
-        <div class="one-c-toolbar" aria-hidden="true">
-            <span>File</span>
-            <span>Actions</span>
-            <span class="one-c-toolbar-separator"></span>
-            <span>▾</span>
-            <span>▥</span>
+<section class="reports-index-page" aria-labelledby="reportsPageTitle">
+    <header class="reports-page-heading">
+        <div>
+            <span class="reports-eyebrow">COMPANY REPORTING</span>
+            <h1 id="reportsPageTitle">Reports</h1>
+            <p>
+                @(string.IsNullOrWhiteSpace(Model.CompanyName)
+                    ? "Select a report to configure and execute."
+                    : $"{Model.CompanyName} · select a report to configure and execute.")
+            </p>
         </div>
-        <div class="report-catalog-tree">
-            <div class="report-tree-root">
-                <span aria-hidden="true">⊟</span>
-                <span class="report-folder-icon" aria-hidden="true">▣</span>
-                <strong>Company reports</strong>
-            </div>
+    </header>
 
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="reports-alert" role="alert">@Model.ErrorMessage</div>
+    }
+    else
+    {
+        <div class="reports-link-list" aria-label="Available reports">
             @if (Model.Reports.Count == 0)
             {
-                <p class="report-catalog-empty">No reports are available.</p>
+                <p>No reports are available.</p>
             }
             else
             {
-                <ul>
-                    @foreach (var report in Model.Reports)
-                    {
-                        <li>
-                            <span class="report-document-icon" aria-hidden="true">▤</span>
-                            @if (report.Key == "vacancy-creation-by-employee")
-                            {
-                                <a asp-controller="EmployerReports"
-                                   asp-action="VacancyCreation"
-                                   title="Open report settings">@report.Title</a>
-                            }
-                            else
-                            {
-                                <span>@report.Title</span>
-                            }
-                            <small>@report.Description</small>
-                        </li>
-                    }
-                </ul>
+                @foreach (var report in Model.Reports)
+                {
+                    <article>
+                        @if (report.Key == "vacancy-creation-by-employee")
+                        {
+                            <a asp-controller="EmployerReports"
+                               asp-action="VacancyCreation">@report.Title</a>
+                        }
+                        else
+                        {
+                            <span>@report.Title</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(report.Description))
+                        {
+                            <p>@report.Description</p>
+                        }
+                    </article>
+                }
             }
         </div>
-        <footer class="one-c-statusbar">
-            <span>@Model.Reports.Count report(s)</span>
-            <span>Double-click behavior is available inside generated reports.</span>
-        </footer>
-    </section>
-}
+    }
+</section>

@@ -1,6 +1,7 @@
 @model GloryLikeWebApp.Models.Employer.EmployerReportsShellViewModel
 @{
     Layout = null;
+    var reportsMainClass = ViewData["ReportsMainClass"] as string ?? string.Empty;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -61,7 +62,7 @@
             </div>
         </aside>
 
-        <main class="employer-main reports-main">
+        <main class="employer-main reports-main @reportsMainClass">
             <button class="employer-menu-button" type="button" id="employerMenuButton" aria-label="Open employer menu">
                 ☰
             </button>
