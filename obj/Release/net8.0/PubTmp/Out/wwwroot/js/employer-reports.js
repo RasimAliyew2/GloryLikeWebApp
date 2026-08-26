@@ -1,230 +1,267 @@
 (() => {
     "use strict";
 
-    const settingsToggle = document.getElementById("reportSettingsToggle");
-    const settings = document.getElementById("reportSettings");
+    const dashboard = document.querySelector("[data-reports-dashboard]");
+    if (!dashboard) return;
 
-    if (settingsToggle && settings) {
-        settings.hidden = true;
-        settingsToggle.setAttribute("aria-expanded", "false");
+    const tabButtons = Array.from(
+        dashboard.querySelectorAll("[data-reports-tab]"));
+    const tabPanels = Array.from(
+        dashboard.querySelectorAll("[data-reports-panel]"));
+    const activeTabInput = document.getElementById("reportsActiveTabInput");
+    const chartContainer = document.getElementById("reportsActivityChart");
+    const chartDataElement = document.getElementById("reportsChartData");
+    const svgNamespace = "http://www.w3.org/2000/svg";
 
-        settingsToggle.addEventListener("click", () => {
-            const willOpen = settings.hidden;
-            settings.hidden = !willOpen;
-            settingsToggle.setAttribute("aria-expanded", String(willOpen));
-            settingsToggle.textContent = willOpen
-                ? "⚙ Hide settings"
-                : "⚙ Settings";
-        });
+    let chartData = { labels: [], applications: [], hired: [] };
+    if (chartDataElement?.textContent) {
+        try {
+            chartData = JSON.parse(chartDataElement.textContent);
+        } catch {
+            chartData = { labels: [], applications: [], hired: [] };
+        }
     }
 
-    const hierarchy = document.getElementById("reportHierarchy");
-    const hierarchyLayout = document.getElementById("reportHierarchyLayout");
-    const reportForm = document.getElementById("vacancyReportForm");
-    let draggedField = null;
-
-    const fieldLists = () => Array.from(
-        hierarchy?.querySelectorAll("[data-hierarchy-field-list]") ?? []);
-
-    const fieldsIn = list => Array.from(
-        list?.querySelectorAll(":scope > [data-hierarchy-field]") ?? []);
-
-    const canMoveTo = (field, targetList) => {
-        if (!field || !targetList) return false;
-
-        const sourceList = field.closest("[data-hierarchy-field-list]");
-        if (!sourceList) return false;
-
-        const fixedScope = field.dataset.fixedScope;
-        if (fixedScope && fixedScope !== targetList.dataset.scope) return false;
-
-        return sourceList === targetList || fieldsIn(sourceList).length > 1;
+    const createSvgElement = (name, attributes = {}) => {
+        const element = document.createElementNS(svgNamespace, name);
+        Object.entries(attributes).forEach(([key, value]) => {
+            element.setAttribute(key, String(value));
+        });
+        return element;
     };
 
-    const serializeHierarchy = () => {
-        if (!hierarchyLayout) return;
-
-        hierarchyLayout.value = fieldLists()
-            .map(list => {
-                const keys = fieldsIn(list)
-                    .map(field => field.dataset.fieldKey)
-                    .filter(Boolean);
-                return `${list.dataset.scope}:${keys.join(",")}`;
-            })
-            .join("|");
+    const appendText = (svg, value, x, y, className, anchor = "middle") => {
+        const text = createSvgElement("text", {
+            x,
+            y,
+            class: className,
+            "text-anchor": anchor
+        });
+        text.textContent = value;
+        svg.appendChild(text);
     };
 
-    const refreshMoveButtons = () => {
-        const lists = fieldLists();
+    const buildPoints = (values, width, height, padding, maximum) => {
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+        const denominator = Math.max(1, values.length - 1);
 
-        lists.forEach((list, levelIndex) => {
-            const fields = fieldsIn(list);
-            fields.forEach((field, fieldIndex) => {
-                const fixedScope = field.dataset.fixedScope;
-                const previousLevel = lists[levelIndex - 1];
-                const nextLevel = lists[levelIndex + 1];
-
-                const left = field.querySelector("[data-hierarchy-action='left']");
-                const right = field.querySelector("[data-hierarchy-action='right']");
-                const up = field.querySelector("[data-hierarchy-action='up']");
-                const down = field.querySelector("[data-hierarchy-action='down']");
-
-                if (left) left.disabled = fieldIndex === 0;
-                if (right) right.disabled = fieldIndex === fields.length - 1;
-                if (up) {
-                    up.disabled = !previousLevel
-                        || fields.length <= 1
-                        || (fixedScope && fixedScope !== previousLevel.dataset.scope);
-                }
-                if (down) {
-                    down.disabled = !nextLevel
-                        || fields.length <= 1
-                        || (fixedScope && fixedScope !== nextLevel.dataset.scope);
-                }
-            });
+        return values.map((rawValue, index) => {
+            const value = Number(rawValue) || 0;
+            return {
+                x: padding.left + chartWidth * index / denominator,
+                y: padding.top + chartHeight * (1 - value / maximum),
+                value
+            };
         });
     };
 
-    const commitHierarchyChange = () => {
-        serializeHierarchy();
-        refreshMoveButtons();
+    const drawSeries = (svg, points, className, areaHeight) => {
+        if (points.length === 0) return;
+
+        if (className === "applications") {
+            const areaPath = [
+                `M ${points[0].x} ${areaHeight}`,
+                ...points.map(point => `L ${point.x} ${point.y}`),
+                `L ${points.at(-1).x} ${areaHeight}`,
+                "Z"
+            ].join(" ");
+            svg.appendChild(createSvgElement("path", {
+                d: areaPath,
+                class: "reports-chart-area"
+            }));
+        }
+
+        const polyline = createSvgElement("polyline", {
+            points: points.map(point => `${point.x},${point.y}`).join(" "),
+            class: `reports-chart-line ${className}`
+        });
+        svg.appendChild(polyline);
+
+        points.forEach(point => {
+            svg.appendChild(createSvgElement("circle", {
+                cx: point.x,
+                cy: point.y,
+                r: 3.5,
+                class: `reports-chart-point ${className}`
+            }));
+        });
     };
 
-    if (hierarchy) {
-        hierarchy.addEventListener("dragstart", event => {
-            const field = event.target.closest("[data-hierarchy-field]");
-            if (!field) return;
+    const renderChart = () => {
+        if (!chartContainer || chartContainer.closest("[hidden]")) return;
 
-            draggedField = field;
-            field.classList.add("is-dragging");
-            event.dataTransfer.effectAllowed = "move";
-            event.dataTransfer.setData("text/plain", field.dataset.fieldKey ?? "");
-        });
+        const svg = chartContainer.querySelector("svg");
+        const empty = chartContainer.querySelector(".reports-chart-empty");
+        if (!svg) return;
 
-        fieldLists().forEach(list => {
-            list.addEventListener("dragenter", event => {
-                if (!canMoveTo(draggedField, list)) return;
-                event.preventDefault();
-                list.classList.add("is-drop-target");
-            });
+        const labels = Array.isArray(chartData.labels) ? chartData.labels : [];
+        const applications = Array.isArray(chartData.applications)
+            ? chartData.applications.map(Number)
+            : [];
+        const hired = Array.isArray(chartData.hired)
+            ? chartData.hired.map(Number)
+            : [];
 
-            list.addEventListener("dragover", event => {
-                if (!canMoveTo(draggedField, list)) return;
-                event.preventDefault();
-                event.dataTransfer.dropEffect = "move";
-
-                const target = event.target.closest("[data-hierarchy-field]");
-                if (!target || target === draggedField || target.parentElement !== list) {
-                    list.appendChild(draggedField);
-                    return;
-                }
-
-                const rect = target.getBoundingClientRect();
-                const sameVisualRow = event.clientY >= rect.top
-                    && event.clientY <= rect.bottom;
-                const placeBefore = sameVisualRow
-                    ? event.clientX < rect.left + rect.width / 2
-                    : event.clientY < rect.top + rect.height / 2;
-                list.insertBefore(
-                    draggedField,
-                    placeBefore ? target : target.nextSibling);
-            });
-
-            list.addEventListener("dragleave", event => {
-                if (!list.contains(event.relatedTarget))
-                    list.classList.remove("is-drop-target");
-            });
-
-            list.addEventListener("drop", event => {
-                if (!canMoveTo(draggedField, list)) return;
-                event.preventDefault();
-                list.classList.remove("is-drop-target");
-                commitHierarchyChange();
-            });
-        });
-
-        hierarchy.addEventListener("dragend", () => {
-            draggedField?.classList.remove("is-dragging");
-            fieldLists().forEach(list => list.classList.remove("is-drop-target"));
-            draggedField = null;
-            commitHierarchyChange();
-        });
-
-        hierarchy.addEventListener("click", event => {
-            const button = event.target.closest("[data-hierarchy-action]");
-            if (!button) return;
-
-            const field = button.closest("[data-hierarchy-field]");
-            const sourceList = field?.closest("[data-hierarchy-field-list]");
-            if (!field || !sourceList) return;
-
-            const action = button.dataset.hierarchyAction;
-            if (action === "left") {
-                const previous = field.previousElementSibling;
-                if (previous) sourceList.insertBefore(field, previous);
-            } else if (action === "right") {
-                const next = field.nextElementSibling;
-                if (next) sourceList.insertBefore(next, field);
-            } else {
-                const lists = fieldLists();
-                const sourceIndex = lists.indexOf(sourceList);
-                const targetIndex = action === "up"
-                    ? sourceIndex - 1
-                    : sourceIndex + 1;
-                const targetList = lists[targetIndex];
-                if (canMoveTo(field, targetList)) targetList.appendChild(field);
-            }
-
-            commitHierarchyChange();
-        });
-
-        commitHierarchyChange();
-    }
-
-    reportForm?.addEventListener("submit", serializeHierarchy);
-
-    document.querySelectorAll(".report-row-toggle").forEach(button => {
-        button.addEventListener("click", () => {
-            const group = button.dataset.reportGroup;
-            if (!group) return;
-
-            const rows = Array.from(
-                document.querySelectorAll("[data-report-group-row]"))
-                .filter(row => row.dataset.reportGroupRow === group);
-            const willExpand = button.getAttribute("aria-expanded") !== "true";
-            rows.forEach(row => {
-                row.hidden = !willExpand;
-            });
-            button.setAttribute("aria-expanded", String(willExpand));
-            button.textContent = willExpand ? "−" : "+";
-        });
-    });
-
-    const openCustomValue = target => {
-        const href = target?.dataset?.reportHref;
-        if (!href) return;
-
-        if (target.dataset.reportTarget === "_blank") {
-            const newWindow = window.open(href, "_blank", "noopener,noreferrer");
-            if (newWindow) newWindow.opener = null;
+        svg.replaceChildren();
+        if (labels.length === 0) {
+            svg.hidden = true;
+            if (empty) empty.hidden = false;
             return;
         }
 
-        window.location.assign(href);
+        svg.hidden = false;
+        if (empty) empty.hidden = true;
+
+        const width = 1120;
+        const height = 330;
+        const padding = { top: 24, right: 24, bottom: 58, left: 54 };
+        const rawMaximum = Math.max(0, ...applications, ...hired);
+        const maximum = Math.max(5, Math.ceil(rawMaximum / 5) * 5);
+        const chartBottom = height - padding.bottom;
+        const chartRight = width - padding.right;
+        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+        for (let index = 0; index <= 5; index += 1) {
+            const y = padding.top
+                + (chartBottom - padding.top) * index / 5;
+            const value = Math.round(maximum * (1 - index / 5));
+            svg.appendChild(createSvgElement("line", {
+                x1: padding.left,
+                y1: y,
+                x2: chartRight,
+                y2: y,
+                class: "reports-chart-grid"
+            }));
+            appendText(
+                svg,
+                value,
+                padding.left - 12,
+                y + 4,
+                "reports-chart-axis-label",
+                "end");
+        }
+
+        const appPoints = buildPoints(
+            applications,
+            width,
+            height,
+            padding,
+            maximum);
+        const hiredPoints = buildPoints(
+            hired,
+            width,
+            height,
+            padding,
+            maximum);
+        const labelStep = Math.max(1, Math.ceil(labels.length / 9));
+
+        labels.forEach((label, index) => {
+            if (index % labelStep !== 0 && index !== labels.length - 1) return;
+            const point = appPoints[index]
+                ?? buildPoints([0], width, height, padding, maximum)[0];
+            appendText(
+                svg,
+                label,
+                point.x,
+                height - 24,
+                "reports-chart-axis-label");
+        });
+
+        drawSeries(svg, appPoints, "applications", chartBottom);
+        drawSeries(svg, hiredPoints, "hired", chartBottom);
     };
 
-    document.addEventListener("dblclick", event => {
-        const target = event.target.closest("[data-report-href]");
-        if (!target) return;
-        event.preventDefault();
-        openCustomValue(target);
+    const activateTab = tabId => {
+        tabButtons.forEach(button => {
+            const isActive = button.dataset.reportsTab === tabId;
+            button.classList.toggle("active", isActive);
+            button.setAttribute("aria-selected", String(isActive));
+        });
+        tabPanels.forEach(panel => {
+            panel.hidden = panel.dataset.reportsPanel !== tabId;
+        });
+        if (activeTabInput) activeTabInput.value = tabId;
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("Tab", tabId);
+        window.history.replaceState({}, "", url);
+
+        if (tabId === "overview") window.requestAnimationFrame(renderChart);
+    };
+
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            activateTab(button.dataset.reportsTab ?? "overview");
+        });
     });
 
-    document.addEventListener("keydown", event => {
-        if (event.key !== "Enter") return;
-        const target = event.target.closest("[data-report-href]");
-        if (!target) return;
-        event.preventDefault();
-        openCustomValue(target);
+    const escapeXml = value => String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&apos;");
+
+    const excelCell = value => {
+        const normalized = String(value ?? "").trim();
+        const numeric = /^-?\d+(?:[.,]\d+)?$/.test(normalized);
+        const type = numeric ? "Number" : "String";
+        const cellValue = numeric ? normalized.replace(",", ".") : normalized;
+        return `<Cell><Data ss:Type="${type}">${escapeXml(cellValue)}</Data></Cell>`;
+    };
+
+    const exportToExcel = () => {
+        const activePanel = tabPanels.find(panel => !panel.hidden);
+        if (!activePanel) return;
+
+        const tables = Array.from(
+            activePanel.querySelectorAll("[data-export-table]"));
+        const rows = [];
+        tables.forEach(table => {
+            const title = table.dataset.exportTable ?? "Report";
+            rows.push(`<Row>${excelCell(title)}</Row>`);
+            table.querySelectorAll("tr").forEach(row => {
+                const cells = Array.from(row.querySelectorAll("th, td"))
+                    .map(cell => excelCell(cell.textContent));
+                rows.push(`<Row>${cells.join("")}</Row>`);
+            });
+            rows.push("<Row></Row>");
+        });
+
+        const workbook = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="BothFind report"><Table>${rows.join("")}</Table></Worksheet>
+</Workbook>`;
+        const blob = new Blob([workbook], {
+            type: "application/vnd.ms-excel;charset=utf-8"
+        });
+        const link = document.createElement("a");
+        const dateFrom = document.querySelector("input[name='DateFrom']")?.value
+            ?? "from";
+        const dateTo = document.querySelector("input[name='DateTo']")?.value
+            ?? "to";
+        const objectUrl = URL.createObjectURL(blob);
+        link.href = objectUrl;
+        link.download = `BothFind-report-${dateFrom}-${dateTo}.xls`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+    };
+
+    dashboard.querySelector("[data-reports-export='excel']")
+        ?.addEventListener("click", exportToExcel);
+    dashboard.querySelector("[data-reports-export='pdf']")
+        ?.addEventListener("click", () => window.print());
+
+    let resizeFrame = 0;
+    window.addEventListener("resize", () => {
+        window.cancelAnimationFrame(resizeFrame);
+        resizeFrame = window.requestAnimationFrame(renderChart);
     });
+
+    renderChart();
 })();

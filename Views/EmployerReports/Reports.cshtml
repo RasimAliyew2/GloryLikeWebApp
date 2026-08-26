@@ -1,55 +1,295 @@
+@using System.Globalization
+@using System.Text.Json
 @model GloryLikeWebApp.Models.Employer.OrganizationReportsPageViewModel
 @{
     Layout = "_EmployerReportsLayout";
     ViewData["Title"] = "Reports";
-    ViewData["ReportsMainClass"] = "reports-index-main";
+    ViewData["ReportsMainClass"] = "reports-dashboard-main";
+
+    var dashboard = Model.Dashboard;
+    var chartJson = JsonSerializer.Serialize(new
+    {
+        labels = dashboard.MonthlyActivity.Select(item => item.Label),
+        applications = dashboard.MonthlyActivity.Select(item => item.Applications),
+        hired = dashboard.MonthlyActivity.Select(item => item.Hired)
+    });
+    var maxFunnel = Math.Max(
+        1,
+        dashboard.FunnelStages.Count == 0
+            ? 1
+            : dashboard.FunnelStages.Max(stage => stage.Count));
+    var averageVacancyAge = dashboard.VacancyTimings.Count == 0
+        ? 0
+        : (int)Math.Round(dashboard.VacancyTimings.Average(item => item.DaysOpen));
+    var totalTeamVacancies = dashboard.TeamMembers.Sum(item => item.VacancyCount);
+    var totalTeamApplications = dashboard.TeamMembers.Sum(item => item.ApplicationCount);
 }
 
-<section class="reports-index-page" aria-labelledby="reportsPageTitle">
-    <header class="reports-page-heading">
-        <div>
-            <span class="reports-eyebrow">COMPANY REPORTING</span>
-            <h1 id="reportsPageTitle">Reports</h1>
-            <p>
-                @(string.IsNullOrWhiteSpace(Model.CompanyName)
-                    ? "Select a report to configure and execute."
-                    : $"{Model.CompanyName} · select a report to configure and execute.")
-            </p>
+<section class="reports-dashboard" data-reports-dashboard>
+    <header class="reports-dashboard-header">
+        <div class="reports-dashboard-heading">
+            <div class="reports-title-line">
+                <h1>Reports</h1>
+                @if (dashboard.ContainsDemoData)
+                {
+                    <span class="reports-demo-badge" title="Some fields do not exist in SQL yet and use clearly marked placeholder values.">✦ Demo data</span>
+                }
+            </div>
+            <p>Hiring, funnel, sourcing, and team analytics</p>
         </div>
+
+        <form class="reports-date-filter" method="get" action="/Employer/Reports" id="reportsDateFilter">
+            <input type="hidden" name="Tab" id="reportsActiveTabInput" value="@Model.ActiveTab" />
+            <div class="reports-date-range">
+                <label>
+                    <span class="reports-input-icon" aria-hidden="true">▣</span>
+                    <span class="sr-only">Period start</span>
+                    <input type="date" name="DateFrom" value="@Model.DateFrom.ToString("yyyy-MM-dd")" required />
+                </label>
+                <span class="reports-date-separator" aria-hidden="true">—</span>
+                <label>
+                    <span class="sr-only">Period end</span>
+                    <input type="date" name="DateTo" value="@Model.DateTo.ToString("yyyy-MM-dd")" required />
+                    <span class="reports-input-icon" aria-hidden="true">▣</span>
+                </label>
+            </div>
+            <button class="reports-apply-button" type="submit">
+                <span aria-hidden="true">▽</span>
+                Apply
+            </button>
+        </form>
     </header>
+
+    <nav class="reports-tabs" aria-label="Report sections" role="tablist">
+        <button type="button" role="tab" data-reports-tab="overview" aria-selected="@(Model.ActiveTab == "overview" ? "true" : "false")" class="@(Model.ActiveTab == "overview" ? "active" : string.Empty)">Overview</button>
+        <button type="button" role="tab" data-reports-tab="funnel" aria-selected="@(Model.ActiveTab == "funnel" ? "true" : "false")" class="@(Model.ActiveTab == "funnel" ? "active" : string.Empty)">Funnel</button>
+        <button type="button" role="tab" data-reports-tab="sources" aria-selected="@(Model.ActiveTab == "sources" ? "true" : "false")" class="@(Model.ActiveTab == "sources" ? "active" : string.Empty)">Sources</button>
+        <button type="button" role="tab" data-reports-tab="hiring-time" aria-selected="@(Model.ActiveTab == "hiring-time" ? "true" : "false")" class="@(Model.ActiveTab == "hiring-time" ? "active" : string.Empty)">Hiring Time</button>
+        <button type="button" role="tab" data-reports-tab="team" aria-selected="@(Model.ActiveTab == "team" ? "true" : "false")" class="@(Model.ActiveTab == "team" ? "active" : string.Empty)">Team</button>
+    </nav>
+
+    <div class="reports-export-actions">
+        <span class="reports-data-period">
+            @if (!string.IsNullOrWhiteSpace(Model.CompanyName))
+            {
+                <strong>@Model.CompanyName</strong>
+            }
+            <small>@Model.DateFrom.ToString("dd MMM yyyy") — @Model.DateTo.ToString("dd MMM yyyy")</small>
+        </span>
+        <button type="button" data-reports-export="excel"><span aria-hidden="true">⇩</span> Excel</button>
+        <button type="button" data-reports-export="pdf"><span aria-hidden="true">▣</span> PDF</button>
+    </div>
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
-        <div class="reports-alert" role="alert">@Model.ErrorMessage</div>
+        <div class="reports-dashboard-alert" role="alert">
+            <strong>Reports could not be loaded</strong>
+            <span>@Model.ErrorMessage</span>
+        </div>
     }
     else
     {
-        <div class="reports-link-list" aria-label="Available reports">
-            @if (Model.Reports.Count == 0)
-            {
-                <p>No reports are available.</p>
-            }
-            else
-            {
-                @foreach (var report in Model.Reports)
-                {
-                    <article>
-                        @if (report.Key == "vacancy-creation-by-employee")
+        <div class="reports-panel" role="tabpanel" data-reports-panel="overview" hidden="@(Model.ActiveTab == "overview" ? null : "hidden")">
+            <div class="reports-metric-grid">
+                <article class="reports-metric-card">
+                    <div><span>Total Applications</span><span class="reports-source-badge">SQL</span></div>
+                    <strong>@dashboard.TotalApplications</strong>
+                    <i aria-hidden="true">▤</i>
+                </article>
+                <article class="reports-metric-card">
+                    <div><span>Hired</span><span class="reports-source-badge demo">Demo</span></div>
+                    <strong>@dashboard.HiredCount</strong>
+                    <i aria-hidden="true">♙</i>
+                </article>
+                <article class="reports-metric-card">
+                    <div><span>In the process</span><span class="reports-source-badge">SQL</span></div>
+                    <strong>@dashboard.InProcessApplications</strong>
+                    <i aria-hidden="true">⌁</i>
+                </article>
+                <article class="reports-metric-card">
+                    <div><span>Average TTH</span><span class="reports-source-badge demo">Demo</span></div>
+                    <strong>@dashboard.AverageTimeToHireDays <small>days</small></strong>
+                    <i aria-hidden="true">◷</i>
+                </article>
+                <article class="reports-metric-card">
+                    <div><span>Accepted offers</span><span class="reports-source-badge demo">Demo</span></div>
+                    <strong>@dashboard.AcceptedOfferRatePercent.ToString("0.#")%</strong>
+                    <i aria-hidden="true">✓</i>
+                </article>
+                <article class="reports-metric-card">
+                    <div><span>Active vacancies</span><span class="reports-source-badge">SQL</span></div>
+                    <strong>@dashboard.ActiveVacancies</strong>
+                    <i aria-hidden="true">▣</i>
+                </article>
+            </div>
+
+            <article class="reports-chart-card">
+                <header>
+                    <div>
+                        <h2>Dynamics of applications and hiring</h2>
+                        <p>By month for the selected period</p>
+                    </div>
+                    <div class="reports-chart-legend">
+                        <span><i class="applications"></i>Applications <small>SQL</small></span>
+                        <span><i class="hired"></i>Hired <small>Demo</small></span>
+                    </div>
+                </header>
+                <div class="reports-line-chart" id="reportsActivityChart" aria-label="Applications and hiring chart">
+                    <svg role="img"></svg>
+                    <p class="reports-chart-empty" hidden>No activity for the selected period.</p>
+                </div>
+            </article>
+
+            <table class="reports-export-table" data-export-table="Overview - monthly activity" aria-hidden="true">
+                <thead><tr><th>Month</th><th>Applications (SQL)</th><th>Hired (Demo)</th></tr></thead>
+                <tbody>
+                    @foreach (var month in dashboard.MonthlyActivity)
+                    {
+                        <tr><td>@month.Label</td><td>@month.Applications</td><td>@month.Hired</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="reports-panel" role="tabpanel" data-reports-panel="funnel" hidden="@(Model.ActiveTab == "funnel" ? null : "hidden")">
+            <article class="reports-content-card">
+                <header class="reports-card-heading">
+                    <div><h2>Candidate funnel</h2><p>Application movement for the selected period</p></div>
+                    <span class="reports-card-kpi">@dashboard.TotalApplications total</span>
+                </header>
+                <div class="reports-funnel-list">
+                    @foreach (var stage in dashboard.FunnelStages)
+                    {
+                        var width = Math.Round(stage.Count * 100m / maxFunnel, 1)
+                            .ToString(CultureInfo.InvariantCulture);
+                        <div class="reports-funnel-row">
+                            <div class="reports-funnel-meta">
+                                <strong>@stage.Label</strong>
+                                <span>@stage.Count <small class="@(stage.IsDemo ? "demo" : string.Empty)">@(stage.IsDemo ? "Demo" : "SQL")</small></span>
+                            </div>
+                            <div class="reports-progress-track"><span style="--progress: @(width)%"></span></div>
+                        </div>
+                    }
+                </div>
+            </article>
+
+            <table class="reports-data-table" data-export-table="Funnel">
+                <thead><tr><th>Stage</th><th>Count</th><th>Data source</th></tr></thead>
+                <tbody>
+                    @foreach (var stage in dashboard.FunnelStages)
+                    {
+                        <tr><td>@stage.Label</td><td>@stage.Count</td><td><span class="reports-table-badge @(stage.IsDemo ? "demo" : string.Empty)">@(stage.IsDemo ? "Demo" : "SQL")</span></td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="reports-panel" role="tabpanel" data-reports-panel="sources" hidden="@(Model.ActiveTab == "sources" ? null : "hidden")">
+            <div class="reports-two-column">
+                <article class="reports-content-card">
+                    <header class="reports-card-heading"><div><h2>Source distribution</h2><p>Enabled vacancy publication channels</p></div></header>
+                    <div class="reports-source-list">
+                        @foreach (var source in dashboard.Sources)
                         {
-                            <a asp-controller="EmployerReports"
-                               asp-action="VacancyCreation">@report.Title</a>
+                            var sourceWidth = source.Percentage.ToString("0.#", CultureInfo.InvariantCulture);
+                            <div class="reports-source-row">
+                                <div><strong>@source.Name</strong><span>@source.Percentage.ToString("0.#")%</span></div>
+                                <div class="reports-progress-track"><span style="--progress: @(sourceWidth)%"></span></div>
+                                <small>@source.Count record(s) · @(source.IsDemo ? "Demo" : "SQL")</small>
+                            </div>
                         }
-                        else
-                        {
-                            <span>@report.Title</span>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(report.Description))
-                        {
-                            <p>@report.Description</p>
-                        }
-                    </article>
-                }
-            }
+                    </div>
+                </article>
+                <article class="reports-insight-card">
+                    <span class="reports-insight-icon" aria-hidden="true">⌁</span>
+                    <small>Top source</small>
+                    <strong>@(dashboard.Sources.FirstOrDefault()?.Name ?? "No data")</strong>
+                    <p>Source tracking is based on enabled vacancy publication channels. Candidate-level source tracking is not stored yet.</p>
+                </article>
+            </div>
+
+            <table class="reports-data-table" data-export-table="Sources">
+                <thead><tr><th>Source</th><th>Records</th><th>Share</th><th>Data source</th></tr></thead>
+                <tbody>
+                    @foreach (var source in dashboard.Sources)
+                    {
+                        <tr><td>@source.Name</td><td>@source.Count</td><td>@source.Percentage.ToString("0.#")%</td><td><span class="reports-table-badge @(source.IsDemo ? "demo" : string.Empty)">@(source.IsDemo ? "Demo" : "SQL")</span></td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="reports-panel" role="tabpanel" data-reports-panel="hiring-time" hidden="@(Model.ActiveTab == "hiring-time" ? null : "hidden")">
+            <div class="reports-summary-grid">
+                <article><span>Average TTH</span><strong>@dashboard.AverageTimeToHireDays days</strong><small class="demo">Demo placeholder</small></article>
+                <article><span>Average vacancy age</span><strong>@averageVacancyAge days</strong><small>SQL dates</small></article>
+                <article><span>Vacancies tracked</span><strong>@dashboard.VacancyTimings.Count</strong><small>SQL rows</small></article>
+            </div>
+
+            <article class="reports-content-card reports-table-card">
+                <header class="reports-card-heading"><div><h2>Vacancy timing</h2><p>Real vacancy age and estimated time-to-hire placeholder</p></div></header>
+                <div class="reports-table-scroll">
+                    <table class="reports-data-table" data-export-table="Hiring time">
+                        <thead><tr><th>Vacancy</th><th>Created</th><th>Status</th><th>Days open</th><th>Time to hire</th></tr></thead>
+                        <tbody>
+                            @foreach (var vacancy in dashboard.VacancyTimings)
+                            {
+                                <tr>
+                                    <td><a asp-controller="EmployerVacancies" asp-action="Detail" asp-route-vacancyId="@vacancy.VacancyId" target="_blank" rel="noopener">@vacancy.Title</a><small>@vacancy.PlatformVacancyId</small></td>
+                                    <td>@vacancy.CreatedAtUtc.ToString("dd MMM yyyy")</td>
+                                    <td><span class="reports-status-pill">@vacancy.Status</span></td>
+                                    <td>@vacancy.DaysOpen <small>SQL</small></td>
+                                    <td>@vacancy.TimeToHireDays days <small class="demo">Demo</small></td>
+                                </tr>
+                            }
+                            @if (dashboard.VacancyTimings.Count == 0)
+                            {
+                                <tr><td colspan="5" class="reports-empty-cell">No vacancies were created in this period.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+
+        <div class="reports-panel" role="tabpanel" data-reports-panel="team" hidden="@(Model.ActiveTab == "team" ? null : "hidden")">
+            <div class="reports-summary-grid">
+                <article><span>Team members</span><strong>@dashboard.TeamMembers.Count</strong><small>SQL company team</small></article>
+                <article><span>Vacancies created</span><strong>@totalTeamVacancies</strong><small>SQL period data</small></article>
+                <article><span>Applications received</span><strong>@totalTeamApplications</strong><small>SQL period data</small></article>
+            </div>
+
+            <article class="reports-content-card reports-table-card">
+                <header class="reports-card-heading"><div><h2>Team performance</h2><p>Activity grouped by vacancy creator</p></div></header>
+                <div class="reports-table-scroll">
+                    <table class="reports-data-table" data-export-table="Team performance">
+                        <thead><tr><th>Team member</th><th>Role</th><th>Vacancies</th><th>Applications</th><th>Hired</th></tr></thead>
+                        <tbody>
+                            @foreach (var member in dashboard.TeamMembers)
+                            {
+                                <tr>
+                                    <td><div class="reports-member"><span>@member.Initials</span><div><strong>@member.DisplayName</strong><small>@member.Email</small></div></div></td>
+                                    <td>@member.Role</td>
+                                    <td>@member.VacancyCount</td>
+                                    <td>@member.ApplicationCount</td>
+                                    <td>@member.HiredCount <small class="demo">Demo</small></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </article>
         </div>
     }
+
+    <footer class="reports-dashboard-footer">
+        <span>@(string.IsNullOrWhiteSpace(Model.ErrorMessage) ? $"Generated {dashboard.GeneratedAtUtc:dd MMM yyyy, HH:mm} UTC" : "Dashboard data is unavailable")</span>
+        <span>SQL fields are shown as SQL; unavailable fields are marked Demo.</span>
+    </footer>
 </section>
+
+<script type="application/json" id="reportsChartData">@Html.Raw(chartJson)</script>
+
+@section Scripts {
+    <script src="~/js/employer-reports.js" asp-append-version="true"></script>
+}

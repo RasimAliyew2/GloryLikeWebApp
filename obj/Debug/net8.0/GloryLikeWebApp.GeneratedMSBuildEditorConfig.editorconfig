@@ -80,16 +80,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZXJNZXNzYWdlc1xNZXNzYWdlcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/EmployerReports/EmployeeProfile.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZXJSZXBvcnRzXEVtcGxveWVlUHJvZmlsZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/EmployerReports/Reports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZXJSZXBvcnRzXFJlcG9ydHMuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/EmployerReports/VacancyCreation.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRW1wbG95ZXJSZXBvcnRzXFZhY2FuY3lDcmVhdGlvbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/EmployerVacancies/CreateVacancy.cshtml]

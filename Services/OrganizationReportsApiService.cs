@@ -25,20 +25,7 @@ public sealed class OrganizationReportsApiService
     }
 
     public Task<OrganizationReportsApiResult<
-        OrganizationReportCatalogApiResponse>> GetCatalogAsync(
-            int actorUserId,
-            CancellationToken cancellationToken = default)
-    {
-        return GetAsync<OrganizationReportCatalogApiResponse>(
-            $"api/company/reports?actorUserId={actorUserId}",
-            response => response.Success,
-            response => response.Message,
-            "Report catalog could not be loaded.",
-            cancellationToken);
-    }
-
-    public Task<OrganizationReportsApiResult<
-        VacancyCreationReportApiResponse>> ExecuteVacancyCreationReportAsync(
+        OrganizationAnalyticsDashboardApiResponse>> GetDashboardAsync(
             int actorUserId,
             DateTime dateFrom,
             DateTime dateTo,
@@ -51,29 +38,14 @@ public sealed class OrganizationReportsApiService
             "yyyy-MM-dd",
             CultureInfo.InvariantCulture);
 
-        return GetAsync<VacancyCreationReportApiResponse>(
-            "api/company/reports/vacancy-creation"
+        return GetAsync<OrganizationAnalyticsDashboardApiResponse>(
+            "api/company/reports/dashboard"
             + $"?actorUserId={actorUserId}"
             + $"&dateFrom={fromValue}"
             + $"&dateTo={toValue}",
             response => response.Success,
             response => response.Message,
-            "Vacancy creation report could not be generated.",
-            cancellationToken);
-    }
-
-    public Task<OrganizationReportsApiResult<ReportEmployeeProfileApiResponse>>
-        GetEmployeeProfileAsync(
-            int actorUserId,
-            int employeeUserId,
-            CancellationToken cancellationToken = default)
-    {
-        return GetAsync<ReportEmployeeProfileApiResponse>(
-            $"api/company/reports/employees/{employeeUserId}"
-            + $"?actorUserId={actorUserId}",
-            response => response.Success,
-            response => response.Message,
-            "Employee profile could not be loaded.",
+            "Analytics dashboard could not be loaded.",
             cancellationToken);
     }
 

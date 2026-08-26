@@ -4,22 +4,11 @@ namespace GloryLikeWebApp.Services;
 
 public interface IOrganizationReportsApiService
 {
-    Task<OrganizationReportsApiResult<OrganizationReportCatalogApiResponse>>
-        GetCatalogAsync(
-            int actorUserId,
-            CancellationToken cancellationToken = default);
-
-    Task<OrganizationReportsApiResult<VacancyCreationReportApiResponse>>
-        ExecuteVacancyCreationReportAsync(
+    Task<OrganizationReportsApiResult<
+        OrganizationAnalyticsDashboardApiResponse>> GetDashboardAsync(
             int actorUserId,
             DateTime dateFrom,
             DateTime dateTo,
-            CancellationToken cancellationToken = default);
-
-    Task<OrganizationReportsApiResult<ReportEmployeeProfileApiResponse>>
-        GetEmployeeProfileAsync(
-            int actorUserId,
-            int employeeUserId,
             CancellationToken cancellationToken = default);
 }
 
