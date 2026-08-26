@@ -1,0 +1,262 @@
+@using GloryLikeWebApp.Models.Employer
+@model VacancyCreationReportPageViewModel
+@{
+    Layout = "_EmployerReportsLayout";
+    ViewData["Title"] = Model.ReportTitle;
+    var showEmail = Model.Shows(VacancyCreationReportPageViewModel.EmployeeEmailField);
+    var showRole = Model.Shows(VacancyCreationReportPageViewModel.EmployeeRoleField);
+    var showCount = Model.Shows(VacancyCreationReportPageViewModel.VacancyCountField);
+    var showEmployeeDates = Model.Shows(VacancyCreationReportPageViewModel.EmployeeDatesField);
+    var showVacancies = Model.Shows(VacancyCreationReportPageViewModel.VacanciesField);
+    var showVacancyDate = showVacancies && Model.Shows(VacancyCreationReportPageViewModel.VacancyDateField);
+    var showVacancyStatus = showVacancies && Model.Shows(VacancyCreationReportPageViewModel.VacancyStatusField);
+    var showCreatedColumn = showEmployeeDates || showVacancyDate;
+}
+
+<nav class="reports-breadcrumb" aria-label="Breadcrumb">
+    <a asp-controller="EmployerReports" asp-action="Index">Reports</a>
+    <span>›</span>
+    <strong>@Model.ReportTitle</strong>
+</nav>
+
+<section class="one-c-window report-designer">
+    <header class="one-c-titlebar report-titlebar">
+        <div>
+            <span class="one-c-document-icon" aria-hidden="true">▤</span>
+            <strong>@Model.ReportTitle</strong>
+        </div>
+        <span>@(string.IsNullOrWhiteSpace(Model.CompanyName) ? "Company" : Model.CompanyName)</span>
+    </header>
+
+    <form method="get" action="/Employer/Reports/VacancyCreation" id="vacancyReportForm">
+        <div class="one-c-commandbar">
+            <button class="one-c-execute" type="submit" name="Execute" value="true">
+                ▶ Execute
+            </button>
+            <button class="one-c-command" type="button" id="reportSettingsToggle" aria-controls="reportSettings" aria-expanded="true">
+                ⚙ Settings
+            </button>
+            <a class="one-c-command" asp-controller="EmployerReports" asp-action="Index">← Report list</a>
+        </div>
+
+        <div class="report-parameters">
+            <strong>Parameters</strong>
+            <label>
+                <span>Period from</span>
+                <input type="date" name="DateFrom" value="@Model.DateFrom.ToString("yyyy-MM-dd")" required />
+            </label>
+            <label>
+                <span>to</span>
+                <input type="date" name="DateTo" value="@Model.DateTo.ToString("yyyy-MM-dd")" required />
+            </label>
+        </div>
+
+        <section class="report-settings" id="reportSettings">
+            <header>
+                <strong>Report settings</strong>
+                <span>Select the fields that must appear after Execute.</span>
+            </header>
+            <div class="settings-tree" role="tree" aria-label="Report field tree">
+                <div class="settings-node settings-level-0" role="treeitem" aria-expanded="true">
+                    <span class="settings-expander" aria-hidden="true">⊟</span>
+                    <label><input type="checkbox" checked disabled /> Report</label>
+                </div>
+                <div class="settings-node settings-level-1" role="treeitem" aria-expanded="true">
+                    <span class="settings-expander" aria-hidden="true">⊟</span>
+                    <label><input type="checkbox" checked disabled /> Employee</label>
+                </div>
+                <div class="settings-node settings-level-2" role="treeitem">
+                    <span class="settings-leaf" aria-hidden="true">▤</span>
+                    <label><input type="checkbox" checked disabled /> Employee name</label>
+                    <small>Custom type · opens profile on double-click</small>
+                </div>
+                <div class="settings-node settings-level-2" role="treeitem">
+                    <span class="settings-leaf" aria-hidden="true">▤</span>
+                    <label><input type="checkbox" name="Fields" value="@VacancyCreationReportPageViewModel.EmployeeEmailField" checked="@showEmail" /> Email</label>
+                    <small>String</small>
+                </div>
+                <div class="settings-node settings-level-2" role="treeitem">
+                    <span class="settings-leaf" aria-hidden="true">▤</span>
+                    <label><input type="checkbox" name="Fields" value="@VacancyCreationReportPageViewModel.EmployeeRoleField" checked="@showRole" /> Access role</label>
+                    <small>String</small>
+                </div>
+                <div class="settings-node settings-level-2" role="treeitem">
+                    <span class="settings-leaf" aria-hidden="true">▤</span>
+                    <label><input type="checkbox" name="Fields" value="@VacancyCreationReportPageViewModel.VacancyCountField" checked="@showCount" /> Vacancy count</label>
+                    <small>Integer</small>
+                </div>
+                <div class="settings-node settings-level-2" role="treeitem">
+                    <span class="settings-leaf" aria-hidden="true">▤</span>
+                    <label><input type="checkbox" name="Fields" value="@VacancyCreationReportPageViewModel.EmployeeDatesField" checked="@showEmployeeDates" /> Creation dates</label>
+                    <small>Date list</small>
+                </div>
+                <div class="settings-node settings-level-2" role="treeitem" aria-expanded="true">
+                    <span class="settings-expander" aria-hidden="true">⊟</span>
+                    <label><input id="showVacanciesField" type="checkbox" name="Fields" value="@VacancyCreationReportPageViewModel.VacanciesField" checked="@showVacancies" /> Created vacancies</label>
+                    <small>Custom type · opens vacancy on double-click</small>
+                </div>
+                <div class="settings-node settings-level-3 vacancy-child-setting" role="treeitem">
+                    <span class="settings-leaf" aria-hidden="true">▤</span>
+                    <label><input type="checkbox" checked disabled /> Vacancy title</label>
+                    <small>Custom type</small>
+                </div>
+                <div class="settings-node settings-level-3 vacancy-child-setting" role="treeitem">
+                    <span class="settings-leaf" aria-hidden="true">▤</span>
+                    <label><input type="checkbox" name="Fields" value="@VacancyCreationReportPageViewModel.VacancyDateField" checked="@Model.Shows(VacancyCreationReportPageViewModel.VacancyDateField)" /> Vacancy creation date</label>
+                    <small>Date</small>
+                </div>
+                <div class="settings-node settings-level-3 vacancy-child-setting" role="treeitem">
+                    <span class="settings-leaf" aria-hidden="true">▤</span>
+                    <label><input type="checkbox" name="Fields" value="@VacancyCreationReportPageViewModel.VacancyStatusField" checked="@Model.Shows(VacancyCreationReportPageViewModel.VacancyStatusField)" /> Vacancy status</label>
+                    <small>String</small>
+                </div>
+            </div>
+        </section>
+    </form>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="reports-alert report-inline-alert" role="alert">@Model.ErrorMessage</div>
+    }
+    else if (!Model.WasExecuted)
+    {
+        <div class="report-ready-state">
+            <span aria-hidden="true">▤</span>
+            <strong>Configure the report and click Execute</strong>
+            <p>The current month is selected by default. All values are loaded from SQL.</p>
+        </div>
+    }
+    else
+    {
+        <section class="report-result" aria-labelledby="reportResultTitle">
+            <header>
+                <div>
+                    <h1 id="reportResultTitle">@Model.ReportTitle</h1>
+                    <p>@Model.CompanyName</p>
+                </div>
+                <dl>
+                    <div><dt>Period</dt><dd>@Model.DateFrom.ToString("dd.MM.yyyy") — @Model.DateTo.ToString("dd.MM.yyyy")</dd></div>
+                    <div><dt>Generated</dt><dd>@Model.GeneratedAtUtc?.ToString("dd.MM.yyyy HH:mm") UTC</dd></div>
+                </dl>
+            </header>
+
+            <div class="report-result-hint">
+                <span>ℹ</span>
+                Double-click blue custom values to open the employee profile or vacancy.
+            </div>
+
+            <div class="report-table-wrap">
+                <table class="one-c-report-table">
+                    <thead>
+                        <tr>
+                            <th>Employee / Vacancy</th>
+                            @if (showEmail) { <th>Email</th> }
+                            @if (showRole) { <th>Access role</th> }
+                            @if (showCount) { <th class="numeric-column">Vacancy count</th> }
+                            @if (showCreatedColumn) { <th>Created</th> }
+                            @if (showVacancyStatus) { <th>Status</th> }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var employee in Model.Employees)
+                        {
+                            var childClass = $"employee-vacancies-{employee.UserId}";
+                            <tr class="report-employee-row">
+                                <td>
+                                    <div class="report-tree-cell">
+                                        @if (showVacancies && employee.Vacancies.Count > 0)
+                                        {
+                                            <button class="report-row-toggle" type="button" data-report-group="@childClass" aria-expanded="true" aria-label="Collapse @employee.DisplayName vacancies">−</button>
+                                        }
+                                        else
+                                        {
+                                            <span class="report-row-spacer"></span>
+                                        }
+                                        <span class="report-row-icon" aria-hidden="true">♙</span>
+                                        <span class="report-custom-value"
+                                              tabindex="0"
+                                              data-report-type="user"
+                                              data-report-href="@Url.Action("EmployeeProfile", "EmployerReports", new { employeeUserId = employee.UserId })"
+                                              title="Double-click to open employee profile">@employee.DisplayName</span>
+                                    </div>
+                                </td>
+                                @if (showEmail) { <td>@employee.Email</td> }
+                                @if (showRole)
+                                {
+                                    <td>
+                                        @employee.Role
+                                        @if (!string.Equals(employee.MembershipStatus, "Active", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <small class="former-member">@employee.MembershipStatus</small>
+                                        }
+                                    </td>
+                                }
+                                @if (showCount) { <td class="numeric-cell">@employee.VacancyCount</td> }
+                                @if (showCreatedColumn)
+                                {
+                                    <td>
+                                        @if (showEmployeeDates)
+                                        {
+                                            @(employee.VacancyCreationDatesUtc.Count == 0
+                                                ? "—"
+                                                : string.Join(", ", employee.VacancyCreationDatesUtc.Select(date => date.ToString("dd.MM.yyyy"))))
+                                        }
+                                    </td>
+                                }
+                                @if (showVacancyStatus) { <td></td> }
+                            </tr>
+
+                            @if (showVacancies)
+                            {
+                                @foreach (var vacancy in employee.Vacancies)
+                                {
+                                    <tr class="report-vacancy-row @childClass">
+                                        <td>
+                                            <div class="report-tree-cell report-tree-child">
+                                                <span class="report-branch" aria-hidden="true">└</span>
+                                                <span class="report-row-icon" aria-hidden="true">▤</span>
+                                                <span class="report-custom-value"
+                                                      tabindex="0"
+                                                      data-report-type="vacancy"
+                                                      data-report-href="@Url.Action("Detail", "EmployerVacancies", new { vacancyId = vacancy.VacancyId })"
+                                                      title="Double-click to open vacancy">@vacancy.Title</span>
+                                                @if (!string.IsNullOrWhiteSpace(vacancy.PlatformVacancyId))
+                                                {
+                                                    <small>@vacancy.PlatformVacancyId</small>
+                                                }
+                                            </div>
+                                        </td>
+                                        @if (showEmail) { <td></td> }
+                                        @if (showRole) { <td></td> }
+                                        @if (showCount) { <td class="numeric-cell"></td> }
+                                        @if (showCreatedColumn) { <td>@(showVacancyDate ? vacancy.CreatedAtUtc.ToString("dd.MM.yyyy HH:mm") : string.Empty)</td> }
+                                        @if (showVacancyStatus) { <td><span class="report-status">@vacancy.Status</span></td> }
+                                    </tr>
+                                }
+                            }
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            @if (showEmail) { <td></td> }
+                            @if (showRole) { <td></td> }
+                            @if (showCount) { <th class="numeric-cell">@Model.TotalVacancyCount</th> }
+                            @if (showCreatedColumn) { <td></td> }
+                            @if (showVacancyStatus) { <td></td> }
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+    }
+
+    <footer class="one-c-statusbar">
+        <span>@(Model.WasExecuted ? $"{Model.Employees.Count} employee row(s)" : "Ready")</span>
+        <span>SQL reporting mode</span>
+    </footer>
+</section>
+
+@section Scripts {
+    <script src="~/js/employer-reports.js" asp-append-version="true"></script>
+}

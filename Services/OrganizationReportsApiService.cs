@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using GloryLikeWebApp.Models.Employer;
 
@@ -23,62 +24,121 @@ public sealed class OrganizationReportsApiService
         _logger = logger;
     }
 
-    public async Task<OrganizationReportsApiResult> GetAsync(
-        int actorUserId,
-        CancellationToken cancellationToken = default)
+    public Task<OrganizationReportsApiResult<
+        OrganizationReportCatalogApiResponse>> GetCatalogAsync(
+            int actorUserId,
+            CancellationToken cancellationToken = default)
+    {
+        return GetAsync<OrganizationReportCatalogApiResponse>(
+            $"api/company/reports?actorUserId={actorUserId}",
+            response => response.Success,
+            response => response.Message,
+            "Report catalog could not be loaded.",
+            cancellationToken);
+    }
+
+    public Task<OrganizationReportsApiResult<
+        VacancyCreationReportApiResponse>> ExecuteVacancyCreationReportAsync(
+            int actorUserId,
+            DateTime dateFrom,
+            DateTime dateTo,
+            CancellationToken cancellationToken = default)
+    {
+        var fromValue = dateFrom.ToString(
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture);
+        var toValue = dateTo.ToString(
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture);
+
+        return GetAsync<VacancyCreationReportApiResponse>(
+            "api/company/reports/vacancy-creation"
+            + $"?actorUserId={actorUserId}"
+            + $"&dateFrom={fromValue}"
+            + $"&dateTo={toValue}",
+            response => response.Success,
+            response => response.Message,
+            "Vacancy creation report could not be generated.",
+            cancellationToken);
+    }
+
+    public Task<OrganizationReportsApiResult<ReportEmployeeProfileApiResponse>>
+        GetEmployeeProfileAsync(
+            int actorUserId,
+            int employeeUserId,
+            CancellationToken cancellationToken = default)
+    {
+        return GetAsync<ReportEmployeeProfileApiResponse>(
+            $"api/company/reports/employees/{employeeUserId}"
+            + $"?actorUserId={actorUserId}",
+            response => response.Success,
+            response => response.Message,
+            "Employee profile could not be loaded.",
+            cancellationToken);
+    }
+
+    private async Task<OrganizationReportsApiResult<TResponse>> GetAsync<TResponse>(
+        string requestUri,
+        Func<TResponse, bool> successSelector,
+        Func<TResponse, string> messageSelector,
+        string fallbackMessage,
+        CancellationToken cancellationToken)
+        where TResponse : class
     {
         try
         {
             using var response = await _httpClient.GetAsync(
-                $"api/company/reports?actorUserId={actorUserId}",
+                requestUri,
                 cancellationToken);
             var body = await response.Content.ReadAsStringAsync(
                 cancellationToken);
-            OrganizationReportsApiResponse? apiResponse = null;
+            TResponse? apiResponse = null;
 
             if (!string.IsNullOrWhiteSpace(body))
             {
                 try
                 {
-                    apiResponse = JsonSerializer.Deserialize<
-                        OrganizationReportsApiResponse>(body, JsonOptions);
+                    apiResponse = JsonSerializer.Deserialize<TResponse>(
+                        body,
+                        JsonOptions);
                 }
                 catch (JsonException exception)
                 {
                     _logger.LogWarning(
                         exception,
-                        "Organization reports API cavabı JSON kimi oxunmadı.");
+                        "Reports API response was not valid JSON. HTTP {StatusCode}.",
+                        (int)response.StatusCode);
                 }
             }
 
             if (apiResponse is not null)
             {
-                apiResponse.Categories ??= [];
-                foreach (var category in apiResponse.Categories)
-                    category.Metrics ??= [];
-
-                return OrganizationReportsApiResult.From(apiResponse);
+                return OrganizationReportsApiResult<TResponse>.From(
+                    response.IsSuccessStatusCode
+                    && successSelector(apiResponse),
+                    messageSelector(apiResponse),
+                    apiResponse);
             }
 
-            return OrganizationReportsApiResult.Fail(
+            return OrganizationReportsApiResult<TResponse>.Fail(
                 response.IsSuccessStatusCode
-                    ? "Reports cavabı oxunmadı."
-                    : $"Reports yüklənmədi. HTTP {(int)response.StatusCode}.");
+                    ? fallbackMessage
+                    : $"{fallbackMessage} HTTP {(int)response.StatusCode}.");
         }
         catch (OperationCanceledException)
             when (!cancellationToken.IsCancellationRequested)
         {
-            return OrganizationReportsApiResult.Fail(
-                "Reports sorğusunun vaxtı bitdi.");
+            return OrganizationReportsApiResult<TResponse>.Fail(
+                "The reports request timed out.");
         }
         catch (HttpRequestException exception)
         {
             _logger.LogError(
                 exception,
-                "Organization reports BackendApp-dən yüklənmədi.");
+                "Reports could not be loaded from BackendApp.");
 
-            return OrganizationReportsApiResult.Fail(
-                "BackendApp-ə qoşulmaq mümkün olmadı.");
+            return OrganizationReportsApiResult<TResponse>.Fail(
+                "BackendApp could not be reached.");
         }
     }
 }

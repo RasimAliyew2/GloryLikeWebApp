@@ -1,0 +1,76 @@
+@model GloryLikeWebApp.Models.Employer.EmployerReportsShellViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SkillMatch</title>
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/employer-reports.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="employer-shell">
+        <header class="employer-topbar">
+            <a class="employer-brand" href="/Portal/Home">SkillMatch</a>
+
+            <div class="employer-search">
+                <span aria-hidden="true">⌕</span>
+                <input type="search" placeholder="Search by candidates/vacancies" aria-label="Search candidates or vacancies" />
+            </div>
+
+            <a class="employer-account" href="/Profile" aria-label="Open profile">
+                <span class="demo-badge">Employer</span>
+                <div class="employer-avatar">@Model.Initials</div>
+                <div class="employer-account-copy">
+                    <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
+                    <span>Employer workspace</span>
+                </div>
+            </a>
+        </header>
+
+        <aside class="employer-sidebar" id="employerSidebar">
+            <nav aria-label="Employer navigation">
+                <a asp-controller="EmployerHome" asp-action="EmployerHome">
+                    <span>⌁</span><strong>Dashboard</strong>
+                </a>
+                <a asp-controller="EmployerVacancies" asp-action="Index">
+                    <span>▣</span><strong>Vacancies</strong>
+                </a>
+                <a href="#">
+                    <span>▱</span><strong>Recruitment requests</strong>
+                </a>
+                <a asp-controller="TalentRadar" asp-action="Index">
+                    <span>◎</span><strong>Talent Radar</strong>
+                </a>
+                <a asp-controller="EmployerCompany" asp-action="Index">
+                    <span>▥</span><strong>Company</strong>
+                </a>
+                <a class="active" asp-controller="EmployerReports" asp-action="Index" aria-current="page">
+                    <span>▧</span><strong>Reports</strong>
+                </a>
+            </nav>
+
+            <div class="employer-sidebar-bottom">
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit">↪ Sign out</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="employer-main reports-main">
+            <button class="employer-menu-button" type="button" id="employerMenuButton" aria-label="Open employer menu">
+                ☰
+            </button>
+            @RenderBody()
+        </main>
+    </div>
+
+    <div class="employer-backdrop" id="employerBackdrop"></div>
+    <script src="~/js/employer-home.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
