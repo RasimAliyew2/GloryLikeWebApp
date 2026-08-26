@@ -101,7 +101,7 @@ public sealed class CompanyStructureApiService : ICompanyStructureApiService
                 Success = true,
                 FileName = response.Content.Headers.ContentDisposition?.FileNameStar
                     ?? response.Content.Headers.ContentDisposition?.FileName?.Trim('"')
-                    ?? "BothFind-Company-Structure.xlsx",
+                    ?? "BothFind_Template_OrgStructure.xlsx",
                 Content = await response.Content.ReadAsByteArrayAsync(cancellationToken)
             };
         }

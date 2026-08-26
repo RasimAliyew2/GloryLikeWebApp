@@ -40,7 +40,6 @@ public sealed class SaveCompanyStructureDepartmentInput
 
 public sealed class SaveCompanyStructureDivisionInput
 {
-    [Required]
     [StringLength(120)]
     public string Name { get; set; } = string.Empty;
     public List<SaveCompanyStructurePositionInput> Positions { get; set; } = new();
@@ -51,6 +50,16 @@ public sealed class SaveCompanyStructurePositionInput
     [Required]
     [StringLength(160)]
     public string Name { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(50)]
+    public string Seniority { get; set; } = "Not specified";
+
+    [Range(1, 10000)]
+    public int Headcount { get; set; } = 1;
+
+    [StringLength(160)]
+    public string ReportsTo { get; set; } = string.Empty;
 }
 
 public sealed class CompanyStructureApiResponse
@@ -82,6 +91,9 @@ public sealed class CompanyStructurePositionItem
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
+    public string Seniority { get; set; } = "Not specified";
+    public int Headcount { get; set; } = 1;
+    public string ReportsTo { get; set; } = string.Empty;
     public int SortOrder { get; set; }
 }
 

@@ -1,0 +1,77 @@
+.structure-direct-positions {
+    padding-left: 25px;
+    border-left: 1px solid #e3e7ef;
+}
+
+.structure-direct-positions .structure-position::before {
+    left: -25px;
+}
+
+.structure-position-copy {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+}
+
+.structure-position-copy strong {
+    color: #27334a;
+    font-size: 14px;
+}
+
+.structure-position-copy small {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    color: #7b8498;
+}
+
+.structure-position-copy small span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 23px;
+    border-radius: 999px;
+    background: #f4f6fa;
+    padding: 0 9px;
+    font-size: 11px;
+}
+
+.structure-position-copy small span:first-child {
+    background: #eeecff;
+    color: #4d43d4;
+    font-weight: 750;
+}
+
+.structure-position-fields {
+    display: grid;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.structure-position-fields[hidden] {
+    display: none;
+}
+
+.structure-position-fields label span {
+    color: #98a2b3;
+    font-weight: 500;
+}
+
+.structure-modal-panel {
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+}
+
+@media (max-width: 640px) {
+    .structure-direct-positions {
+        padding-left: 14px;
+    }
+
+    .structure-direct-positions .structure-position::before {
+        left: -14px;
+        width: 10px;
+    }
+
+    .structure-position-copy small {
+        display: grid;
+    }
+}

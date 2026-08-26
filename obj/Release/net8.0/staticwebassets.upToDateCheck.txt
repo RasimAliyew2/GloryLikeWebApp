@@ -106,9 +106,10 @@ wwwroot\lib\jquery\LICENSE.txt
 wwwroot\css\company-structure.css
 wwwroot\css\profile-page.css
 wwwroot\js\company-hiring-plan.js
-wwwroot\js\company-structure.js
+wwwroot\css\company-structure-template.css
 wwwroot\templates\BothFind-HiringPlan-Template.xlsx
 wwwroot\css\talent-radar.css
 wwwroot\js\employer-candidate-profile.js
 wwwroot\js\employer-home.js
 wwwroot\js\employer-messages.js
+wwwroot\js\company-structure.js

@@ -50,6 +50,6 @@ public sealed class CompanyStructureFileResult
 {
     public bool Success { get; init; }
     public string Message { get; init; } = string.Empty;
-    public string FileName { get; init; } = "BothFind-Company-Structure.xlsx";
+    public string FileName { get; init; } = "BothFind_Template_OrgStructure.xlsx";
     public byte[] Content { get; init; } = Array.Empty<byte>();
 }
