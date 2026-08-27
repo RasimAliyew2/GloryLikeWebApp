@@ -609,13 +609,20 @@
                     class="vacancy-tab-panel"
                     data-detail-panel="funnel"
                     hidden>
-                    <article class="detail-surface funnel-panel">
+                    <article class="detail-surface funnel-panel funnel-board-surface">
                         <div class="section-heading">
                             <div>
                                 <span class="section-kicker">HIRING FLOW</span>
                                 <h2>Vacancy funnel</h2>
-                                <p>Configured stages and target response times.</p>
+                                <p>Drag candidates between the stages configured for this vacancy.</p>
                             </div>
+                        </div>
+
+                        <div
+                            class="funnel-move-message"
+                            id="funnelMoveMessage"
+                            role="status"
+                            hidden>
                         </div>
 
                         @if (vacancy.FunnelStages.Count == 0)
@@ -627,24 +634,87 @@
                         }
                         else
                         {
-                            <div class="funnel-stage-list">
-                                @for (var index = 0; index < vacancy.FunnelStages.Count; index++)
+                            <div class="funnel-antiforgery-token" hidden>
+                                @Html.AntiForgeryToken()
+                            </div>
+
+                            <div
+                                class="funnel-board"
+                                id="vacancyFunnelBoard"
+                                data-vacancy-funnel-board>
+                                @foreach (var stage in vacancy.FunnelStages)
                                 {
-                                    var stage = vacancy.FunnelStages[index];
-                                    <div class="funnel-stage-row">
-                                        <span class="funnel-stage-number">@(index + 1)</span>
-                                        <div>
-                                            <strong>@stage.StageName</strong>
-                                            <small>
-                                                @(stage.IsStandard ? "Standard stage" : "Custom stage")
-                                            </small>
+                                    var stageApplicants = vacancy.AllApplicants
+                                        .Where(applicant => string.Equals(
+                                            applicant.FunnelStageName,
+                                            stage.StageName,
+                                            StringComparison.OrdinalIgnoreCase))
+                                        .OrderByDescending(applicant => applicant.MatchScore)
+                                        .ThenBy(applicant => applicant.AppliedAtUtc)
+                                        .ToList();
+
+                                    <section
+                                        class="funnel-column"
+                                        data-funnel-column
+                                        data-stage-name="@stage.StageName">
+                                        <header class="funnel-column-header">
+                                            <div>
+                                                <strong>@stage.StageName</strong>
+                                                @if (stage.Hours > 0)
+                                                {
+                                                    <small>@stage.Hours h target</small>
+                                                }
+                                            </div>
+                                            <span data-funnel-count>@stageApplicants.Count</span>
+                                        </header>
+
+                                        <div class="funnel-card-list" data-funnel-card-list>
+                                            @foreach (var applicant in stageApplicants)
+                                            {
+                                                var isScreeningFailed = applicant.ApplicationStatus.Equals(
+                                                    "ScreeningFailed",
+                                                    StringComparison.OrdinalIgnoreCase);
+                                                <article
+                                                    class="funnel-candidate-card @(isScreeningFailed ? "screening-failed" : string.Empty)"
+                                                    draggable="true"
+                                                    tabindex="0"
+                                                    data-funnel-card
+                                                    data-application-id="@applicant.ApplicationId"
+                                                    data-candidate-name="@applicant.CandidateName"
+                                                    data-current-stage="@stage.StageName"
+                                                    data-move-url="@Url.Action("MoveApplicantFunnelStage", "EmployerVacancies", new { vacancyId = vacancy.VacancyId, applicationId = applicant.ApplicationId })">
+                                                    <strong>@applicant.CandidateName</strong>
+                                                    <div>
+                                                        <span class="funnel-match-dot"></span>
+                                                        <span>@applicant.MatchScore% match</span>
+                                                    </div>
+                                                    @if (isScreeningFailed)
+                                                    {
+                                                        <small>Screening rejected</small>
+                                                    }
+                                                </article>
+                                            }
+
+                                            @if (stageApplicants.Count == 0)
+                                            {
+                                                <div class="funnel-column-empty" data-funnel-empty>
+                                                    Empty
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="funnel-column-empty" data-funnel-empty hidden>
+                                                    Empty
+                                                </div>
+                                            }
                                         </div>
-                                        <span class="funnel-stage-hours">
-                                            @stage.Hours h
-                                        </span>
-                                    </div>
+                                    </section>
                                 }
                             </div>
+
+                            <p class="funnel-board-help">
+                                Drag a candidate card and drop it into another column. Changes are saved immediately.
+                            </p>
                         }
                     </article>
                 </section>

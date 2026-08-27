@@ -108,6 +108,9 @@ public sealed class EmployerVacancyApplicantApiItem
     public string CurrentRole { get; set; } = string.Empty;
     public int MatchScore { get; set; }
     public string ApplicationStatus { get; set; } = string.Empty;
+    public string FunnelStageName { get; set; } = string.Empty;
+    public DateTime? FunnelStageUpdatedAtUtc { get; set; }
+    public DateTime? HiredAtUtc { get; set; }
     public DateTime AppliedAtUtc { get; set; }
     public List<string> MatchedSkills { get; set; } = new();
     public List<string> MissingSkills { get; set; } = new();
@@ -135,10 +138,28 @@ public sealed class EmployerVacancySkillApiItem
 
 public sealed class EmployerVacancyFunnelStageApiItem
 {
+    public int StageId { get; set; }
     public string StageName { get; set; } = string.Empty;
     public int Hours { get; set; }
     public bool IsStandard { get; set; }
     public int SortOrder { get; set; }
+}
+
+public sealed class MoveApplicantFunnelStageApiRequest
+{
+    public int EmployerUserId { get; set; }
+    public string StageName { get; set; } = string.Empty;
+}
+
+public sealed class MoveApplicantFunnelStageApiResponse
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public int VacancyId { get; set; }
+    public int ApplicationId { get; set; }
+    public string FunnelStageName { get; set; } = string.Empty;
+    public DateTime? FunnelStageUpdatedAtUtc { get; set; }
+    public DateTime? HiredAtUtc { get; set; }
 }
 
 public sealed class ToggleEmployerVacancyStatusApiRequest

@@ -39,6 +39,13 @@ public interface IVacancyApiService
         IReadOnlyCollection<CandidateScreeningAnswerApiInput> answers,
         CancellationToken cancellationToken = default);
 
+    Task<MoveApplicantFunnelStageApiResult> MoveApplicantFunnelStageAsync(
+        int employerUserId,
+        int vacancyId,
+        int applicationId,
+        string stageName,
+        CancellationToken cancellationToken = default);
+
     Task<CreateVacancyApiResult> CreateAsync(
         int employerUserId,
         CreateVacancyInput vacancy,
@@ -49,6 +56,33 @@ public interface IVacancyApiService
         int vacancyId,
         CreateVacancyInput vacancy,
         CancellationToken cancellationToken = default);
+}
+
+public sealed class MoveApplicantFunnelStageApiResult
+{
+    public bool Success { get; private set; }
+    public string Message { get; private set; } = string.Empty;
+    public MoveApplicantFunnelStageApiResponse? Data { get; private set; }
+
+    public static MoveApplicantFunnelStageApiResult Ok(
+        MoveApplicantFunnelStageApiResponse response)
+    {
+        return new MoveApplicantFunnelStageApiResult
+        {
+            Success = true,
+            Message = response.Message,
+            Data = response
+        };
+    }
+
+    public static MoveApplicantFunnelStageApiResult Fail(string message)
+    {
+        return new MoveApplicantFunnelStageApiResult
+        {
+            Success = false,
+            Message = message
+        };
+    }
 }
 
 public sealed class CandidateVacancyListApiResult

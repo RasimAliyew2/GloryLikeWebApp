@@ -47,14 +47,14 @@
 
     const templates = {
         standard: [
-            { stageName: "Responses", hours: 48 },
+            { stageName: "Applied", hours: 48 },
             { stageName: "Screening", hours: 72 },
             { stageName: "Interview", hours: 120 },
             { stageName: "Offer", hours: 48 },
             { stageName: "Hired", hours: 0 }
         ],
         technical: [
-            { stageName: "Responses", hours: 48 },
+            { stageName: "Applied", hours: 48 },
             { stageName: "Screening", hours: 48 },
             { stageName: "Technical Interview", hours: 96 },
             { stageName: "Technical Task", hours: 72 },
@@ -62,7 +62,7 @@
             { stageName: "Hired", hours: 0 }
         ],
         executive: [
-            { stageName: "Responses", hours: 72 },
+            { stageName: "Applied", hours: 72 },
             { stageName: "HR Interview", hours: 72 },
             { stageName: "Leadership Interview", hours: 168 },
             { stageName: "Executive Review", hours: 120 },

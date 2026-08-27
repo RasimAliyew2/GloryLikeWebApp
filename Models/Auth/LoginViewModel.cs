@@ -4,7 +4,7 @@ namespace GloryLikeWebApp.Models.Auth;
 
 public class LoginViewModel
 {
-    public string ReturnUrl { get; set; } = string.Empty;
+    public string? ReturnUrl { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Login daxil edin.")]
     [Display(Name = "Email, username və ya telefon")]

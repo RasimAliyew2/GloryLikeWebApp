@@ -55,6 +55,9 @@ public sealed class EmployerVacancyDetailViewModel
     public List<EmployerVacancySkillViewModel> Skills { get; set; } = new();
     public List<EmployerVacancyFunnelStageViewModel> FunnelStages { get; set; } = new();
 
+    public IEnumerable<EmployerVacancyApplicantViewModel> AllApplicants =>
+        Applicants.Concat(FailedApplicants);
+
     public EmployerVacancyApplicantViewModel? BestMatch =>
         Applicants.FirstOrDefault();
 
@@ -134,6 +137,9 @@ public sealed class EmployerVacancyApplicantViewModel
     public string CurrentRole { get; set; } = string.Empty;
     public int MatchScore { get; set; }
     public string ApplicationStatus { get; set; } = string.Empty;
+    public string FunnelStageName { get; set; } = string.Empty;
+    public DateTime? FunnelStageUpdatedAtUtc { get; set; }
+    public DateTime? HiredAtUtc { get; set; }
     public DateTime AppliedAtUtc { get; set; }
     public List<string> MatchedSkills { get; set; } = new();
     public List<string> MissingSkills { get; set; } = new();
@@ -218,8 +224,14 @@ public sealed class EmployerVacancySkillViewModel
 
 public sealed class EmployerVacancyFunnelStageViewModel
 {
+    public int StageId { get; set; }
     public string StageName { get; set; } = string.Empty;
     public int Hours { get; set; }
     public bool IsStandard { get; set; }
     public int SortOrder { get; set; }
+}
+
+public sealed class MoveApplicantFunnelStageInput
+{
+    public string StageName { get; set; } = string.Empty;
 }

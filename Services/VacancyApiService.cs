@@ -514,6 +514,84 @@ public sealed class VacancyApiService : IVacancyApiService
         }
     }
 
+    public async Task<MoveApplicantFunnelStageApiResult>
+        MoveApplicantFunnelStageAsync(
+            int employerUserId,
+            int vacancyId,
+            int applicationId,
+            string stageName,
+            CancellationToken cancellationToken = default)
+    {
+        if (employerUserId <= 0 || vacancyId <= 0 || applicationId <= 0)
+        {
+            return MoveApplicantFunnelStageApiResult.Fail(
+                "Employer, vacancy and application ID are invalid.");
+        }
+
+        var request = new MoveApplicantFunnelStageApiRequest
+        {
+            EmployerUserId = employerUserId,
+            StageName = stageName?.Trim() ?? string.Empty
+        };
+
+        try
+        {
+            using var response = await _httpClient.PostAsJsonAsync(
+                $"api/Vacancies/{vacancyId}/applications/{applicationId}/funnel-stage",
+                request,
+                JsonOptions,
+                cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(
+                cancellationToken);
+            MoveApplicantFunnelStageApiResponse? apiResponse = null;
+
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<MoveApplicantFunnelStageApiResponse>(
+                        body,
+                        JsonOptions);
+                }
+                catch (JsonException exception)
+                {
+                    _logger.LogWarning(
+                        exception,
+                        "Move applicant funnel stage API response was not valid JSON. HTTP {StatusCode}.",
+                        (int)response.StatusCode);
+                }
+            }
+
+            if (!response.IsSuccessStatusCode
+                || apiResponse is null
+                || !apiResponse.Success)
+            {
+                return MoveApplicantFunnelStageApiResult.Fail(
+                    ExtractMessage(
+                        body,
+                        apiResponse?.Message,
+                        $"Candidate stage could not be changed. HTTP {(int)response.StatusCode}."));
+            }
+
+            return MoveApplicantFunnelStageApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException)
+            when (!cancellationToken.IsCancellationRequested)
+        {
+            return MoveApplicantFunnelStageApiResult.Fail(
+                "Candidate stage request timed out.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(
+                exception,
+                "Candidate funnel stage could not be changed in BackendApp.");
+
+            return MoveApplicantFunnelStageApiResult.Fail(
+                "BackendApp could not be reached.");
+        }
+    }
+
     public async Task<ApplyToVacancyApiResult> ApplyAsync(
         int vacancyId,
         int candidateUserId,

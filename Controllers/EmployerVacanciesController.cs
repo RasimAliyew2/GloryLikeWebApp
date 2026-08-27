@@ -210,6 +210,63 @@ public sealed class EmployerVacanciesController : Controller
         });
     }
 
+    [HttpPost("/Employer/Vacancies/{vacancyId:int}/Applications/{applicationId:int}/FunnelStage")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MoveApplicantFunnelStage(
+        int vacancyId,
+        int applicationId,
+        [FromBody] MoveApplicantFunnelStageInput input,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var employerUserId))
+        {
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Employer sign in is required."
+            });
+        }
+
+        var stageName = input?.StageName?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(stageName))
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = "Select a valid funnel stage."
+            });
+        }
+
+        var result = await _vacancyApiService.MoveApplicantFunnelStageAsync(
+            employerUserId,
+            vacancyId,
+            applicationId,
+            stageName,
+            cancellationToken);
+
+        if (!result.Success || result.Data is null)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = string.IsNullOrWhiteSpace(result.Message)
+                    ? "Candidate stage could not be changed."
+                    : result.Message
+            });
+        }
+
+        return Ok(new
+        {
+            success = true,
+            message = result.Data.Message,
+            applicationId = result.Data.ApplicationId,
+            stageName = result.Data.FunnelStageName,
+            funnelStageUpdatedAtUtc =
+                result.Data.FunnelStageUpdatedAtUtc,
+            hiredAtUtc = result.Data.HiredAtUtc
+        });
+    }
+
     [HttpGet("/Employer/Vacancies/Create")]
     public async Task<IActionResult> CreateVacancy(
         int? hiringPlanId,
@@ -990,7 +1047,7 @@ public sealed class EmployerVacanciesController : Controller
         {
             new()
             {
-                StageName = "Responses",
+                StageName = "Applied",
                 Hours = 48,
                 IsStandard = true
             },
@@ -1076,6 +1133,7 @@ public sealed class EmployerVacanciesController : Controller
                 .OrderBy(stage => stage.SortOrder)
                 .Select(stage => new EmployerVacancyFunnelStageViewModel
                 {
+                    StageId = stage.StageId,
                     StageName = stage.StageName,
                     Hours = Math.Max(stage.Hours, 0),
                     IsStandard = stage.IsStandard,
@@ -1096,6 +1154,10 @@ public sealed class EmployerVacanciesController : Controller
             CurrentRole = applicant.CurrentRole,
             MatchScore = Math.Clamp(applicant.MatchScore, 0, 100),
             ApplicationStatus = applicant.ApplicationStatus,
+            FunnelStageName = applicant.FunnelStageName,
+            FunnelStageUpdatedAtUtc =
+                applicant.FunnelStageUpdatedAtUtc,
+            HiredAtUtc = applicant.HiredAtUtc,
             AppliedAtUtc = applicant.AppliedAtUtc,
             MatchedSkills = applicant.MatchedSkills
                 .Where(skill => !string.IsNullOrWhiteSpace(skill))
