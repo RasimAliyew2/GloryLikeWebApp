@@ -547,6 +547,8 @@ public sealed class AccountController : Controller
         LoginViewModel model,
         CancellationToken cancellationToken)
     {
+        model.ReturnUrl = NormalizeReturnUrl(model.ReturnUrl);
+
         if (!ModelState.IsValid)
         {
             PopulateExternalProviderViewData();

@@ -6,9 +6,23 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var dataProtectionKeysDirectory = Path.Combine(
+    builder.Environment.ContentRootPath,
+    "App_Data",
+    "DataProtectionKeys");
+
+Directory.CreateDirectory(dataProtectionKeysDirectory);
+
+builder.Services
+    .AddDataProtection()
+    .SetApplicationName("BothFind.GloryLikeWebApp")
+    .PersistKeysToFileSystem(
+        new DirectoryInfo(dataProtectionKeysDirectory));
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddMemoryCache();

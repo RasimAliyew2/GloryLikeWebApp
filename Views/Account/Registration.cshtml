@@ -6,6 +6,8 @@
     var invitationUnavailable =
         !string.IsNullOrWhiteSpace(
             Model.InvitationErrorMessage);
+    var encodedReturnUrl = Uri.EscapeDataString(
+        Model?.ReturnUrl ?? string.Empty);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -411,7 +413,7 @@
 
                         <p class="login-prompt">
                             Already have an account?
-                            <a href="/SignIn?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl)">Log in</a>
+                            <a href="/SignIn?returnUrl=@encodedReturnUrl">Log in</a>
                         </p>
                     </section>
                 </div>
