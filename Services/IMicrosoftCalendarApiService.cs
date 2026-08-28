@@ -24,6 +24,11 @@ public interface IMicrosoftCalendarApiService
             int employerUserId,
             CancellationToken cancellationToken = default);
 
+    Task<MicrosoftCalendarApiResult<InterviewAvailabilityApiResponse>>
+        GetAvailabilityAsync(
+            InterviewAvailabilityApiRequest request,
+            CancellationToken cancellationToken = default);
+
     Task<MicrosoftCalendarApiResult<CreateInterviewMeetingApiResponse>>
         CreateMeetingAsync(
             CreateInterviewMeetingApiRequest request,

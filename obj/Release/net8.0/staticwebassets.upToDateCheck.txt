@@ -58,7 +58,7 @@ wwwroot\js\screening-application.js
 wwwroot\js\registration.js
 wwwroot\js\profile-page.js
 wwwroot\js\opportunities-page.js
-wwwroot\js\employer-vacancy-detail.js
+wwwroot\css\employer-vacancy-detail.css
 wwwroot\js\employer-vacancies-list.js
 wwwroot\css\employer-candidate.css
 wwwroot\js\create-vacancy.js
@@ -81,7 +81,7 @@ wwwroot\css\registration.css
 wwwroot\css\company-structure-responsive.css
 wwwroot\css\privacy.css
 wwwroot\css\opportunities-page.css
-wwwroot\css\employer-vacancy-detail.css
+wwwroot\js\employer-vacancy-detail.js
 wwwroot\css\employer-vacancies-list.css
 wwwroot\css\employer-reports.css
 wwwroot\css\employer-messages.css

@@ -99,6 +99,16 @@ public sealed class MicrosoftCalendarApiService : IMicrosoftCalendarApiService
             request,
             cancellationToken);
 
+    public Task<MicrosoftCalendarApiResult<InterviewAvailabilityApiResponse>>
+        GetAvailabilityAsync(
+            InterviewAvailabilityApiRequest request,
+            CancellationToken cancellationToken = default) =>
+        PostAsync<InterviewAvailabilityApiRequest,
+            InterviewAvailabilityApiResponse>(
+            "api/microsoft-calendar/availability",
+            request,
+            cancellationToken);
+
     private async Task<MicrosoftCalendarApiResult<TResponse>> PostAsync<TRequest, TResponse>(
         string url,
         TRequest request,

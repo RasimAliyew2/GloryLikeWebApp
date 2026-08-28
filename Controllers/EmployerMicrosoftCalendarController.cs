@@ -221,6 +221,43 @@ public sealed class EmployerMicrosoftCalendarController : Controller
         return LocalRedirect(returnUrl);
     }
 
+    [HttpPost("/Employer/Outlook/Availability")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Availability(
+        [FromBody] InterviewAvailabilityBrowserRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var employerUserId))
+        {
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Employer session is not available."
+            });
+        }
+
+        var result = await _calendarApiService.GetAvailabilityAsync(
+            new InterviewAvailabilityApiRequest
+            {
+                EmployerUserId = employerUserId,
+                VacancyId = request.VacancyId,
+                ApplicationId = request.ApplicationId,
+                RangeStartUtc = request.RangeStartUtc,
+                RangeEndUtc = request.RangeEndUtc
+            },
+            cancellationToken);
+        if (!result.Success || result.Data is null)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = result.Message
+            });
+        }
+
+        return Ok(result.Data);
+    }
+
     private CalendarOAuthFlow? ReadAndDeleteFlowCookie()
     {
         if (!Request.Cookies.TryGetValue(FlowCookieName, out var protectedFlow)

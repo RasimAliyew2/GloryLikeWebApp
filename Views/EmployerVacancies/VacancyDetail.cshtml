@@ -872,6 +872,7 @@
                     <form
                         method="post"
                         action="/Employer/Outlook/Meetings"
+                        data-availability-url="@Url.Action("Availability", "EmployerMicrosoftCalendar")"
                         id="meetingForm">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="vacancyId" value="@vacancy.VacancyId" />
@@ -897,13 +898,65 @@
                                 required />
                         </label>
 
-                        <div class="meeting-form-grid">
+                        <section class="meeting-availability" aria-label="Outlook availability">
+                            <div class="meeting-availability-toolbar">
+                                <div>
+                                    <strong>Calendar availability</strong>
+                                    <small>Click a free area or enter the time manually below.</small>
+                                </div>
+                                <div class="meeting-week-navigation">
+                                    <button type="button" data-availability-previous aria-label="Previous week">‹</button>
+                                    <button type="button" data-availability-today>Today</button>
+                                    <button type="button" data-availability-next aria-label="Next week">›</button>
+                                </div>
+                            </div>
+
+                            <div class="meeting-availability-range" id="meetingAvailabilityRange"></div>
+                            <div class="meeting-availability-legend" aria-label="Calendar legend">
+                                <span><i class="organizer"></i> HR busy</span>
+                                <span><i class="candidate"></i> Candidate busy</span>
+                                <span><i class="selection"></i> Selected time</span>
+                            </div>
+                            <div
+                                class="meeting-availability-status"
+                                id="meetingAvailabilityStatus"
+                                role="status"
+                                aria-live="polite">
+                                Loading Outlook calendar…
+                            </div>
+                            <div
+                                class="meeting-availability-calendar"
+                                id="meetingAvailabilityCalendar"
+                                aria-label="Weekly Outlook availability">
+                            </div>
+                            <div
+                                class="candidate-availability-note"
+                                id="candidateAvailabilityNote"
+                                role="status">
+                            </div>
+                        </section>
+
+                        <div class="meeting-form-grid meeting-date-time-grid">
                             <label>
-                                Date and time
+                                Date
                                 <input
-                                    type="datetime-local"
-                                    id="meetingLocalStart"
+                                    type="date"
+                                    id="meetingDate"
                                     required />
+                            </label>
+                            <label>
+                                Time
+                                <input
+                                    type="text"
+                                    id="meetingTime"
+                                    inputmode="numeric"
+                                    autocomplete="off"
+                                    maxlength="5"
+                                    pattern="(?:[01][0-9]|2[0-3]):[0-5][0-9]"
+                                    placeholder="09:30"
+                                    aria-describedby="meetingTimeHelp"
+                                    required />
+                                <small id="meetingTimeHelp">24-hour format, for example 14:30</small>
                             </label>
                             <label>
                                 Duration
@@ -915,6 +968,14 @@
                                     <option value="120">2 hours</option>
                                 </select>
                             </label>
+                        </div>
+
+                        <div
+                            class="meeting-conflict-message"
+                            id="meetingConflictMessage"
+                            role="alert"
+                            aria-live="polite"
+                            hidden>
                         </div>
 
                         <label>

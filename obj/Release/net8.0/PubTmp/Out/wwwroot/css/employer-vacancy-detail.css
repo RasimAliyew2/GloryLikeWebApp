@@ -114,7 +114,7 @@
 }
 
 .meeting-dialog {
-    width: min(620px, calc(100vw - 28px));
+    width: min(1040px, calc(100vw - 28px));
     max-height: calc(100vh - 32px);
     padding: 0;
     border: 0;
@@ -171,7 +171,7 @@
 }
 
 .meeting-dialog input[type="text"],
-.meeting-dialog input[type="datetime-local"],
+.meeting-dialog input[type="date"],
 .meeting-dialog select,
 .meeting-dialog textarea {
     width: 100%;
@@ -193,6 +193,285 @@
     display: grid;
     grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
     gap: 14px;
+}
+
+.meeting-date-time-grid {
+    grid-template-columns: minmax(150px, 1fr) minmax(135px, .75fr) minmax(170px, 1fr);
+}
+
+.meeting-date-time-grid label small {
+    color: #667085;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.meeting-availability {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    border: 1px solid #d8e3ef;
+    border-radius: 12px;
+    background: #f8fbfe;
+}
+
+.meeting-availability-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.meeting-availability-toolbar > div:first-child {
+    display: grid;
+    gap: 2px;
+}
+
+.meeting-availability-toolbar strong {
+    color: #172b4d;
+    font-size: 15px;
+}
+
+.meeting-availability-toolbar small,
+.meeting-availability-range {
+    color: #667085;
+    font-size: 12px;
+}
+
+.meeting-week-navigation {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.meeting-week-navigation button {
+    min-width: 34px;
+    height: 32px;
+    border: 1px solid #c9d8e8;
+    border-radius: 6px;
+    padding: 0 10px;
+    background: #fff;
+    color: #0f548c;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.meeting-availability-range {
+    min-height: 18px;
+    color: #344054;
+    font-weight: 700;
+}
+
+.meeting-availability-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    color: #475467;
+    font-size: 11px;
+}
+
+.meeting-availability-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.meeting-availability-legend i {
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
+    background: #dceeff;
+    border-left: 3px solid #0f6cbd;
+}
+
+.meeting-availability-legend i.candidate {
+    border-left-color: #7f56d9;
+    background: #eee8ff;
+}
+
+.meeting-availability-legend i.selection {
+    border-left-color: #039855;
+    background: #d1fadf;
+}
+
+.meeting-availability-status,
+.candidate-availability-note {
+    min-height: 18px;
+    color: #667085;
+    font-size: 12px;
+}
+
+.meeting-availability-status.error,
+.candidate-availability-note.warning {
+    color: #b54708;
+}
+
+.meeting-availability-calendar {
+    max-height: 430px;
+    overflow: auto;
+    border: 1px solid #cbd9e8;
+    border-radius: 8px;
+    background: #fff;
+    scrollbar-color: #b7c9dc #f4f7fa;
+}
+
+.availability-week-grid {
+    --hour-height: 50px;
+    display: grid;
+    grid-template-columns: 62px repeat(7, minmax(116px, 1fr));
+    grid-template-rows: 52px 1200px;
+    min-width: 920px;
+    position: relative;
+}
+
+.availability-corner,
+.availability-day-heading {
+    position: sticky;
+    top: 0;
+    z-index: 8;
+    display: grid;
+    place-content: center;
+    border-bottom: 1px solid #cbd9e8;
+    background: #f4f8fc;
+}
+
+.availability-corner {
+    left: 0;
+    z-index: 10;
+    grid-column: 1;
+    grid-row: 1;
+    color: #667085;
+    font-size: 10px;
+}
+
+.availability-day-heading {
+    grid-row: 1;
+    gap: 1px;
+    border-left: 1px solid #d9e4ef;
+    color: #344054;
+    text-align: center;
+}
+
+.availability-day-heading span {
+    color: #667085;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.availability-day-heading strong {
+    font-size: 16px;
+}
+
+.availability-day-heading.today {
+    background: #e7f3ff;
+    color: #0f6cbd;
+}
+
+.availability-time-track {
+    position: sticky;
+    left: 0;
+    z-index: 6;
+    grid-column: 1;
+    grid-row: 2;
+    height: 1200px;
+    border-right: 1px solid #cbd9e8;
+    background: #f8fafc;
+}
+
+.availability-time-label {
+    position: absolute;
+    right: 8px;
+    transform: translateY(-7px);
+    color: #667085;
+    font-size: 10px;
+}
+
+.availability-day-track {
+    position: relative;
+    grid-row: 2;
+    height: 1200px;
+    border-right: 1px solid #d9e4ef;
+    background-color: #fff;
+    background-image:
+        repeating-linear-gradient(
+            to bottom,
+            #dce5ee 0,
+            #dce5ee 1px,
+            transparent 1px,
+            transparent 25px,
+            #edf2f7 25px,
+            #edf2f7 26px,
+            transparent 26px,
+            transparent 50px);
+    cursor: crosshair;
+}
+
+.availability-day-track.weekend {
+    background-color: #fbfcfe;
+}
+
+.availability-event {
+    position: absolute;
+    z-index: 3;
+    left: 3px;
+    right: 12px;
+    min-height: 17px;
+    overflow: hidden;
+    border: 1px solid #9ecbf1;
+    border-left: 4px solid #0f6cbd;
+    border-radius: 3px;
+    padding: 3px 4px;
+    background: rgba(220, 238, 255, .95);
+    color: #164c78;
+    font-size: 10px;
+    line-height: 1.22;
+    pointer-events: auto;
+}
+
+.availability-event.candidate {
+    z-index: 4;
+    left: 12px;
+    right: 3px;
+    border-color: #c9b8f4;
+    border-left-color: #7f56d9;
+    background: repeating-linear-gradient(
+        135deg,
+        rgba(238, 232, 255, .96),
+        rgba(238, 232, 255, .96) 6px,
+        rgba(224, 214, 252, .96) 6px,
+        rgba(224, 214, 252, .96) 10px);
+    color: #53389e;
+}
+
+.availability-event.selection {
+    z-index: 5;
+    left: 18px;
+    right: 18px;
+    border-color: #6ce9a6;
+    border-left-color: #039855;
+    background: rgba(209, 250, 223, .94);
+    color: #05603a;
+    pointer-events: none;
+}
+
+.availability-event.selection.conflict {
+    border-color: #fda29b;
+    border-left-color: #d92d20;
+    background: rgba(254, 228, 226, .95);
+    color: #912018;
+}
+
+.meeting-conflict-message {
+    padding: 10px 12px;
+    border: 1px solid #fda29b;
+    border-radius: 8px;
+    background: #fff1f0;
+    color: #b42318;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .meeting-teams-option {
@@ -260,6 +539,11 @@
 
     .meeting-form-grid {
         grid-template-columns: 1fr;
+    }
+
+    .meeting-availability-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }
 
