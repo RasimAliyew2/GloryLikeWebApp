@@ -433,6 +433,25 @@ a {
     text-decoration: underline;
 }
 
+.registration-legal {
+  max-width: 430px;
+  margin: 14px auto 0;
+  color: #98a2b3;
+  font-size: 12px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.registration-legal a {
+  color: #4f86f7;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.registration-legal a:hover {
+  text-decoration: underline;
+}
+
 .registration-submit {
     width: 100%;
     min-height: 55px;

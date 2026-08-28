@@ -19,12 +19,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] — SkillMatch</title>
+    <title>@ViewData["Title"] — BothFind</title>
     <link rel="stylesheet" href="~/css/company-public.css" asp-append-version="true" />
 </head>
 <body class="company-public-body">
     <header class="company-public-nav">
-        <a class="company-public-brand" href="/">SkillMatch</a>
+        <a class="company-public-brand" href="/">BothFind</a>
         <nav class="company-public-nav-actions" aria-label="Company page">
             <a href="/companies/@Model.CompanyOwnerUserId/vacancies">Vacancies (@Model.Vacancies.Count)</a>
             @if (User.Identity?.IsAuthenticated == true)

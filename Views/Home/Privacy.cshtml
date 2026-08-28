@@ -8,21 +8,28 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Learn how BothFind collects, uses, stores and protects personal information." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://bothfind.com/privacy" />
     <title>Privacy Policy | BothFind</title>
+    <link rel="stylesheet" href="~/css/public-site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/privacy.css" asp-append-version="true" />
 </head>
 <body>
-    <header class="site-header">
-        <div class="header-inner">
-            <a class="brand" href="/" aria-label="BothFind home">
-                <span class="brand-mark" aria-hidden="true">B</span>
+    <header class="public-header">
+        <div class="public-container header-row">
+            <a class="public-brand" href="/" aria-label="BothFind home">
+                <span class="brand-symbol" aria-hidden="true"><span></span><span></span></span>
                 <span>BothFind</span>
             </a>
-
-            <nav class="header-nav" aria-label="Account navigation">
-                <a href="/SignIn">Sign in</a>
-                <a class="header-button" href="/Registration">Create an account</a>
+            <nav class="desktop-nav" aria-label="Main navigation">
+                <a href="/">Home</a>
+                <a href="/#how-it-works">How it works</a>
+                <a href="/terms">Terms</a>
             </nav>
+            <div class="header-actions">
+                <a class="text-button" href="/SignIn">Sign in</a>
+                <a class="primary-button compact" href="/Registration">Create account</a>
+            </div>
         </div>
     </header>
 
@@ -35,7 +42,7 @@
                     This policy explains what information BothFind collects, why we use it,
                     when it may be shared and the choices available to you.
                 </p>
-                <p class="effective-date">Effective date: August 9, 2026</p>
+                <p class="effective-date">Effective date: August 28, 2026</p>
             </div>
         </section>
 
@@ -45,7 +52,7 @@
                 <a href="#scope">1. Scope</a>
                 <a href="#information">2. Information we collect</a>
                 <a href="#use">3. How we use information</a>
-                <a href="#social-sign-in">4. Google and Apple sign-in</a>
+                <a href="#social-sign-in">4. Google user data</a>
                 <a href="#sharing">5. When information is shared</a>
                 <a href="#retention">6. Retention and security</a>
                 <a href="#choices">7. Your choices and rights</a>
@@ -71,6 +78,11 @@
                         for deciding how and why that information is processed, unless a different party is
                         identified at the time of collection.
                     </p>
+                    <div class="policy-summary-grid" aria-label="Privacy summary">
+                        <div><strong>We explain access</strong><span>What information BothFind receives</span></div>
+                        <div><strong>We limit use</strong><span>Only for the features described here</span></div>
+                        <div><strong>You stay in control</strong><span>Access, correction and deletion options</span></div>
+                    </div>
                 </section>
 
                 <section id="information">
@@ -143,17 +155,39 @@
 
                 <section id="social-sign-in">
                     <span class="section-number">04</span>
-                    <h2>Google and Apple sign-in</h2>
+                    <h2>Google user data and social sign-in</h2>
                     <p>
                         If you choose “Sign in with Google” or “Sign in with Apple,” the provider authenticates
                         you and sends BothFind the information needed to create or locate your account. We request
                         only basic identity information: your verified email address, name and provider account
                         identifier. Apple may provide your name only the first time you authorise BothFind.
                     </p>
+                    <div class="google-data-grid">
+                        <article class="data-card">
+                            <span>ACCESS</span>
+                            <h3>What Google data we receive</h3>
+                            <p>Your verified email address, first and last name, and Google account identifier. BothFind never receives your Google password.</p>
+                        </article>
+                        <article class="data-card">
+                            <span>USE</span>
+                            <h3>Why we use it</h3>
+                            <p>To authenticate you, create or locate your BothFind account, prefill basic account details and protect the sign-in process.</p>
+                        </article>
+                        <article class="data-card">
+                            <span>STORAGE</span>
+                            <h3>How it is stored</h3>
+                            <p>Account identity data is stored using reasonable technical and organisational safeguards for as long as needed to operate or secure your account.</p>
+                        </article>
+                        <article class="data-card">
+                            <span>SHARING</span>
+                            <h3>When it is shared</h3>
+                            <p>We do not sell Google user data. It is disclosed only to service providers supporting BothFind, when legally required, or as otherwise described in this policy.</p>
+                        </article>
+                    </div>
                     <p>
-                        We use this information only for authentication, account creation, account security and
-                        the operation of the features described in this policy. We do not use social sign-in data
-                        for targeted advertising, sell it, or allow people to access your Google or Apple password.
+                        We do not use Google user data for targeted advertising, credit decisions or purposes
+                        unrelated to the user-facing BothFind features described in this policy. We do not transfer
+                        it to advertising platforms or data brokers.
                     </p>
                     <p>
                         Our use of information received from Google APIs follows the
@@ -298,20 +332,11 @@
         </div>
     </main>
 
-    <footer class="site-footer">
-        <div>
-            <a class="brand footer-brand" href="/">
-                <span class="brand-mark" aria-hidden="true">B</span>
-                <span>BothFind</span>
-            </a>
-            <p>Connecting people, skills and opportunities.</p>
+    <footer class="public-footer compact-footer">
+        <div class="public-container footer-bottom">
+            <span>&copy; 2026 BothFind. All rights reserved.</span>
+            <span><a href="/">Home</a> · <a href="/terms">Terms of Service</a> · <a href="/SignIn">Sign in</a></span>
         </div>
-        <div class="footer-links">
-            <a href="/privacy" aria-current="page">Privacy Policy</a>
-            <a href="/SignIn">Sign in</a>
-            <a href="/Registration">Create an account</a>
-        </div>
-        <p class="copyright">&copy; 2026 BothFind. All rights reserved.</p>
     </footer>
 </body>
 </html>

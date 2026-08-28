@@ -77,9 +77,9 @@ wwwroot\css\employer-home.css
 wwwroot\css\skills-page.css
 wwwroot\css\site.css
 wwwroot\css\screening-application.css
-wwwroot\css\registration.css
-wwwroot\css\company-structure-responsive.css
 wwwroot\css\privacy.css
+wwwroot\css\company-structure-responsive.css
+wwwroot\css\public-site.css
 wwwroot\css\opportunities-page.css
 wwwroot\js\employer-vacancy-detail.js
 wwwroot\css\employer-vacancies-list.css
@@ -114,3 +114,4 @@ wwwroot\js\employer-home.js
 wwwroot\js\employer-messages.js
 wwwroot\js\company-structure.js
 wwwroot\js\employer-reports.js
+wwwroot\css\registration.css

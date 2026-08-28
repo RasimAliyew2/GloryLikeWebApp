@@ -26,6 +26,13 @@ public class HomeController : Controller
         _vacancyApiService = vacancyApiService;
     }
 
+    [AllowAnonymous]
+    [HttpGet("/")]
+    public IActionResult Landing()
+    {
+        return View();
+    }
+
     public async Task<IActionResult> Index(
         CancellationToken cancellationToken)
     {
@@ -514,6 +521,13 @@ public class HomeController : Controller
     [AllowAnonymous]
     [HttpGet("/privacy")]
     public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [AllowAnonymous]
+    [HttpGet("/terms")]
+    public IActionResult Terms()
     {
         return View();
     }
