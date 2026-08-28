@@ -2,6 +2,267 @@
     padding: 34px 38px 70px;
 }
 
+.calendar-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 0 0 14px;
+    padding: 12px 16px;
+    border: 1px solid #b7ead0;
+    border-radius: 12px;
+    background: #ecfdf3;
+    color: #087443;
+    font-size: 14px;
+}
+
+.calendar-message.error {
+    border-color: #fecaca;
+    background: #fff1f2;
+    color: #b42318;
+}
+
+.calendar-message a {
+    color: inherit;
+    font-weight: 700;
+}
+
+.outlook-connection-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding: 15px 18px;
+    border: 1px solid #d9e2f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(16, 24, 40, .04);
+}
+
+.outlook-connection-icon {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border-radius: 10px;
+    background: #0f6cbd;
+    color: #fff;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.outlook-connection-copy {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    margin-right: auto;
+}
+
+.outlook-connection-copy strong {
+    color: #101828;
+}
+
+.outlook-connection-copy span {
+    color: #667085;
+    font-size: 13px;
+}
+
+.outlook-connected-badge {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #ecfdf3;
+    color: #087443;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.outlook-connect-button,
+.outlook-disconnect-form button {
+    border: 0;
+    border-radius: 9px;
+    padding: 10px 14px;
+    background: #0f6cbd;
+    color: #fff;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 750;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.outlook-disconnect-form button {
+    border: 1px solid #d0d5dd;
+    background: #fff;
+    color: #475467;
+}
+
+.candidate-schedule-button {
+    border: 1px solid #b9d8f5;
+    border-radius: 8px;
+    padding: 8px 11px;
+    background: #eff8ff;
+    color: #0f6cbd;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.candidate-schedule-button:hover {
+    background: #dceeff;
+}
+
+.meeting-dialog {
+    width: min(620px, calc(100vw - 28px));
+    max-height: calc(100vh - 32px);
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    color: #101828;
+    box-shadow: 0 24px 80px rgba(16, 24, 40, .24);
+}
+
+.meeting-dialog::backdrop {
+    background: rgba(16, 24, 40, .52);
+    backdrop-filter: blur(2px);
+}
+
+.meeting-dialog form {
+    display: grid;
+    gap: 18px;
+    padding: 24px;
+}
+
+.meeting-dialog-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.meeting-dialog-heading h2 {
+    margin: 4px 0;
+    font-size: 24px;
+}
+
+.meeting-dialog-heading p {
+    margin: 0;
+    color: #667085;
+    font-size: 13px;
+}
+
+.meeting-dialog-heading > button {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: #f2f4f7;
+    color: #475467;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.meeting-dialog label:not(.meeting-teams-option) {
+    display: grid;
+    gap: 7px;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.meeting-dialog input[type="text"],
+.meeting-dialog input[type="datetime-local"],
+.meeting-dialog select,
+.meeting-dialog textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #d0d5dd;
+    border-radius: 9px;
+    padding: 11px 12px;
+    background: #fff;
+    color: #101828;
+    font: inherit;
+    font-weight: 400;
+}
+
+.meeting-dialog textarea {
+    resize: vertical;
+}
+
+.meeting-form-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: 14px;
+}
+
+.meeting-teams-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 13px;
+    border: 1px solid #b9d8f5;
+    border-radius: 10px;
+    background: #f5faff;
+    cursor: pointer;
+}
+
+.meeting-teams-option input {
+    margin-top: 3px;
+}
+
+.meeting-teams-option span {
+    display: grid;
+    gap: 3px;
+}
+
+.meeting-teams-option small {
+    color: #667085;
+}
+
+.meeting-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+}
+
+.meeting-dialog-actions button {
+    border: 1px solid #d0d5dd;
+    border-radius: 9px;
+    padding: 10px 15px;
+    background: #fff;
+    color: #344054;
+    font: inherit;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.meeting-dialog-actions button[type="submit"] {
+    border-color: #0f6cbd;
+    background: #0f6cbd;
+    color: #fff;
+}
+
+.meeting-dialog-actions button:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+@media (max-width: 720px) {
+    .outlook-connection-card {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .outlook-connection-copy {
+        width: calc(100% - 58px);
+    }
+
+    .meeting-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .vacancy-detail-main [hidden] {
     display: none !important;
 }
@@ -680,7 +941,7 @@
     min-height: 84px;
     padding: 14px 0;
     display: grid;
-    grid-template-columns: 30px 42px minmax(180px, 1fr) auto 86px;
+    grid-template-columns: 30px 42px minmax(180px, 1fr) auto auto 86px;
     gap: 13px;
     align-items: center;
     border-bottom: 1px solid #ebebef;
@@ -688,6 +949,10 @@
 
 .candidate-ranking-row:last-child {
     border-bottom: 0;
+}
+
+.candidate-ranking-row > .candidate-score {
+    grid-column: -2 / -1;
 }
 
 .candidate-ranking-clickable {
@@ -1210,8 +1475,14 @@
     }
 
     .candidate-application-status {
-        grid-column: 2 / -1;
+        grid-column: 2 / 4;
         grid-row: 2;
+        justify-self: start;
+    }
+
+    .candidate-schedule-button {
+        grid-column: 3 / 4;
+        grid-row: 3;
         justify-self: start;
     }
 

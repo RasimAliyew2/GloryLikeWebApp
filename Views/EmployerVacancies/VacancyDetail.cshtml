@@ -249,6 +249,75 @@
                     </div>
                 }
 
+                @if (!string.IsNullOrWhiteSpace(Model.CalendarSuccessMessage))
+                {
+                    <div class="calendar-message success" role="status">
+                        <span>@Model.CalendarSuccessMessage</span>
+                        @if (!string.IsNullOrWhiteSpace(Model.CalendarMeetingWebLink))
+                        {
+                            <a href="@Model.CalendarMeetingWebLink" target="_blank" rel="noopener noreferrer">
+                                Open in Outlook
+                            </a>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.CalendarMeetingJoinUrl))
+                        {
+                            <a href="@Model.CalendarMeetingJoinUrl" target="_blank" rel="noopener noreferrer">
+                                Join Teams meeting
+                            </a>
+                        }
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.CalendarErrorMessage))
+                {
+                    <div class="calendar-message error" role="alert">
+                        @Model.CalendarErrorMessage
+                    </div>
+                }
+
+                <section class="outlook-connection-card" aria-label="Outlook calendar connection">
+                    <div class="outlook-connection-icon" aria-hidden="true">O</div>
+                    <div class="outlook-connection-copy">
+                        <strong>Outlook Calendar</strong>
+                        @if (Model.CalendarConnection.IsConnected)
+                        {
+                            <span>
+                                Connected as <b>@Model.CalendarConnection.Email</b>
+                            </span>
+                        }
+                        else if (!Model.CalendarConnection.IsConfigured)
+                        {
+                            <span>Microsoft Calendar server configuration is required.</span>
+                        }
+                        else
+                        {
+                            <span>Connect your Microsoft account to schedule candidate interviews.</span>
+                        }
+                    </div>
+                    @if (Model.CalendarConnection.IsConnected)
+                    {
+                        <span class="outlook-connected-badge">Connected</span>
+                        <form
+                            method="post"
+                            action="/Employer/Outlook/Disconnect"
+                            class="outlook-disconnect-form">
+                            @Html.AntiForgeryToken()
+                            <input
+                                type="hidden"
+                                name="returnUrl"
+                                value="@($"/Employer/Vacancies/{vacancy.VacancyId}")" />
+                            <button type="submit">Disconnect</button>
+                        </form>
+                    }
+                    else if (Model.CalendarConnection.IsConfigured)
+                    {
+                        <a
+                            class="outlook-connect-button"
+                            href="@Url.Action("Connect", "EmployerMicrosoftCalendar", new { returnUrl = $"/Employer/Vacancies/{vacancy.VacancyId}" })">
+                            Connect Outlook
+                        </a>
+                    }
+                </section>
+
                 <section class="vacancy-metrics" aria-label="Vacancy analytics">
                     <article class="vacancy-metric-card best">
                         <span class="metric-icon">◎</span>
@@ -542,6 +611,20 @@
                                         <span class="candidate-application-status">
                                             @applicant.ApplicationStatusLabel
                                         </span>
+                                        @if (Model.CalendarConnection.IsConnected
+                                            && !string.IsNullOrWhiteSpace(applicant.CandidateEmail))
+                                        {
+                                            <button
+                                                class="candidate-schedule-button"
+                                                type="button"
+                                                data-schedule-meeting
+                                                data-application-id="@applicant.ApplicationId"
+                                                data-candidate-name="@applicant.CandidateName"
+                                                data-candidate-email="@applicant.CandidateEmail"
+                                                data-meeting-subject="@($"Interview — {vacancy.Title}")">
+                                                Schedule
+                                            </button>
+                                        }
                                         <div class="candidate-score @applicant.ScoreCssClass">
                                             <strong>@($"{applicant.MatchScore}%")</strong>
                                             <span>match</span>
@@ -783,6 +866,83 @@
                 <dialog class="candidate-answer-dialog" id="candidateAnswerDialog">
                     <button type="button" class="candidate-answer-close" data-candidate-answer-close aria-label="Close">×</button>
                     <div id="candidateAnswerDialogContent"></div>
+                </dialog>
+
+                <dialog class="meeting-dialog" id="meetingDialog">
+                    <form
+                        method="post"
+                        action="/Employer/Outlook/Meetings"
+                        id="meetingForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="vacancyId" value="@vacancy.VacancyId" />
+                        <input type="hidden" name="applicationId" id="meetingApplicationId" />
+                        <input type="hidden" name="startAtUtc" id="meetingStartAtUtc" />
+
+                        <div class="meeting-dialog-heading">
+                            <div>
+                                <span class="section-kicker">OUTLOOK CALENDAR</span>
+                                <h2>Schedule interview</h2>
+                                <p id="meetingCandidateSummary"></p>
+                            </div>
+                            <button type="button" data-meeting-close aria-label="Close">×</button>
+                        </div>
+
+                        <label>
+                            Subject
+                            <input
+                                type="text"
+                                name="subject"
+                                id="meetingSubject"
+                                maxlength="240"
+                                required />
+                        </label>
+
+                        <div class="meeting-form-grid">
+                            <label>
+                                Date and time
+                                <input
+                                    type="datetime-local"
+                                    id="meetingLocalStart"
+                                    required />
+                            </label>
+                            <label>
+                                Duration
+                                <select name="durationMinutes">
+                                    <option value="30">30 minutes</option>
+                                    <option value="45">45 minutes</option>
+                                    <option value="60" selected>1 hour</option>
+                                    <option value="90">1 hour 30 minutes</option>
+                                    <option value="120">2 hours</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <label>
+                            Agenda
+                            <textarea
+                                name="agenda"
+                                rows="4"
+                                maxlength="3000"
+                                placeholder="Interview agenda or preparation notes"></textarea>
+                        </label>
+
+                        <label class="meeting-teams-option">
+                            <input
+                                type="checkbox"
+                                name="createTeamsMeeting"
+                                value="true"
+                                checked />
+                            <span>
+                                <strong>Create Microsoft Teams meeting</strong>
+                                <small>A Teams join link will be included in the Outlook invitation.</small>
+                            </span>
+                        </label>
+
+                        <div class="meeting-dialog-actions">
+                            <button type="button" data-meeting-close>Cancel</button>
+                            <button type="submit">Create meeting &amp; send invite</button>
+                        </div>
+                    </form>
                 </dialog>
             }
         </main>

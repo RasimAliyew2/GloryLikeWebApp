@@ -18,6 +18,13 @@
     const answerDialogContent = document.getElementById("candidateAnswerDialogContent");
     const funnelBoard = document.getElementById("vacancyFunnelBoard");
     const funnelMessage = document.getElementById("funnelMoveMessage");
+    const meetingDialog = document.getElementById("meetingDialog");
+    const meetingForm = document.getElementById("meetingForm");
+    const meetingApplicationId = document.getElementById("meetingApplicationId");
+    const meetingSubject = document.getElementById("meetingSubject");
+    const meetingCandidateSummary = document.getElementById("meetingCandidateSummary");
+    const meetingLocalStart = document.getElementById("meetingLocalStart");
+    const meetingStartAtUtc = document.getElementById("meetingStartAtUtc");
 
     const selectTab = (name) => {
         tabButtons.forEach((button) => {
@@ -349,6 +356,84 @@
         } catch (error) {
             showStatusMessage(error instanceof Error ? error.message : "Vacancy could not be closed.", true);
             closeButton.disabled = false;
+        }
+    });
+
+    const toLocalInputValue = date => {
+        const pad = value => String(value).padStart(2, "0");
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+            + `T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+
+    const getDefaultMeetingStart = () => {
+        const date = new Date(Date.now() + 30 * 60 * 1000);
+        date.setSeconds(0, 0);
+        date.setMinutes(Math.ceil(date.getMinutes() / 15) * 15);
+        return date;
+    };
+
+    document.querySelectorAll("[data-schedule-meeting]").forEach(button => {
+        button.addEventListener("click", event => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (!(meetingDialog instanceof HTMLDialogElement))
+                return;
+
+            if (meetingApplicationId)
+                meetingApplicationId.value = button.dataset.applicationId ?? "";
+            if (meetingSubject)
+                meetingSubject.value = button.dataset.meetingSubject ?? "Interview";
+            if (meetingCandidateSummary) {
+                const name = button.dataset.candidateName ?? "Candidate";
+                const email = button.dataset.candidateEmail ?? "";
+                meetingCandidateSummary.textContent = email
+                    ? `${name} · ${email}`
+                    : name;
+            }
+            if (meetingLocalStart) {
+                const start = getDefaultMeetingStart();
+                meetingLocalStart.value = toLocalInputValue(start);
+                meetingLocalStart.min = toLocalInputValue(new Date());
+            }
+
+            meetingDialog.showModal();
+            meetingSubject?.focus();
+        });
+    });
+
+    document.querySelectorAll("[data-meeting-close]").forEach(button => {
+        button.addEventListener("click", () => meetingDialog?.close());
+    });
+
+    meetingDialog?.addEventListener("click", event => {
+        if (event.target === meetingDialog)
+            meetingDialog.close();
+    });
+
+    meetingForm?.addEventListener("submit", event => {
+        if (!meetingLocalStart?.value) {
+            event.preventDefault();
+            meetingLocalStart?.focus();
+            return;
+        }
+
+        const localDate = new Date(meetingLocalStart.value);
+        if (Number.isNaN(localDate.getTime())) {
+            event.preventDefault();
+            meetingLocalStart.setCustomValidity("Select a valid date and time.");
+            meetingLocalStart.reportValidity();
+            return;
+        }
+
+        meetingLocalStart.setCustomValidity("");
+        if (meetingStartAtUtc)
+            meetingStartAtUtc.value = localDate.toISOString();
+
+        const submitButton = meetingForm.querySelector("button[type='submit']");
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = "Creating meeting…";
         }
     });
 

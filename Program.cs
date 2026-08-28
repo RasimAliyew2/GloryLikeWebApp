@@ -174,6 +174,27 @@ builder.Services.AddHttpClient<IVacancyApiService, VacancyApiService>((sp, clien
     client.Timeout = TimeSpan.FromSeconds(60);
 });
 
+builder.Services.AddHttpClient<IMicrosoftCalendarApiService, MicrosoftCalendarApiService>((sp, client) =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var baseUrl = configuration["Backend:BaseUrl"];
+    var sharedSecret = configuration["MicrosoftCalendar:BackendSharedSecret"]
+        ?? configuration["SocialAuth:BackendSharedSecret"];
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new InvalidOperationException(
+            "Backend:BaseUrl appsettings.json daxilində təyin edilməyib.");
+
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(60);
+    if (!string.IsNullOrWhiteSpace(sharedSecret))
+    {
+        client.DefaultRequestHeaders.Add(
+            "X-BothFind-Backend-Secret",
+            sharedSecret);
+    }
+});
+
 builder.Services.AddHttpClient<ITalentRadarApiService, TalentRadarApiService>((sp, client) =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();

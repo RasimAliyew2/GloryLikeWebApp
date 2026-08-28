@@ -19,6 +19,7 @@ public sealed class EmployerVacanciesController : Controller
     private readonly IVacancyApiService _vacancyApiService;
     private readonly ICompanyHiringPlanApiService _companyHiringPlanApiService;
     private readonly ICompanyProfileApiService _companyProfileApiService;
+    private readonly IMicrosoftCalendarApiService _calendarApiService;
     private readonly ILogger<EmployerVacanciesController> _logger;
 
     public EmployerVacanciesController(
@@ -26,12 +27,14 @@ public sealed class EmployerVacanciesController : Controller
         IVacancyApiService vacancyApiService,
         ICompanyHiringPlanApiService companyHiringPlanApiService,
         ICompanyProfileApiService companyProfileApiService,
+        IMicrosoftCalendarApiService calendarApiService,
         ILogger<EmployerVacanciesController> logger)
     {
         _skillAndJobApiService = skillAndJobApiService;
         _vacancyApiService = vacancyApiService;
         _companyHiringPlanApiService = companyHiringPlanApiService;
         _companyProfileApiService = companyProfileApiService;
+        _calendarApiService = calendarApiService;
         _logger = logger;
     }
 
@@ -98,7 +101,11 @@ public sealed class EmployerVacanciesController : Controller
         {
             DisplayName = GetDisplayName(),
             Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
-            SuccessMessage = TempData["VacancySuccessMessage"] as string
+            SuccessMessage = TempData["VacancySuccessMessage"] as string,
+            CalendarSuccessMessage = TempData["CalendarSuccessMessage"] as string,
+            CalendarErrorMessage = TempData["CalendarErrorMessage"] as string,
+            CalendarMeetingWebLink = TempData["CalendarMeetingWebLink"] as string,
+            CalendarMeetingJoinUrl = TempData["CalendarMeetingJoinUrl"] as string
         };
 
         if (!TryGetEmployerUserId(out var employerUserId))
@@ -126,6 +133,25 @@ public sealed class EmployerVacanciesController : Controller
         }
 
         model.Vacancy = MapVacancyDetail(result.Data.Vacancy);
+
+        var calendarResult = await _calendarApiService.GetStatusAsync(
+            employerUserId,
+            cancellationToken);
+        if (calendarResult.Success && calendarResult.Data is not null)
+        {
+            model.CalendarConnection = new MicrosoftCalendarConnectionViewModel
+            {
+                IsConfigured = calendarResult.Data.IsConfigured,
+                IsConnected = calendarResult.Data.IsConnected,
+                Email = calendarResult.Data.Email,
+                DisplayName = calendarResult.Data.DisplayName,
+                ConnectedAtUtc = calendarResult.Data.ConnectedAtUtc
+            };
+        }
+        else if (string.IsNullOrWhiteSpace(model.CalendarErrorMessage))
+        {
+            model.CalendarErrorMessage = calendarResult.Message;
+        }
 
         return View("VacancyDetail", model);
     }
@@ -1151,6 +1177,7 @@ public sealed class EmployerVacanciesController : Controller
             ApplicationId = applicant.ApplicationId,
             CandidateUserId = applicant.CandidateUserId,
             CandidateName = applicant.CandidateName,
+            CandidateEmail = applicant.CandidateEmail,
             CurrentRole = applicant.CurrentRole,
             MatchScore = Math.Clamp(applicant.MatchScore, 0, 100),
             ApplicationStatus = applicant.ApplicationStatus,

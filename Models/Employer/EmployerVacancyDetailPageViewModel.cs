@@ -6,6 +6,11 @@ public sealed class EmployerVacancyDetailPageViewModel
     public string Email { get; set; } = string.Empty;
     public string? ErrorMessage { get; set; }
     public string? SuccessMessage { get; set; }
+    public string? CalendarSuccessMessage { get; set; }
+    public string? CalendarErrorMessage { get; set; }
+    public string? CalendarMeetingWebLink { get; set; }
+    public string? CalendarMeetingJoinUrl { get; set; }
+    public MicrosoftCalendarConnectionViewModel CalendarConnection { get; set; } = new();
     public EmployerVacancyDetailViewModel? Vacancy { get; set; }
 
     public string Initials
@@ -134,6 +139,7 @@ public sealed class EmployerVacancyApplicantViewModel
     public int ApplicationId { get; set; }
     public int CandidateUserId { get; set; }
     public string CandidateName { get; set; } = string.Empty;
+    public string CandidateEmail { get; set; } = string.Empty;
     public string CurrentRole { get; set; } = string.Empty;
     public int MatchScore { get; set; }
     public string ApplicationStatus { get; set; } = string.Empty;
@@ -188,6 +194,15 @@ public sealed class EmployerVacancyApplicantViewModel
 
     public string AppliedText =>
         $"Applied {AppliedAtUtc.ToLocalTime():dd.MM.yyyy HH:mm}";
+}
+
+public sealed class MicrosoftCalendarConnectionViewModel
+{
+    public bool IsConfigured { get; set; }
+    public bool IsConnected { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public DateTime? ConnectedAtUtc { get; set; }
 }
 
 public sealed class EmployerScreeningAnswerViewModel
