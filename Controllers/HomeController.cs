@@ -33,6 +33,7 @@ public class HomeController : Controller
         return View();
     }
 
+    [HttpGet("/dashboard", Name = "CandidateDashboard")]
     public async Task<IActionResult> Index(
         CancellationToken cancellationToken)
     {

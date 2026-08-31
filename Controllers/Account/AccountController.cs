@@ -357,9 +357,7 @@ public sealed class AccountController : Controller
             ? RedirectToAction(
                 "EmployerHome",
                 "EmployerHome")
-            : RedirectToAction(
-                "Index",
-                "Home");
+            : RedirectToRoute("CandidateDashboard");
     }
 
     [AllowAnonymous]
@@ -498,9 +496,7 @@ public sealed class AccountController : Controller
                 ? RedirectToAction(
                     "EmployerHome",
                     "EmployerHome")
-                : RedirectToAction(
-                    "Index",
-                    "Home");
+                : RedirectToRoute("CandidateDashboard");
     }
 
     [AllowAnonymous]
@@ -585,9 +581,7 @@ public sealed class AccountController : Controller
             ? RedirectToAction(
                 "EmployerHome",
                 "EmployerHome")
-            : RedirectToAction(
-                "Index",
-                "Home");
+            : RedirectToRoute("CandidateDashboard");
     }
 
     [Authorize]
@@ -634,9 +628,7 @@ public sealed class AccountController : Controller
                 ? RedirectToAction(
                     "EmployerHome",
                     "EmployerHome")
-                : RedirectToAction(
-                "Index",
-                "Home");
+                : RedirectToRoute("CandidateDashboard");
     }
 
     private IActionResult RedirectAfterAuthentication(string? returnUrl)

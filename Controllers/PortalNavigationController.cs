@@ -27,7 +27,7 @@ public sealed class PortalNavigationController : Controller
                 "candidate",
                 StringComparison.OrdinalIgnoreCase))
         {
-            return RedirectToAction("Index", "Home");
+            return RedirectToRoute("CandidateDashboard");
         }
 
         await HttpContext.SignOutAsync(
