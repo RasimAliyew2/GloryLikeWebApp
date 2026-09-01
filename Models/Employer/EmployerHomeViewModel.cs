@@ -8,6 +8,7 @@ public sealed class EmployerHomeViewModel
     public List<EmployerDashboardStatItem> Stats { get; set; } = new();
     public List<EmployerInsightItem> Insights { get; set; } = new();
     public List<EmployerCandidateItem> Candidates { get; set; } = new();
+    public string CandidateEmptyMessage { get; set; } = string.Empty;
 
     public string Initials
     {
@@ -49,6 +50,7 @@ public sealed class EmployerInsightItem
 
 public sealed class EmployerCandidateItem
 {
+    public int UserId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string CurrentRole { get; set; } = string.Empty;
     public string CurrentCompany { get; set; } = string.Empty;

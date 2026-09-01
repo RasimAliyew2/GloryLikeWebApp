@@ -531,6 +531,41 @@ input {
     display: grid;
 }
 
+.candidate-empty-state {
+    min-height: 185px;
+    padding: 30px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 8px;
+    color: var(--employer-muted);
+    border: 1px dashed var(--employer-line);
+    border-radius: 16px;
+    text-align: center;
+    background: #fafafd;
+}
+
+.candidate-empty-state > span {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    color: #5b50e6;
+    border-radius: 50%;
+    background: #efedff;
+    font-size: 19px;
+}
+
+.candidate-empty-state strong {
+    color: #292d38;
+    font-size: 14px;
+}
+
+.candidate-empty-state p {
+    margin: 0;
+    font-size: 12px;
+}
+
 .candidate-row {
     min-height: 78px;
     padding: 13px 0;
@@ -630,11 +665,14 @@ input {
 .candidate-action {
     width: 36px;
     height: 36px;
+    display: grid;
+    place-items: center;
     color: #5b6070;
     border: 1px solid var(--employer-line);
     border-radius: 11px;
     background: #fff;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .employer-backdrop {

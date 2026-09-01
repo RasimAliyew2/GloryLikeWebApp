@@ -207,47 +207,61 @@
                 </div>
 
                 <div class="candidate-list">
-                    @foreach (var candidate in Model.Candidates)
+                    @if (Model.Candidates.Count == 0)
                     {
-                        <article class="candidate-row">
-                            <div class="candidate-profile">
-                                <span class="candidate-avatar">
-                                    @candidate.Initials
-                                </span>
-
-                                <div>
-                                    <strong>@candidate.Name</strong>
-                                    <span>
-                                        @candidate.CurrentCompany
-                                        ·
-                                        @candidate.CurrentRole
+                        <div class="candidate-empty-state">
+                            <span aria-hidden="true">◎</span>
+                            <strong>No candidate matches</strong>
+                            <p>@Model.CandidateEmptyMessage</p>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var candidate in Model.Candidates)
+                        {
+                            <article class="candidate-row">
+                                <div class="candidate-profile">
+                                    <span class="candidate-avatar">
+                                        @candidate.Initials
                                     </span>
+
+                                    <div>
+                                        <strong>@candidate.Name</strong>
+                                        <span>
+                                            @candidate.CurrentCompany
+                                            ·
+                                            @candidate.CurrentRole
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="candidate-metric">
-                                <span>TRUST</span>
-                                <strong>@candidate.TrustScore</strong>
-                            </div>
+                                <div class="candidate-metric">
+                                    <span>TRUST</span>
+                                    <strong>@candidate.TrustScore</strong>
+                                </div>
 
-                            <div class="candidate-metric match">
-                                <span>MATCH</span>
-                                <strong>@candidate.MatchScore%</strong>
-                            </div>
+                                <div class="candidate-metric match">
+                                    <span>MATCH</span>
+                                    <strong>@candidate.MatchScore%</strong>
+                                </div>
 
-                            <div class="candidate-signals">
-                                @foreach (var signal in candidate.Signals)
-                                {
-                                    <span>@signal</span>
-                                }
-                            </div>
+                                <div class="candidate-signals">
+                                    @foreach (var signal in candidate.Signals)
+                                    {
+                                        <span>@signal</span>
+                                    }
+                                </div>
 
-                            <button
-                                type="button"
-                                class="candidate-action">
-                                →
-                            </button>
-                        </article>
+                                <a
+                                    class="candidate-action"
+                                    asp-controller="EmployerCandidates"
+                                    asp-action="Profile"
+                                    asp-route-candidateUserId="@candidate.UserId"
+                                    aria-label="Open @candidate.Name profile">
+                                    →
+                                </a>
+                            </article>
+                        }
                     }
                 </div>
             </section>
