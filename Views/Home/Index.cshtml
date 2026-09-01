@@ -35,7 +35,7 @@
                     <span class="nav-icon">⌕</span>
                     <span>Jobs</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link" asp-controller="Applications" asp-action="Index">
                     <span class="nav-icon">▣</span>
                     <span>Applications</span>
                 </a>
@@ -77,10 +77,7 @@
                 </form>
 
                 <div class="topbar-actions">
-                    <button class="icon-button" type="button" aria-label="Notifications">
-                        ♢
-                        <span class="notification-dot"></span>
-                    </button>
+                    <partial name="_CandidateNotifications" />
 
                     <a class="account-chip" href="/Profile" aria-label="Open profile">
                         <div class="avatar">@initials</div>
@@ -200,7 +197,7 @@
                                     <span class="section-kicker">YOUR PIPELINE</span>
                                     <h2>Active applications</h2>
                                 </div>
-                                <a href="#">See all</a>
+                                <a asp-controller="Applications" asp-action="Index">See all</a>
                             </div>
 
                             <div class="application-list panel">
@@ -223,7 +220,12 @@
                                             </div>
                                             <span class="application-status @application.StatusClass">@application.Status</span>
                                             <span class="application-updated">@application.UpdatedText</span>
-                                            <button type="button" class="row-action">›</button>
+                                            <a
+                                                class="row-action"
+                                                asp-controller="Applications"
+                                                asp-action="Index"
+                                                asp-route-vacancyId="@application.VacancyId"
+                                                aria-label="Open @application.Role application">›</a>
                                         </div>
                                     }
                                 }
@@ -387,5 +389,6 @@
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
     <script src="~/js/candidate-dashboard.js" asp-append-version="true"></script>
+    <script src="~/js/candidate-notifications.js" asp-append-version="true"></script>
 </body>
 </html>

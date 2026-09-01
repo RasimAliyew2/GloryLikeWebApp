@@ -9,6 +9,19 @@ public interface IVacancyApiService
         int candidateUserId,
         CancellationToken cancellationToken = default);
 
+    Task<CandidateApplicationListApiResult> GetCandidateApplicationsAsync(
+        int candidateUserId,
+        CancellationToken cancellationToken = default);
+
+    Task<CandidateNotificationListApiResult> GetCandidateNotificationsAsync(
+        int candidateUserId,
+        CancellationToken cancellationToken = default);
+
+    Task<MarkCandidateNotificationReadApiResult> MarkCandidateNotificationReadAsync(
+        int candidateUserId,
+        long notificationId,
+        CancellationToken cancellationToken = default);
+
     Task<EmployerVacancyListApiResult> GetEmployerVacanciesAsync(
         int employerUserId,
         CancellationToken cancellationToken = default);
@@ -56,6 +69,60 @@ public interface IVacancyApiService
         int vacancyId,
         CreateVacancyInput vacancy,
         CancellationToken cancellationToken = default);
+}
+
+public sealed class CandidateApplicationListApiResult
+{
+    public bool Success { get; private set; }
+    public string Message { get; private set; } = string.Empty;
+    public CandidateApplicationListApiResponse? Data { get; private set; }
+
+    public static CandidateApplicationListApiResult Ok(
+        CandidateApplicationListApiResponse response) => new()
+        {
+            Success = true,
+            Message = response.Message,
+            Data = response
+        };
+
+    public static CandidateApplicationListApiResult Fail(string message) =>
+        new() { Message = message };
+}
+
+public sealed class CandidateNotificationListApiResult
+{
+    public bool Success { get; private set; }
+    public string Message { get; private set; } = string.Empty;
+    public CandidateNotificationListApiResponse? Data { get; private set; }
+
+    public static CandidateNotificationListApiResult Ok(
+        CandidateNotificationListApiResponse response) => new()
+        {
+            Success = true,
+            Message = response.Message,
+            Data = response
+        };
+
+    public static CandidateNotificationListApiResult Fail(string message) =>
+        new() { Message = message };
+}
+
+public sealed class MarkCandidateNotificationReadApiResult
+{
+    public bool Success { get; private set; }
+    public string Message { get; private set; } = string.Empty;
+    public MarkCandidateNotificationReadApiResponse? Data { get; private set; }
+
+    public static MarkCandidateNotificationReadApiResult Ok(
+        MarkCandidateNotificationReadApiResponse response) => new()
+        {
+            Success = true,
+            Message = response.Message,
+            Data = response
+        };
+
+    public static MarkCandidateNotificationReadApiResult Fail(string message) =>
+        new() { Message = message };
 }
 
 public sealed class MoveApplicantFunnelStageApiResult

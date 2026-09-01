@@ -114,6 +114,130 @@ public sealed class VacancyApiService : IVacancyApiService
         }
     }
 
+    public async Task<CandidateApplicationListApiResult>
+        GetCandidateApplicationsAsync(
+            int candidateUserId,
+            CancellationToken cancellationToken = default)
+    {
+        if (candidateUserId <= 0)
+            return CandidateApplicationListApiResult.Fail("Candidate user ID düzgün deyil.");
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(
+                $"api/Vacancies/candidate/{candidateUserId}/applications",
+                cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            var apiResponse = Deserialize<CandidateApplicationListApiResponse>(
+                body,
+                "Candidate applications",
+                response.StatusCode);
+
+            if (!response.IsSuccessStatusCode || apiResponse is null || !apiResponse.Success)
+            {
+                return CandidateApplicationListApiResult.Fail(ExtractMessage(
+                    body,
+                    apiResponse?.Message,
+                    $"Applications yüklənmədi. HTTP {(int)response.StatusCode}."));
+            }
+
+            apiResponse.Applications ??= [];
+            return CandidateApplicationListApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return CandidateApplicationListApiResult.Fail("Applications sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "Candidate applications BackendApp-dən yüklənmədi.");
+            return CandidateApplicationListApiResult.Fail("BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
+    public async Task<CandidateNotificationListApiResult>
+        GetCandidateNotificationsAsync(
+            int candidateUserId,
+            CancellationToken cancellationToken = default)
+    {
+        if (candidateUserId <= 0)
+            return CandidateNotificationListApiResult.Fail("Candidate user ID düzgün deyil.");
+
+        try
+        {
+            using var response = await _httpClient.GetAsync(
+                $"api/Vacancies/candidate/{candidateUserId}/notifications",
+                cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            var apiResponse = Deserialize<CandidateNotificationListApiResponse>(
+                body,
+                "Candidate notifications",
+                response.StatusCode);
+
+            if (!response.IsSuccessStatusCode || apiResponse is null || !apiResponse.Success)
+            {
+                return CandidateNotificationListApiResult.Fail(ExtractMessage(
+                    body,
+                    apiResponse?.Message,
+                    $"Notifications yüklənmədi. HTTP {(int)response.StatusCode}."));
+            }
+
+            apiResponse.Notifications ??= [];
+            return CandidateNotificationListApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return CandidateNotificationListApiResult.Fail("Notifications sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "Candidate notifications BackendApp-dən yüklənmədi.");
+            return CandidateNotificationListApiResult.Fail("BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
+    public async Task<MarkCandidateNotificationReadApiResult>
+        MarkCandidateNotificationReadAsync(
+            int candidateUserId,
+            long notificationId,
+            CancellationToken cancellationToken = default)
+    {
+        if (candidateUserId <= 0 || notificationId <= 0)
+            return MarkCandidateNotificationReadApiResult.Fail("Notification ID düzgün deyil.");
+
+        try
+        {
+            using var response = await _httpClient.PostAsync(
+                $"api/Vacancies/candidate/{candidateUserId}/notifications/{notificationId}/read",
+                content: null,
+                cancellationToken: cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            var apiResponse = Deserialize<MarkCandidateNotificationReadApiResponse>(
+                body,
+                "Mark candidate notification read",
+                response.StatusCode);
+
+            if (!response.IsSuccessStatusCode || apiResponse is null || !apiResponse.Success)
+            {
+                return MarkCandidateNotificationReadApiResult.Fail(ExtractMessage(
+                    body,
+                    apiResponse?.Message,
+                    $"Notification oxunmuş kimi qeyd edilmədi. HTTP {(int)response.StatusCode}."));
+            }
+
+            return MarkCandidateNotificationReadApiResult.Ok(apiResponse);
+        }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return MarkCandidateNotificationReadApiResult.Fail("Notification sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "Notification read status BackendApp-ə göndərilmədi.");
+            return MarkCandidateNotificationReadApiResult.Fail("BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
     public async Task<EmployerVacancyListApiResult>
         GetEmployerVacanciesAsync(
             int employerUserId,
@@ -836,6 +960,29 @@ public sealed class VacancyApiService : IVacancyApiService
 
             return UpdateVacancyApiResult.Fail(
                 "BackendApp-ə qoşulmaq mümkün olmadı. BackendApp-in işlədiyini yoxlayın.");
+        }
+    }
+
+    private T? Deserialize<T>(
+        string body,
+        string operation,
+        System.Net.HttpStatusCode statusCode)
+    {
+        if (string.IsNullOrWhiteSpace(body))
+            return default;
+
+        try
+        {
+            return JsonSerializer.Deserialize<T>(body, JsonOptions);
+        }
+        catch (JsonException exception)
+        {
+            _logger.LogWarning(
+                exception,
+                "{Operation} API cavabı JSON kimi oxunmadı. HTTP {StatusCode}.",
+                operation,
+                (int)statusCode);
+            return default;
         }
     }
 

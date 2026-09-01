@@ -70,7 +70,7 @@
                     <span>Jobs</span>
                 </a>
 
-                <a class="nav-link" href="#">
+                <a class="nav-link" asp-controller="Applications" asp-action="Index">
                     <span class="nav-icon">▣</span>
                     <span>Applications</span>
                 </a>
@@ -140,13 +140,7 @@
                 </div>
 
                 <div class="topbar-actions">
-                    <button
-                        class="icon-button"
-                        type="button"
-                        aria-label="Notifications">
-                        ♢
-                        <span class="notification-dot"></span>
-                    </button>
+                    <partial name="_CandidateNotifications" />
 
                     <a class="account-chip" href="/Profile" aria-label="Open profile">
                         <div class="avatar">@initials</div>
@@ -820,6 +814,11 @@
 
     <script
         src="~/js/candidate-dashboard.js"
+        asp-append-version="true">
+    </script>
+
+    <script
+        src="~/js/candidate-notifications.js"
         asp-append-version="true">
     </script>
 

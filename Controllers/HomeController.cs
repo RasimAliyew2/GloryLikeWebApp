@@ -299,14 +299,29 @@ public class HomeController : Controller
             .Take(5)
             .Select(vacancy => new DashboardApplicationItem
             {
+                VacancyId = vacancy.VacancyId,
                 Company = ResolveEmployerName(vacancy),
                 Role = string.IsNullOrWhiteSpace(vacancy.RoleTitle)
                     ? vacancy.PositionName
                     : vacancy.RoleTitle,
-                Status = "No response yet",
-                StatusClass = "review",
-                UpdatedText = vacancy.AppliedAtUtc.HasValue
-                    ? $"Applied {vacancy.AppliedAtUtc.Value.ToLocalTime():dd.MM.yyyy HH:mm}"
+                Status = string.Equals(
+                    vacancy.ApplicationStatus,
+                    "ScreeningFailed",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "Screening failed"
+                    : string.IsNullOrWhiteSpace(vacancy.FunnelStageName)
+                        ? "Applied"
+                        : vacancy.FunnelStageName.Trim(),
+                StatusClass = string.Equals(
+                    vacancy.ApplicationStatus,
+                    "ScreeningFailed",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? "failed"
+                    : "review",
+                UpdatedText = vacancy.FunnelStageUpdatedAtUtc.HasValue
+                    ? $"Updated {vacancy.FunnelStageUpdatedAtUtc.Value.ToLocalTime():dd.MM.yyyy HH:mm}"
+                    : vacancy.AppliedAtUtc.HasValue
+                        ? $"Applied {vacancy.AppliedAtUtc.Value.ToLocalTime():dd.MM.yyyy HH:mm}"
                     : "Applied"
             })
             .ToList();

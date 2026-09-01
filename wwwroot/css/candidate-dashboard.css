@@ -250,6 +250,161 @@ button {
     background: #ff6b7d;
 }
 
+.candidate-notifications {
+    position: relative;
+}
+
+.candidate-notifications > input[type="hidden"] {
+    display: none;
+}
+
+.candidate-notification-toggle {
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.candidate-notification-count {
+    position: absolute;
+    right: -6px;
+    bottom: -5px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: #e4354f;
+    box-shadow: 0 4px 10px rgba(198, 31, 58, .25);
+    font-size: 9px;
+    font-weight: 850;
+    line-height: 1;
+}
+
+.candidate-notification-count[hidden],
+.candidate-notification-panel[hidden] {
+    display: none;
+}
+
+.candidate-notification-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    z-index: 120;
+    width: min(390px, calc(100vw - 30px));
+    overflow: hidden;
+    border: 1px solid #e2e4eb;
+    border-radius: 17px;
+    background: #fff;
+    box-shadow: 0 24px 60px rgba(26, 29, 43, .18);
+}
+
+.candidate-notification-panel > header {
+    padding: 16px 17px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    border-bottom: 1px solid #ececf1;
+}
+
+.candidate-notification-panel > header > div {
+    display: grid;
+    gap: 3px;
+}
+
+.candidate-notification-panel > header strong {
+    font-size: 13px;
+}
+
+.candidate-notification-panel > header span {
+    color: #888e9c;
+    font-size: 9px;
+}
+
+.candidate-notification-panel > header a {
+    color: #5549e7;
+    font-size: 10px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.candidate-notification-list {
+    max-height: 390px;
+    overflow-y: auto;
+}
+
+.candidate-notification-item {
+    width: 100%;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 11px;
+    color: inherit;
+    border: 0;
+    border-bottom: 1px solid #efeff3;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+}
+
+.candidate-notification-item:hover {
+    background: #f8f7ff;
+}
+
+.candidate-notification-item.unread {
+    background: #f4f2ff;
+}
+
+.candidate-notification-marker {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    color: #5549e7;
+    border-radius: 10px;
+    background: #e8e5ff;
+    font-size: 16px;
+}
+
+.candidate-notification-copy {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+}
+
+.candidate-notification-copy strong {
+    font-size: 11px;
+}
+
+.candidate-notification-copy > span {
+    color: #6f7584;
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+.candidate-notification-copy small {
+    color: #9a9eaa;
+    font-size: 8px;
+}
+
+.candidate-notification-state {
+    min-height: 100px;
+    padding: 25px;
+    display: grid;
+    place-items: center;
+    color: #8b909e;
+    font-size: 10px;
+    text-align: center;
+}
+
+.candidate-notification-state.error {
+    color: #b13f50;
+}
+
 .account-chip {
     display: flex;
     align-items: center;
@@ -721,13 +876,21 @@ button {
     background: #fff7dd;
 }
 
+.application-status.failed {
+    color: #b23a4c;
+    background: #fff0f2;
+}
+
 .row-action {
     width: 26px;
     height: 26px;
+    display: grid;
+    place-items: center;
     color: #8b93a2;
     border: 0;
     background: transparent;
     font-size: 22px;
+    text-decoration: none;
 }
 
 .empty-state {

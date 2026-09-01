@@ -1,0 +1,25 @@
+<div class="candidate-notifications" data-candidate-notifications>
+    @Html.AntiForgeryToken()
+    <button
+        class="icon-button candidate-notification-toggle"
+        type="button"
+        aria-label="Notifications"
+        aria-expanded="false"
+        data-notification-toggle>
+        ◇
+        <span class="candidate-notification-count" data-notification-count hidden></span>
+    </button>
+
+    <section class="candidate-notification-panel" data-notification-panel hidden>
+        <header>
+            <div>
+                <strong>Notifications</strong>
+                <span data-notification-summary>No unread notifications</span>
+            </div>
+            <a href="/Applications">Applications</a>
+        </header>
+        <div class="candidate-notification-list" data-notification-list>
+            <div class="candidate-notification-state">Loading notifications…</div>
+        </div>
+    </section>
+</div>

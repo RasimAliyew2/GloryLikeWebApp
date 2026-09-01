@@ -1,0 +1,134 @@
+@model GloryLikeWebApp.Models.CandidateApplicationsViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Applications";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BothFind</title>
+    <link rel="stylesheet" href="~/css/candidate-dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/candidate-applications.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="dashboard-shell">
+        <aside class="sidebar" id="dashboardSidebar">
+            <a class="brand" href="/Portal/Home">
+                <span class="brand-mark">ϟ</span>
+                <span>BothFind</span>
+            </a>
+
+            <nav class="nav-menu" aria-label="Candidate navigation">
+                <a class="nav-link" asp-controller="Home" asp-action="Index"><span class="nav-icon">⌂</span><span>Dashboard</span></a>
+                <a class="nav-link" asp-controller="Opportunities" asp-action="OpportunitiesPage"><span class="nav-icon">⌕</span><span>Jobs</span></a>
+                <a class="nav-link active" asp-controller="Applications" asp-action="Index"><span class="nav-icon">▣</span><span>Applications</span></a>
+                <a class="nav-link" asp-controller="Skills" asp-action="SkillsPage"><span class="nav-icon">✦</span><span>Skills</span></a>
+                <a class="nav-link" asp-controller="Profile" asp-action="ProfilePage"><span class="nav-icon">○</span><span>Profile</span></a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="growth-card">
+                    <span class="growth-icon">▣</span>
+                    <strong>Your application journey</strong>
+                    <p>Every application and its current employer funnel stage is kept here.</p>
+                    <a asp-controller="Opportunities" asp-action="OpportunitiesPage">Find more jobs</a>
+                </div>
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="signout-button"><span>↪</span><span>Sign out</span></button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-area applications-main-area">
+            <header class="topbar">
+                <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-label="Open menu">☰</button>
+                <div class="applications-breadcrumb"><a href="/dashboard">Dashboard</a><span>›</span><strong>Applications</strong></div>
+                <div class="topbar-actions">
+                    <partial name="_CandidateNotifications" />
+                    <a class="account-chip" href="/Profile" aria-label="Open profile">
+                        <div class="avatar">@Model.Initials</div>
+                        <div class="account-copy"><strong>@Model.DisplayName</strong><span>Candidate</span></div>
+                        <span class="chevron">⌄</span>
+                    </a>
+                </div>
+            </header>
+
+            <section class="applications-content">
+                <header class="applications-hero">
+                    <div>
+                        <span class="applications-eyebrow">YOUR CANDIDATE JOURNEY</span>
+                        <h1>Applications</h1>
+                        <p>Track every role you have applied for and see its current funnel stage.</p>
+                    </div>
+                    <div class="applications-total"><span>Total applications</span><strong>@Model.Applications.Count</strong><small>All time</small></div>
+                </header>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+                {
+                    <div class="applications-state error" role="alert"><strong>Applications could not be loaded</strong><span>@Model.ErrorMessage</span></div>
+                }
+                else if (Model.Applications.Count == 0)
+                {
+                    <div class="applications-state"><span class="applications-state-icon">▣</span><strong>No applications yet</strong><span>Roles you apply for will appear here with their current funnel stage.</span><a asp-controller="Opportunities" asp-action="OpportunitiesPage">Browse jobs</a></div>
+                }
+                else
+                {
+                    <div class="applications-list">
+                        @foreach (var application in Model.Applications)
+                        {
+                            var highlighted = Model.HighlightVacancyId == application.VacancyId;
+                            var failed = application.ApplicationStatus.Equals("ScreeningFailed", StringComparison.OrdinalIgnoreCase);
+                            <article
+                                id="application-@application.VacancyId"
+                                class="application-card @(highlighted ? "highlighted" : string.Empty)"
+                                data-highlighted="@highlighted.ToString().ToLowerInvariant()">
+                                <div class="application-card-main">
+                                    <div class="application-company-logo">@(string.IsNullOrWhiteSpace(application.CompanyInitials) ? "BF" : application.CompanyInitials)</div>
+                                    <div class="application-copy">
+                                        <div class="application-title-row">
+                                            <div><span>@application.CompanyName</span><h2>@application.RoleTitle</h2></div>
+                                            <span class="vacancy-status">@application.VacancyStatus</span>
+                                        </div>
+                                        <div class="application-meta">
+                                            @if (!string.IsNullOrWhiteSpace(application.LocationName))
+                                            {
+                                                <span>⌖ @application.LocationName</span>
+                                            }
+                                            @if (!string.IsNullOrWhiteSpace(application.EmploymentType))
+                                            {
+                                                <span>◷ @application.EmploymentType</span>
+                                            }
+                                            <span>Applied @application.AppliedAtUtc.ToLocalTime().ToString("dd MMM yyyy")</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="application-stage @(failed ? "failed" : string.Empty)">
+                                    <div class="stage-heading">
+                                        <div><span>CURRENT FUNNEL STAGE</span><strong>@(failed ? "Screening failed" : application.FunnelStageName)</strong></div>
+                                        @if (!failed && application.FunnelStageCount > 0)
+                                        {
+                                            <span>@application.FunnelStageIndex / @application.FunnelStageCount</span>
+                                        }
+                                    </div>
+                                    <div class="stage-progress" aria-label="Funnel progress"><span style="width:@(failed ? 0 : application.FunnelProgress)%"></span></div>
+                                    <small>@(application.FunnelStageUpdatedAtUtc.HasValue ? $"Updated {application.FunnelStageUpdatedAtUtc.Value.ToLocalTime():dd MMM yyyy, HH:mm}" : "Waiting for employer update")</small>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        </main>
+    </div>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <script src="~/js/candidate-dashboard.js" asp-append-version="true"></script>
+    <script src="~/js/candidate-notifications.js" asp-append-version="true"></script>
+    <script src="~/js/candidate-applications.js" asp-append-version="true"></script>
+</body>
+</html>

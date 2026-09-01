@@ -99,7 +99,7 @@ wwwroot\css\company-hiring-plan-wide.css
 wwwroot\css\choose-portal.css
 wwwroot\lib\jquery\dist\jquery.min.js
 wwwroot\lib\jquery\dist\jquery.min.map
-wwwroot\css\candidate-dashboard.css
+wwwroot\css\candidate-applications.css
 wwwroot\lib\bootstrap\dist\css\bootstrap.min.css
 wwwroot\lib\bootstrap\dist\css\bootstrap.css.map
 wwwroot\lib\jquery\LICENSE.txt
@@ -116,3 +116,6 @@ wwwroot\js\company-structure.js
 wwwroot\js\employer-reports.js
 wwwroot\css\registration.css
 wwwroot\js\company-team.js
+wwwroot\css\candidate-dashboard.css
+wwwroot\js\candidate-applications.js
+wwwroot\js\candidate-notifications.js
