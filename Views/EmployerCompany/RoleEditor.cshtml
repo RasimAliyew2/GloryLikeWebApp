@@ -1,0 +1,114 @@
+@model GloryLikeWebApp.Models.Employer.CompanyRoleEditorPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = Model.IsEdit ? $"Edit {Model.Role.Name}" : "A new role";
+    var selected = Model.Role.PermissionKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BothFind</title>
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-team.css" asp-append-version="true" />
+</head>
+<body class="role-editor-body">
+<header class="role-editor-topbar">
+    <a asp-action="Team" asp-route-tab="roles">← Back to roles</a>
+    <div>
+        <span class="role-editor-brand">BothFind</span>
+        <span>@(Model.IsEdit ? "Edit role" : "A new role")</span>
+    </div>
+    <label class="technical-toggle">
+        <input type="checkbox" id="technicalKeysToggle" />
+        <span></span> Show technical keys
+    </label>
+</header>
+
+<form class="role-editor-form" asp-action="SaveRole" method="post" id="roleEditorForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="RoleId" value="@Model.Role.RoleId" />
+
+    <aside class="role-editor-summary">
+        <div>
+            <strong>Access summary</strong>
+            <p>Choose a category to review its rights.</p>
+        </div>
+        <nav>
+            @foreach (var group in Model.PermissionGroups)
+            {
+                <a href="#permissions-@group.Key">
+                    <span>@group.Label</span>
+                    <small><b data-group-count="@group.Key">0</b>/@group.Permissions.Count</small>
+                </a>
+            }
+        </nav>
+        <div class="role-total-rights">Total: <strong id="totalRights">@Model.SelectedPermissionCount</strong> rights</div>
+        <button type="button" id="selectAllRights">Select all access</button>
+        <button type="button" id="clearAllRights">Clear access</button>
+    </aside>
+
+    <main class="role-editor-main">
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="team-alert" role="alert">@Model.ErrorMessage</div>
+        }
+        <section class="role-basics-card">
+            <div class="role-field">
+                <label for="roleName">Role name</label>
+                <input id="roleName" name="Name" value="@Model.Role.Name" maxlength="80" required placeholder="e.g. Recruiter" />
+            </div>
+            <div class="role-field">
+                <label for="roleDescription">Description</label>
+                <textarea id="roleDescription" name="Description" maxlength="500" placeholder="What is this role for?">@Model.Role.Description</textarea>
+            </div>
+            <fieldset class="role-scope-field">
+                <legend>Scope</legend>
+                <label><input type="radio" name="Scope" value="company" checked="@(Model.Role.Scope == "company" ? "checked" : null)" /> The whole company</label>
+                <label><input type="radio" name="Scope" value="departments" checked="@(Model.Role.Scope == "departments" ? "checked" : null)" /> Departments</label>
+                <label><input type="radio" name="Scope" value="designated" checked="@(Model.Role.Scope == "designated" ? "checked" : null)" /> Only designated</label>
+            </fieldset>
+        </section>
+
+        @foreach (var group in Model.PermissionGroups)
+        {
+            <section class="permission-card" id="permissions-@group.Key" data-permission-group="@group.Key">
+                <header>
+                    <div><span class="permission-icon">◇</span><h2>@group.Label</h2></div>
+                    <button type="button" data-toggle-group="@group.Key">Select all</button>
+                </header>
+                <div class="permission-options">
+                    @foreach (var permission in group.Permissions)
+                    {
+                        <label class="permission-option">
+                            <input type="checkbox"
+                                   name="PermissionKeys"
+                                   value="@permission.Key"
+                                   checked="@(selected.Contains(permission.Key) ? "checked" : null)" />
+                            <span class="permission-check">✓</span>
+                            <span>
+                                <strong>@permission.Label</strong>
+                                <small class="technical-key">@permission.Key</small>
+                            </span>
+                            @if (permission.Sensitive)
+                            {
+                                <i title="Sensitive access">!</i>
+                            }
+                        </label>
+                    }
+                </div>
+            </section>
+        }
+    </main>
+
+    <footer class="role-editor-actions">
+        <span><strong id="footerRights">@Model.SelectedPermissionCount</strong> rights selected</span>
+        <a asp-action="Team" asp-route-tab="roles">Cancel</a>
+        <button type="submit">@(Model.IsEdit ? "Save changes" : "Create role")</button>
+    </footer>
+</form>
+
+<script src="~/js/company-role-editor.js" asp-append-version="true"></script>
+</body>
+</html>

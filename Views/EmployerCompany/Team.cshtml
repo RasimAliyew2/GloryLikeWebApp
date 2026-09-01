@@ -1,342 +1,165 @@
 @model GloryLikeWebApp.Models.Employer.CompanyTeamPageViewModel
 @{
     Layout = null;
-    ViewData["Title"] = "Company Team";
-
-    var roleHeadings = new Dictionary<string, string>
-    {
-        ["Admin"] = "ADMIN",
-        ["HR Admin"] = "HR ADMIN",
-        ["Hiring Manager"] = "HIRING MANAGERS",
-        ["Recruiter"] = "RECRUITERS"
-    };
+    ViewData["Title"] = "Team & Accesses";
 }
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - BothFind</title>
-
-    <link
-        rel="stylesheet"
-        href="~/css/employer-home.css"
-        asp-append-version="true" />
-    <link
-        rel="stylesheet"
-        href="~/css/company-profile.css"
-        asp-append-version="true" />
-    <link
-        rel="stylesheet"
-        href="~/css/company-team.css"
-        asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-team.css" asp-append-version="true" />
 </head>
-
 <body>
-    <div class="employer-shell company-shell">
-        <header class="employer-topbar">
-            <a
-                class="employer-brand"
-                href="/Portal/Home">
-                BothFind
-            </a>
-
-            <div class="employer-search">
-                <span aria-hidden="true">⌕</span>
-                <input
-                    type="search"
-                    placeholder="Search by candidates/vacancies"
-                    aria-label="Search candidates or vacancies" />
+<div class="employer-shell company-shell">
+    <header class="employer-topbar">
+        <a class="employer-brand" href="/Portal/Home">BothFind</a>
+        <div class="employer-search">
+            <span aria-hidden="true">⌕</span>
+            <input type="search" placeholder="Search by candidates/vacancies" aria-label="Search candidates or vacancies" />
+        </div>
+        <a class="employer-account" href="/Profile" aria-label="Open profile">
+            <span class="demo-badge">Employer</span>
+            <div class="employer-avatar">@Model.Initials</div>
+            <div class="employer-account-copy">
+                <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
+                <span>@Model.ActorRole</span>
             </div>
+        </a>
+    </header>
 
-            <a class="employer-account" href="/Profile" aria-label="Open profile">
-                <span class="demo-badge">Employer</span>
+    <aside class="employer-sidebar" id="employerSidebar">
+        <nav aria-label="Employer navigation">
+            <a asp-controller="EmployerHome" asp-action="EmployerHome"><span>⌁</span><strong>Dashboard</strong></a>
+            <a asp-controller="EmployerVacancies" asp-action="Index"><span>▣</span><strong>Vacancies</strong></a>
+            <a href="#"><span>▱</span><strong>Recruitment requests</strong></a>
+            <a asp-controller="TalentRadar" asp-action="Index"><span>◎</span><strong>Talent Radar</strong></a>
+            <a class="active" asp-controller="EmployerCompany" asp-action="Index"><span>▥</span><strong>Company</strong></a>
+            <a asp-controller="EmployerReports" asp-action="Index"><span>▧</span><strong>Reports</strong></a>
+        </nav>
+        <div class="employer-sidebar-bottom">
+            <form method="post" action="/SignOut">
+                @Html.AntiForgeryToken()
+                <button type="submit">↪ Sign out</button>
+            </form>
+        </div>
+    </aside>
 
-                <div class="employer-avatar">
-                    @Model.Initials
+    <main class="employer-main company-main team-main">
+        <button class="employer-menu-button" type="button" id="employerMenuButton" aria-label="Open employer menu">☰</button>
+        <div class="company-profile-content team-content">
+            <nav class="company-tabs" aria-label="Company sections">
+                <a asp-controller="EmployerCompany" asp-action="Index"><span>♙</span>Profile</a>
+                <a asp-controller="EmployerCompany" asp-action="Structure"><span>▱</span>Structure</a>
+                <a class="active" asp-controller="EmployerCompany" asp-action="Team" aria-current="page"><span>♧</span>Team</a>
+                <a asp-controller="EmployerCompany" asp-action="HiringPlan"><span>◎</span>Hiring Plan</a>
+            </nav>
+
+            <header class="team-page-heading">
+                <div>
+                    <div class="team-title-line">
+                        <h1>Team &amp; Accesses</h1>
+                        @if (!string.IsNullOrWhiteSpace(Model.CompanyName))
+                        {
+                            <span>@Model.CompanyName</span>
+                        }
+                    </div>
+                    <p>Members, roles, and access history</p>
                 </div>
+            </header>
 
-                <div class="employer-account-copy">
-                    <strong>
-                        @(string.IsNullOrWhiteSpace(Model.Email)
-                            ? Model.DisplayName
-                            : Model.Email)
-                    </strong>
-                    <span>Employer workspace</span>
-                </div>
-
-            </a>
-        </header>
-
-        <aside
-            class="employer-sidebar"
-            id="employerSidebar">
-            <nav aria-label="Employer navigation">
-                <a
-                    asp-controller="EmployerHome"
-                    asp-action="EmployerHome">
-                    <span>⌁</span>
-                    <strong>Dashboard</strong>
+            <nav class="team-section-tabs" aria-label="Team and access sections">
+                <a class="@(Model.ActiveTab == "participants" ? "active" : "")"
+                   asp-action="Team" asp-route-tab="participants">
+                    <span>♧</span> Participants
                 </a>
-
-                <a
-                    asp-controller="EmployerVacancies"
-                    asp-action="Index">
-                    <span>▣</span>
-                    <strong>Vacancies</strong>
+                <a class="@(Model.ActiveTab == "roles" ? "active" : "")"
+                   asp-action="Team" asp-route-tab="roles">
+                    <span>♢</span> Roles
                 </a>
-
-                <a href="#">
-                    <span>▱</span>
-                    <strong>Recruitment requests</strong>
-                </a>
-
-                <a
-                    asp-controller="TalentRadar"
-                    asp-action="Index">
-                    <span>◎</span>
-                    <strong>Talent Radar</strong>
-                </a>
-
-                <a
-                    class="active"
-                    asp-controller="EmployerCompany"
-                    asp-action="Index">
-                    <span>▥</span>
-                    <strong>Company</strong>
-                </a>
-
-                <a
-                    asp-controller="EmployerReports"
-                    asp-action="Index">
-                    <span>▧</span>
-                    <strong>Reports</strong>
+                <a class="@(Model.ActiveTab == "history" ? "active" : "")"
+                   asp-action="Team" asp-route-tab="history">
+                    <span>◴</span> History
                 </a>
             </nav>
 
-            <div class="employer-sidebar-bottom">
-                <form method="post" action="/SignOut">
-                    @Html.AntiForgeryToken()
-                    <button type="submit">↪ Sign out</button>
-                </form>
-            </div>
-        </aside>
+            @if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+            {
+                <div class="team-alert success" role="status">@Model.SuccessMessage</div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="team-alert" role="alert">@Model.ErrorMessage</div>
+            }
 
-        <main class="employer-main company-main team-main">
-            <button
-                class="employer-menu-button"
-                type="button"
-                id="employerMenuButton"
-                aria-label="Open employer menu">
-                ☰
-            </button>
-
-            <div class="company-profile-content team-content">
-                <nav class="company-tabs" aria-label="Company sections">
-                    <a
-                        asp-controller="EmployerCompany"
-                        asp-action="Index">
-                        <span>♙</span>
-                        Profile
-                    </a>
-                    <a
-                        asp-controller="EmployerCompany"
-                        asp-action="Structure">
-                        <span>▱</span>
-                        Structure
-                    </a>
-                    <a
-                        class="active"
-                        asp-controller="EmployerCompany"
-                        asp-action="Team"
-                        aria-current="page">
-                        <span>♧</span>
-                        Team
-                    </a>
-                    <a
-                        asp-controller="EmployerCompany"
-                        asp-action="HiringPlan">
-                        <span>◎</span>
-                        Hiring Plan
-                    </a>
-                </nav>
-
-                <section class="team-heading">
-                    <div>
-                        <div class="team-title-row">
-                            <h1>Team</h1>
-                            @if (!string.IsNullOrWhiteSpace(Model.CompanyName))
+            @if (Model.ActiveTab == "participants")
+            {
+                <section class="team-tab-panel" aria-label="Participants">
+                    <div class="participant-tools">
+                        <label class="team-search">
+                            <span>⌕</span>
+                            <input id="participantSearch" type="search" placeholder="Search by name or email" />
+                        </label>
+                        <select id="participantRoleFilter" aria-label="Filter participants by role">
+                            <option value="">All roles</option>
+                            @foreach (var role in Model.Roles)
                             {
-                                <span class="team-company-name">
-                                    @Model.CompanyName
-                                </span>
+                                <option value="@role.Id">@role.Name</option>
                             }
-                        </div>
-                        <p>Manage member access</p>
-                    </div>
-
-                    @if (Model.CanManageTeam)
-                    {
-                        <button
-                            class="team-invite-button"
-                            id="openTeamInvite"
-                            type="button">
-                            <span aria-hidden="true">♙+</span>
-                            Invite
-                        </button>
-                    }
-                </section>
-
-                <div class="team-role-summary" aria-label="Team role counts">
-                    <span>
-                        <strong>@Model.AdminCount</strong>
-                        Admin
-                    </span>
-                    <i aria-hidden="true"></i>
-                    <span>
-                        <strong>@Model.HrAdminCount</strong>
-                        HR Admin
-                    </span>
-                    <i aria-hidden="true"></i>
-                    <span>
-                        <strong>@Model.HiringManagerCount</strong>
-                        Hiring Managers
-                    </span>
-                    <i aria-hidden="true"></i>
-                    <span>
-                        <strong>@Model.RecruiterCount</strong>
-                        Recruiters
-                    </span>
-                </div>
-
-                <details class="team-access-matrix">
-                    <summary>
-                        <span class="team-access-icon" aria-hidden="true">♢</span>
-                        <strong>Access matrix</strong>
-                        <span>— roles and rights in the system</span>
-                        <span class="team-access-chevron" aria-hidden="true">⌄</span>
-                    </summary>
-                    <div class="team-access-grid">
-                        <div>
-                            <strong>Admin</strong>
-                            <span>Founder account and full organization access</span>
-                        </div>
-                        <div>
-                            <strong>HR Admin</strong>
-                            <span>Team, company and vacancy management</span>
-                        </div>
-                        <div>
-                            <strong>Hiring Manager</strong>
-                            <span>Vacancies, candidates and hiring decisions</span>
-                        </div>
-                        <div>
-                            <strong>Recruiter</strong>
-                            <span>Candidate sourcing and funnel management</span>
-                        </div>
-                    </div>
-                </details>
-
-                @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-                {
-                    <div
-                        class="team-alert"
-                        role="alert">
-                        @Model.ErrorMessage
-                    </div>
-                }
-
-                <section
-                    class="team-members-card"
-                    aria-label="Company team members">
-                    @if (Model.Members.Count == 0)
-                    {
-                        <div class="team-empty-state">
-                            <div aria-hidden="true">♧</div>
-                            <h2>No team members yet</h2>
-                            @if (Model.CanManageTeam)
-                            {
-                                <p>
-                                    Use Invite to email your first team member.
-                                    The invitation will appear here immediately.
-                                </p>
-                                <button type="button" data-open-team-invite>
-                                    Invite a member
-                                </button>
-                            }
-                            else
-                            {
-                                <p>
-                                    There are no visible members in this team.
-                                </p>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        @foreach (var role in roleHeadings.Keys)
+                        </select>
+                        <select id="participantStatusFilter" aria-label="Filter participants by status">
+                            <option value="">All statuses</option>
+                            <option value="active">Active</option>
+                            <option value="invited">Invited</option>
+                        </select>
+                        @if (Model.CanInvite && Model.Roles.Count > 0)
                         {
-                            var members = Model.Members
-                                .Where(item => item.Role == role)
-                                .ToList();
+                            <button class="team-invite-button" id="openTeamInvite" type="button">
+                                <span>♙+</span> Invite
+                            </button>
+                        }
+                    </div>
 
-                            if (members.Count == 0)
-                                continue;
-
-                            <section class="team-role-group">
-                                <h2>@roleHeadings[role]</h2>
-
-                                @foreach (var member in members)
-                                {
-                                    <article class="team-member-row @(member.CanChangeRole ? "can-manage" : string.Empty)">
-                                        <div class="team-member-avatar">
-                                            @member.Initials
-                                        </div>
-
-                                        <div class="team-member-identity">
+                    <div class="participants-table">
+                        <div class="participants-head">
+                            <span>Participant</span><span>Role</span><span>Scope</span>
+                            <span>Vacancies</span><span>Activity</span><span></span>
+                        </div>
+                        <div id="participantRows">
+                            @foreach (var member in Model.Members)
+                            {
+                                <article class="participant-row"
+                                         data-participant-row
+                                         data-search="@($"{member.DisplayName} {member.Email}".ToLowerInvariant())"
+                                         data-role="@member.RoleId"
+                                         data-status="@(member.IsInvited ? "invited" : "active")">
+                                    <div class="participant-person">
+                                        <span class="participant-avatar">@member.Initials</span>
+                                        <span>
                                             <strong>@member.DisplayName</strong>
-                                            <span>
-                                                @if (member.IsInvited)
-                                                {
-                                                    <text>
-                                                        Invitation sent · @member.Email
-                                                    </text>
-                                                }
-                                                else
-                                                {
-                                                    @member.Email
-                                                }
-                                            </span>
-                                        </div>
-
-                                        @if (member.CanChangeRole)
+                                            <small>@member.Email</small>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        @if (member.CanChangeRole && !member.IsFounder)
                                         {
-                                            <form
-                                                class="team-member-role-form"
-                                                asp-controller="EmployerCompany"
-                                                asp-action="UpdateMemberRole"
-                                                asp-route-invitationId="@member.InvitationId"
-                                                method="post"
-                                                data-team-role-form>
+                                            <form asp-action="UpdateMemberRole"
+                                                  asp-route-invitationId="@member.InvitationId"
+                                                  method="post"
+                                                  data-team-role-form>
                                                 @Html.AntiForgeryToken()
-                                                <label class="sr-only" for="role-@member.InvitationId">
-                                                    Access level for @member.DisplayName
-                                                </label>
-                                                <select
-                                                    id="role-@member.InvitationId"
-                                                    name="Role"
-                                                    data-team-role-select
-                                                    data-original-role="@member.Role"
-                                                    aria-label="Access level for @member.DisplayName">
-                                                    @foreach (var allowedRole in member.AllowedRoles)
+                                                <select name="RoleId"
+                                                        data-team-role-select
+                                                        data-original-role="@member.RoleId"
+                                                        aria-label="Role for @member.DisplayName">
+                                                    @foreach (var role in Model.Roles)
                                                     {
-                                                        <option
-                                                            value="@allowedRole"
-                                                            selected="@(allowedRole == member.Role ? "selected" : null)">
-                                                            @allowedRole
+                                                        <option value="@role.Id"
+                                                                selected="@(role.Id == member.RoleId ? "selected" : null)">
+                                                            @role.Name
                                                         </option>
                                                     }
                                                 </select>
@@ -344,144 +167,187 @@
                                         }
                                         else
                                         {
-                                            <span class="team-member-role">
-                                                @member.Role
-                                            </span>
+                                            <span class="role-pill">@member.Role</span>
                                         }
-
-                                        <span class="team-member-status @(member.IsInvited ? "invited" : "active")">
-                                            @member.Status
-                                        </span>
-
-                                        @if (member.CanChangeRole && !member.IsFounder)
+                                    </div>
+                                    <span>@member.ScopeLabel</span>
+                                    <span class="muted-cell">Based on scope</span>
+                                    <span class="status-pill @(member.IsInvited ? "invited" : "active")">
+                                        @(member.IsInvited ? "Invited" : "Active")
+                                    </span>
+                                    <div>
+                                        @if (member.CanRemove && !member.IsFounder)
                                         {
-                                            <form
-                                                class="team-member-remove-form"
-                                                asp-controller="EmployerCompany"
-                                                asp-action="RemoveMember"
-                                                asp-route-invitationId="@member.InvitationId"
-                                                method="post"
-                                                data-team-remove
-                                                data-member-name="@member.DisplayName">
+                                            <form asp-action="RemoveMember"
+                                                  asp-route-invitationId="@member.InvitationId"
+                                                  method="post"
+                                                  data-team-remove
+                                                  data-member-name="@member.DisplayName">
                                                 @Html.AntiForgeryToken()
-                                                <button
-                                                    class="team-member-remove"
-                                                    type="submit"
-                                                    aria-label="Remove @member.Email from team"
-                                                    title="Remove from team">
-                                                    <svg
-                                                        viewBox="0 0 24 24"
-                                                        aria-hidden="true">
-                                                        <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-2 6h10l-1 11H8L7 9Zm3 2v6h2v-6h-2Zm4 0v6h2v-6h-2Z" />
-                                                    </svg>
-                                                </button>
+                                                <button class="participant-remove" type="submit" title="Revoke access">×</button>
                                             </form>
                                         }
-                                    </article>
-                                }
-                            </section>
-                        }
-                    }
+                                    </div>
+                                </article>
+                            }
+                        </div>
+                        <div class="team-empty-state" id="participantEmpty" hidden>
+                            <h2>No members found</h2>
+                            <p>Try changing the search or filters.</p>
+                        </div>
+                    </div>
                 </section>
-            </div>
-        </main>
-    </div>
+            }
+            else if (Model.ActiveTab == "roles")
+            {
+                <section class="team-tab-panel roles-panel" aria-label="Roles">
+                    <div class="roles-toolbar">
+                        <div>
+                            <h2>Access roles</h2>
+                            <p>Set exactly what each participant can see and manage.</p>
+                        </div>
+                        @if (Model.CanManageRoles)
+                        {
+                            <a class="team-primary-link" asp-action="RoleEditor">+ A new role</a>
+                        }
+                    </div>
+                    <div class="role-grid">
+                        @if (Model.CanManageRoles)
+                        {
+                            <a class="role-card role-create-card" asp-action="RoleEditor">
+                                <span class="role-card-icon">＋</span>
+                                <strong>Create a role</strong>
+                                <small>Choose scope and access rights</small>
+                            </a>
+                        }
+                        @foreach (var role in Model.Roles)
+                        {
+                            <article class="role-card @(role.IsSystem ? "system-role" : "")">
+                                <header>
+                                    <span class="role-card-icon">♢</span>
+                                    @if (role.IsSystem) { <span class="system-badge">SYSTEM</span> }
+                                </header>
+                                <h3>@role.Name</h3>
+                                <p>@(string.IsNullOrWhiteSpace(role.Description) ? "Custom access role" : role.Description)</p>
+                                <div class="role-stats">
+                                    <span><strong>@role.ParticipantCount</strong> participants</span>
+                                    <span><strong>@(role.IsFullAccess ? Model.PermissionGroups.Sum(g => g.Permissions.Count) : role.PermissionCount)</strong> rights</span>
+                                </div>
+                                <footer>
+                                    <span>@role.ScopeLabel</span>
+                                    @if (role.IsSystem)
+                                    {
+                                        <strong>Full access</strong>
+                                    }
+                                    else if (Model.CanManageRoles)
+                                    {
+                                        <a asp-action="RoleEditor" asp-route-roleId="@role.Id">Edit role →</a>
+                                    }
+                                </footer>
+                            </article>
+                        }
+                    </div>
+                </section>
+            }
+            else
+            {
+                <section class="team-tab-panel history-panel" aria-label="Access history">
+                    <div class="history-tools">
+                        <select id="historyParticipantFilter" aria-label="Filter by participant">
+                            <option value="">All participants</option>
+                            @foreach (var member in Model.Members.Where(item => item.UserId.HasValue))
+                            {
+                                <option value="@member.UserId">@member.DisplayName</option>
+                            }
+                        </select>
+                        <select id="historyEventFilter" aria-label="Filter by event">
+                            <option value="">All events</option>
+                            <option value="permission_granted">Access granted</option>
+                            <option value="permission_revoked">Access revoked</option>
+                            <option value="access_granted">Role assigned</option>
+                            <option value="access_changed">Role changed</option>
+                            <option value="access_revoked">Member access revoked</option>
+                            <option value="role_created">Role created</option>
+                            <option value="role_updated">Role updated</option>
+                        </select>
+                        <select id="historyTimeFilter" aria-label="Filter by time">
+                            <option value="all">All the time</option>
+                            <option value="7">Last 7 days</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                        </select>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        @foreach (var item in Model.History)
+                        {
+                            <article class="history-row"
+                                     data-history-row
+                                     data-event="@item.EventType"
+                                     data-actor="@item.ActorUserId"
+                                     data-target="@item.TargetUserId"
+                                     data-date="@item.CreatedAtUtc.ToString("O")">
+                                <span class="history-icon @(item.EventType.Contains("revoked") ? "revoked" : "")">↻</span>
+                                <div>
+                                    <div class="history-row-top">
+                                        <strong>@item.Summary</strong>
+                                        <time datetime="@item.CreatedAtUtc.ToString("O")">@item.CreatedAtUtc.ToString("dd MMM yyyy, HH:mm") UTC</time>
+                                    </div>
+                                    <p>@item.Details</p>
+                                    <div class="history-meta">
+                                        <span class="event-badge">@item.EventLabel</span>
+                                        <span>By <strong>@(string.IsNullOrWhiteSpace(item.ActorName) ? item.ActorEmail : item.ActorName)</strong></span>
+                                        @if (!string.IsNullOrWhiteSpace(item.RoleName))
+                                        {
+                                            <span>Role: <strong>@item.RoleName</strong></span>
+                                        }
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                        <div class="team-empty-state" id="historyEmpty" hidden>
+                            <h2>No records</h2>
+                            <p>Access and role changes will appear here with the person who made them.</p>
+                        </div>
+                    </div>
+                </section>
+            }
+        </div>
+    </main>
+</div>
 
-    <div
-        class="employer-backdrop"
-        id="employerBackdrop">
-    </div>
+<div class="employer-backdrop" id="employerBackdrop"></div>
 
-    @if (Model.CanManageTeam)
-    {
-        <div
-            class="team-modal"
-            id="teamInviteModal"
-            aria-hidden="true">
-            <div
-                class="team-modal-backdrop"
-                data-close-team-invite>
-            </div>
-
-            <section
-                class="team-modal-dialog"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="teamInviteTitle">
-                <header>
-                    <h2 id="teamInviteTitle">Invite a member</h2>
-                    <button
-                        type="button"
-                        data-close-team-invite
-                        aria-label="Close invitation form">
-                        ×
-                    </button>
-                </header>
-
-                <form
-                    id="teamInviteForm"
-                    asp-controller="EmployerCompany"
-                    asp-action="Invite"
-                    method="post">
-                    @Html.AntiForgeryToken()
-
-                <label for="teamInviteEmail">Email</label>
-                <input
-                    id="teamInviteEmail"
-                    name="Email"
-                    type="email"
-                    autocomplete="email"
-                    placeholder="user@company.az"
-                    required
-                    maxlength="150" />
-
+@if (Model.CanInvite && Model.Roles.Count > 0)
+{
+    <div class="team-modal" id="teamInviteModal" aria-hidden="true">
+        <div class="team-modal-backdrop" data-close-team-invite></div>
+        <section class="team-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="teamInviteTitle">
+            <header>
+                <div><small>TEAM ACCESS</small><h2 id="teamInviteTitle">Invite a participant</h2></div>
+                <button type="button" data-close-team-invite aria-label="Close invitation form">×</button>
+            </header>
+            <form id="teamInviteForm" asp-action="Invite" method="post">
+                @Html.AntiForgeryToken()
+                <label for="teamInviteEmail">Work email</label>
+                <input id="teamInviteEmail" name="Email" type="email" autocomplete="email" placeholder="name@company.com" required maxlength="150" />
                 <label for="teamInviteRole">Role</label>
-                <select
-                    id="teamInviteRole"
-                    name="Role"
-                    required>
-                    <option value="Recruiter">Recruiter</option>
-                    <option value="Hiring Manager">Hiring Manager</option>
-                    @if (Model.CanInviteHrAdmin)
+                <select id="teamInviteRole" name="RoleId" required>
+                    @foreach (var role in Model.Roles)
                     {
-                        <option value="HR Admin">HR Admin</option>
+                        <option value="@role.Id">@role.Name — @role.ScopeLabel</option>
                     }
                 </select>
-
-                <div
-                    class="team-modal-feedback"
-                    id="teamInviteFeedback"
-                    role="status"
-                    aria-live="polite"
-                    hidden>
-                </div>
-
+                <div class="team-modal-feedback" id="teamInviteFeedback" role="status" aria-live="polite" hidden></div>
                 <footer>
-                    <button
-                        class="team-modal-cancel"
-                        type="button"
-                        data-close-team-invite>
-                        Cancellation
-                    </button>
-                    <button
-                        class="team-modal-submit"
-                        id="teamInviteSubmit"
-                        type="submit">
-                        Send Invitation
-                    </button>
+                    <button class="team-modal-cancel" type="button" data-close-team-invite>Cancel</button>
+                    <button class="team-modal-submit" id="teamInviteSubmit" type="submit">Send invitation</button>
                 </footer>
-                </form>
-            </section>
-        </div>
-    }
+            </form>
+        </section>
+    </div>
+}
 
-    <script
-        src="~/js/employer-home.js"
-        asp-append-version="true">
-    </script>
-    <script
-        src="~/js/company-team.js"
-        asp-append-version="true">
-    </script>
+<script src="~/js/employer-home.js" asp-append-version="true"></script>
+<script src="~/js/company-team.js" asp-append-version="true"></script>
 </body>
 </html>

@@ -21,7 +21,12 @@ public interface ICompanyTeamApiService
     Task<CompanyTeamApiResult> UpdateMemberRoleAsync(
         int actorUserId,
         Guid invitationId,
-        string role,
+        Guid roleId,
+        CancellationToken cancellationToken = default);
+
+    Task<CompanyTeamApiResult> SaveRoleAsync(
+        int actorUserId,
+        SaveCompanyAccessRoleViewModel model,
         CancellationToken cancellationToken = default);
 
     Task<CompanyTeamInvitationResolveResult>

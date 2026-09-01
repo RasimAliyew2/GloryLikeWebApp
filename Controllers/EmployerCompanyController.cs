@@ -445,6 +445,7 @@ public sealed class EmployerCompanyController : Controller
 
     [HttpGet("/Employer/Company/Team")]
     public async Task<IActionResult> Team(
+        string? tab,
         CancellationToken cancellationToken)
     {
         var model = new CompanyTeamPageViewModel
@@ -452,7 +453,10 @@ public sealed class EmployerCompanyController : Controller
             DisplayName = GetDisplayName(),
             Email =
                 User.FindFirstValue(ClaimTypes.Email)
-                ?? string.Empty
+                ?? string.Empty,
+            ActiveTab = NormalizeTeamTab(tab),
+            SuccessMessage = TempData["TeamSuccess"]?.ToString() ?? string.Empty,
+            ErrorMessage = TempData["TeamError"]?.ToString() ?? string.Empty
         };
 
         if (!TryGetEmployerUserId(out var ownerUserId))
@@ -487,12 +491,23 @@ public sealed class EmployerCompanyController : Controller
 
         model.CompanyName = result.Data.CompanyName;
         model.CanManageTeam = result.Data.CanManageTeam;
+        model.CanManageRoles = result.Data.CanManageRoles;
+        model.CanInvite = result.Data.CanInvite;
         model.ActorRole = result.Data.ActorRole;
         model.Members = result.Data.Members
             .Select(ToTeamMemberViewModel)
             .OrderBy(item => RoleOrder(item.Role))
             .ThenBy(item => item.IsInvited)
             .ThenBy(item => item.DisplayName)
+            .ToList();
+        model.Roles = result.Data.Roles
+            .Select(ToAccessRoleViewModel)
+            .ToList();
+        model.History = result.Data.History
+            .Select(ToAccessHistoryViewModel)
+            .ToList();
+        model.PermissionGroups = result.Data.PermissionGroups
+            .Select(ToPermissionGroupViewModel)
             .ToList();
 
         return View("Team", model);
@@ -645,7 +660,7 @@ public sealed class EmployerCompanyController : Controller
         var result = await _companyTeamApiService.UpdateMemberRoleAsync(
             actorUserId,
             invitationId,
-            model.Role,
+            model.RoleId!.Value,
             cancellationToken);
 
         return result.Success
@@ -663,6 +678,122 @@ public sealed class EmployerCompanyController : Controller
                     ? "Access level dəyişdirilmədi."
                     : result.Message
             });
+    }
+
+    [HttpGet("/Employer/Company/Team/Roles/New")]
+    [HttpGet("/Employer/Company/Team/Roles/{roleId:guid}/Edit")]
+    public async Task<IActionResult> RoleEditor(
+        Guid? roleId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+            return RedirectToAction("SignIn", "Account");
+
+        var result = await _companyTeamApiService.GetTeamAsync(
+            actorUserId,
+            cancellationToken);
+        if (!result.Success || result.Data is null)
+        {
+            TempData["TeamError"] = result.Message;
+            return RedirectToAction(nameof(Team), new { tab = "roles" });
+        }
+        if (!result.Data.CanManageRoles)
+            return Forbid();
+
+        CompanyAccessRoleApiItem? existing = null;
+        if (roleId.HasValue)
+        {
+            existing = result.Data.Roles.FirstOrDefault(item => item.Id == roleId.Value);
+            if (existing is null)
+                return NotFound();
+            if (existing.IsSystem)
+            {
+                TempData["TeamError"] = "HR Admin sistem rolu dəyişdirilə bilməz.";
+                return RedirectToAction(nameof(Team), new { tab = "roles" });
+            }
+        }
+
+        var model = new CompanyRoleEditorPageViewModel
+        {
+            UserId = actorUserId,
+            DisplayName = GetDisplayName(),
+            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+            CompanyName = result.Data.CompanyName,
+            PermissionGroups = result.Data.PermissionGroups
+                .Select(ToPermissionGroupViewModel)
+                .ToList(),
+            Role = existing is null
+                ? new SaveCompanyAccessRoleViewModel()
+                : new SaveCompanyAccessRoleViewModel
+                {
+                    RoleId = existing.Id,
+                    Name = existing.Name,
+                    Description = existing.Description,
+                    Scope = existing.Scope,
+                    PermissionKeys = existing.PermissionKeys ?? []
+                }
+        };
+        return View("RoleEditor", model);
+    }
+
+    [HttpPost("/Employer/Company/Team/Roles/Save")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveRole(
+        SaveCompanyAccessRoleViewModel model,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+            return Unauthorized();
+
+        model.PermissionKeys ??= [];
+        if (!ModelState.IsValid)
+        {
+            var team = await _companyTeamApiService.GetTeamAsync(
+                actorUserId,
+                cancellationToken);
+            var editor = new CompanyRoleEditorPageViewModel
+            {
+                UserId = actorUserId,
+                DisplayName = GetDisplayName(),
+                Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+                CompanyName = team.Data?.CompanyName ?? string.Empty,
+                ErrorMessage = FirstModelError(),
+                Role = model,
+                PermissionGroups = team.Data?.PermissionGroups
+                    .Select(ToPermissionGroupViewModel)
+                    .ToList() ?? []
+            };
+            return View("RoleEditor", editor);
+        }
+
+        var result = await _companyTeamApiService.SaveRoleAsync(
+            actorUserId,
+            model,
+            cancellationToken);
+        if (!result.Success)
+        {
+            ModelState.AddModelError(string.Empty, result.Message);
+            var team = await _companyTeamApiService.GetTeamAsync(
+                actorUserId,
+                cancellationToken);
+            return View("RoleEditor", new CompanyRoleEditorPageViewModel
+            {
+                UserId = actorUserId,
+                DisplayName = GetDisplayName(),
+                Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
+                CompanyName = team.Data?.CompanyName ?? string.Empty,
+                ErrorMessage = result.Message,
+                Role = model,
+                PermissionGroups = team.Data?.PermissionGroups
+                    .Select(ToPermissionGroupViewModel)
+                    .ToList() ?? []
+            });
+        }
+
+        TempData["TeamSuccess"] = model.RoleId.HasValue
+            ? "Rol və access-lər yeniləndi."
+            : "Yeni rol yaradıldı.";
+        return RedirectToAction(nameof(Team), new { tab = "roles" });
     }
 
     private bool TryGetEmployerUserId(out int userId)
@@ -737,14 +868,70 @@ public sealed class EmployerCompanyController : Controller
             DisplayName = item.DisplayName,
             Email = item.Email,
             Role = item.Role,
+            RoleId = item.RoleId,
+            Scope = item.Scope,
             Status = item.Status,
             InvitedAtUtc = item.InvitedAtUtc,
             AcceptedAtUtc = item.AcceptedAtUtc,
             IsFounder = item.IsFounder,
             CanChangeRole = item.CanChangeRole,
+            CanRemove = item.CanRemove,
             AllowedRoles = item.AllowedRoles ?? []
         };
     }
+
+    private static CompanyAccessRoleViewModel ToAccessRoleViewModel(
+        CompanyAccessRoleApiItem item) => new()
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Description = item.Description,
+            Scope = item.Scope,
+            IsSystem = item.IsSystem,
+            IsFullAccess = item.IsFullAccess,
+            ParticipantCount = item.ParticipantCount,
+            PermissionKeys = item.PermissionKeys ?? []
+        };
+
+    private static CompanyAccessHistoryViewModel ToAccessHistoryViewModel(
+        CompanyAccessHistoryApiItem item) => new()
+        {
+            Id = item.Id,
+            EventType = item.EventType,
+            Summary = item.Summary,
+            Details = item.Details,
+            ActorUserId = item.ActorUserId,
+            ActorName = item.ActorName,
+            ActorEmail = item.ActorEmail,
+            TargetUserId = item.TargetUserId,
+            TargetName = item.TargetName,
+            TargetEmail = item.TargetEmail,
+            RoleId = item.RoleId,
+            RoleName = item.RoleName,
+            CreatedAtUtc = item.CreatedAtUtc
+        };
+
+    private static CompanyPermissionGroupViewModel ToPermissionGroupViewModel(
+        CompanyPermissionGroupApiItem item) => new()
+        {
+            Key = item.Key,
+            Label = item.Label,
+            Permissions = (item.Permissions ?? []).Select(permission =>
+                new CompanyPermissionViewModel
+                {
+                    Key = permission.Key,
+                    Label = permission.Label,
+                    Sensitive = permission.Sensitive
+                }).ToList()
+        };
+
+    private static string NormalizeTeamTab(string? tab) =>
+        tab?.Trim().ToLowerInvariant() switch
+        {
+            "roles" => "roles",
+            "history" => "history",
+            _ => "participants"
+        };
 
     private static int RoleOrder(string role)
     {

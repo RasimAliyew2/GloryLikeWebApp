@@ -86,7 +86,7 @@ public sealed class CompanyTeamApiService : ICompanyTeamApiService
                     {
                         OwnerUserId = ownerUserId,
                         Email = model.Email.Trim(),
-                        Role = model.Role.Trim()
+                        RoleId = model.RoleId
                     },
                     cancellationToken);
 
@@ -169,12 +169,12 @@ public sealed class CompanyTeamApiService : ICompanyTeamApiService
     public async Task<CompanyTeamApiResult> UpdateMemberRoleAsync(
         int actorUserId,
         Guid invitationId,
-        string role,
+        Guid roleId,
         CancellationToken cancellationToken = default)
     {
         if (actorUserId <= 0
             || invitationId == Guid.Empty
-            || string.IsNullOrWhiteSpace(role))
+            || roleId == Guid.Empty)
         {
             return CompanyTeamApiResult.Fail(
                 "Access level məlumatı düzgün deyil.");
@@ -190,7 +190,7 @@ public sealed class CompanyTeamApiService : ICompanyTeamApiService
                     new BackendUpdateCompanyTeamMemberRoleRequest
                     {
                         ActorUserId = actorUserId,
-                        Role = role.Trim()
+                        RoleId = roleId
                     },
                     options: JsonOptions)
             };
@@ -221,6 +221,52 @@ public sealed class CompanyTeamApiService : ICompanyTeamApiService
 
             return CompanyTeamApiResult.Fail(
                 "BackendApp-ə qoşulmaq mümkün olmadı.");
+        }
+    }
+
+    public async Task<CompanyTeamApiResult> SaveRoleAsync(
+        int actorUserId,
+        SaveCompanyAccessRoleViewModel model,
+        CancellationToken cancellationToken = default)
+    {
+        if (actorUserId <= 0 || string.IsNullOrWhiteSpace(model.Name))
+            return CompanyTeamApiResult.Fail("Rol məlumatları düzgün deyil.");
+
+        try
+        {
+            var endpoint = model.RoleId.HasValue
+                ? $"api/company/team/roles/{model.RoleId.Value}"
+                : "api/company/team/roles";
+            using var request = new HttpRequestMessage(
+                model.RoleId.HasValue ? HttpMethod.Put : HttpMethod.Post,
+                endpoint)
+            {
+                Content = JsonContent.Create(
+                    new BackendSaveCompanyAccessRoleRequest
+                    {
+                        ActorUserId = actorUserId,
+                        Name = model.Name.Trim(),
+                        Description = model.Description?.Trim() ?? string.Empty,
+                        Scope = model.Scope.Trim(),
+                        PermissionKeys = model.PermissionKeys ?? []
+                    },
+                    options: JsonOptions)
+            };
+
+            using var response = await _httpClient.SendAsync(request, cancellationToken);
+            var result = await ReadCompanyTeamResponseAsync(response, cancellationToken);
+            return result is null
+                ? CompanyTeamApiResult.Fail("Backend rol cavabı oxunmadı.")
+                : CompanyTeamApiResult.From(result);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return CompanyTeamApiResult.Fail("Rol sorğusunun vaxtı bitdi.");
+        }
+        catch (HttpRequestException exception)
+        {
+            _logger.LogError(exception, "Company access rolu BackendApp-də saxlanmadı.");
+            return CompanyTeamApiResult.Fail("BackendApp-ə qoşulmaq mümkün olmadı.");
         }
     }
 
@@ -296,6 +342,9 @@ public sealed class CompanyTeamApiService : ICompanyTeamApiService
         if (result is not null)
         {
             result.Members ??= [];
+            result.Roles ??= [];
+            result.History ??= [];
+            result.PermissionGroups ??= [];
             return result;
         }
 
