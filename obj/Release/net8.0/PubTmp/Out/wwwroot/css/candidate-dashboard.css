@@ -551,11 +551,16 @@ button {
 }
 
 .panel-heading a,
-.section-header a {
+.section-header a,
+.score-details-link {
     color: #356fe4;
+    padding: 0;
+    border: 0;
+    background: transparent;
     font-size: 13px;
     font-weight: 750;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .panel-heading h2,
@@ -581,6 +586,185 @@ button {
     border-radius: 50%;
     background:
         conic-gradient(#4f86f7 calc(var(--score) * 1%), #e8edf5 0);
+}
+
+.score-details-dialog {
+    width: min(780px, calc(100vw - 32px));
+    max-height: min(760px, calc(100vh - 34px));
+    padding: 0;
+    overflow: hidden;
+    color: #202431;
+    border: 1px solid #dedfe7;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 30px 90px rgba(22, 25, 40, .25);
+}
+
+.score-details-dialog::backdrop {
+    background: rgba(23, 26, 39, .5);
+    backdrop-filter: blur(5px);
+}
+
+.score-details-dialog > header {
+    padding: 24px 26px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    border-bottom: 1px solid #e8e9ee;
+}
+
+.score-details-dialog h2 {
+    margin: 6px 0 4px;
+    font-size: 22px;
+    letter-spacing: -.03em;
+}
+
+.score-details-dialog header p {
+    margin: 0;
+    color: #7c8290;
+    font-size: 11px;
+}
+
+.score-details-dialog header button {
+    width: 35px;
+    height: 35px;
+    flex: 0 0 auto;
+    color: #697080;
+    border: 1px solid #e2e4ea;
+    border-radius: 10px;
+    background: #f8f8fa;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.score-formula-card {
+    margin: 20px 24px 14px;
+    padding: 18px;
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    align-items: center;
+    gap: 18px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #f0eeff, #f7f9ff);
+}
+
+.score-formula-result {
+    width: 82px;
+    height: 82px;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    color: #5146e3;
+    border: 7px solid #776cf0;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.score-formula-result strong {
+    font-size: 27px;
+    line-height: 1;
+}
+
+.score-formula-result span {
+    margin-top: 2px;
+    color: #858a98;
+    font-size: 10px;
+}
+
+.score-formula-card > div:last-child > strong {
+    font-size: 12px;
+}
+
+.score-formula-card p {
+    margin: 7px 0 4px;
+    color: #626979;
+    font-size: 10px;
+}
+
+.score-formula-card small {
+    color: #888e9b;
+    font-size: 9px;
+    line-height: 1.45;
+}
+
+.score-breakdown-heading,
+.score-breakdown-list > div {
+    display: grid;
+    grid-template-columns: minmax(190px, 1fr) 85px 85px 105px;
+    align-items: center;
+    gap: 10px;
+}
+
+.score-breakdown-heading {
+    padding: 9px 26px;
+    color: #8a8f9c;
+    background: #fafafd;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.score-breakdown-list {
+    max-height: 270px;
+    padding: 0 24px;
+    overflow-y: auto;
+}
+
+.score-breakdown-list > div {
+    min-height: 58px;
+    border-bottom: 1px solid #eeeef2;
+    font-size: 11px;
+}
+
+.score-breakdown-list > div > span {
+    display: grid;
+    gap: 3px;
+}
+
+.score-breakdown-list small {
+    color: #9296a2;
+    font-size: 8px;
+}
+
+.score-breakdown-list > div > strong:last-child {
+    color: #5146e3;
+}
+
+.score-details-dialog > footer {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    border-top: 1px solid #e8e9ee;
+    background: #fafafd;
+}
+
+.score-details-dialog footer span {
+    color: #777d8b;
+    font-size: 9px;
+}
+
+.score-details-dialog footer a {
+    padding: 9px 12px;
+    color: #fff;
+    border-radius: 9px;
+    background: #5549e7;
+    font-size: 9px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+@media (max-width: 620px) {
+    .score-formula-card { grid-template-columns: 1fr; }
+    .score-breakdown-heading,
+    .score-breakdown-list > div { grid-template-columns: minmax(130px, 1fr) 55px 55px 75px; }
+    .score-breakdown-heading { padding-inline: 18px; }
+    .score-breakdown-list { padding-inline: 16px; }
+    .score-details-dialog > footer { align-items: stretch; flex-direction: column; }
+    .score-details-dialog footer a { text-align: center; }
 }
 
 .score-ring-inner {

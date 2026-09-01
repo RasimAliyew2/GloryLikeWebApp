@@ -66,7 +66,7 @@
 
             button.addEventListener("click", async () => {
                 button.disabled = true;
-                let targetUrl = item.targetUrl || `/Applications?vacancyId=${item.vacancyId}`;
+                let targetUrl = item.targetUrl || `/Applications/${item.vacancyId}`;
                 if (!item.isRead) {
                     try {
                         const response = await fetch(`/Candidate/Notifications/${item.notificationId}/Read`, {

@@ -49,7 +49,7 @@ public sealed class CandidateNotificationsController : Controller
                 isRead = notification.IsRead,
                 createdAtUtc = notification.CreatedAtUtc,
                 targetUrl = Url.Action(
-                    "Index",
+                    "Details",
                     "Applications",
                     new { vacancyId = notification.VacancyId })
             })
@@ -83,7 +83,7 @@ public sealed class CandidateNotificationsController : Controller
         {
             success = true,
             redirectUrl = Url.Action(
-                "Index",
+                "Details",
                 "Applications",
                 new { vacancyId = result.Data.VacancyId })
         });

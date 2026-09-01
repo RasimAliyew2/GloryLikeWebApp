@@ -201,6 +201,15 @@ public class HomeController : Controller
                 model.StrongestRole = bestMatch.Title;
                 model.StrongestRoleSubtitle =
                     $"{currentJobName} · best live vacancy match";
+
+                var bestVacancy = vacancyResult.Data.Vacancies
+                    .FirstOrDefault(vacancy =>
+                        vacancy.VacancyId == bestMatch.Id);
+                if (bestVacancy is not null)
+                {
+                    model.ScoreBreakdown = BuildScoreBreakdown(
+                        bestVacancy);
+                }
             }
             else
             {
@@ -325,6 +334,60 @@ public class HomeController : Controller
                     : "Applied"
             })
             .ToList();
+    }
+
+    private static CandidateScoreBreakdownViewModel BuildScoreBreakdown(
+        CandidateVacancyApiItem vacancy)
+    {
+        var skills = vacancy.Skills
+            .Where(skill => skill.SkillId > 0
+                && !string.IsNullOrWhiteSpace(skill.SkillName))
+            .GroupBy(skill => skill.SkillId)
+            .Select(group => group
+                .OrderByDescending(skill => skill.Weight)
+                .First())
+            .OrderByDescending(skill => skill.Weight)
+            .ThenBy(skill => skill.SkillName)
+            .ToList();
+
+        var totalWeight = skills.Sum(skill => Math.Max(skill.Weight, 0));
+        var weightedPoints = skills.Sum(skill =>
+            Math.Max(skill.Weight, 0)
+            * Math.Clamp(skill.SignalScore, 0d, 100d));
+
+        return new CandidateScoreBreakdownViewModel
+        {
+            VacancyId = vacancy.VacancyId,
+            Company = ResolveEmployerName(vacancy),
+            RoleTitle = string.IsNullOrWhiteSpace(vacancy.RoleTitle)
+                ? string.IsNullOrWhiteSpace(vacancy.PositionName)
+                    ? $"Vacancy #{vacancy.VacancyId}"
+                    : vacancy.PositionName.Trim()
+                : vacancy.RoleTitle.Trim(),
+            FinalScore = Math.Clamp(vacancy.MatchScore, 0, 100),
+            TotalWeight = totalWeight,
+            WeightedTotal = totalWeight <= 0
+                ? 0d
+                : weightedPoints / totalWeight,
+            Skills = skills.Select(skill =>
+            {
+                var weight = Math.Max(skill.Weight, 0);
+                var signal = Math.Clamp(skill.SignalScore, 0d, 100d);
+                var points = weight * signal;
+
+                return new CandidateScoreSkillItem
+                {
+                    SkillName = skill.SkillName.Trim(),
+                    RequirementType = skill.RequirementType,
+                    Weight = weight,
+                    SignalScore = RoundHalfUp(signal),
+                    WeightedPoints = points,
+                    Contribution = totalWeight <= 0
+                        ? 0d
+                        : points / totalWeight
+                };
+            }).ToList()
+        };
     }
 
     private static string ResolveEmployerName(

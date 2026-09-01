@@ -1,0 +1,133 @@
+@model GloryLikeWebApp.Models.CandidateApplicationDetailsViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = Model.Application?.RoleTitle ?? "Application details";
+    var application = Model.Application;
+    var failed = string.Equals(
+        application?.ApplicationStatus,
+        "ScreeningFailed",
+        StringComparison.OrdinalIgnoreCase);
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BothFind</title>
+    <link rel="stylesheet" href="~/css/candidate-dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/candidate-applications.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="dashboard-shell">
+        <aside class="sidebar" id="dashboardSidebar">
+            <a class="brand" href="/Portal/Home"><span class="brand-mark">ϟ</span><span>BothFind</span></a>
+            <nav class="nav-menu" aria-label="Candidate navigation">
+                <a class="nav-link" asp-controller="Home" asp-action="Index"><span class="nav-icon">⌂</span><span>Dashboard</span></a>
+                <a class="nav-link" asp-controller="Opportunities" asp-action="OpportunitiesPage"><span class="nav-icon">⌕</span><span>Jobs</span></a>
+                <a class="nav-link active" asp-controller="Applications" asp-action="Index"><span class="nav-icon">▣</span><span>Applications</span></a>
+                <a class="nav-link" asp-controller="Skills" asp-action="SkillsPage"><span class="nav-icon">✦</span><span>Skills</span></a>
+                <a class="nav-link" asp-controller="Profile" asp-action="ProfilePage"><span class="nav-icon">○</span><span>Profile</span></a>
+            </nav>
+            <div class="sidebar-bottom">
+                <form method="post" action="/SignOut">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="signout-button"><span>↪</span><span>Sign out</span></button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-area applications-main-area">
+            <header class="topbar">
+                <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-label="Open menu">☰</button>
+                <div class="applications-breadcrumb"><a href="/dashboard">Dashboard</a><span>›</span><a href="/Applications">Applications</a><span>›</span><strong>Vacancy</strong></div>
+                <div class="topbar-actions">
+                    <partial name="_CandidateNotifications" />
+                    <a class="account-chip" href="/Profile" aria-label="Open profile">
+                        <div class="avatar">@Model.Initials</div>
+                        <div class="account-copy"><strong>@Model.DisplayName</strong><span>Candidate</span></div>
+                        <span class="chevron">⌄</span>
+                    </a>
+                </div>
+            </header>
+
+            <section class="applications-content application-details-content">
+                <a class="application-back-link" asp-controller="Applications" asp-action="Index">← Back to applications</a>
+
+                @if (application is null)
+                {
+                    <div class="applications-state error" role="alert"><strong>Application could not be opened</strong><span>@Model.ErrorMessage</span></div>
+                }
+                else
+                {
+                    <header class="application-detail-hero">
+                        <div class="application-company-logo">@(string.IsNullOrWhiteSpace(application.CompanyInitials) ? "BF" : application.CompanyInitials)</div>
+                        <div>
+                            <span>@application.CompanyName</span>
+                            <h1>@application.RoleTitle</h1>
+                            <p>@string.Join(" · ", new[] { application.SeniorityName, application.JobFamilyName, application.LocationName }.Where(value => !string.IsNullOrWhiteSpace(value)))</p>
+                        </div>
+                        <span class="vacancy-status">@application.VacancyStatus</span>
+                    </header>
+
+                    <div class="application-detail-grid">
+                        <div class="application-detail-main">
+                            <section class="application-detail-card">
+                                <span class="applications-eyebrow">VACANCY DETAILS</span>
+                                <h2>About the role</h2>
+                                <p class="application-description">@(string.IsNullOrWhiteSpace(application.JobDescription) ? "No job description was provided." : application.JobDescription)</p>
+                                <div class="application-facts">
+                                    <div><span>Employment</span><strong>@(string.IsNullOrWhiteSpace(application.EmploymentType) ? "Not specified" : application.EmploymentType)</strong></div>
+                                    <div><span>Salary</span><strong>@application.SalaryText</strong></div>
+                                    <div><span>Applied</span><strong>@application.AppliedAtUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</strong></div>
+                                    <div><span>Vacancy ID</span><strong>@application.PlatformVacancyId</strong></div>
+                                </div>
+                            </section>
+
+                            <section class="application-detail-card">
+                                <span class="applications-eyebrow">SKILL REQUIREMENTS</span>
+                                <h2>Required signals</h2>
+                                @if (application.Skills.Count == 0)
+                                {
+                                    <p class="application-description">No skill requirements were added to this vacancy.</p>
+                                }
+                                else
+                                {
+                                    <div class="application-skill-list">
+                                        @foreach (var skill in application.Skills)
+                                        {
+                                            <div><span>@skill.SkillName</span><small>@skill.RequirementType</small><strong>Weight @skill.Weight</strong></div>
+                                        }
+                                    </div>
+                                }
+                            </section>
+                        </div>
+
+                        <aside class="application-detail-side">
+                            <section class="application-detail-card application-stage @(failed ? "failed" : string.Empty)">
+                                <div class="stage-heading">
+                                    <div><span>CURRENT FUNNEL STAGE</span><strong>@(failed ? "Screening failed" : application.FunnelStageName)</strong></div>
+                                    @if (!failed && application.FunnelStageCount > 0)
+                                    {
+                                        <span>@application.FunnelStageIndex / @application.FunnelStageCount</span>
+                                    }
+                                </div>
+                                <div class="stage-progress"><span style="width:@(failed ? 0 : application.FunnelProgress)%"></span></div>
+                                <small>@(application.FunnelStageUpdatedAtUtc.HasValue ? $"Updated {application.FunnelStageUpdatedAtUtc.Value.ToLocalTime():dd MMM yyyy, HH:mm}" : "Waiting for employer update")</small>
+                            </section>
+
+                            @if (application.CompanyOwnerUserId > 0)
+                            {
+                                <a class="application-company-link" asp-controller="CompanyPages" asp-action="About" asp-route-companyOwnerUserId="@application.CompanyOwnerUserId">View @application.CompanyName company page →</a>
+                            }
+                        </aside>
+                    </div>
+                }
+            </section>
+        </main>
+    </div>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <script src="~/js/candidate-dashboard.js" asp-append-version="true"></script>
+    <script src="~/js/candidate-notifications.js" asp-append-version="true"></script>
+</body>
+</html>

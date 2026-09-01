@@ -82,9 +82,12 @@
                         {
                             var highlighted = Model.HighlightVacancyId == application.VacancyId;
                             var failed = application.ApplicationStatus.Equals("ScreeningFailed", StringComparison.OrdinalIgnoreCase);
-                            <article
+                            <a
                                 id="application-@application.VacancyId"
                                 class="application-card @(highlighted ? "highlighted" : string.Empty)"
+                                asp-controller="Applications"
+                                asp-action="Details"
+                                asp-route-vacancyId="@application.VacancyId"
                                 data-highlighted="@highlighted.ToString().ToLowerInvariant()">
                                 <div class="application-card-main">
                                     <div class="application-company-logo">@(string.IsNullOrWhiteSpace(application.CompanyInitials) ? "BF" : application.CompanyInitials)</div>
@@ -118,7 +121,8 @@
                                     <div class="stage-progress" aria-label="Funnel progress"><span style="width:@(failed ? 0 : application.FunnelProgress)%"></span></div>
                                     <small>@(application.FunnelStageUpdatedAtUtc.HasValue ? $"Updated {application.FunnelStageUpdatedAtUtc.Value.ToLocalTime():dd MMM yyyy, HH:mm}" : "Waiting for employer update")</small>
                                 </div>
-                            </article>
+                                <span class="application-open-label">View vacancy <span>→</span></span>
+                            </a>
                         }
                     </div>
                 }

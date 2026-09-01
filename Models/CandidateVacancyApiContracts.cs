@@ -51,6 +51,7 @@ public sealed class CandidateVacancySkillApiItem
     public int Weight { get; set; }
     public string RequirementType { get; set; } = string.Empty;
     public bool IsMatched { get; set; }
+    public double SignalScore { get; set; }
 }
 
 public sealed class ApplyToVacancyApiRequest

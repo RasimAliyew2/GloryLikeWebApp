@@ -20,6 +20,7 @@ public class CandidateDashboardViewModel
     public List<DashboardApplicationItem> Applications { get; set; } = new();
     public List<RecommendedJobItem> RecommendedJobs { get; set; } = new();
     public List<DashboardSkillItem> Skills { get; set; } = new();
+    public CandidateScoreBreakdownViewModel? ScoreBreakdown { get; set; }
 
     public string? RecommendedJobsError { get; set; }
     public string RecommendedJobsEmptyMessage { get; set; } =
@@ -35,6 +36,27 @@ public class CandidateDashboardViewModel
             : RecommendedJobs.Count == 1
                 ? "1 role for you"
                 : $"{RecommendedJobs.Count} roles for you";
+}
+
+public sealed class CandidateScoreBreakdownViewModel
+{
+    public int VacancyId { get; set; }
+    public string Company { get; set; } = string.Empty;
+    public string RoleTitle { get; set; } = string.Empty;
+    public int FinalScore { get; set; }
+    public int TotalWeight { get; set; }
+    public double WeightedTotal { get; set; }
+    public List<CandidateScoreSkillItem> Skills { get; set; } = [];
+}
+
+public sealed class CandidateScoreSkillItem
+{
+    public string SkillName { get; set; } = string.Empty;
+    public string RequirementType { get; set; } = string.Empty;
+    public int Weight { get; set; }
+    public int SignalScore { get; set; }
+    public double WeightedPoints { get; set; }
+    public double Contribution { get; set; }
 }
 
 public class DashboardStatItem

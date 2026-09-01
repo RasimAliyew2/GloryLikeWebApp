@@ -23,6 +23,78 @@
 })();
 
 (() => {
+    const numbers = [...document.querySelectorAll("[data-animate-number]")];
+    const rings = [...document.querySelectorAll("[data-score-ring]")];
+    const progressBars = [...document.querySelectorAll("[data-progress-target]")];
+
+    if (numbers.length === 0 && rings.length === 0 && progressBars.length === 0) return;
+
+    const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 500;
+    const easeOutCubic = (value) => 1 - Math.pow(1 - value, 3);
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+    const targets = numbers.map((element) => ({
+        element,
+        target: Number(element.dataset.target || 0),
+        suffix: element.dataset.suffix || "",
+        decimals: Number(element.dataset.decimals || 0)
+    }));
+
+    const render = (progress) => {
+        const easedProgress = easeOutCubic(progress);
+
+        targets.forEach(({ element, target, suffix, decimals }) => {
+            const current = target * easedProgress;
+            element.textContent = `${current.toFixed(decimals)}${suffix}`;
+        });
+
+        rings.forEach((ring) => {
+            const target = clamp(Number(ring.dataset.target || 0), 0, 100);
+            ring.style.setProperty("--score", String(target * easedProgress));
+        });
+
+        progressBars.forEach((bar) => {
+            const target = clamp(Number(bar.dataset.progressTarget || 0), 0, 100);
+            bar.style.width = `${target * easedProgress}%`;
+        });
+    };
+
+    if (duration === 0) {
+        render(1);
+        return;
+    }
+
+    const startedAt = performance.now();
+    const animate = (now) => {
+        const progress = clamp((now - startedAt) / duration, 0, 1);
+        render(progress);
+        if (progress < 1) requestAnimationFrame(animate);
+    };
+
+    requestAnimationFrame(animate);
+})();
+
+(() => {
+    const dialog = document.querySelector("[data-score-details-dialog]");
+    const openButton = document.querySelector("[data-open-score-details]");
+    const closeButton = dialog?.querySelector("[data-close-score-details]");
+
+    if (!dialog || !openButton || !closeButton) return;
+
+    openButton.addEventListener("click", () => dialog.showModal());
+    closeButton.addEventListener("click", () => dialog.close());
+
+    dialog.addEventListener("click", (event) => {
+        const bounds = dialog.getBoundingClientRect();
+        const clickedOutside = event.clientX < bounds.left
+            || event.clientX > bounds.right
+            || event.clientY < bounds.top
+            || event.clientY > bounds.bottom;
+
+        if (clickedOutside) dialog.close();
+    });
+})();
+
+(() => {
     const target = document.getElementById("candidateCurrentLocation");
     if (!target) return;
 

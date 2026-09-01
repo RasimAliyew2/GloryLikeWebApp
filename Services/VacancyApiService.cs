@@ -142,6 +142,8 @@ public sealed class VacancyApiService : IVacancyApiService
             }
 
             apiResponse.Applications ??= [];
+            foreach (var application in apiResponse.Applications)
+                application.Skills ??= [];
             return CandidateApplicationListApiResult.Ok(apiResponse);
         }
         catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)

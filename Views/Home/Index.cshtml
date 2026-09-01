@@ -111,13 +111,16 @@
                                 <span class="section-kicker">CAREER READINESS</span>
                                 <h2>Your profile is getting stronger</h2>
                             </div>
-                            <a href="#">View details</a>
+                            @if (Model.ScoreBreakdown is not null)
+                            {
+                                <button class="score-details-link" type="button" data-open-score-details>View details</button>
+                            }
                         </div>
 
                         <div class="readiness-layout">
-                            <div class="score-ring" style="--score:@Model.OverallScore">
+                            <div class="score-ring" style="--score:0" data-score-ring data-target="@Model.OverallScore">
                                 <div class="score-ring-inner">
-                                    <strong>@Model.OverallScore</strong>
+                                    <strong data-animate-number data-target="@Model.OverallScore">0</strong>
                                     <span>/100</span>
                                 </div>
                             </div>
@@ -130,10 +133,10 @@
                                 <div class="profile-progress-row">
                                     <div>
                                         <span>Profile completeness</span>
-                                        <strong>@Model.ProfileCompletion%</strong>
+                                        <strong data-animate-number data-target="@Model.ProfileCompletion" data-suffix="%">0%</strong>
                                     </div>
                                     <div class="progress-track">
-                                        <span style="width:@Model.ProfileCompletion%"></span>
+                                        <span style="width:0" data-progress-target="@Model.ProfileCompletion"></span>
                                     </div>
                                 </div>
                             </div>
@@ -143,7 +146,10 @@
                             @foreach (var stat in Model.Stats)
                             {
                                 <div class="stat-item">
-                                    <strong>@stat.Value</strong>
+                                    <strong
+                                        data-animate-number
+                                        data-target="@stat.Value.TrimEnd('%')"
+                                        data-suffix="@(stat.Value.EndsWith('%') ? "%" : string.Empty)">@(stat.Value.EndsWith('%') ? "0%" : "0")</strong>
                                     <span>@stat.Label</span>
                                     <small>@stat.Caption</small>
                                 </div>
@@ -178,10 +184,10 @@
                         <div class="profile-card-progress">
                             <div>
                                 <span>Profile</span>
-                                <strong>@Model.ProfileCompletion%</strong>
+                                <strong data-animate-number data-target="@Model.ProfileCompletion" data-suffix="%">0%</strong>
                             </div>
                             <div class="progress-track">
-                                <span style="width:@Model.ProfileCompletion%"></span>
+                                <span style="width:0" data-progress-target="@Model.ProfileCompletion"></span>
                             </div>
                         </div>
 
@@ -223,7 +229,7 @@
                                             <a
                                                 class="row-action"
                                                 asp-controller="Applications"
-                                                asp-action="Index"
+                                                asp-action="Details"
                                                 asp-route-vacancyId="@application.VacancyId"
                                                 aria-label="Open @application.Role application">›</a>
                                         </div>
@@ -385,6 +391,50 @@
             </section>
         </main>
     </div>
+
+    @if (Model.ScoreBreakdown is not null)
+    {
+        var breakdown = Model.ScoreBreakdown;
+        <dialog class="score-details-dialog" data-score-details-dialog>
+            <header>
+                <div>
+                    <span class="section-kicker">MATCH SCORE BREAKDOWN</span>
+                    <h2>How your @breakdown.FinalScore score was calculated</h2>
+                    <p>@breakdown.Company · @breakdown.RoleTitle</p>
+                </div>
+                <button type="button" data-close-score-details aria-label="Close score details">×</button>
+            </header>
+
+            <div class="score-formula-card">
+                <div class="score-formula-result"><strong>@breakdown.FinalScore</strong><span>/100</span></div>
+                <div>
+                    <strong>Role Readiness = Σ(weight × skill signal) ÷ Σ(weights)</strong>
+                    <p>Weighted result: @breakdown.WeightedTotal.ToString("0.00") → rounded half up to @breakdown.FinalScore.</p>
+                    <small>Verified skills use full credibility. Self-declared skills are capped at 40. Missing skills contribute 0.</small>
+                </div>
+            </div>
+
+            <div class="score-breakdown-heading">
+                <span>Skill</span><span>Weight</span><span>Signal</span><span>Contribution</span>
+            </div>
+            <div class="score-breakdown-list">
+                @foreach (var skill in breakdown.Skills)
+                {
+                    <div>
+                        <span><strong>@skill.SkillName</strong><small>@skill.RequirementType</small></span>
+                        <strong>@skill.Weight</strong>
+                        <strong>@skill.SignalScore</strong>
+                        <strong>@skill.Contribution.ToString("0.00")</strong>
+                    </div>
+                }
+            </div>
+
+            <footer>
+                <span>Total weight: @breakdown.TotalWeight</span>
+                <a asp-controller="Opportunities" asp-action="OpportunitiesPage" asp-route-search="@breakdown.RoleTitle">Open matched vacancy</a>
+            </footer>
+        </dialog>
+    }
 
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
