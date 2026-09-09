@@ -1,0 +1,203 @@
+@using System.Text.Json
+@model GloryLikeWebApp.Models.Employer.CompanyTemplatesPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Company Templates";
+    var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+    var audienceGroups = new[]
+    {
+        new { Key = "Candidate", Title = "For candidates" },
+        new { Key = "Hiring Manager", Title = "Hiring managers" },
+        new { Key = "Recruiter", Title = "For recruiters" }
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BothFind</title>
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-templates.css" asp-append-version="true" />
+</head>
+<body>
+<div class="employer-shell company-shell">
+    <header class="employer-topbar">
+        <a class="employer-brand" href="/Portal/Home">BothFind</a>
+        <div class="employer-search"><span>⌕</span><input type="search" placeholder="Search by candidates/vacancies" /></div>
+        <a class="employer-account" href="/Profile" aria-label="Open profile">
+            <span class="demo-badge">Employer</span>
+            <div class="employer-avatar">@Model.Initials</div>
+            <div class="employer-account-copy">
+                <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
+                <span>Employer workspace</span>
+            </div>
+        </a>
+    </header>
+    <aside class="employer-sidebar" id="employerSidebar">
+        <nav aria-label="Employer navigation">
+            <a asp-controller="EmployerHome" asp-action="EmployerHome"><span>⌁</span><strong>Dashboard</strong></a>
+            <a asp-controller="EmployerVacancies" asp-action="Index"><span>▣</span><strong>Vacancies</strong></a>
+            <a href="#"><span>▱</span><strong>Recruitment requests</strong></a>
+            <a asp-controller="TalentRadar" asp-action="Index"><span>◎</span><strong>Talent Radar</strong></a>
+            <a class="active" asp-controller="EmployerCompany" asp-action="Index"><span>▥</span><strong>Company</strong></a>
+            <a asp-controller="EmployerReports" asp-action="Index"><span>▧</span><strong>Reports</strong></a>
+        </nav>
+        <div class="employer-sidebar-bottom"><form method="post" action="/SignOut">@Html.AntiForgeryToken()<button type="submit">↪ Sign out</button></form></div>
+    </aside>
+
+    <main class="employer-main company-main templates-main">
+        <button class="employer-menu-button" type="button" id="employerMenuButton" aria-label="Open employer menu">☰</button>
+        <div class="company-profile-content templates-content">
+            <nav class="company-tabs" aria-label="Company sections">
+                <a asp-controller="EmployerCompany" asp-action="Index"><span>♙</span>Profile</a>
+                <a asp-controller="EmployerCompany" asp-action="Structure"><span>▱</span>Structure</a>
+                <a asp-controller="EmployerCompany" asp-action="Team"><span>♧</span>Team</a>
+                <a asp-controller="EmployerCompany" asp-action="HiringPlan"><span>◎</span>Hiring Plan</a>
+                <a class="active" asp-controller="EmployerCompany" asp-action="Templates" aria-current="page"><span>▦</span>Templates</a>
+            </nav>
+
+            <section class="templates-heading">
+                <div>
+                    <span class="templates-kicker">COMPANY LIBRARY</span>
+                    <h1>Company templates</h1>
+                    <p>Create reusable communication templates for your recruitment workflows.</p>
+                </div>
+                @if (Model.CanManageTemplates)
+                {
+                    <button class="new-template-button" type="button" data-new-template><span>＋</span> New template</button>
+                }
+            </section>
+
+            <nav class="template-type-tabs" aria-label="Template types">
+                <button class="active" type="button"><span>✉</span> Letters</button>
+                <button type="button" disabled title="Coming soon"><span>⑂</span> Funnels</button>
+                <button type="button" disabled title="Coming soon"><span>ϟ</span> Automations</button>
+            </nav>
+
+            <div class="template-library-intro">
+                <p>Library of company letters used in funnel communication.</p>
+                <span>Default templates can be customized or removed for this company without affecting any other company.</span>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="templates-alert error" role="alert">@Model.ErrorMessage</div>
+            }
+            <div class="templates-alert" id="templatesMessage" role="status" hidden></div>
+
+            @if (Model.Templates.Count == 0 && string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <section class="templates-empty">
+                    <span>✉</span>
+                    <h2>No templates available</h2>
+                    <p>Create your first company letter template.</p>
+                    @if (Model.CanManageTemplates)
+                    {
+                        <button type="button" data-new-template>+ New template</button>
+                    }
+                </section>
+            }
+            else
+            {
+                <div class="template-groups">
+                    @foreach (var group in audienceGroups)
+                    {
+                        var groupTemplates = Model.Templates
+                            .Where(item => string.Equals(item.Audience, group.Key, StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                        if (groupTemplates.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        <section class="template-group">
+                            <h2>@group.Title</h2>
+                            <div class="template-grid">
+                                @foreach (var template in groupTemplates)
+                                {
+                                    <button class="template-card" type="button" data-template-id="@template.Id">
+                                        <span class="template-card-icon" aria-hidden="true">✉</span>
+                                        <span class="template-card-copy">
+                                            <span class="template-card-title-row">
+                                                <strong>@template.Name</strong>
+                                                <small class="@(template.IsDefault ? "default" : "custom")">@(template.IsDefault ? "Default" : "Custom")</small>
+                                            </span>
+                                            <span class="template-card-subject">@template.Subject</span>
+                                            <span class="template-card-tags">
+                                                <small>@template.Audience</small>
+                                                <small>@template.Category</small>
+                                            </span>
+                                        </span>
+                                        <span class="template-card-arrow">›</span>
+                                    </button>
+                                }
+                            </div>
+                        </section>
+                    }
+                </div>
+            }
+        </div>
+    </main>
+</div>
+
+<div class="template-modal" id="templateModal" hidden>
+    <div class="template-modal-backdrop" data-close-template></div>
+    <section class="template-modal-panel" role="dialog" aria-modal="true" aria-labelledby="templateModalTitle">
+        <header>
+            <div>
+                <span class="templates-kicker" id="templateModalKicker">LETTER TEMPLATE</span>
+                <h2 id="templateModalTitle">New letter template</h2>
+            </div>
+            <button type="button" data-close-template aria-label="Close template editor">×</button>
+        </header>
+
+        <form id="templateForm" method="post" action="@Url.Action("CreateTemplate", "EmployerCompany")">
+            @Html.AntiForgeryToken()
+            <input type="hidden" id="templateId" />
+            <div class="template-form-grid">
+                <label>
+                    <span>Name</span>
+                    <input id="templateName" name="Name" maxlength="120" required />
+                </label>
+                <label>
+                    <span>Audience</span>
+                    <select id="templateAudience" name="Audience" required>
+                        <option>Candidate</option>
+                        <option>Hiring Manager</option>
+                        <option>Recruiter</option>
+                    </select>
+                </label>
+                <label class="full">
+                    <span>Category</span>
+                    <input id="templateCategory" name="Category" maxlength="80" required />
+                </label>
+                <label class="full">
+                    <span>Email subject</span>
+                    <input id="templateSubject" name="Subject" maxlength="250" required />
+                </label>
+                <label class="full template-body-label">
+                    <span>Message</span>
+                    <span class="template-variable-help">Click a variable to insert it at the cursor:</span>
+                    <span class="template-variables" id="templateVariables"></span>
+                    <textarea id="templateBody" name="Body" rows="11" maxlength="10000" required></textarea>
+                </label>
+            </div>
+            <div class="template-form-actions">
+                <button class="template-delete-button" type="button" id="deleteTemplateButton" hidden>⌫ Delete</button>
+                <span></span>
+                <button class="secondary" type="button" data-close-template>Cancel</button>
+                <button class="primary" type="submit" id="saveTemplateButton">Save template</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script id="companyTemplatesData" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Templates, jsonOptions))</script>
+<script id="companyTemplateVariables" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Variables, jsonOptions))</script>
+<script id="companyTemplatesContext" type="application/json">@Html.Raw(JsonSerializer.Serialize(new { canManageTemplates = Model.CanManageTemplates }, jsonOptions))</script>
+<script src="~/js/employer-home.js" asp-append-version="true"></script>
+<script src="~/js/company-templates.js" asp-append-version="true"></script>
+</body>
+</html>

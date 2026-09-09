@@ -13,6 +13,7 @@ public sealed class EmployerCompanyController : Controller
     private readonly ICompanyTeamApiService _companyTeamApiService;
     private readonly ICompanyProfileApiService _companyProfileApiService;
     private readonly ICompanyHiringPlanApiService _companyHiringPlanApiService;
+    private readonly ICompanyTemplateApiService _companyTemplateApiService;
     private readonly ICompanyStructureApiService _companyStructureApiService;
     private readonly ISkillAndJobApiService _skillAndJobApiService;
     private readonly ILogger<EmployerCompanyController> _logger;
@@ -21,6 +22,7 @@ public sealed class EmployerCompanyController : Controller
         ICompanyTeamApiService companyTeamApiService,
         ICompanyProfileApiService companyProfileApiService,
         ICompanyHiringPlanApiService companyHiringPlanApiService,
+        ICompanyTemplateApiService companyTemplateApiService,
         ICompanyStructureApiService companyStructureApiService,
         ISkillAndJobApiService skillAndJobApiService,
         ILogger<EmployerCompanyController> logger)
@@ -28,9 +30,149 @@ public sealed class EmployerCompanyController : Controller
         _companyTeamApiService = companyTeamApiService;
         _companyProfileApiService = companyProfileApiService;
         _companyHiringPlanApiService = companyHiringPlanApiService;
+        _companyTemplateApiService = companyTemplateApiService;
         _companyStructureApiService = companyStructureApiService;
         _skillAndJobApiService = skillAndJobApiService;
         _logger = logger;
+    }
+
+    [HttpGet("/Employer/Company/Templates")]
+    public async Task<IActionResult> Templates(
+        CancellationToken cancellationToken)
+    {
+        var model = new CompanyTemplatesPageViewModel
+        {
+            DisplayName = GetDisplayName(),
+            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty
+        };
+
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            model.ErrorMessage = "Employer sign in is required.";
+            return View("Templates", model);
+        }
+
+        model.UserId = actorUserId;
+        var result = await _companyTemplateApiService.GetAsync(
+            actorUserId,
+            cancellationToken);
+        if (result.Success && result.Data is not null)
+        {
+            model.CanManageTemplates = result.Data.CanManageTemplates;
+            model.Templates = result.Data.Templates;
+            model.Variables = result.Data.Variables;
+        }
+        else
+        {
+            model.ErrorMessage = result.Message;
+        }
+
+        return View("Templates", model);
+    }
+
+    [HttpPost("/Employer/Company/Templates")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateTemplate(
+        SaveCompanyTemplateInput input,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Employer sign in is required."
+            });
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = FirstModelError()
+            });
+        }
+
+        var result = await _companyTemplateApiService.CreateAsync(
+            actorUserId,
+            input,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new
+            {
+                success = true,
+                message = result.Message,
+                template = result.Data?.Template
+            })
+            : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpPost("/Employer/Company/Templates/{templateId:guid}/Update")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateTemplate(
+        Guid templateId,
+        SaveCompanyTemplateInput input,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Employer sign in is required."
+            });
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = FirstModelError()
+            });
+        }
+
+        var result = await _companyTemplateApiService.UpdateAsync(
+            actorUserId,
+            templateId,
+            input,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new
+            {
+                success = true,
+                message = result.Message,
+                template = result.Data?.Template
+            })
+            : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpPost("/Employer/Company/Templates/{templateId:guid}/Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteTemplate(
+        Guid templateId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Employer sign in is required."
+            });
+        }
+
+        var result = await _companyTemplateApiService.DeleteAsync(
+            actorUserId,
+            templateId,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new { success = true, message = result.Message })
+            : BadRequest(new { success = false, message = result.Message });
     }
 
     [HttpGet("/Employer/Company/HiringPlan")]
