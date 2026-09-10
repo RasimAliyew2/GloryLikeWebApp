@@ -81,6 +81,16 @@ builder.Services.AddHttpClient<ICompanyTemplateApiService, CompanyTemplateApiSer
     client.BaseAddress = new Uri(backendUrl);
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+builder.Services.AddHttpClient<ICompanyFunnelApiService, CompanyFunnelApiService>((sp, client) =>
+{
+    var backendUrl = sp.GetRequiredService<IConfiguration>()["Backend:BaseUrl"]
+        ?? throw new InvalidOperationException("Backend:BaseUrl is not configured.");
+    client.BaseAddress = new Uri(backendUrl);
+    var secret = sp.GetRequiredService<IConfiguration>()["SocialAuth:BackendSharedSecret"];
+    if (!string.IsNullOrWhiteSpace(secret))
+        client.DefaultRequestHeaders.Add("X-BothFind-Backend-Secret", secret);
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 builder.Services.AddHttpClient<ICompanyStructureApiService, CompanyStructureApiService>((sp, client) =>
 {
     var backendUrl = sp.GetRequiredService<IConfiguration>()["Backend:BaseUrl"]

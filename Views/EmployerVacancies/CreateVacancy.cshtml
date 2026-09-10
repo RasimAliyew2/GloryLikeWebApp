@@ -1344,35 +1344,28 @@
                             <div>
                                 <h2>Funnel templates</h2>
                                 <p>
-                                    Start with a standard flow and edit every stage if needed.
+                                    Choose a company template to copy its stages. Changes here only affect this vacancy.
                                 </p>
                             </div>
                         </div>
 
+                        <a href="/Employer/Company/Templates/Funnels" target="_blank" rel="noopener">Manage funnel templates ↗</a>
+                        @if (!string.IsNullOrWhiteSpace(Model.FunnelTemplatesError))
+                        {
+                            <p role="alert">@Model.FunnelTemplatesError</p>
+                        }
+                        else if (Model.FunnelTemplates.Count == 0)
+                        {
+                            <p>No funnel templates available. Create a template or build your stages below.</p>
+                        }
                         <div class="funnel-template-grid">
-                            <button
-                                type="button"
-                                class="funnel-template-option active"
-                                data-funnel-template="standard">
-                                <strong>Standard Hiring</strong>
-                                <span>Applied → Screening → Interview → Offer → Hired</span>
-                            </button>
-
-                            <button
-                                type="button"
-                                class="funnel-template-option"
-                                data-funnel-template="technical">
-                                <strong>Technical Hiring</strong>
-                                <span>Applied → Screening → Technical Interview → Task → Offer → Hired</span>
-                            </button>
-
-                            <button
-                                type="button"
-                                class="funnel-template-option"
-                                data-funnel-template="executive">
-                                <strong>Executive Hiring</strong>
-                                <span>Applied → HR Interview → Leadership Interview → Executive Review → Offer → Hired</span>
-                            </button>
+                            @foreach (var template in Model.FunnelTemplates)
+                            {
+                                <button type="button" class="funnel-template-option" data-funnel-template="@template.Id" aria-pressed="false">
+                                    <strong>@template.Name</strong>
+                                    <span>@string.Join(" → ", template.Stages.Select(stage => stage.StageName))</span>
+                                </button>
+                            }
                         </div>
                     </article>
 
@@ -1760,6 +1753,7 @@
                 JsonSerializer.Serialize(
                     screeningQuestions,
                     new JsonSerializerOptions(JsonSerializerDefaults.Web))),
+            funnelTemplates: @Html.Raw(JsonSerializer.Serialize(Model.FunnelTemplates, new JsonSerializerOptions(JsonSerializerDefaults.Web))),
             funnelStages: @Html.Raw(
                 JsonSerializer.Serialize(
                     funnelStages,
@@ -1793,6 +1787,7 @@
         asp-append-version="true">
     </script>
 
+<script src="~/js/funnel-template-core.js" asp-append-version="true"></script>
     <script
         src="~/js/create-vacancy-funnel.js"
         asp-append-version="true">

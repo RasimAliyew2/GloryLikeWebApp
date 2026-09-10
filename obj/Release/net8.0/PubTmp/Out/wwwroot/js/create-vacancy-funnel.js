@@ -1,4 +1,5 @@
 (() => {
+    const core = window.BothFindFunnels;
     const initialState =
         window.gloryLikeVacancyInitialState
         ?? {};
@@ -45,31 +46,8 @@
     const maximumStageCount = 20;
     const maximumHours = 8760;
 
-    const templates = {
-        standard: [
-            { stageName: "Applied", hours: 48 },
-            { stageName: "Screening", hours: 72 },
-            { stageName: "Interview", hours: 120 },
-            { stageName: "Offer", hours: 48 },
-            { stageName: "Hired", hours: 0 }
-        ],
-        technical: [
-            { stageName: "Applied", hours: 48 },
-            { stageName: "Screening", hours: 48 },
-            { stageName: "Technical Interview", hours: 96 },
-            { stageName: "Technical Task", hours: 72 },
-            { stageName: "Offer", hours: 48 },
-            { stageName: "Hired", hours: 0 }
-        ],
-        executive: [
-            { stageName: "Applied", hours: 72 },
-            { stageName: "HR Interview", hours: 72 },
-            { stageName: "Leadership Interview", hours: 168 },
-            { stageName: "Executive Review", hours: 120 },
-            { stageName: "Offer", hours: 72 },
-            { stageName: "Hired", hours: 0 }
-        ]
-    };
+    const templates = Object.fromEntries(
+        (initialState.funnelTemplates ?? []).map(template => [template.id, template.stages]));
 
     const normalize = value =>
         String(value ?? "")
@@ -77,11 +55,6 @@
             .toLocaleLowerCase();
 
     const normalizeStage = stage => {
-        const standardValue =
-            stage?.isStandard
-            ?? stage?.IsStandard
-            ?? false;
-
         return {
             stageName: String(
                 stage?.stageName
@@ -91,19 +64,12 @@
                 stage?.hours
                 ?? stage?.Hours
                 ?? 0),
-            isStandard:
-                standardValue === true
-                || normalize(standardValue) === "true"
+            responsibleRole: stage?.responsibleRole ?? stage?.ResponsibleRole ?? "Recruiter",
+            isStandard: false
         };
     };
 
-    const createTemplateStages = templateName =>
-        (templates[templateName] ?? templates.standard)
-            .map(stage => ({
-                stageName: stage.stageName,
-                hours: String(stage.hours),
-                isStandard: true
-            }));
+    const createTemplateStages = templateName => core.copyStages(templates[templateName] ?? []).map(normalizeStage);
 
     const hasInitialStages = Array.isArray(
         initialState.funnelStages);
@@ -112,7 +78,7 @@
         ? initialState.funnelStages
             .slice(0, maximumStageCount + 1)
             .map(normalizeStage)
-        : createTemplateStages("standard");
+        : [];
 
     const getNumericHours = stage => {
         if (!String(stage.hours).trim())
@@ -132,14 +98,7 @@
 
         Object.entries(templates).some(
             ([templateName, templateStages]) => {
-                const matches =
-                    stages.length === templateStages.length
-                    && stages.every((stage, index) =>
-                        normalize(stage.stageName)
-                            === normalize(
-                                templateStages[index].stageName)
-                        && getNumericHours(stage)
-                            === templateStages[index].hours);
+                const matches = core.matches(stages, templateStages);
 
                 if (matches)
                     selectedTemplate = templateName;
@@ -148,6 +107,7 @@
             });
 
         templateButtons.forEach(button => {
+            button.setAttribute("aria-pressed", String(button.dataset.funnelTemplate === selectedTemplate));
             button.classList.toggle(
                 "active",
                 button.dataset.funnelTemplate
@@ -189,8 +149,7 @@
             return;
         }
 
-        const [stage] = stages.splice(index, 1);
-        stages.splice(targetIndex, 0, stage);
+        stages = core.moveStage(stages, index, offset).map(normalizeStage);
         renderStages(targetIndex, false);
     };
 
@@ -251,13 +210,6 @@
 
         nameField.append(nameLabel, nameInput);
 
-        if (stage.isStandard) {
-            const standardBadge = document.createElement("span");
-            standardBadge.className = "funnel-standard-badge";
-            standardBadge.textContent = "Standard";
-            nameField.appendChild(standardBadge);
-        }
-
         const hoursField = document.createElement("label");
         hoursField.className = "funnel-stage-hours-field";
 
@@ -299,44 +251,48 @@
             ? "true"
             : "false";
 
+        const roleField = document.createElement("label");
+        roleField.className = "funnel-stage-role-field";
+        const roleLabel = document.createElement("span");
+        roleLabel.textContent = "Responsible role";
+        const roleSelect = document.createElement("select");
+        roleSelect.name = `Input.FunnelStages[${index}].ResponsibleRole`;
+        roleSelect.setAttribute("aria-label", `Responsible role for stage ${index + 1}`);
+        core.roles.forEach(role => roleSelect.add(new Option(role, role)));
+        roleSelect.value = stage.responsibleRole;
+        roleSelect.addEventListener("change", () => { stage.responsibleRole = roleSelect.value; updateSummary(); });
+        roleField.append(roleLabel, roleSelect);
+
         fields.append(
             nameField,
             hoursField,
+            roleField,
             standardInput);
 
         const actions = document.createElement("div");
         actions.className = "funnel-stage-actions";
 
-        if (stage.isStandard) {
-            const fixed = document.createElement("span");
-            fixed.className = "funnel-fixed-indicator";
-            fixed.textContent = "Fixed";
-            fixed.title =
-                "Standard stage cannot be deleted";
-            actions.appendChild(fixed);
-        } else {
-            actions.append(
-                createIconButton(
-                    "↑",
-                    "Move stage up",
-                    "move",
-                    () => moveStage(index, -1),
-                    index === 0),
-                createIconButton(
-                    "↓",
-                    "Move stage down",
-                    "move",
-                    () => moveStage(index, 1),
-                    index === stages.length - 1),
-                createIconButton(
-                    "×",
-                    "Delete custom stage",
-                    "delete",
-                    () => {
-                        stages.splice(index, 1);
-                        renderStages();
-                    }));
-        }
+        actions.append(
+            createIconButton(
+                "↑",
+                "Move stage up",
+                "move",
+                () => moveStage(index, -1),
+                index === 0),
+            createIconButton(
+                "↓",
+                "Move stage down",
+                "move",
+                () => moveStage(index, 1),
+                index === stages.length - 1),
+            createIconButton(
+                "×",
+                "Delete stage",
+                "delete",
+                () => {
+                    stages.splice(index, 1);
+                    renderStages();
+                }));
 
         row.append(
             sequence,
@@ -416,6 +372,7 @@
         stages.splice(insertIndex, 0, {
             stageName: "New stage",
             hours: "24",
+            responsibleRole: "Recruiter",
             isStandard: false
         });
 
@@ -443,7 +400,7 @@
     const validateStages = () => {
         if (stages.length === 0) {
             window.alert(
-                "Funnel üçün ən azı bir mərhələ əlavə edin.");
+                "Add at least one funnel stage.");
 
             document
                 .querySelector(
@@ -455,7 +412,7 @@
 
         if (stages.length > maximumStageCount) {
             window.alert(
-                `Maksimum ${maximumStageCount} funnel mərhələsi əlavə edilə bilər.`);
+                `You can add up to ${maximumStageCount} stages.`);
 
             document
                 .querySelector(
@@ -471,7 +428,7 @@
 
         if (emptyNameIndex >= 0) {
             window.alert(
-                "Funnel mərhələsinin adı boş ola bilməz.");
+                "Stage name cannot be empty.");
 
             focusInvalidStage(
                 emptyNameIndex,
@@ -493,7 +450,7 @@
 
         if (invalidHoursIndex >= 0) {
             window.alert(
-                "Mərhələ müddəti 0–8760 saat arasında tam ədəd olmalıdır.");
+                "Allowed time must be a whole number between 0 and 8760 hours.");
 
             focusInvalidStage(
                 invalidHoursIndex,
@@ -516,7 +473,7 @@
 
         if (duplicateIndex >= 0) {
             window.alert(
-                "Eyni adlı funnel mərhələsi iki dəfə əlavə edilə bilməz.");
+                "Stage names must be unique.");
 
             focusInvalidStage(
                 duplicateIndex,
@@ -551,8 +508,10 @@
         button.addEventListener("click", () => {
             const templateName =
                 button.dataset.funnelTemplate
-                ?? "standard";
+                ?? "";
 
+            if (!templates[templateName] || button.classList.contains("active")) return;
+            if (stages.length && !window.confirm("Replace this vacancy’s current stages with the selected template?")) return;
             stages = createTemplateStages(templateName);
             renderStages();
         });

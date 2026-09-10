@@ -239,6 +239,7 @@ public sealed class EmployerVacancySkillViewModel
 
 public sealed class EmployerVacancyFunnelStageViewModel
 {
+    public string ResponsibleRole { get; set; } = "Recruiter";
     public int StageId { get; set; }
     public string StageName { get; set; } = string.Empty;
     public int Hours { get; set; }

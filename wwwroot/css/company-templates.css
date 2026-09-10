@@ -339,3 +339,6 @@ body.template-modal-open { overflow: hidden; }
     .template-modal-panel form { padding-inline: 17px; }
     .template-form-actions { margin-inline: -17px; padding-inline: 17px; }
 }
+
+.template-type-tabs a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; text-decoration: none; color: #747988; font-size: 12px; }
+.template-type-tabs a.active { background: #fff; color: #5848ee; box-shadow: 0 2px 6px #1719230d; }

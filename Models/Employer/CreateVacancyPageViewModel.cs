@@ -13,6 +13,9 @@ public sealed class CreateVacancyPageViewModel
 
     public List<CompanyLocationInput> CompanyLocations { get; set; } = new();
 
+    public List<CompanyFunnelItem> FunnelTemplates { get; set; } = [];
+    public string? FunnelTemplatesError { get; set; }
+
     public CreateVacancyInput Input { get; set; } = new();
 
     public string? ErrorMessage { get; set; }
@@ -337,16 +340,18 @@ public sealed class VacancyScreeningChoiceInput
 
 public sealed class VacancyFunnelStageInput
 {
-    [Required(ErrorMessage = "Funnel mərhələsinin adı boş ola bilməz.")]
+    [Required, RegularExpression("^(Recruiter|Hiring Manager|HR)$")]
+    public string ResponsibleRole { get; set; } = "Recruiter";
+    [Required(ErrorMessage = "Stage name is required.")]
     [StringLength(
         100,
-        ErrorMessage = "Funnel mərhələsinin adı maksimum 100 simvol ola bilər.")]
+        ErrorMessage = "Stage name must not exceed 100 characters.")]
     public string StageName { get; set; } = string.Empty;
 
     [Range(
         0,
         8760,
-        ErrorMessage = "Mərhələ müddəti 0–8760 saat arasında olmalıdır.")]
+        ErrorMessage = "Allowed time must be between 0 and 8760 hours.")]
     public int Hours { get; set; }
 
     public bool IsStandard { get; set; }

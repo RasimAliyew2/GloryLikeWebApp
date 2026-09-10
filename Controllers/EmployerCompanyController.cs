@@ -13,6 +13,7 @@ public sealed class EmployerCompanyController : Controller
     private readonly ICompanyTeamApiService _companyTeamApiService;
     private readonly ICompanyProfileApiService _companyProfileApiService;
     private readonly ICompanyHiringPlanApiService _companyHiringPlanApiService;
+    private readonly ICompanyFunnelApiService _companyFunnelApiService;
     private readonly ICompanyTemplateApiService _companyTemplateApiService;
     private readonly ICompanyStructureApiService _companyStructureApiService;
     private readonly ISkillAndJobApiService _skillAndJobApiService;
@@ -22,6 +23,7 @@ public sealed class EmployerCompanyController : Controller
         ICompanyTeamApiService companyTeamApiService,
         ICompanyProfileApiService companyProfileApiService,
         ICompanyHiringPlanApiService companyHiringPlanApiService,
+        ICompanyFunnelApiService companyFunnelApiService,
         ICompanyTemplateApiService companyTemplateApiService,
         ICompanyStructureApiService companyStructureApiService,
         ISkillAndJobApiService skillAndJobApiService,
@@ -31,6 +33,7 @@ public sealed class EmployerCompanyController : Controller
         _companyProfileApiService = companyProfileApiService;
         _companyHiringPlanApiService = companyHiringPlanApiService;
         _companyTemplateApiService = companyTemplateApiService;
+        _companyFunnelApiService = companyFunnelApiService;
         _companyStructureApiService = companyStructureApiService;
         _skillAndJobApiService = skillAndJobApiService;
         _logger = logger;
@@ -166,6 +169,144 @@ public sealed class EmployerCompanyController : Controller
         }
 
         var result = await _companyTemplateApiService.DeleteAsync(
+            actorUserId,
+            templateId,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new { success = true, message = result.Message })
+            : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpGet("/Employer/Company/Templates/Funnels")]
+    public async Task<IActionResult> Funnels(
+        CancellationToken cancellationToken)
+    {
+        var model = new CompanyFunnelsPageViewModel
+        {
+            DisplayName = GetDisplayName(),
+            Email = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty
+        };
+
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            model.ErrorMessage = "Employer sign in is required.";
+            return View("Funnels", model);
+        }
+
+        model.UserId = actorUserId;
+        var result = await _companyFunnelApiService.GetAsync(
+            actorUserId,
+            cancellationToken);
+        if (result.Success && result.Data is not null)
+        {
+            model.CanManageTemplates = result.Data.CanManageTemplates;
+            model.Templates = result.Data.Templates;
+        }
+        else
+        {
+            model.ErrorMessage = result.Message;
+        }
+
+        return View("Funnels", model);
+    }
+
+    [HttpPost("/Employer/Company/Templates/Funnels")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateFunnel(
+        SaveCompanyFunnelInput input,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Employer sign in is required."
+            });
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = FirstModelError()
+            });
+        }
+
+        var result = await _companyFunnelApiService.CreateAsync(
+            actorUserId,
+            input,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new
+            {
+                success = true,
+                message = result.Message,
+                template = result.Data?.Template
+            })
+            : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpPost("/Employer/Company/Templates/Funnels/{templateId:guid}/Update")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateFunnel(
+        Guid templateId,
+        SaveCompanyFunnelInput input,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Employer sign in is required."
+            });
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new
+            {
+                success = false,
+                message = FirstModelError()
+            });
+        }
+
+        var result = await _companyFunnelApiService.UpdateAsync(
+            actorUserId,
+            templateId,
+            input,
+            cancellationToken);
+
+        return result.Success
+            ? Ok(new
+            {
+                success = true,
+                message = result.Message,
+                template = result.Data?.Template
+            })
+            : BadRequest(new { success = false, message = result.Message });
+    }
+
+    [HttpPost("/Employer/Company/Templates/Funnels/{templateId:guid}/Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteFunnel(
+        Guid templateId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetEmployerUserId(out var actorUserId))
+        {
+            return Unauthorized(new
+            {
+                success = false,
+                message = "Employer sign in is required."
+            });
+        }
+
+        var result = await _companyFunnelApiService.DeleteAsync(
             actorUserId,
             templateId,
             cancellationToken);

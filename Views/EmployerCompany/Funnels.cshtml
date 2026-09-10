@@ -1,0 +1,134 @@
+@using System.Text.Json
+@model GloryLikeWebApp.Models.Employer.CompanyFunnelsPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Company Templates";
+    var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BothFind</title>
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-templates.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-funnels.css" asp-append-version="true" />
+</head>
+<body>
+<div class="employer-shell company-shell">
+    <header class="employer-topbar">
+        <a class="employer-brand" href="/Portal/Home">BothFind</a>
+        <div class="employer-search"><span>⌕</span><input type="search" placeholder="Search by candidates/vacancies" /></div>
+        <a class="employer-account" href="/Profile" aria-label="Open profile">
+            <span class="demo-badge">Employer</span>
+            <div class="employer-avatar">@Model.Initials</div>
+            <div class="employer-account-copy">
+                <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
+                <span>Employer workspace</span>
+            </div>
+        </a>
+    </header>
+    <aside class="employer-sidebar" id="employerSidebar">
+        <nav aria-label="Employer navigation">
+            <a asp-controller="EmployerHome" asp-action="EmployerHome"><span>⌁</span><strong>Dashboard</strong></a>
+            <a asp-controller="EmployerVacancies" asp-action="Index"><span>▣</span><strong>Vacancies</strong></a>
+            <a href="#"><span>▱</span><strong>Recruitment requests</strong></a>
+            <a asp-controller="TalentRadar" asp-action="Index"><span>◎</span><strong>Talent Radar</strong></a>
+            <a class="active" asp-controller="EmployerCompany" asp-action="Index"><span>▥</span><strong>Company</strong></a>
+            <a asp-controller="EmployerReports" asp-action="Index"><span>▧</span><strong>Reports</strong></a>
+        </nav>
+        <div class="employer-sidebar-bottom"><form method="post" action="/SignOut">@Html.AntiForgeryToken()<button type="submit">↪ Sign out</button></form></div>
+    </aside>
+
+    <main class="employer-main company-main templates-main">
+        <button class="employer-menu-button" type="button" id="employerMenuButton" aria-label="Open employer menu">☰</button>
+        <div class="company-profile-content templates-content">
+            <nav class="company-tabs" aria-label="Company sections">
+                <a asp-controller="EmployerCompany" asp-action="Index"><span>♙</span>Profile</a>
+                <a asp-controller="EmployerCompany" asp-action="Structure"><span>▱</span>Structure</a>
+                <a asp-controller="EmployerCompany" asp-action="Team"><span>♧</span>Team</a>
+                <a asp-controller="EmployerCompany" asp-action="HiringPlan"><span>◎</span>Hiring Plan</a>
+                <a class="active" asp-controller="EmployerCompany" asp-action="Templates" aria-current="page"><span>▦</span>Templates</a>
+            </nav>
+
+            <section class="templates-heading">
+                <div>
+                    <span class="templates-kicker">COMPANY LIBRARY</span>
+                    <h1>Company templates</h1>
+                    <p>Build reusable recruitment funnels for your company.</p>
+                </div>
+                @if (Model.CanManageTemplates)
+                {
+                    <button class="new-template-button" type="button" data-new-funnel><span>＋</span> New funnel template</button>
+                }
+            </section>
+
+            <nav class="template-type-tabs" aria-label="Template types">
+                <a href="/Employer/Company/Templates"><span>✉</span> Letters</a>
+                <a class="active" href="/Employer/Company/Templates/Funnels" aria-current="page"><span>⑂</span> Funnels</a>
+                <button type="button" disabled title="Coming soon"><span>ϟ</span> Automations</button>
+            </nav>
+
+            <div class="template-library-intro">
+                <p>Apply a saved funnel to a vacancy. Vacancy edits never change the template.</p>
+                <span>Default templates can be customized or removed for this company without affecting any other company.</span>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <div class="templates-alert error" role="alert">@Model.ErrorMessage</div>
+            }
+            <div class="templates-alert" id="templatesMessage" role="status" hidden></div>
+
+            @if (Model.Templates.Count == 0 && string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <section class="templates-empty"><span>⑂</span><h2>No funnel templates available</h2><p>Create your first company funnel template.</p></section>
+            }
+            <div class="template-grid funnel-library-grid">
+                @foreach (var template in Model.Templates)
+                {
+                    <button class="template-card" type="button" data-funnel-id="@template.Id">
+                        <span class="template-card-icon" aria-hidden="true">⑂</span>
+                        <span class="template-card-copy">
+                            <span class="template-card-title-row"><strong>@template.Name</strong><small class="@(template.IsDefault ? "default" : "custom")">@(template.IsDefault ? "Default" : "Custom")</small></span>
+                            <span class="template-card-subject">@template.Description</span>
+                            <span class="template-card-tags">@foreach (var stage in template.Stages) { <small>@stage.StageName</small> }</span>
+                            <span class="funnel-card-meta">@template.Stages.Count stages · @template.Stages.Sum(stage => stage.Hours) hours</span>
+                        </span>
+                        <span class="template-card-arrow">›</span>
+                    </button>
+                }
+            </div>
+        </div>
+    </main>
+</div>
+<dialog id="funnelDialog" class="funnel-dialog" aria-labelledby="funnelDialogTitle">
+    <header><div><span class="templates-kicker">FUNNEL TEMPLATE</span><h2 id="funnelDialogTitle">New funnel template</h2></div><button type="button" data-close-funnel aria-label="Close editor">×</button></header>
+    <form id="funnelTemplateForm">
+        @Html.AntiForgeryToken()
+        <p id="funnelEditorError" class="templates-alert error" role="alert" hidden></p>
+        <div class="template-form-grid">
+            <label class="full"><span>Name</span><input name="Name" id="funnelName" required maxlength="120" /></label>
+            <label class="full"><span>Description</span><input name="Description" id="funnelDescription" maxlength="1000" /></label>
+        </div>
+        <div class="funnel-editor-heading"><h3>Stages</h3><span>Time limit in hours · 0 means no limit</span></div>
+        <div id="templateStageList"></div>
+        <button class="funnel-add-stage" id="addTemplateStage" type="button">＋ Add a stage</button>
+        <p class="funnel-editor-note">Edits and deletions apply to this company only. Existing vacancies keep their own stages.</p>
+        <div class="template-form-actions">
+            <button class="template-delete-button" id="deleteFunnel" type="button" hidden>⌫ Delete</button><span></span>
+            <button class="secondary" type="button" data-close-funnel>Close</button>
+            <button class="primary" id="saveFunnel" type="submit">Save template</button>
+        </div>
+    </form>
+</dialog>
+<script id="companyFunnelsData" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Templates, jsonOptions))</script>
+<script id="companyFunnelsContext" type="application/json">@Html.Raw(JsonSerializer.Serialize(new { canManageTemplates = Model.CanManageTemplates }, jsonOptions))</script>
+<script src="~/js/employer-home.js" asp-append-version="true"></script>
+<script src="~/js/funnel-template-core.js" asp-append-version="true"></script>
+<script src="~/js/company-funnels.js" asp-append-version="true"></script>
+</body>
+</html>

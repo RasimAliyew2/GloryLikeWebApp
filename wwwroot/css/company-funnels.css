@@ -1,0 +1,38 @@
+.funnel-library-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.funnel-library-grid .template-card { min-height: 155px; align-items: start; }
+.funnel-library-grid .template-card-subject { white-space: normal; font-size: 12px; line-height: 1.5; }
+.funnel-library-grid .template-card-tags small { font-size: 11px; padding: 6px 9px; background: #f5f5f8; }
+.funnel-card-meta { color: #868b9b; font-size: 11px; }
+.funnel-dialog { box-sizing: border-box; width: min(880px, calc(100% - 32px)); max-height: 90vh; padding: 0; border: 1px solid #e4e5eb; border-radius: 22px; background: #fff; color: #171923; box-shadow: 0 30px 90px #16152b33; }
+.funnel-dialog::backdrop { background: #17192399; backdrop-filter: blur(3px); }
+.funnel-dialog > header { display: flex; align-items: center; justify-content: space-between; padding: 24px; border-bottom: 1px solid #eeeef4; }
+.funnel-dialog h2 { margin: 8px 0 0; font-size: 23px; }
+.funnel-dialog header button { border: 0; background: #f5f5fa; border-radius: 10px; width: 36px; height: 36px; font-size: 23px; cursor: pointer; }
+.funnel-dialog form { padding: 24px 24px 0; }
+.funnel-dialog .template-form-grid label { font-size: 13px; }
+.funnel-dialog .template-form-grid input { font-size: 14px; }
+.funnel-editor-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 24px 0 14px; }
+.funnel-editor-heading h3 { margin: 0; font-size: 15px; }
+.funnel-editor-heading span, .funnel-editor-note { color: #777d8d; font-size: 12px; line-height: 1.6; }
+.funnel-editor-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) 90px 170px 26px; gap: 10px; align-items: center; padding: 12px; margin-bottom: 10px; border: 1px solid #e8e8f0; border-radius: 14px; background: #fafafd; }
+.funnel-editor-row label { min-width: 0; display: grid; gap: 6px; font-size: 11px; color: #717787; }
+.funnel-editor-row input, .funnel-editor-row select { width: 100%; box-sizing: border-box; min-width: 0; padding: 11px 9px; border: 1px solid #dedee9; border-radius: 9px; font: inherit; font-size: 13px; background: #fff; color: #242634; }
+.funnel-editor-row button { padding: 2px; border: 0; background: transparent; color: #777787; font-size: 19px; cursor: pointer; }
+.funnel-editor-row button:disabled { opacity: .25; cursor: default; }
+.funnel-editor-moves { display: grid; }
+.funnel-add-stage { padding: 11px 16px; border: 1px solid #e0ddec; border-radius: 10px; background: #fff; color: #5146db; font: inherit; cursor: pointer; }
+.funnel-dialog .template-form-actions { margin-inline: -24px; padding-inline: 24px; }
+.funnel-dialog button:focus-visible, .funnel-dialog input:focus-visible, .funnel-dialog select:focus-visible { outline: 2px solid #5848ee; outline-offset: 2px; }
+@media (max-width: 760px) {
+    .funnel-library-grid { grid-template-columns: 1fr; }
+    .funnel-dialog { width: calc(100% - 16px); max-height: 94vh; }
+    .funnel-dialog > header, .funnel-dialog form { padding: 18px; }
+    .funnel-dialog form { padding-bottom: 0; }
+    .funnel-editor-row { grid-template-columns: 22px minmax(0, 1fr) 25px; }
+    .funnel-editor-row label:nth-child(2) { grid-column: 2; }
+    .funnel-editor-row label:nth-child(3) { grid-column: 2; }
+    .funnel-editor-row label:nth-child(4) { grid-column: 2; }
+    .funnel-editor-row > button { grid-column: 3; grid-row: 1; }
+    .funnel-editor-moves { grid-row: 1 / 4; }
+    .funnel-dialog .template-form-actions { margin-inline: -18px; padding-inline: 18px; }
+}

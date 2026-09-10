@@ -16,6 +16,7 @@ public sealed class EmployerVacanciesController : Controller
     private const int MaximumFunnelStageCount = 20;
 
     private readonly ISkillAndJobApiService _skillAndJobApiService;
+    private readonly ICompanyFunnelApiService _companyFunnelApiService;
     private readonly IVacancyApiService _vacancyApiService;
     private readonly ICompanyHiringPlanApiService _companyHiringPlanApiService;
     private readonly ICompanyProfileApiService _companyProfileApiService;
@@ -25,6 +26,7 @@ public sealed class EmployerVacanciesController : Controller
     public EmployerVacanciesController(
         ISkillAndJobApiService skillAndJobApiService,
         IVacancyApiService vacancyApiService,
+        ICompanyFunnelApiService companyFunnelApiService,
         ICompanyHiringPlanApiService companyHiringPlanApiService,
         ICompanyProfileApiService companyProfileApiService,
         IMicrosoftCalendarApiService calendarApiService,
@@ -32,6 +34,7 @@ public sealed class EmployerVacanciesController : Controller
     {
         _skillAndJobApiService = skillAndJobApiService;
         _vacancyApiService = vacancyApiService;
+        _companyFunnelApiService = companyFunnelApiService;
         _companyHiringPlanApiService = companyHiringPlanApiService;
         _companyProfileApiService = companyProfileApiService;
         _calendarApiService = calendarApiService;
@@ -304,7 +307,7 @@ public sealed class EmployerVacanciesController : Controller
             ContactEmail = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
             PublishDate = DateTime.Today,
             ScreeningQuestions = new List<VacancyScreeningQuestionInput> { new() },
-            FunnelStages = CreateDefaultFunnelStages()
+            FunnelStages = []
         };
 
         string? planError = null;
@@ -356,6 +359,14 @@ public sealed class EmployerVacanciesController : Controller
         var model = await BuildPageModelAsync(
             input,
             cancellationToken);
+
+        var initialTemplate = model.FunnelTemplates.FirstOrDefault();
+        if (initialTemplate is not null)
+            input.FunnelStages = initialTemplate.Stages.Select(stage => new VacancyFunnelStageInput
+            {
+                StageName = stage.StageName, Hours = stage.Hours,
+                ResponsibleRole = stage.ResponsibleRole, IsStandard = false
+            }).ToList();
 
         if (!string.IsNullOrWhiteSpace(planError))
             model.SubmissionErrorMessage = planError;
@@ -569,6 +580,14 @@ public sealed class EmployerVacanciesController : Controller
 
         if (TryGetEmployerUserId(out var actorUserId))
         {
+            var funnels = await _companyFunnelApiService.GetAsync(actorUserId, cancellationToken);
+            if (funnels.Success && funnels.Data is not null)
+                model.FunnelTemplates = funnels.Data.Templates;
+            else
+                model.FunnelTemplatesError = string.IsNullOrWhiteSpace(funnels.Message)
+                    ? "Funnel templates could not be loaded. Please reload to try again."
+                    : funnels.Message;
+
             var profileResult = await _companyProfileApiService.GetAsync(
                 actorUserId,
                 cancellationToken);
@@ -1066,44 +1085,6 @@ public sealed class EmployerVacanciesController : Controller
         }
     }
 
-    private static List<VacancyFunnelStageInput>
-        CreateDefaultFunnelStages()
-    {
-        return new List<VacancyFunnelStageInput>
-        {
-            new()
-            {
-                StageName = "Applied",
-                Hours = 48,
-                IsStandard = true
-            },
-            new()
-            {
-                StageName = "Screening",
-                Hours = 72,
-                IsStandard = true
-            },
-            new()
-            {
-                StageName = "Interview",
-                Hours = 120,
-                IsStandard = true
-            },
-            new()
-            {
-                StageName = "Offer",
-                Hours = 48,
-                IsStandard = true
-            },
-            new()
-            {
-                StageName = "Hired",
-                Hours = 0,
-                IsStandard = true
-            }
-        };
-    }
-
     private static EmployerVacancyDetailViewModel MapVacancyDetail(
         EmployerVacancyDetailApiItem source)
     {
@@ -1161,6 +1142,7 @@ public sealed class EmployerVacanciesController : Controller
                 {
                     StageId = stage.StageId,
                     StageName = stage.StageName,
+                    ResponsibleRole = stage.ResponsibleRole,
                     Hours = Math.Max(stage.Hours, 0),
                     IsStandard = stage.IsStandard,
                     SortOrder = stage.SortOrder
