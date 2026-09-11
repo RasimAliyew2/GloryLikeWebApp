@@ -1,0 +1,145 @@
+@using System.Text.Json
+@model GloryLikeWebApp.Models.Employer.CompanyAutomationsPageViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Company Templates";
+    var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BothFind</title>
+    <link rel="stylesheet" href="~/css/employer-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-profile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-templates.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/company-automations.css" asp-append-version="true" />
+</head>
+<body>
+<div class="employer-shell company-shell">
+    <header class="employer-topbar">
+        <a class="employer-brand" href="/Portal/Home">BothFind</a>
+        <div class="employer-search"><span>⌕</span><input type="search" placeholder="Search by candidates/vacancies" /></div>
+        <a class="employer-account" href="/Profile" aria-label="Open profile">
+            <span class="demo-badge">Employer</span>
+            <div class="employer-avatar">@Model.Initials</div>
+            <div class="employer-account-copy">
+                <strong>@(string.IsNullOrWhiteSpace(Model.Email) ? Model.DisplayName : Model.Email)</strong>
+                <span>Employer workspace</span>
+            </div>
+        </a>
+    </header>
+    <aside class="employer-sidebar" id="employerSidebar">
+        <nav aria-label="Employer navigation">
+            <a asp-controller="EmployerHome" asp-action="EmployerHome"><span>⌁</span><strong>Dashboard</strong></a>
+            <a asp-controller="EmployerVacancies" asp-action="Index"><span>▣</span><strong>Vacancies</strong></a>
+            <a href="#"><span>▱</span><strong>Recruitment requests</strong></a>
+            <a asp-controller="TalentRadar" asp-action="Index"><span>◎</span><strong>Talent Radar</strong></a>
+            <a class="active" asp-controller="EmployerCompany" asp-action="Index"><span>▥</span><strong>Company</strong></a>
+            <a asp-controller="EmployerReports" asp-action="Index"><span>▧</span><strong>Reports</strong></a>
+        </nav>
+        <div class="employer-sidebar-bottom"><form method="post" action="/SignOut">@Html.AntiForgeryToken()<button type="submit">↪ Sign out</button></form></div>
+    </aside>
+
+    <main class="employer-main company-main templates-main">
+        <button class="employer-menu-button" type="button" id="employerMenuButton" aria-label="Open employer menu">☰</button>
+        <div class="company-profile-content templates-content">
+            <nav class="company-tabs" aria-label="Company sections">
+                <a asp-controller="EmployerCompany" asp-action="Index"><span>♙</span>Profile</a>
+                <a asp-controller="EmployerCompany" asp-action="Structure"><span>▱</span>Structure</a>
+                <a asp-controller="EmployerCompany" asp-action="Team"><span>♧</span>Team</a>
+                <a asp-controller="EmployerCompany" asp-action="HiringPlan"><span>◎</span>Hiring Plan</a>
+                <a class="active" asp-controller="EmployerCompany" asp-action="Templates" aria-current="page"><span>▦</span>Templates</a>
+            </nav>
+
+            <section class="templates-heading">
+                <div>
+                    <span class="templates-kicker">COMPANY LIBRARY</span>
+                    <h1>Company templates</h1>
+                    <p>Turn recruitment events into timely candidate emails.</p>
+                </div>
+                @if (Model.Data.CanManageTemplates)
+                {
+                    <button class="new-template-button" type="button" data-new-automation><span>＋</span> New automation template</button>
+                }
+            </section>
+
+            <nav class="template-type-tabs" aria-label="Template types">
+                <a href="/Employer/Company/Templates"><span>✉</span> Letters</a>
+                <a href="/Employer/Company/Templates/Funnels"><span>⑂</span> Funnels</a>
+                <a class="active" href="/Employer/Company/Templates/Automations" aria-current="page"><span>ϟ</span> Automations</a>
+            </nav>
+
+            <div class="template-library-intro"><p>Choose an event, set conditions, and send a letter to the candidate.</p><span>Select templates in a vacancy's Funnel section to activate them.</span></div>
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage)) { <p class="templates-alert error" role="alert">@Model.ErrorMessage</p> }
+            <p id="automationPageMessage" class="templates-alert" role="status" hidden></p>
+            @if(Model.Data.Templates.Count==0 && string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            { <section class="templates-empty"><span>ϟ</span><h2>No automations yet</h2><p>Create your first rule, then select it in a vacancy.</p></section> }
+            <div class="automation-library">
+                @foreach(var template in Model.Data.Templates)
+                {
+                    <article class="automation-card">
+                        <span class="template-card-icon" aria-hidden="true">ϟ</span>
+                        <div><h2>@template.Name</h2>
+                            <p>@(template.Rule.EventType=="StageAdvanced" ? $"Candidate advances to {template.Rule.TargetStageName}" : template.Rule.EventType=="CandidateHired" ? "Candidate is hired" : "Vacancy is closed") → Send email to candidate</p>
+                            <div class="template-card-tags"><small>@template.LetterName</small><small>@template.Rule.Conditions.Count candidate conditions</small><small>@(template.IsEnabled ? "Available" : "Unavailable for new vacancies")</small></div>
+                            @if(!template.LetterAvailable) { <p class="automation-warning">Choose an available candidate letter before using this template.</p> }
+                        </div>
+                        <button type="button" class="automation-edit" data-automation-id="@template.Id" aria-label="@(Model.Data.CanManageTemplates ? "Edit " : "View ")@template.Name">@(Model.Data.CanManageTemplates ? "Edit" : "View")</button>
+                    </article>
+                }
+            </div>
+            @if(Model.Data.CanManageTemplates)
+            {
+                <section class="automation-history">
+                    <div class="automation-history-heading"><div><span class="templates-kicker">EMAIL DELIVERY</span><h2>Recent activity</h2></div><button type="button" id="refreshDeliveries">Refresh</button></div>
+                    <p>Latest 100 deliveries. Sent means accepted by the mail server; inbox placement depends on the recipient's mail provider.</p>
+                    @if(Model.Data.Deliveries.Count==0) { <div class="automation-history-empty">No events yet. Activate an automation in a vacancy to start.</div> }
+                    @foreach(var delivery in Model.Data.Deliveries)
+                    {
+                        <article class="automation-delivery">
+                            <div><strong>@delivery.RuleName</strong><p>@delivery.RecipientEmail · <a href="/Employer/Vacancies/@delivery.VacancyId">Vacancy #@delivery.VacancyId</a></p><small>@delivery.CreatedAtUtc.ToString("dd MMM yyyy HH:mm") UTC · @delivery.Attempts attempts</small>
+                            @if(!string.IsNullOrWhiteSpace(delivery.LastError)) { <p>@delivery.LastError</p> }</div>
+                            <span class="delivery-status @delivery.Status.ToLowerInvariant()">@delivery.Status</span>
+                            @if(delivery.Status is "Failed" or "Uncertain") { <button type="button" data-retry-id="@delivery.Id" data-retry-status="@delivery.Status">Retry</button> }
+                        </article>
+                    }
+                </section>
+            }
+        </div>
+    </main>
+</div>
+<dialog class="automation-dialog" id="automationDialog" aria-labelledby="automationTitle">
+    <header><div><h2 id="automationTitle">New automation</h2><p>Build your rule: When → If → Then.</p></div><button type="button" data-close-automation aria-label="Close editor">×</button></header>
+    <form id="automationForm">
+        @Html.AntiForgeryToken()
+        <p id="automationError" class="templates-alert error" role="alert" hidden></p>
+        <label class="automation-name">Name<input id="automationName" name="Name" maxlength="120" required placeholder="e.g. Interview invitation" /></label>
+        <label class="automation-enabled"><input id="automationEnabled" name="IsEnabled" type="checkbox" value="true" checked /> Available for new vacancies</label>
+        <section class="automation-block when"><h3><span>1</span> When</h3>
+            <label class="sr-only" for="automationEvent">Event</label>
+            <select id="automationEvent" name="Rule.EventType" required><option value="">Select an event…</option><option value="StageAdvanced">Candidate advances to a funnel stage</option><option value="CandidateHired">Candidate is hired</option><option value="VacancyClosed">Vacancy is closed</option></select>
+        </section>
+        <section class="automation-block conditions"><div class="automation-block-heading"><h3><span>2</span> If</h3><button type="button" id="addAutomationCondition">＋ Add a candidate condition</button></div>
+            <div class="automation-event-condition" id="eventCondition"><p>Select an event first.</p></div>
+            <div id="candidateConditions"></div>
+            <p class="automation-help">All conditions must match. Missing profile data does not match a condition.</p>
+            <details><summary>How candidate values are calculated</summary><p>Age uses the birth date, or the saved age if no birth date is available. Experience is estimated from profile work years, with overlapping periods counted once. Score is the average of the candidate's strongest signal for each skill. Match score uses the vacancy's weighted skill match. Scores range from 0 to 100.</p></details>
+        </section>
+        <section class="automation-block then"><h3><span>3</span> Then</h3><p class="automation-action">✉ Send email to candidate</p>
+            <label for="automationLetter">Letter template</label><select id="automationLetter" name="Rule.LetterTemplateId" required><option value="">Select a candidate letter…</option></select>
+            <p class="automation-help">Only candidate letters from your company's <a href="/Employer/Company/Templates" target="_blank" rel="noopener">Letters library</a> are available.</p>
+            <div id="automationLetterPreview" class="automation-letter-preview" hidden></div>
+        </section>
+        <p class="automation-help">This template and its letter are copied when selected in a vacancy. Existing vacancy copies keep their settings when this template is edited or deleted.</p>
+        <div class="template-form-actions"><button class="template-delete-button" id="deleteAutomation" type="button" hidden>Delete</button><span></span><button class="secondary" type="button" data-close-automation>Cancel</button><button class="primary" id="saveAutomation" type="submit">Save automation</button></div>
+    </form>
+</dialog>
+<script id="companyAutomationsData" type="application/json">@Html.Raw(JsonSerializer.Serialize(Model.Data,jsonOptions))</script>
+<script src="~/js/employer-home.js" asp-append-version="true"></script>
+<script src="~/js/automation-rule-core.js" asp-append-version="true"></script>
+<script src="~/js/company-automations.js" asp-append-version="true"></script>
+</body>
+</html>

@@ -124,3 +124,6 @@ wwwroot\js\company-templates.js
 wwwroot\js\company-funnels.js
 wwwroot\js\create-vacancy-funnel.js
 wwwroot\js\funnel-template-core.js
+wwwroot\css\company-automations.css
+wwwroot\js\automation-rule-core.js
+wwwroot\js\company-automations.js

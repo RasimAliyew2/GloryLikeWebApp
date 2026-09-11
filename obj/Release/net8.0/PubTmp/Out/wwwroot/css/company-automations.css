@@ -1,0 +1,51 @@
+.automation-library { display:grid; gap:14px; }
+.automation-card { display:grid; grid-template-columns:48px minmax(0,1fr) auto; gap:18px; padding:24px; background:#fff; border:1px solid #e5e5ed; border-radius:18px; align-items:start; }
+.automation-card h2 { margin:1px 0 8px; font-size:17px; color:#171923; }
+.automation-card p { margin:0 0 12px; font-size:13px; color:#757c8c; line-height:1.6; }
+.automation-card .template-card-tags small { font-size:11px; }
+.automation-edit,.automation-history button { padding:9px 14px; border:1px solid #e4e2ef; border-radius:10px; background:#fff; color:#5848ee; cursor:pointer; }
+.automation-card .automation-warning { color:#ac6015; margin-top:12px; }
+.automation-history { margin-top:44px; }
+.automation-history-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.automation-history h2 { margin:8px 0; font-size:22px; }
+.automation-history > p,.automation-history-empty { font-size:12px; color:#7a8192; line-height:1.6; }
+.automation-history-empty { padding:26px; border:1px dashed #dddde8; border-radius:14px; }
+.automation-delivery { display:flex; gap:14px; align-items:center; padding:18px; background:#fff; border-bottom:1px solid #ececf3; }
+.automation-delivery > div { flex:1; min-width:0; overflow-wrap:anywhere; }
+.automation-delivery strong { font-size:13px; }
+.automation-delivery p,.automation-delivery small { margin:6px 0; font-size:11px; color:#788091; line-height:1.5; }
+.delivery-status { border-radius:99px; padding:7px 10px; font-size:11px; background:#efedff; color:#5848ee; }
+.delivery-status.sent { background:#e3f8ee; color:#16805b; }.delivery-status.failed,.delivery-status.uncertain { background:#fff0e2; color:#a85b13; }.delivery-status.skipped { background:#f0f1f5; color:#747988; }
+.automation-dialog { overflow-y:auto; overscroll-behavior:contain; box-sizing:border-box; width:min(840px,calc(100% - 24px)); max-height:92vh; padding:0; border:1px solid #e4e5eb; border-radius:22px; background:#fff; color:#181a25; box-shadow:0 30px 90px #16152b33; }
+.automation-dialog::backdrop { background:#171923aa; backdrop-filter:blur(3px); }
+.automation-dialog header { display:flex; justify-content:space-between; gap:16px; padding:28px 28px 0; }
+.automation-dialog h2 { margin:0 0 8px; font-size:24px; }.automation-dialog header p { color:#7c8090; margin:0; font-size:14px; }
+.automation-dialog header button { border:0; background:none; font-size:26px; color:#777b86; cursor:pointer; }
+.automation-dialog form { padding:24px 28px 0; }
+.automation-name { display:grid; gap:8px; font-size:13px; font-weight:600; }
+.automation-enabled { display:flex; gap:8px; align-items:center; font-size:12px; color:#777d8b; margin:12px 0 22px; }
+.automation-dialog input:not([type=checkbox]),.automation-dialog select { width:100%; box-sizing:border-box; min-width:0; border:1px solid #dddfe8; background:#fff; color:#242735; border-radius:11px; padding:12px; font:inherit; font-size:14px; }
+.automation-block { padding:20px; border:1px solid #e6e6ed; border-radius:17px; margin:18px 0; background:#fafafd; }
+.automation-block h3 { display:flex; gap:10px; align-items:center; margin:0 0 16px; font-size:17px; }
+.automation-block h3 > span { display:grid; place-items:center; width:30px; height:30px; border-radius:50%; background:#e7efff; color:#3476e7; font-size:14px; }
+.automation-block.conditions h3 > span { background:#fff0ce; color:#b27211; }.automation-block.then h3 > span { background:#eeebff; color:#5946e8; }
+.automation-block-heading { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; align-items:baseline; }
+.automation-block-heading button { border:0; background:none; color:#5848ee; cursor:pointer; font-size:12px; }
+.automation-event-condition { padding:14px; border:1px solid #ddd8fd; border-radius:12px; background:#f3f1ff; margin-bottom:14px; }
+.mandatory-condition { display:grid; gap:10px; font-size:13px; font-weight:600; }.automation-event-condition small { display:block; color:#7c749b; font-size:11px; margin-top:9px; }
+.automation-condition-row { display:grid; grid-template-columns:minmax(0,1fr) 80px 110px 24px; gap:8px; margin:10px 0; align-items:center; }
+.automation-condition-row button { border:0; background:transparent; color:#858693; font-size:21px; cursor:pointer; }
+.automation-help,.automation-block details { font-size:12px; color:#7c8191; line-height:1.65; }.automation-block summary { cursor:pointer; color:#666080; }
+.automation-action { color:#5546db; font-size:14px; font-weight:600; }.automation-block.then > label { display:block; font-size:12px; margin:12px 0 8px; }
+.automation-letter-preview { padding:16px; border:1px solid #e6e3f2; border-radius:12px; background:#fff; font-size:12px; }.automation-letter-preview p { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.6; margin-bottom:0; }
+.automation-dialog .template-form-actions { margin-inline:-28px; padding-inline:28px; }
+.automation-dialog :focus-visible { outline:2px solid #6756ef; outline-offset:2px; }.automation-dialog button:disabled { opacity:.5; cursor:default; }
+.automation-dialog .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+.vacancy-automation-option { display:flex; gap:12px; align-items:flex-start; padding:16px; margin:10px 0; border:1px solid #e5e3ed; border-radius:12px; cursor:pointer; }
+.vacancy-automation-option:has(input:checked) { background:#f4f2ff; border-color:#aba1ff; }.vacancy-automation-option input { accent-color:#5848ee; margin-top:3px; }.vacancy-automation-option span { display:grid; gap:7px; }.vacancy-automation-option strong { font-size:14px; }.vacancy-automation-option small { font-size:11px; color:#7c8191; }
+@media(max-width:650px) {
+.automation-card { grid-template-columns:36px minmax(0,1fr); padding:18px; gap:12px; }.automation-card .template-card-icon { width:36px; height:36px; }.automation-edit { grid-column:2; justify-self:start; }
+.automation-dialog header { padding:20px 18px 0; }.automation-dialog form { padding:18px 18px 0; }.automation-dialog .template-form-actions { margin-inline:-18px; padding-inline:18px; }.automation-block { padding:15px; }
+.automation-condition-row { grid-template-columns:minmax(0,1fr) 65px 24px; }.automation-condition-row input { grid-row:2; grid-column:1 / 3; }.automation-condition-row button { grid-column:3; grid-row:1 / 3; }
+.automation-delivery { flex-wrap:wrap; }.automation-delivery > div { flex-basis:100%; }.vacancy-automations .funnel-section-heading { flex-direction:column; }
+}

@@ -130,6 +130,7 @@
         rel="stylesheet"
         href="~/css/create-vacancy-publication.css"
         asp-append-version="true" />
+<link rel="stylesheet" href="~/css/company-automations.css" asp-append-version="true" />
 </head>
 
 <body>
@@ -1421,6 +1422,22 @@
                         <p class="funnel-limit-note">
                             Up to 20 stages. Standard stages can be renamed and their hours can be changed.
                         </p>
+                    </article>
+                    <article class="vacancy-section-card vacancy-automations">
+                        <div class="funnel-section-heading"><div><h2>Automations for this vacancy</h2><p>Selected rules send real emails when their events and conditions match.</p></div><a href="/Employer/Company/Templates/Automations" target="_blank" rel="noopener">Manage automations ↗</a></div>
+                        @if(!string.IsNullOrWhiteSpace(Model.AutomationsError)) { <p role="alert">@Model.AutomationsError</p> }
+                        @if(Model.AutomationTemplates.Count==0) { <p>No automation templates available. Create one in Company → Templates → Automations.</p> }
+                        @foreach(var automation in Model.AutomationTemplates)
+                        {
+                            var savedCopy=Model.Input.SavedAutomations.Any(c => c.Id==automation.Id);
+                            <label class="vacancy-automation-option">
+                                <input type="checkbox" name="Input.AutomationTemplateIds" value="@automation.Id" checked="@(Model.Input.AutomationTemplateIds.Contains(automation.Id))" />
+                                <span><strong>@automation.Name</strong><small>@(automation.Rule.EventType=="StageAdvanced" ? $"Advances to {automation.Rule.TargetStageName}" : automation.Rule.EventType=="CandidateHired" ? "Candidate is hired" : "Vacancy is closed") → @automation.LetterName</small><small>@(savedCopy ? "Saved vacancy copy" : "Copies this template and letter when saved")</small></span>
+                            </label>
+                        }
+                        @foreach(var missingId in Model.Input.AutomationTemplateIds.Where(id => !Model.AutomationTemplates.Any(t => t.Id==id)))
+                        { <label class="vacancy-automation-option"><input type="checkbox" name="Input.AutomationTemplateIds" value="@missingId" checked /><span>Selected automation could not be loaded. Keep it to preserve the selection, or uncheck to remove.</span></label> }
+                        <p class="automation-help">A stage rule requires its destination stage in this funnel. Uncheck a saved rule and save the vacancy to stop future events from using it. Emails already queued are unaffected.</p>
                     </article>
                 </section>
 

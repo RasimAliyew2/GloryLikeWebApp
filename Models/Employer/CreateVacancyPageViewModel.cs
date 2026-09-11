@@ -16,6 +16,8 @@ public sealed class CreateVacancyPageViewModel
     public List<CompanyFunnelItem> FunnelTemplates { get; set; } = [];
     public string? FunnelTemplatesError { get; set; }
 
+    public List<CompanyAutomationItem> AutomationTemplates { get; set; } = [];
+    public string? AutomationsError { get; set; }
     public CreateVacancyInput Input { get; set; } = new();
 
     public string? ErrorMessage { get; set; }
@@ -59,6 +61,8 @@ public sealed class CreateVacancyPageViewModel
 
 public sealed class CreateVacancyInput
 {
+    public List<Guid> AutomationTemplateIds { get; set; } = [];
+    public List<CompanyAutomationItem> SavedAutomations { get; set; } = [];
     [JsonIgnore]
     public int? EditingVacancyId { get; set; }
 

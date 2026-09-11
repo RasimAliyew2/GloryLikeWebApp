@@ -16,6 +16,7 @@ public sealed class EmployerVacanciesController : Controller
     private const int MaximumFunnelStageCount = 20;
 
     private readonly ISkillAndJobApiService _skillAndJobApiService;
+    private readonly ICompanyAutomationApiService _companyAutomationApiService;
     private readonly ICompanyFunnelApiService _companyFunnelApiService;
     private readonly IVacancyApiService _vacancyApiService;
     private readonly ICompanyHiringPlanApiService _companyHiringPlanApiService;
@@ -27,6 +28,7 @@ public sealed class EmployerVacanciesController : Controller
         ISkillAndJobApiService skillAndJobApiService,
         IVacancyApiService vacancyApiService,
         ICompanyFunnelApiService companyFunnelApiService,
+        ICompanyAutomationApiService companyAutomationApiService,
         ICompanyHiringPlanApiService companyHiringPlanApiService,
         ICompanyProfileApiService companyProfileApiService,
         IMicrosoftCalendarApiService calendarApiService,
@@ -35,6 +37,7 @@ public sealed class EmployerVacanciesController : Controller
         _skillAndJobApiService = skillAndJobApiService;
         _vacancyApiService = vacancyApiService;
         _companyFunnelApiService = companyFunnelApiService;
+        _companyAutomationApiService = companyAutomationApiService;
         _companyHiringPlanApiService = companyHiringPlanApiService;
         _companyProfileApiService = companyProfileApiService;
         _calendarApiService = calendarApiService;
@@ -580,6 +583,22 @@ public sealed class EmployerVacanciesController : Controller
 
         if (TryGetEmployerUserId(out var actorUserId))
         {
+            var automations = await _companyAutomationApiService.GetAsync(actorUserId,cancellationToken);
+            if(automations.Success && automations.Data is not null)
+                model.AutomationTemplates=automations.Data.Templates.Where(t => t.IsEnabled && t.LetterAvailable).ToList();
+            else model.AutomationsError=automations.Message;
+            // Never trust posted summaries as rule content; reload saved copies on a failed edit POST.
+            if(model.IsEditMode && HttpMethods.IsPost(Request.Method))
+            {
+                var existing=await _vacancyApiService.GetEmployerVacancyForEditAsync(actorUserId,input.EditingVacancyId!.Value,cancellationToken);
+                input.SavedAutomations=existing.Data?.Vacancy?.SavedAutomations ?? [];
+            }
+            foreach(var copy in input.SavedAutomations)
+            {
+                model.AutomationTemplates.RemoveAll(t => t.Id==copy.Id);
+                model.AutomationTemplates.Add(copy);
+            }
+
             var funnels = await _companyFunnelApiService.GetAsync(actorUserId, cancellationToken);
             if (funnels.Success && funnels.Data is not null)
                 model.FunnelTemplates = funnels.Data.Templates;

@@ -91,6 +91,16 @@ builder.Services.AddHttpClient<ICompanyFunnelApiService, CompanyFunnelApiService
         client.DefaultRequestHeaders.Add("X-BothFind-Backend-Secret", secret);
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+builder.Services.AddHttpClient<ICompanyAutomationApiService, CompanyAutomationApiService>((sp, client) =>
+{
+    var backendUrl = sp.GetRequiredService<IConfiguration>()["Backend:BaseUrl"]
+        ?? throw new InvalidOperationException("Backend:BaseUrl is not configured.");
+    client.BaseAddress = new Uri(backendUrl);
+    var secret = sp.GetRequiredService<IConfiguration>()["SocialAuth:BackendSharedSecret"];
+    if (!string.IsNullOrWhiteSpace(secret))
+        client.DefaultRequestHeaders.Add("X-BothFind-Backend-Secret", secret);
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 builder.Services.AddHttpClient<ICompanyStructureApiService, CompanyStructureApiService>((sp, client) =>
 {
     var backendUrl = sp.GetRequiredService<IConfiguration>()["Backend:BaseUrl"]
@@ -187,6 +197,8 @@ builder.Services.AddHttpClient<IVacancyApiService, VacancyApiService>((sp, clien
         throw new InvalidOperationException(
             "Backend:BaseUrl appsettings.json daxilində təyin edilməyib.");
 
+    var automationSecret = configuration["SocialAuth:BackendSharedSecret"];
+    if (!string.IsNullOrWhiteSpace(automationSecret)) client.DefaultRequestHeaders.Add("X-BothFind-Backend-Secret", automationSecret);
     client.BaseAddress = new Uri(baseUrl);
     client.Timeout = TimeSpan.FromSeconds(60);
 });
