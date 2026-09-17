@@ -141,7 +141,7 @@ public sealed class ProfileController : Controller
                 personal.FirstName,
                 personal.LastName,
                 model.UserName,
-                model.IsEmployer ? "Employer" : "Candidate");
+                model.AccountLabel);
         }
         else
         {

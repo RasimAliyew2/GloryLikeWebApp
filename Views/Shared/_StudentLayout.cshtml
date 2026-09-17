@@ -1,0 +1,49 @@
+@model GloryLikeWebApp.Models.Student.StudentDashboardViewModel
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>@Model.Page · Student — BothFind</title>
+    <link rel="stylesheet" href="~/css/student-home.css" asp-append-version="true" />
+</head>
+<body class="student-body">
+    <partial name="_StudentIcons" />
+    <a class="student-skip" href="#studentMain">Skip to content</a>
+    <div class="student-shell">
+        <aside class="student-sidebar" id="studentSidebar" aria-label="Student navigation">
+            <a class="student-identity" href="/Student">
+                <span class="student-mini-score" aria-label="SSI @Model.SsiText">@Model.SsiText</span>
+                <span><strong>@Model.DisplayName</strong><small>SSI · @Model.Level</small></span>
+            </a>
+            <nav class="student-nav">
+                <a class="@(Model.Page == "Overview" ? "active" : "")" href="/Student" aria-current="@(Model.Page == "Overview" ? "page" : null)"><partial name="_StudentIcon" model='"grid"' /> Overview</a>
+                <a href="/Student#academy"><partial name="_StudentIcon" model='"cap"' /> Academy</a>
+                <a href="/Skills"><partial name="_StudentIcon" model='"verified"' /> Skills</a>
+                <a class="@(Model.Page == "Internships" ? "active" : "")" href="/Student/Internships" aria-current="@(Model.Page == "Internships" ? "page" : null)"><partial name="_StudentIcon" model='"briefcase"' /> Internships</a>
+                <a href="/Applications"><partial name="_StudentIcon" model='"folder"' /> Applications</a>
+                <a href="/Student#events"><partial name="_StudentIcon" model='"calendar"' /> Events</a>
+                <a href="/Profile"><partial name="_StudentIcon" model='"user"' /> Profile</a>
+            </nav>
+            <div class="student-sidebar-bottom"><a class="student-brand" href="/Student">BothFind<span>STUDENT SPACE</span></a>
+                <form method="post" action="/SignOut">@Html.AntiForgeryToken()<button type="submit"><partial name="_StudentIcon" model='"signout"' /> Sign out</button></form>
+            </div>
+        </aside>
+        <button class="student-backdrop" id="studentBackdrop" aria-label="Close menu" hidden></button>
+        <div class="student-workspace">
+            <header class="student-topbar">
+                <button class="student-menu-button" id="studentMenuButton" type="button" aria-controls="studentSidebar" aria-expanded="false" aria-label="Open menu">☰</button>
+                <a href="/Student" class="student-top-name">@Model.DisplayName</a>
+                <div class="student-top-actions"><partial name="_CandidateNotifications" /><span class="student-ssi-chip"><partial name="_StudentIcon" model='"spark"' /> SSI @Model.SsiText <span>· @Model.Level</span></span><span class="student-type-chip">Student</span></div>
+            </header>
+            <main class="student-main" id="studentMain">
+                @foreach (var error in Model.Errors) { <p class="student-alert" role="alert">@error</p> }
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    <script src="~/js/student-home.js" asp-append-version="true"></script>
+    <script src="~/js/candidate-notifications.js" asp-append-version="true"></script>
+</body>
+</html>

@@ -64,9 +64,7 @@ public sealed class AccountController : Controller
 
         var model = new RegistrationViewModel
         {
-            AccountType = string.Equals(accountType, "candidate", StringComparison.OrdinalIgnoreCase)
-                ? "candidate"
-                : "employer",
+            AccountType = AccountRouting.IsSupported(accountType) ? AccountRouting.Normalize(accountType) : "employer",
             CompanyType = "SME",
             ReturnUrl = NormalizeReturnUrl(returnUrl)
         };
@@ -161,6 +159,20 @@ public sealed class AccountController : Controller
         model.InvitationRole =
             model.InvitationRole?.Trim();
         model.ReturnUrl = NormalizeReturnUrl(model.ReturnUrl);
+        model.University = model.University?.Trim();
+        model.Specialty = model.Specialty?.Trim();
+        if (model.AccountType == "student")
+        {
+            if (string.IsNullOrWhiteSpace(model.University)) ModelState.AddModelError(nameof(model.University), "Enter your university.");
+            if (string.IsNullOrWhiteSpace(model.Specialty)) ModelState.AddModelError(nameof(model.Specialty), "Enter your specialty.");
+            if (model.StudyYear is not (>= 1 and <= 5)) ModelState.AddModelError(nameof(model.StudyYear), "Select your study year.");
+        }
+        else
+        {
+            model.University = null;
+            model.Specialty = null;
+            model.StudyYear = null;
+        }
 
         if (model.AccountType == "employer"
             && !isTeamInvitation)
@@ -183,7 +195,7 @@ public sealed class AccountController : Controller
             model.CompanyName =
                 model.ProfileName;
         }
-        else if (model.AccountType == "candidate")
+        else if (model.AccountType is "candidate" or "student")
         {
             model.CompanyName = null;
             model.CompanyType = null;
@@ -339,32 +351,15 @@ public sealed class AccountController : Controller
                 failedModel);
         }
 
-        var portalType =
-            string.Equals(
-                result.User.AccountType,
-                "employer",
-                StringComparison.OrdinalIgnoreCase)
-                ? PortalClaimTypes.Employer
-                : PortalClaimTypes.Employee;
-
-        await SignInUserAsync(result.User);
-
-        if (portalType == PortalClaimTypes.Employee
-            && !string.IsNullOrWhiteSpace(NormalizeReturnUrl(model.ReturnUrl)))
-            return LocalRedirect(NormalizeReturnUrl(model.ReturnUrl));
-
-        return portalType == PortalClaimTypes.Employer
-            ? RedirectToAction(
-                "EmployerHome",
-                "EmployerHome")
-            : RedirectToRoute("CandidateDashboard");
+        return await CompleteSignInAsync(result.User, model.ReturnUrl);
     }
 
     [AllowAnonymous]
     [HttpGet("/SignIn/External/{provider}")]
     public async Task<IActionResult> ExternalLogin(
         string provider,
-        [FromQuery] string? returnUrl)
+        [FromQuery] string? returnUrl,
+        [FromQuery] string? accountType)
     {
         if (User.Identity?.IsAuthenticated == true)
             return RedirectToSelectedPortal();
@@ -386,6 +381,7 @@ public sealed class AccountController : Controller
                 "Account")
         };
         properties.Items["LoginProvider"] = scheme;
+        properties.Items["RegistrationAccountType"] = AccountRouting.Normalize(accountType) == "student" ? "student" : "candidate";
         properties.Items["ReturnUrl"] = NormalizeReturnUrl(returnUrl);
 
         await ClearExternalCookieAsync();
@@ -415,6 +411,8 @@ public sealed class AccountController : Controller
         var principal = externalResult.Principal;
         string? scheme = null;
         string? returnUrl = null;
+        string? registrationAccountType = null;
+        externalResult.Properties?.Items.TryGetValue("RegistrationAccountType", out registrationAccountType);
         externalResult.Properties?.Items.TryGetValue(
             "LoginProvider",
             out scheme);
@@ -468,6 +466,7 @@ public sealed class AccountController : Controller
                 new SocialLoginRequestDto
                 {
                     Provider = provider,
+                    RegistrationAccountType = registrationAccountType == "student" ? "student" : "candidate",
                     ProviderSubject = providerSubject,
                     Email = email,
                     FirstName = firstName,
@@ -485,18 +484,7 @@ public sealed class AccountController : Controller
                     : result.Message);
         }
 
-        await SignInUserAsync(result.User);
-
-        if (ResolvePortalType(result.User.AccountType) == PortalClaimTypes.Employee
-            && !string.IsNullOrWhiteSpace(NormalizeReturnUrl(returnUrl)))
-            return LocalRedirect(NormalizeReturnUrl(returnUrl));
-
-        return ResolvePortalType(result.User.AccountType)
-            == PortalClaimTypes.Employer
-                ? RedirectToAction(
-                    "EmployerHome",
-                    "EmployerHome")
-                : RedirectToRoute("CandidateDashboard");
+        return await CompleteSignInAsync(result.User, returnUrl);
     }
 
     [AllowAnonymous]
@@ -568,20 +556,7 @@ public sealed class AccountController : Controller
             return View(model);
         }
 
-        var portalType = ResolvePortalType(
-            result.User.AccountType);
-
-        await SignInUserAsync(result.User);
-
-        if (portalType == PortalClaimTypes.Employee
-            && !string.IsNullOrWhiteSpace(NormalizeReturnUrl(model.ReturnUrl)))
-            return LocalRedirect(NormalizeReturnUrl(model.ReturnUrl));
-
-        return portalType == PortalClaimTypes.Employer
-            ? RedirectToAction(
-                "EmployerHome",
-                "EmployerHome")
-            : RedirectToRoute("CandidateDashboard");
+        return await CompleteSignInAsync(result.User, model.ReturnUrl);
     }
 
     [Authorize]
@@ -617,29 +592,25 @@ public sealed class AccountController : Controller
         return RedirectToAction(nameof(SignIn));
     }
 
-    private IActionResult RedirectToSelectedPortal()
-    {
-        var accountType = User.FindFirstValue("accountType");
+    private IActionResult RedirectToSelectedPortal() => LocalRedirect(AccountRouting.HomePath(User.FindFirstValue("accountType")));
 
-        return string.Equals(
-            accountType,
-            "employer",
-            StringComparison.OrdinalIgnoreCase)
-                ? RedirectToAction(
-                    "EmployerHome",
-                    "EmployerHome")
-                : RedirectToRoute("CandidateDashboard");
-    }
+    private IActionResult RedirectAfterAuthentication(string? returnUrl) =>
+        RedirectForAccount(User.FindFirstValue("accountType"), returnUrl);
 
-    private IActionResult RedirectAfterAuthentication(string? returnUrl)
+    private IActionResult RedirectForAccount(string? accountType, string? returnUrl)
     {
         var normalized = NormalizeReturnUrl(returnUrl);
-        var accountType = User.FindFirstValue("accountType");
+        if (AccountRouting.Normalize(accountType) == "candidate" && !string.IsNullOrWhiteSpace(normalized))
+            return LocalRedirect(normalized);
+        return LocalRedirect(AccountRouting.HomePath(accountType));
+    }
 
-        return !string.IsNullOrWhiteSpace(normalized)
-            && string.Equals(accountType, "candidate", StringComparison.OrdinalIgnoreCase)
-                ? LocalRedirect(normalized)
-                : RedirectToSelectedPortal();
+    private async Task<IActionResult> CompleteSignInAsync(AuthUserDto user, string? returnUrl)
+    {
+        if (!AccountRouting.IsSupported(user.AccountType))
+            return ExternalLoginFailure("This account type is not supported. Contact support.");
+        await SignInUserAsync(user);
+        return RedirectForAccount(user.AccountType, returnUrl);
     }
 
     private string NormalizeReturnUrl(string? returnUrl)
@@ -653,13 +624,8 @@ public sealed class AccountController : Controller
     private async Task SignInUserAsync(
         AuthUserDto user)
     {
-        var portalType = ResolvePortalType(user.AccountType);
-        var accountType = string.Equals(
-            user.AccountType,
-            "employer",
-            StringComparison.OrdinalIgnoreCase)
-                ? "employer"
-                : "candidate";
+        var portalType = AccountRouting.Portal(user.AccountType);
+        var accountType = AccountRouting.Normalize(user.AccountType);
 
         var claims = new List<Claim>
         {
@@ -709,16 +675,6 @@ public sealed class AccountController : Controller
             CookieAuthenticationDefaults.AuthenticationScheme,
             principal,
             CreateAuthenticationProperties());
-    }
-
-    private static string ResolvePortalType(string? accountType)
-    {
-        return string.Equals(
-            accountType,
-            "employer",
-            StringComparison.OrdinalIgnoreCase)
-                ? PortalClaimTypes.Employer
-                : PortalClaimTypes.Employee;
     }
 
     private string? ResolveExternalScheme(string? provider)

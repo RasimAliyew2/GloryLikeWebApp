@@ -1,6 +1,7 @@
 @model GloryLikeWebApp.Models.OpportunitiesPageViewModel
 @{
     Layout = null;
+    var isStudent = User.FindFirst("accountType")?.Value == "student";
     ViewData["Title"] = "Opportunities";
 }
 
@@ -42,6 +43,12 @@
                 <span>BothFind</span>
             </a>
 
+            @if (isStudent)
+            {
+                <partial name="_StudentWorkspaceNavigation" />
+            }
+            else
+            {
             <nav
                 class="nav-menu"
                 aria-label="Candidate navigation">
@@ -83,6 +90,7 @@
                     <span>Profile</span>
                 </a>
             </nav>
+            }
 
             <div class="sidebar-bottom">
                 <div class="growth-card">
@@ -144,7 +152,7 @@
 
                         <div class="account-copy">
                             <strong>@Model.DisplayName</strong>
-                            <span>Candidate</span>
+                            <span>@(isStudent ? "Student" : "Candidate")</span>
                         </div>
 
                         <span class="chevron">⌄</span>

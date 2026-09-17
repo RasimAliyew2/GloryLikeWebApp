@@ -1,0 +1,21 @@
+@{
+    var path = Context.Request.Path.Value ?? "";
+    var links = new[]
+    {
+        ("/Student", "⌂", "Overview"),
+        ("/Student#academy", "◇", "Academy"),
+        ("/Skills", "✦", "Skills"),
+        ("/Student/Internships", "▣", "Internships"),
+        ("/Applications", "▤", "Applications"),
+        ("/Student#events", "▦", "Events"),
+        ("/Profile", "○", "Profile")
+    };
+}
+<nav class="nav-menu" aria-label="Student navigation">
+    @foreach (var (url, icon, label) in links)
+    {
+        var active = path.Equals(url, StringComparison.OrdinalIgnoreCase)
+            || (url == "/Applications" && path.StartsWith("/Applications/", StringComparison.OrdinalIgnoreCase));
+        <a class="nav-link @(active ? "active" : "")" href="@url" aria-current="@(active ? "page" : null)"><span class="nav-icon" aria-hidden="true">@icon</span><span>@label</span></a>
+    }
+</nav>

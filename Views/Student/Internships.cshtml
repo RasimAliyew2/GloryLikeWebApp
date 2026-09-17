@@ -1,0 +1,13 @@
+@model GloryLikeWebApp.Models.Student.StudentDashboardViewModel
+@{ Layout = "_StudentLayout"; }
+<header class="student-greeting"><div><h1>Your first opportunities</h1><p>Internships and junior roles matched to your saved career path and skills.</p></div><a class="student-text-button" href="/Student">← Back to overview</a></header>
+<partial name="_StudentOpportunities" model="Model" />
+<section class="student-section" id="internshipApplications"><div class="student-section-heading"><h2 class="student-section-title">Your internship applications</h2><a class="student-text-button" href="/Applications">All applications →</a></div>
+@if (Model.InternshipApplications.Count == 0)
+{ <div class="student-empty"><h3>@(Model.ApplicationsAvailable ? "Your internship journey starts here" : "Applications are temporarily unavailable")</h3><p>@(Model.ApplicationsAvailable ? "After you apply for an internship, its current funnel stage will appear here." : "Refresh this page to try again.")</p></div> }
+else
+{
+    <div class="student-application-list">@foreach (var application in Model.InternshipApplications)
+    { <a href="/Applications/@application.VacancyId" class="student-application"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><div><strong>@application.RoleTitle</strong><p>@application.CompanyName · Applied @application.AppliedAtUtc.ToString("dd MMM yyyy")</p></div><span class="student-level">@application.FunnelStageName</span><partial name="_StudentIcon" model='"arrow"' /></a> }</div>
+}
+</section>

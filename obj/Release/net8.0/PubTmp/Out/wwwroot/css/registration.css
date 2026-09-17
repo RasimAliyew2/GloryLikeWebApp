@@ -783,3 +783,18 @@ a {
         transition: none !important;
     }
 }
+
+/* Student registration */
+.account-type-switch { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.account-type-button { min-width:0; }
+.student-registration-note { padding:16px; margin:24px 0 0; border:1px solid #ddd5ff; border-radius:14px; background:#f2efff; color:#5b45eb; font-size:14px; line-height:1.5; }
+.student-only-fields[hidden], .student-registration-note[hidden] { display:none; }
+.student-only-fields { display:grid; gap:24px; }
+.student-year-field { border:0; padding:0; margin:0; min-width:0; }
+.student-year-options { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; }
+.student-year-options label { position:relative; cursor:pointer; }
+.student-year-options input { position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer; }
+.student-year-options span { display:grid; place-items:center; min-height:46px; border:1px solid #e1e4ee; border-radius:14px; background:#f7f8fc; color:#727d91; }
+.student-year-options input:checked + span { background:#eff3ff; border-color:#afc5ff; color:#477bff; }
+.student-year-options input:focus-visible + span { outline:2px solid #477bff; outline-offset:2px; }
+@media (max-width:480px) { .account-type-button { padding:12px 5px; font-size:12px; } }

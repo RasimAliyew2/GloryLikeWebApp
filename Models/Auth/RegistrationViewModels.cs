@@ -23,9 +23,14 @@ public sealed class RegistrationViewModel
 
     [Required]
     [RegularExpression(
-        "^(candidate|employer)$",
+        "^(candidate|student|employer)$",
         ErrorMessage = "Hesab növü düzgün deyil.")]
     public string AccountType { get; set; } = "employer";
+
+    [StringLength(200)] public string? University { get; set; }
+    [StringLength(200)] public string? Specialty { get; set; }
+    [Range(1, 5, ErrorMessage = "Select a study year from 1 to 5.")]
+    public int? StudyYear { get; set; }
 
     [StringLength(150)]
     public string? CompanyName { get; set; }

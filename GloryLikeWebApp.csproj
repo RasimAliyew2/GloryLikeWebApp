@@ -11,4 +11,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.10" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Verification/**/*.cs" />
+    <Content Remove="Verification/**" />
+    <None Remove="Verification/**" />
+  </ItemGroup>
+
 </Project>

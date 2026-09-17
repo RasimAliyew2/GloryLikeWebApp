@@ -160,12 +160,40 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9FbXBsb3llclJlcG9ydHNMYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/Shared/_StudentIcon.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TdHVkZW50SWNvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/Shared/_StudentIcons.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TdHVkZW50SWNvbnMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/Shared/_StudentLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TdHVkZW50TGF5b3V0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/Shared/_StudentOpportunities.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TdHVkZW50T3Bwb3J0dW5pdGllcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/Shared/_StudentWorkspaceNavigation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TdHVkZW50V29ya3NwYWNlTmF2aWdhdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/Skills/SkillsPage.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2tpbGxzXFNraWxsc1BhZ2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/Student/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/Student/Internships.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudFxJbnRlcm5zaGlwcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Rasim/source/repos/GloryLikeWebApp/GloryLikeWebApp/Views/TalentRadar/TalentRadar.cshtml]

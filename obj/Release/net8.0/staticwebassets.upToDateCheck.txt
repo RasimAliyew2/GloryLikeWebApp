@@ -55,7 +55,7 @@ wwwroot\js\talent-radar.js
 wwwroot\js\skills-page.js
 wwwroot\js\site.js
 wwwroot\js\screening-application.js
-wwwroot\js\registration.js
+wwwroot\css\registration.css
 wwwroot\js\profile-page.js
 wwwroot\js\opportunities-page.js
 wwwroot\css\employer-vacancy-detail.css
@@ -114,7 +114,7 @@ wwwroot\js\employer-home.js
 wwwroot\js\employer-messages.js
 wwwroot\js\company-structure.js
 wwwroot\js\employer-reports.js
-wwwroot\css\registration.css
+wwwroot\css\student-home.css
 wwwroot\js\company-team.js
 wwwroot\js\candidate-dashboard.js
 wwwroot\js\candidate-applications.js
@@ -127,3 +127,5 @@ wwwroot\js\funnel-template-core.js
 wwwroot\css\company-automations.css
 wwwroot\js\automation-rule-core.js
 wwwroot\js\company-automations.js
+wwwroot\js\registration.js
+wwwroot\js\student-home.js

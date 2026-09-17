@@ -30,10 +30,11 @@ public sealed class ProfilePageViewModel
         AccountType,
         "employer",
         StringComparison.OrdinalIgnoreCase);
-    public string AccountLabel => IsEmployer ? "Employer" : "Candidate";
+    public bool IsStudent => string.Equals(AccountType, "student", StringComparison.OrdinalIgnoreCase);
+    public string AccountLabel => IsEmployer ? "Employer" : IsStudent ? "Student" : "Candidate";
     public string ProfileKindLabel => IsEmployer
         ? "EMPLOYER PROFILE"
-        : "CANDIDATE PROFILE";
+        : IsStudent ? "STUDENT PROFILE" : "CANDIDATE PROFILE";
     public string HomeUrl => "/Portal/Home";
     public bool HasProfileImage => !string.IsNullOrWhiteSpace(
         Personal.ProfileImageDataUrl);

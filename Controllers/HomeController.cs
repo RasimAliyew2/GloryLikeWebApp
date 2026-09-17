@@ -37,6 +37,9 @@ public class HomeController : Controller
     public async Task<IActionResult> Index(
         CancellationToken cancellationToken)
     {
+        if (User.FindFirstValue("accountType") == "student")
+            return RedirectToRoute("StudentDashboard");
+
         var userIdValue = User.FindFirstValue(
             ClaimTypes.NameIdentifier);
 

@@ -16,7 +16,7 @@
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Create a BothFind candidate or employer account." />
+    <meta name="description" content="Create a BothFind candidate, student or employer account." />
     <meta name="robots" content="noindex, follow" />
     <title>@ViewData["Title"] - BothFind</title>
     <link
@@ -74,7 +74,7 @@
                             <div class="social-buttons">
                                 <a
                                     class="social-button google-button"
-                                    href="/SignIn/External/google?returnUrl=@encodedReturnUrl">
+                                    href="/SignIn/External/google?returnUrl=@encodedReturnUrl&accountType=@(Model.AccountType == "student" ? "student" : "candidate")">
                                     <span class="google-mark" aria-hidden="true">
                                         <svg viewBox="0 0 24 24" width="20" height="20">
                                             <path fill="#4285F4" d="M21.6 12.23c0-.71-.06-1.4-.18-2.06H12v3.9h5.38a4.6 4.6 0 0 1-2 3.02v2.53h3.24c1.9-1.75 2.98-4.33 2.98-7.39z" />
@@ -88,7 +88,7 @@
 
                                 <a
                                     class="social-button apple-button"
-                                    href="/SignIn/External/apple?returnUrl=@encodedReturnUrl">
+                                    href="/SignIn/External/apple?returnUrl=@encodedReturnUrl&accountType=@(Model.AccountType == "student" ? "student" : "candidate")">
                                     <span
                                         class="apple-mark"
                                         aria-hidden="true">
@@ -107,10 +107,10 @@
                                 role="group"
                                 aria-label="Choose profile type">
                                 <button
-                                    class="account-type-button"
+                                    class="account-type-button @(Model.AccountType == "candidate" ? "active" : "")"
                                     type="button"
                                     data-account-type="candidate"
-                                    aria-pressed="false">
+                                    aria-pressed="@(Model.AccountType == "candidate" ? "true" : "false")">
                                     <span
                                         class="account-type-icon"
                                         aria-hidden="true">
@@ -119,11 +119,16 @@
                                     <span>I am a candidate</span>
                                 </button>
 
+                                <button class="account-type-button @(Model.AccountType == "student" ? "active" : "")" type="button" data-account-type="student" aria-pressed="@(Model.AccountType == "student" ? "true" : "false")">
+                                    <span class="account-type-icon" aria-hidden="true">🎓</span>
+                                    <span>I am a student</span>
+                                </button>
+
                                 <button
-                                    class="account-type-button active"
+                                    class="account-type-button @(Model.AccountType == "employer" ? "active" : "")"
                                     type="button"
                                     data-account-type="employer"
-                                    aria-pressed="true">
+                                    aria-pressed="@(Model.AccountType == "employer" ? "true" : "false")">
                                     <span
                                         class="account-type-icon"
                                         aria-hidden="true">
@@ -132,6 +137,7 @@
                                     <span>I am an employer</span>
                                 </button>
                             </div>
+                            <p class="student-registration-note" id="studentRegistrationNote" hidden="@(Model.AccountType != "student")">Student — learn, improve your skills, find internships.</p>
                         }
                         else if (!invitationUnavailable)
                         {
@@ -187,7 +193,7 @@
                                     class="form-label"
                                     id="profileNameLabel"
                                     for="profileName">
-                                    @(isTeamInvitation
+                                    @(isTeamInvitation || Model.AccountType != "employer"
                                         ? "FULL NAME"
                                         : "COMPANY NAME")
                                 </label>
@@ -196,8 +202,8 @@
                                     class="form-input"
                                     id="profileName"
                                     type="text"
-                                    autocomplete="@(isTeamInvitation ? "name" : "organization")"
-                                    placeholder="@(isTeamInvitation ? "Your Full Name" : "Your Company Name")"
+                                    autocomplete="@(isTeamInvitation || Model.AccountType != "employer" ? "name" : "organization")"
+                                    placeholder="@(isTeamInvitation || Model.AccountType != "employer" ? "Your Full Name" : "Your Company Name")"
                                     required
                                     maxlength="150" />
                                 <span
@@ -287,6 +293,32 @@
                                     asp-validation-for="Password">
                                 </span>
                             </div>
+
+                            @if (!isTeamInvitation)
+                            {
+                                <div class="student-only-fields" hidden="@(Model.AccountType != "student")">
+                                    <div class="form-field">
+                                        <label class="form-label" asp-for="University">UNIVERSITY</label>
+                                        <input class="form-input" asp-for="University" placeholder="e.g. Baku State University" maxlength="200" />
+                                        <span class="field-validation" asp-validation-for="University"></span>
+                                    </div>
+                                    <div class="form-field">
+                                        <label class="form-label" asp-for="Specialty">SPECIALTY</label>
+                                        <input class="form-input" asp-for="Specialty" placeholder="e.g. Computer Science" maxlength="200" />
+                                        <span class="field-validation" asp-validation-for="Specialty"></span>
+                                    </div>
+                                    <fieldset class="form-field student-year-field">
+                                        <legend class="form-label">STUDY YEAR</legend>
+                                        <div class="student-year-options">
+                                            @for (var year = 1; year <= 5; year++)
+                                            {
+                                                <label><input asp-for="StudyYear" type="radio" value="@year" id="studyYear@year" /><span>@year</span></label>
+                                            }
+                                        </div>
+                                        <span class="field-validation" asp-validation-for="StudyYear"></span>
+                                    </fieldset>
+                                </div>
+                            }
 
                             @if (isTeamInvitation)
                             {
@@ -416,7 +448,7 @@
 
                         <p class="login-prompt">
                             Already have an account?
-                            <a href="/SignIn?returnUrl=@encodedReturnUrl">Log in</a>
+                            <a href="/SignIn?returnUrl=@encodedReturnUrl&accountType=@(Model.AccountType == "student" ? "student" : "candidate")">Log in</a>
                         </p>
                         <p class="registration-legal">
                             By continuing, you agree to the <a href="https://bothfind.com/terms">Terms of Service</a>

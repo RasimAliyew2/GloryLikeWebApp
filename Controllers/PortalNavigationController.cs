@@ -13,25 +13,9 @@ public sealed class PortalNavigationController : Controller
     public async Task<IActionResult> Home()
     {
         var accountType = User.FindFirstValue("accountType");
-
-        if (string.Equals(
-                accountType,
-                "employer",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return RedirectToAction("EmployerHome", "EmployerHome");
-        }
-
-        if (string.Equals(
-                accountType,
-                "candidate",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return RedirectToRoute("CandidateDashboard");
-        }
-
-        await HttpContext.SignOutAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme);
+        if (GloryLikeWebApp.Security.AccountRouting.IsSupported(accountType))
+            return LocalRedirect(GloryLikeWebApp.Security.AccountRouting.HomePath(accountType));
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Redirect("/SignIn");
     }
 }

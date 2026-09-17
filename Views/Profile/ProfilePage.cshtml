@@ -33,10 +33,14 @@
                     <a class="nav-link active" href="/Profile"><span class="nav-icon">○</span><span>Profile</span></a>
                 </nav>
             }
+            else if (Model.IsStudent)
+            {
+                <partial name="_StudentWorkspaceNavigation" />
+            }
             else
             {
                 <nav class="nav-menu" aria-label="Candidate navigation">
-                    <a class="nav-link" href="/"><span class="nav-icon">⌂</span><span>Dashboard</span></a>
+                    <a class="nav-link" href="/Portal/Home"><span class="nav-icon">⌂</span><span>Dashboard</span></a>
                     <a class="nav-link" href="/Opportunities"><span class="nav-icon">⌕</span><span>Jobs</span></a>
                     <a class="nav-link" href="/Applications"><span class="nav-icon">▣</span><span>Applications</span></a>
                     <a class="nav-link" href="/Skills"><span class="nav-icon">✦</span><span>Skills</span></a>

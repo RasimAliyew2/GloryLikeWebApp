@@ -1,6 +1,7 @@
 @model GloryLikeWebApp.Models.CandidateApplicationDetailsViewModel
 @{
     Layout = null;
+    var isStudent = User.FindFirst("accountType")?.Value == "student";
     ViewData["Title"] = Model.Application?.RoleTitle ?? "Application details";
     var application = Model.Application;
     var failed = string.Equals(
@@ -22,6 +23,12 @@
     <div class="dashboard-shell">
         <aside class="sidebar" id="dashboardSidebar">
             <a class="brand" href="/Portal/Home"><span class="brand-mark">ϟ</span><span>BothFind</span></a>
+            @if (isStudent)
+            {
+                <partial name="_StudentWorkspaceNavigation" />
+            }
+            else
+            {
             <nav class="nav-menu" aria-label="Candidate navigation">
                 <a class="nav-link" asp-controller="Home" asp-action="Index"><span class="nav-icon">⌂</span><span>Dashboard</span></a>
                 <a class="nav-link" asp-controller="Opportunities" asp-action="OpportunitiesPage"><span class="nav-icon">⌕</span><span>Jobs</span></a>
@@ -29,6 +36,7 @@
                 <a class="nav-link" asp-controller="Skills" asp-action="SkillsPage"><span class="nav-icon">✦</span><span>Skills</span></a>
                 <a class="nav-link" asp-controller="Profile" asp-action="ProfilePage"><span class="nav-icon">○</span><span>Profile</span></a>
             </nav>
+            }
             <div class="sidebar-bottom">
                 <form method="post" action="/SignOut">
                     @Html.AntiForgeryToken()
@@ -45,7 +53,7 @@
                     <partial name="_CandidateNotifications" />
                     <a class="account-chip" href="/Profile" aria-label="Open profile">
                         <div class="avatar">@Model.Initials</div>
-                        <div class="account-copy"><strong>@Model.DisplayName</strong><span>Candidate</span></div>
+                        <div class="account-copy"><strong>@Model.DisplayName</strong><span>@(isStudent ? "Student" : "Candidate")</span></div>
                         <span class="chevron">⌄</span>
                     </a>
                 </div>

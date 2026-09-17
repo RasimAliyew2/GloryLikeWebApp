@@ -29,6 +29,7 @@ internal sealed class BackendLoginRequest
 
 public sealed class SocialLoginRequestDto
 {
+    public string RegistrationAccountType { get; set; } = "candidate";
     public string Provider { get; set; } = string.Empty;
     public string ProviderSubject { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -38,6 +39,7 @@ public sealed class SocialLoginRequestDto
 
 internal sealed class BackendSocialLoginRequest
 {
+    public string RegistrationAccountType { get; set; } = "candidate";
     public string Provider { get; set; } = string.Empty;
     public string ProviderSubject { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -47,6 +49,9 @@ internal sealed class BackendSocialLoginRequest
 
 internal sealed class BackendStartEmailRegistrationRequest
 {
+    public string? University { get; set; }
+    public string? Specialty { get; set; }
+    public int? StudyYear { get; set; }
     public string ProfileName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;

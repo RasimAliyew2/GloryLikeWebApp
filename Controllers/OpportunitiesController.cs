@@ -24,6 +24,7 @@ public sealed class OpportunitiesController : Controller
     [HttpGet("/Opportunities")]
     public async Task<IActionResult> OpportunitiesPage(
         string? search,
+        int? vacancyId,
         CancellationToken cancellationToken)
     {
         if (!TryGetCandidateUserId(out var candidateUserId))
@@ -60,6 +61,8 @@ public sealed class OpportunitiesController : Controller
                     .ToList();
             }
 
+            if (vacancyId.HasValue)
+                opportunities = opportunities.Where(o => o.Id == vacancyId.Value).ToList();
             model.Opportunities = opportunities;
 
             if (model.Opportunities.Count == 0)

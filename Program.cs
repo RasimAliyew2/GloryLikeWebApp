@@ -253,6 +253,15 @@ builder.Services.AddHttpClient<
 });
 
 
+builder.Services.AddHttpClient<StudentProfileApiService>((sp, client) =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    client.BaseAddress = new Uri(configuration["Backend:BaseUrl"] ?? throw new InvalidOperationException("Backend:BaseUrl is required."));
+    var secret = configuration["SocialAuth:BackendSharedSecret"];
+    if (!string.IsNullOrWhiteSpace(secret)) client.DefaultRequestHeaders.Add("X-BothFind-Backend-Secret", secret);
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(
@@ -260,8 +269,13 @@ builder.Services.AddAuthorization(options =>
         policy => policy
             .RequireClaim(
                 PortalClaimTypes.ClaimName,
-                PortalClaimTypes.Employee)
-            .RequireClaim("accountType", "candidate"));
+                PortalClaimTypes.Employee, PortalClaimTypes.Student)
+            .RequireClaim("accountType", "candidate", "student"));
+
+    options.AddPolicy(PortalClaimTypes.StudentPolicy, policy => policy
+        .RequireAuthenticatedUser()
+        .RequireClaim(PortalClaimTypes.ClaimName, PortalClaimTypes.Student)
+        .RequireClaim("accountType", "student"));
 
     options.AddPolicy(
         PortalClaimTypes.EmployerPolicy,
@@ -340,10 +354,8 @@ var authenticationBuilder = builder.Services
 
                 var validUserId = int.TryParse(userIdValue, out var userId)
                     && userId > 0;
-                var validAccountType = rawAccountType is "candidate" or "employer";
-                var expectedPortal = accountType == "employer"
-                    ? PortalClaimTypes.Employer
-                    : PortalClaimTypes.Employee;
+                var validAccountType = rawAccountType is "candidate" or "student" or "employer";
+                var expectedPortal = AccountRouting.Portal(accountType);
                 var validPortal = string.Equals(
                     portalType,
                     expectedPortal,

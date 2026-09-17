@@ -41,6 +41,9 @@ public class BackendAuthApiService : IBackendAuthApiService
                 Email = model.Email.Trim(),
                 Password = model.Password,
                 AccountType = model.AccountType,
+                University = model.University,
+                Specialty = model.Specialty,
+                StudyYear = model.StudyYear,
                 CompanyName = model.CompanyName,
                 CompanyType = model.CompanyType,
                 Industry = model.Industry,
@@ -180,6 +183,7 @@ public class BackendAuthApiService : IBackendAuthApiService
                     new BackendSocialLoginRequest
                     {
                         Provider = request.Provider,
+                        RegistrationAccountType = request.RegistrationAccountType,
                         ProviderSubject =
                             request.ProviderSubject,
                         Email = request.Email,

@@ -10,6 +10,10 @@
         document.querySelectorAll("[data-benefits-type]"));
     const benefitsPanels = Array.from(
         document.querySelectorAll("[data-benefits-panel]"));
+    const studentSection = document.querySelector('.student-only-fields');
+    const studentInputs = [...document.querySelectorAll('.student-only-fields input')];
+    const studentNote = document.getElementById('studentRegistrationNote');
+    const socialLinks = [...document.querySelectorAll('.social-buttons a')];
     const employerOnlyFields = Array.from(
         document.querySelectorAll(".employer-only-field"));
     const profileNameLabel =
@@ -61,9 +65,7 @@
     }
 
     let accountType =
-        accountTypeInput.value === "candidate"
-            ? "candidate"
-            : "employer";
+        ["candidate", "student"].includes(accountTypeInput.value) ? accountTypeInput.value : "employer";
 
     const setFeedback = (message = "", isSuccess = false) => {
         if (!feedback)
@@ -96,13 +98,19 @@
         type,
         clearFeedback = true) => {
         accountType =
-            !isTeamInvitation
-            && type === "candidate"
-                ? "candidate"
-                : "employer";
+            !isTeamInvitation && ["candidate", "student"].includes(type) ? type : "employer";
         accountTypeInput.value = accountType;
 
         const isEmployer = accountType === "employer";
+        const isStudent = accountType === "student";
+        if (studentSection) studentSection.hidden = !isStudent;
+        if (studentNote) studentNote.hidden = !isStudent;
+        studentInputs.forEach(input => { input.disabled = !isStudent; input.required = isStudent; input.classList.remove('user-invalid'); });
+        socialLinks.forEach(link => {
+            const url = new URL(link.href, location.origin);
+            url.searchParams.set('accountType', isStudent ? 'student' : 'candidate');
+            link.href = url.toString();
+        });
 
         accountTypeButtons.forEach((button) => {
             const active =
@@ -141,21 +149,22 @@
         emailInput.placeholder =
             isEmployer
                 ? "hr@company.com"
-                : "you@example.com";
+                : isStudent ? "you@university.edu" : "you@example.com";
         submitButton.textContent =
             isTeamInvitation
                 ? "Accept Invitation"
                 : isEmployer
                 ? "Create a Business Profile"
-                : "Create a Candidate Profile";
+                : isStudent ? "Create a Student Profile" : "Create a Candidate Profile";
         registrationNote.textContent =
             isTeamInvitation
                 ? "After email verification, your name will automatically appear in the company team."
                 : isEmployer
                 ? "You will be able to create your first vacancy immediately after registration."
+                : isStudent ? "Start with your profile — build your skills and discover internships in your Student home."
                 : "You will be able to complete your skills and career profile after registration.";
 
-        setBenefitsType(accountType);
+        setBenefitsType(isEmployer ? "employer" : "candidate");
         if (clearFeedback)
             setFeedback();
     };
@@ -212,6 +221,8 @@
             && !isTeamInvitation) {
             inputsToValidate.push(industryInput);
         }
+
+        if (accountType === "student") inputsToValidate.push(...studentInputs);
 
         const valid =
             inputsToValidate

@@ -1,0 +1,71 @@
+@using GloryLikeWebApp.Services
+@model GloryLikeWebApp.Models.Student.StudentDashboardViewModel
+@{ Layout = "_StudentLayout"; var toNext = Model.NextTarget - Model.Ssi; var nextProgress = Math.Min(100, Model.Ssi * 100 / Model.NextTarget); }
+<header class="student-greeting"><div><h1>Hello, Student <span aria-hidden="true">👋</span></h1><p>Your next chapter starts here. Take a look at your progress.</p></div><span class="student-term">@(Model.Education.HasEducation ? $"Year {Model.Education.StudyYear} · {Model.Education.Specialty}" : "Your student journey")</span></header>
+<section class="student-score-card" aria-labelledby="ssiHeading">
+    <div class="student-score-ring" role="img" aria-label="Student Skills Index: @Model.SsiText out of 100">
+        <svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="studentScoreGradient" x1="0" x2="1" y1="1" y2="0"><stop offset="0%" stop-color="#5947ed"/><stop offset="100%" stop-color="#b956eb"/></linearGradient></defs>
+            <circle class="student-ring-track" cx="60" cy="60" r="52" />
+            <circle class="student-ring-fill" cx="60" cy="60" r="52" pathLength="100" stroke-dasharray="100" stroke-dashoffset="@(100 - Model.Ssi)" data-st-ring="@Model.Ssi" />
+        </svg>
+        <div>@if (Model.SkillsAvailable) { <strong data-st-number="@Model.Ssi">@Model.Ssi</strong> } else { <strong>—</strong> }<span>out of 100</span></div>
+    </div>
+    <div class="student-score-copy"><span class="student-level"><partial name="_StudentIcon" model='"spark"' /> @Model.Level</span>
+        <h2 id="ssiHeading">@(!Model.SkillsAvailable ? "Your SSI is temporarily unavailable" : Model.Ssi >= 81 ? "You've reached the Standout level" : $"{toNext} points to your {Model.NextLevel} level")</h2>
+        <p>@(Model.Ssi >= 61 ? "Explore internships and junior positions that fit your skills." : "Add your skills and verify what you know to build your SSI.")</p>
+        <div class="student-progress" role="progressbar" aria-label="Progress to next SSI level" aria-valuenow="@Model.Ssi" aria-valuemin="0" aria-valuemax="@Model.NextTarget"><span style="width:@nextProgress%" data-st-bar="@nextProgress"></span></div>
+        <small>SSI @Model.SsiText / @Model.NextTarget — @Model.NextLevel</small>
+        <button class="student-text-button" type="button" data-open-student-dialog="ssiDetails">How is SSI calculated? <span aria-hidden="true">↗</span></button>
+    </div>
+</section>
+<section class="student-section"><h2 class="student-section-title">Your next steps</h2><div class="student-action-grid">
+    <a class="student-action-card" href="/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"cap"' /></span><span class="student-action-tag">Build</span><h3>Choose your career path</h3><p>Add the skills you want to be known for.</p></a>
+    <a class="student-action-card" href="/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"verified"' /></span><span class="student-action-tag">Verify</span><h3>@(Model.VerifiedSkills == 0 ? "Verify your first skill" : "Keep building your skill evidence")</h3><p>Turn what you know into a stronger profile.</p></a>
+    <a class="student-action-card" href="/Student/Internships"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><span class="student-action-tag">Explore</span><h3>Find your first opportunity</h3><p>Discover internships and junior roles.</p></a>
+</div></section>
+<section class="student-development student-card"><div class="student-section-heading"><h2 class="student-section-title">Your development areas</h2><button class="student-text-button" type="button" data-open-student-dialog="ssiDetails">Read more <partial name="_StudentIcon" model='"arrow"' /></button></div>
+    <div class="student-metric-row"><span><partial name="_StudentIcon" model='"cap"' /> Education</span><div class="student-progress"><span style="width:@(Model.Education.HasEducation ? 100 : 0)%" data-st-bar="@(Model.Education.HasEducation ? 100 : 0)"></span></div><strong>@(Model.Education.Success ? Model.Education.HasEducation ? "Complete" : "Add details" : "Unavailable")</strong></div>
+    <div class="student-metric-row"><span><partial name="_StudentIcon" model='"verified"' /> Skills</span><div class="student-progress"><span style="width:@Model.Ssi%" data-st-bar="@Model.Ssi"></span></div><strong>@Model.SsiText</strong></div>
+    <div class="student-metric-row"><span><partial name="_StudentIcon" model='"briefcase"' /> Internships</span><div class="student-metric-caption"><a href="/Student/Internships#internshipApplications">View your application progress</a></div><strong>@Model.ApplicationCountText</strong></div>
+    <div class="student-metric-row"><span><partial name="_StudentIcon" model='"folder"' /> Projects</span><div class="student-progress pending"></div><strong class="student-muted">Not available yet</strong></div>
+    <div class="student-metric-row"><span><partial name="_StudentIcon" model='"people"' /> Community</span><div class="student-progress pending"></div><strong class="student-muted">Not available yet</strong></div>
+    <p class="student-metric-note">SSI currently reflects your saved skill signals. Education and internship activity are shown separately.</p>
+</section>
+<div class="student-stats-grid">
+    <a class="student-stat" href="#academy"><span class="student-icon-tile"><partial name="_StudentIcon" model='"cap"' /></span><span><strong>—</strong><small>Courses · coming later</small></span></a>
+    <a class="student-stat" href="/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"verified"' /></span><span><strong>@Model.SkillCountText</strong><small>Skills in your profile</small></span></a>
+    <a class="student-stat" href="/Student/Internships#internshipApplications"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><span><strong>@Model.ApplicationCountText</strong><small>Internship applications</small></span></a>
+    <a class="student-stat" href="#events"><span class="student-icon-tile"><partial name="_StudentIcon" model='"calendar"' /></span><span><strong>—</strong><small>Events · coming later</small></span></a>
+</div>
+<section class="student-section"><div class="student-section-heading"><h2 class="student-section-title"><partial name="_StudentIcon" model='"medal"' /> Achievements</h2><small>@Model.Achievements.Count(a => a.Earned) of @Model.Achievements.Count earned</small></div>
+    <div class="student-achievements">
+        @foreach (var badge in Model.Achievements)
+        {
+            <article class="student-achievement @(badge.Earned ? "earned" : "locked")"><div class="student-badge-ring" style="--badge-progress:@badge.Progress%"><span><partial name="_StudentIcon" model="badge.Icon" /></span></div><h3>@badge.Name</h3><p>@badge.Description</p><span class="student-earned-label">@(badge.Earned ? "Earned" : badge.IsAvailable ? $"{badge.Progress}%" : "Unavailable")</span></article>
+        }
+    </div>
+</section>
+<section class="student-section"><div class="student-section-heading"><h2 class="student-section-title">Recommended for you</h2><a class="student-text-button" href="/Student/Internships">All opportunities <partial name="_StudentIcon" model='"arrow"' /></a></div>
+    <partial name="_StudentOpportunities" model="Model" />
+</section>
+<div class="student-future-grid">
+    <section class="student-card student-future" id="academy"><span class="student-icon-tile"><partial name="_StudentIcon" model='"book"' /></span><div><h2>Academy</h2><p>Courses haven't been published yet. Start by exploring and verifying your skills.</p><a href="/Skills">Open your skills <span aria-hidden="true">→</span></a></div></section>
+    <section class="student-card student-future" id="events"><span class="student-icon-tile"><partial name="_StudentIcon" model='"calendar"' /></span><div><h2>Events</h2><p>No student events are available yet. Future events will appear here.</p></div></section>
+</div>
+<section class="student-education-footer" id="education"><partial name="_StudentIcon" model='"user"' /><div><strong>@(Model.Education.HasEducation ? Model.Education.University : "Tell us where you're studying")</strong><span>@(Model.Education.HasEducation ? $"{Model.Education.Specialty} · Year {Model.Education.StudyYear}" : "Add your university, specialty and study year to complete your student profile.")</span></div><button type="button" class="student-text-button" data-open-student-dialog="educationEditor">@(Model.Education.HasEducation ? "Edit education" : "Add education") <partial name="_StudentIcon" model='"arrow"' /></button></section>
+<dialog class="student-dialog" id="ssiDetails" aria-labelledby="ssiDetailsTitle"><div class="student-dialog-heading"><h2 id="ssiDetailsTitle">Your Student Skills Index</h2><button type="button" data-close-student-dialog aria-label="Close details">×</button></div>
+    <p>SSI is the rounded average of your saved skill signals, from 0 to 100. Each unique skill is counted once, using its strongest saved signal. The average is calculated before rounding; individual signals below are rounded for display.</p><div class="student-formula">SSI = total skill signals ÷ number of skills</div>
+    <p>Verified skills use their credibility score. Self-declared skills contribute up to 40 points each. Skills marked absent contribute 0. With no skills, SSI starts at 0.</p>
+    <p>Job-Ready starts at 61; Standout starts at 81. SSI is separate from a vacancy's match score.</p>
+    @if (Model.SkillsAvailable && Model.Skills.Count > 0) { <div class="student-skill-breakdown">@foreach (var skill in Model.Skills) { <div><span>@skill.SkillName<small>@skill.StatusText</small></span><strong>@StudentDashboardBuilder.RoundSignal(skill.Signal)</strong></div> }</div><p class="student-formula">Current SSI: @Model.Ssi / 100</p> }
+    else { <p class="student-empty-note">@(Model.SkillsAvailable ? "Add your first skill to start building your SSI." : "Skills could not be loaded. Please try again.")</p> }
+    <p>Courses, projects and community activity are not included until those features have recorded data.</p><a class="student-primary-button" href="/Skills">Open my skills</a>
+</dialog>
+<dialog class="student-dialog" id="educationEditor" aria-labelledby="educationEditorTitle"><div class="student-dialog-heading"><h2 id="educationEditorTitle">Your education</h2><button type="button" data-close-student-dialog aria-label="Close education editor">×</button></div>
+    <form method="post" action="/Student/Education" id="studentEducationForm">@Html.AntiForgeryToken()<p class="student-alert" id="studentEducationError" role="alert" hidden></p>
+        <label>University<input name="University" value="@Model.Education.University" maxlength="200" placeholder="Your university" required /></label>
+        <label>Specialty<input name="Specialty" value="@Model.Education.Specialty" maxlength="200" placeholder="Your field of study" required /></label>
+        <label>Study year<select name="StudyYear" required><option value="">Select your year</option>@for (var year = 1; year <= 5; year++) { <option value="@year" selected="@(Model.Education.StudyYear == year)">Year @year</option> }</select></label>
+        <button class="student-primary-button" type="submit">Save education</button>
+    </form>
+</dialog>
