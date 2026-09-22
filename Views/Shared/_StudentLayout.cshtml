@@ -7,6 +7,7 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>@Model.Page · Student — BothFind</title>
     <link rel="stylesheet" href="~/css/student-home.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="student-body">
     <partial name="_StudentIcons" />
@@ -45,5 +46,6 @@
     </div>
     <script src="~/js/student-home.js" asp-append-version="true"></script>
     <script src="~/js/candidate-notifications.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

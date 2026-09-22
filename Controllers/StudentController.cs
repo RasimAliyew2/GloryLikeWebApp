@@ -23,11 +23,43 @@ public sealed class StudentController(StudentProfileApiService students, IUserPr
     }
 
     [HttpGet("/Student/Internships")]
-    public async Task<IActionResult> Internships(CancellationToken ct)
+    public async Task<IActionResult> Internships(string? search, string? filter, int? vacancyId, CancellationToken ct)
     {
         if (UserId <= 0) return Challenge();
-        var model = await BuildAsync(ct);
-        model.Page = "Internships";
+        var headerTask = BuildSkillsHeaderAsync("Internships", ct);
+        var listingsTask = vacancies.GetCandidateVacanciesAsync(UserId, ct);
+        await Task.WhenAll(headerTask, listingsTask);
+        var model = await headerTask;
+        var result = await listingsTask;
+        var selectedFilter = filter?.Trim().ToLowerInvariant() ?? "all";
+        model.InternshipFilter = StudentDashboardViewModel.InternshipFilters.Any(item => item.Key == selectedFilter)
+            ? selectedFilter : "all";
+        var listings = model.InternshipListings;
+        listings.SearchText = search?.Trim() ?? "";
+        listings.SuccessMessage = TempData["ApplicationSuccessMessage"] as string;
+        if (!result.Success || result.Data is null)
+        {
+            listings.ErrorMessage = "Internships are temporarily unavailable. Please try again.";
+            return View(model);
+        }
+
+        listings.CurrentJobName = string.Join(", ", result.Data.CandidateJobFamilyNames);
+        var cards = OpportunityCardBuilder.Build(result.Data.Vacancies.Where(StudentDashboardBuilder.IsStudentOpportunity).ToList());
+        if (model.InternshipFilter == "junior")
+            cards = cards.Where(item => item.Level.Equals("Junior", StringComparison.OrdinalIgnoreCase)).ToList();
+        else if (model.InternshipFilter is not ("all" or "internships"))
+        {
+            var skill = StudentDashboardViewModel.InternshipFilters.First(item => item.Key == model.InternshipFilter).Label;
+            cards = cards.Where(item => item.RequiredSkillItems.Contains(skill, StringComparer.OrdinalIgnoreCase)).ToList();
+        }
+        if (listings.SearchText.Length > 0)
+            cards = cards.Where(item => item.SearchText.Contains(listings.SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+        if (vacancyId.HasValue)
+            cards = cards.Where(item => item.Id == vacancyId.Value).ToList();
+        listings.Opportunities = cards;
+        listings.EmptyMessage = result.Data.CandidateJobFamilyIds.Count == 0
+            ? "Choose your career path and add skills to see matching internships as employers publish them."
+            : "Internships matching your career path will appear here when employers publish them. Try another filter or check back soon.";
         return View(model);
     }
 

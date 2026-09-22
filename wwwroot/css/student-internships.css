@@ -1,0 +1,34 @@
+.student-internships { max-width: 1280px; --op-indigo: var(--st-violet); --op-purple: var(--st-violet); }
+.student-internships .student-greeting { align-items: center; }
+.student-internships .student-ssi-chip { flex-shrink: 0; border-radius: 30px; background: #efebff; color: var(--st-violet); padding: 12px 18px; font-size: 14px; font-weight: 600; }
+.student-internships .opportunity-toolbar { margin: 0 0 28px; }
+.student-internships .opportunities-list { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 20px; }
+.student-internships .opportunity-card { border-color: var(--st-line); box-shadow: 0 2px 4px #1f293708; }
+.student-internships .opportunity-summary { grid-template-columns: 52px minmax(0, 1fr) auto; gap: 14px; padding: 24px 24px 16px; }
+.student-internships .opportunity-logo { grid-column: 1; grid-row: 1; align-self: start; }
+.student-internships .opportunity-title { grid-column: 2 / 4; grid-row: 1; }
+.student-internships .opportunity-title h3 { white-space: normal; overflow-wrap: anywhere; margin: 4px 0 6px; }
+.student-internships .match-score { grid-column: 1; grid-row: 2; min-width: 0; padding: 7px; }
+.student-internships .application-control { grid-column: 2 / 4; grid-row: 2; justify-self: stretch; justify-items: stretch; min-width: 0; }
+.student-internships .application-confirmation { display: flex; justify-content: center; align-items: center; gap: 9px; background: #e6f8f2; border-radius: 12px; padding: 8px; }
+.student-internships [data-applied="false"] .application-confirmation { display: none; }
+.student-internships .application-check { width: 24px; height: 24px; font-size: 15px; }
+.student-internships .apply-now-button { width: 100%; min-height: 46px; }
+.student-internships .opportunity-bookmark { grid-column: 1; grid-row: 3; justify-self: start; }
+.student-internships .opportunity-toggle { grid-column: 2 / 4; grid-row: 3; justify-self: end; }
+.student-internships .opportunity-preview { padding: 0 24px 24px; }
+.student-internships .opportunity-details { padding-inline: 24px; }
+.student-internships .opportunity-detail-grid, .student-internships .skill-match-grid { grid-template-columns: 1fr; }
+.student-internship-badge { display: inline-block; border-radius: 20px; padding: 5px 12px; margin: 0 8px 6px 0; background: #eaf1ff; color: #3765ff; font-size: 13px; font-weight: 600; }
+.student-internship-employer { margin: 0 0 8px; color: var(--st-muted); font-size: 13px; }
+.student-internships .student-internship-application { font-size: 12px; color: var(--st-violet); text-align: center; margin-top: 7px; }
+@media (max-width: 1200px) { .student-internships .opportunities-list { grid-template-columns: 1fr; } }
+@media (max-width: 650px) {
+    .student-internships .student-greeting { align-items: flex-start; flex-direction: column; gap: 16px; }
+    .student-internships .student-ssi-chip { font-size: 12px; }
+    .student-internships .opportunity-summary { grid-template-columns: 44px minmax(0, 1fr) auto; padding: 20px 16px 14px; gap: 10px; }
+    .student-internships .opportunity-logo { width: 44px; height: 44px; }
+    .student-internships .opportunity-title h3 { font-size: 17px; }
+    .student-internships .opportunity-preview, .student-internships .opportunity-details { padding-inline: 16px; }
+    .student-internships .score-filters { flex-wrap: wrap; overflow: visible; }
+}

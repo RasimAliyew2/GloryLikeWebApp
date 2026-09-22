@@ -1,0 +1,235 @@
+@model GloryLikeWebApp.Models.OpportunityItem
+@{ var opportunity = Model; var studentRole = User.FindFirst("accountType")?.Value == "student"; }
+<article
+    class="opportunity-card"
+    data-opportunity-card
+    data-opportunity-id="@opportunity.Id"
+    data-score="@opportunity.Score"
+    data-application-state="@(opportunity.IsApplied ? "applied" : "available")"
+    data-expanded="@opportunity.IsExpanded.ToString().ToLowerInvariant()">
+
+    <div class="opportunity-summary">
+        <div class="opportunity-logo">
+            @opportunity.LogoLetter
+        </div>
+
+        <div class="opportunity-title">
+            @if (studentRole) { <span class="student-internship-badge">Internship</span> }
+            <span class="job-family-label">
+                @opportunity.Company
+            </span>
+
+            <h3>@opportunity.Title</h3>
+            @if (studentRole) { <p class="student-internship-employer">@opportunity.EmployerName · @opportunity.WorkType</p> }
+
+            <div class="opportunity-meta">
+                <span>@opportunity.Level</span>
+                <span>•</span>
+                <span>
+                    @opportunity.Salary
+                </span>
+                <span>•</span>
+                <span>
+                    @opportunity.Location
+                </span>
+            </div>
+        </div>
+
+        <div
+            class="match-score @opportunity.ScoreClass"
+            style="--score-color:@opportunity.ScoreColor">
+            <strong>
+                @opportunity.Score%
+            </strong>
+            <span>match</span>
+        </div>
+
+        <div
+            class="application-control"
+            data-application-control
+            data-applied="@opportunity.IsApplied.ToString().ToLowerInvariant()"
+            aria-live="polite">
+
+            <button
+                type="button"
+                class="apply-now-button"
+                data-apply-role
+                data-apply-url="/Opportunities/@opportunity.Id/Apply"
+                data-role-title="@opportunity.Title">
+                <span data-apply-label>
+                    Apply now
+                </span>
+                <span
+                    class="apply-loading-spinner"
+                    aria-hidden="true">
+                </span>
+            </button>
+
+            <div
+                class="application-confirmation"
+                data-application-confirmation>
+                <span
+                    class="application-check"
+                    aria-hidden="true">
+                    ✓
+                </span>
+                <span class="application-response">
+                    @opportunity.ApplicationStatusText
+                </span>
+            </div>
+
+            @if (studentRole && opportunity.IsApplied) { <a class="student-internship-application" href="/Applications/@opportunity.Id">View application</a> }
+            <span
+                class="application-error"
+                data-application-error
+                role="alert"
+                hidden>
+            </span>
+        </div>
+
+        <button
+            type="button"
+            class="opportunity-bookmark"
+            data-bookmark
+            aria-label="Save opportunity"
+            title="Save opportunity">
+            ♡
+        </button>
+
+        <button
+            type="button"
+            class="opportunity-toggle"
+            data-toggle-opportunity
+            aria-label="Expand opportunity">
+            <span data-toggle-label>
+                @(opportunity.IsExpanded
+                    ? "Hide"
+                    : "Details")
+            </span>
+            <span
+                class="toggle-chevron">
+                ⌄
+            </span>
+        </button>
+    </div>
+
+    <div class="opportunity-preview">
+        <p>@opportunity.AboutRole</p>
+
+        <div class="opportunity-tag-row">
+            @foreach (var skill in
+                opportunity.RequiredSkillItems
+                    .Take(5))
+            {
+                <span>@skill</span>
+            }
+        </div>
+    </div>
+
+    <div
+        class="opportunity-details"
+        data-opportunity-details>
+
+        <div class="opportunity-detail-grid">
+            <section class="detail-block">
+                <span class="detail-label">
+                    ABOUT THE ROLE
+                </span>
+                <p>@opportunity.AboutRole</p>
+            </section>
+
+            <section class="detail-block">
+                <span class="detail-label">
+                    REQUIRED SKILLS
+                </span>
+
+                <ul>
+                    @foreach (
+                        var responsibility
+                        in opportunity
+                            .ResponsibilityItems)
+                    {
+                        <li>
+                            @responsibility
+                        </li>
+                    }
+                </ul>
+            </section>
+        </div>
+
+        <div class="skill-match-grid">
+            <section class="matched-skill-box">
+                <span class="detail-label">
+                    MATCHED SKILLS
+                </span>
+
+                <div class="detail-tags matched">
+                    @if (opportunity
+                        .MatchedSkillItems
+                        .Count == 0)
+                    {
+                        <span class="empty-tag">
+                            No matched skills yet
+                        </span>
+                    }
+                    else
+                    {
+                        @foreach (
+                            var skill
+                            in opportunity
+                                .MatchedSkillItems)
+                        {
+                            <span>
+                                @skill
+                            </span>
+                        }
+                    }
+                </div>
+            </section>
+
+            <section class="missing-skill-box">
+                <span class="detail-label">
+                    MISSING SKILLS
+                </span>
+
+                <div class="detail-tags missing">
+                    @if (opportunity
+                        .MissingSkillItems
+                        .Count == 0)
+                    {
+                        <span class="empty-tag">
+                            No missing required skills
+                        </span>
+                    }
+                    else
+                    {
+                        @foreach (
+                            var skill
+                            in opportunity
+                                .MissingSkillItems)
+                        {
+                            <span>
+                                @skill
+                            </span>
+                        }
+                    }
+                </div>
+            </section>
+        </div>
+
+        <div class="match-note">
+            <span>✦</span>
+            <p>@opportunity.MatchNote</p>
+        </div>
+
+        <div class="opportunity-actions">
+            <a
+                class="secondary-role-button"
+                asp-controller="Skills"
+                asp-action="SkillsPage">
+                Improve matching skills
+            </a>
+
+        </div>
+    </div>
+</article>

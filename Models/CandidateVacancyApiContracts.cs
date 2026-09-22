@@ -23,6 +23,7 @@ public sealed class CandidateVacancyApiItem
     public string SeniorityName { get; set; } = string.Empty;
     public string LocationName { get; set; } = string.Empty;
     public string EmploymentType { get; set; } = string.Empty;
+    public string VacancyType { get; set; } = "Employee";
     public decimal? MinSalary { get; set; }
     public decimal? MaxSalary { get; set; }
     public string Currency { get; set; } = string.Empty;

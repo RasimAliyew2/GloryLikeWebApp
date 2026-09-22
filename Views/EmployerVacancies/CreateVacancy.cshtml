@@ -553,6 +553,15 @@
 
                         <div class="form-grid two-columns">
                             <div class="form-field">
+                                <label asp-for="Input.VacancyType">Vacancy type</label>
+                                <select asp-for="Input.VacancyType" aria-describedby="vacancyTypeHelp">
+                                    <option value="Employee">Employee</option>
+                                    <option value="Internship">Internship</option>
+                                </select>
+                                <small id="vacancyTypeHelp">Internships appear in the Student portal. Employee roles appear in Employee Opportunities.</small>
+                                <span asp-validation-for="Input.VacancyType" class="field-validation-error"></span>
+                            </div>
+                            <div class="form-field">
                                 <label asp-for="Input.EmploymentType">
                                     Employment Type
                                 </label>
@@ -561,7 +570,10 @@
                                     <option>Full-time</option>
                                     <option>Part-time</option>
                                     <option>Contract</option>
-                                    <option>Internship</option>
+                                    @if (Model.Input.EmploymentType == "Internship")
+                                    {
+                                        <option>Internship</option>
+                                    }
                                 </select>
                             </div>
 

@@ -5,14 +5,12 @@ namespace GloryLikeWebApp.Services;
 
 public static class StudentDashboardBuilder
 {
-    public static bool IsInternship(string? employmentType) =>
-        string.Equals(employmentType?.Trim(), "Internship", StringComparison.OrdinalIgnoreCase);
+    public static bool IsInternship(string? vacancyType) =>
+        string.Equals(vacancyType, "Internship", StringComparison.Ordinal);
 
     public static bool IsStudentOpportunity(CandidateVacancyApiItem vacancy)
     {
-        if (IsInternship(vacancy.EmploymentType)) return true;
-        var seniority = vacancy.SeniorityName?.Trim().ToLowerInvariant() ?? "";
-        return seniority is "intern" or "internship" or "junior" or "entry" or "entry level" or "entry-level" or "trainee";
+        return IsInternship(vacancy.VacancyType);
     }
 
     public static int RoundSignal(double value) => double.IsFinite(value)
@@ -29,7 +27,7 @@ public static class StudentDashboardBuilder
         model.Opportunities = vacancies.Where(v => v.VacancyId > 0 && IsStudentOpportunity(v))
             .GroupBy(v => v.VacancyId).Select(g => g.First())
             .OrderByDescending(v => v.MatchScore).ThenByDescending(v => v.CreatedAtUtc).ToList();
-        model.InternshipApplications = applications.Where(a => IsInternship(a.EmploymentType))
+        model.InternshipApplications = applications.Where(a => IsInternship(a.VacancyType))
             .OrderByDescending(a => a.AppliedAtUtc).ToList();
         var intern = model.InternshipApplications.Any(a => a.HiredAtUtc.HasValue);
         var count = model.Skills.Count;

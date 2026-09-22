@@ -128,6 +128,7 @@ public sealed class CandidateApplicationListApiResponse
 
 public sealed class CandidateApplicationApiItem
 {
+    public string VacancyType { get; set; } = "Employee";
     public int ApplicationId { get; set; }
     public int VacancyId { get; set; }
     public int CompanyOwnerUserId { get; set; }

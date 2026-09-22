@@ -12,7 +12,7 @@
     </div>
     <div class="student-score-copy"><span class="student-level"><partial name="_StudentIcon" model='"spark"' /> @Model.Level</span>
         <h2 id="ssiHeading">@(!Model.SkillsAvailable ? "Your SSI is temporarily unavailable" : Model.Ssi >= 81 ? "You've reached the Standout level" : $"{toNext} points to your {Model.NextLevel} level")</h2>
-        <p>@(Model.Ssi >= 61 ? "Explore internships and junior positions that fit your skills." : "Add your skills and verify what you know to build your SSI.")</p>
+        <p>@(Model.Ssi >= 61 ? "Explore internships that fit your skills." : "Add your skills and verify what you know to build your SSI.")</p>
         <div class="student-progress" role="progressbar" aria-label="Progress to next SSI level" aria-valuenow="@Model.Ssi" aria-valuemin="0" aria-valuemax="@Model.NextTarget"><span style="width:@nextProgress%" data-st-bar="@nextProgress"></span></div>
         <small>SSI @Model.SsiText / @Model.NextTarget — @Model.NextLevel</small>
         <button class="student-text-button" type="button" data-open-student-dialog="ssiDetails">How is SSI calculated? <span aria-hidden="true">↗</span></button>
@@ -21,12 +21,12 @@
 <section class="student-section"><h2 class="student-section-title">Your next steps</h2><div class="student-action-grid">
     <a class="student-action-card" href="/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"cap"' /></span><span class="student-action-tag">Build</span><h3>Choose your career path</h3><p>Add the skills you want to be known for.</p></a>
     <a class="student-action-card" href="/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"verified"' /></span><span class="student-action-tag">Verify</span><h3>@(Model.VerifiedSkills == 0 ? "Verify your first skill" : "Keep building your skill evidence")</h3><p>Turn what you know into a stronger profile.</p></a>
-    <a class="student-action-card" href="/Student/Internships"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><span class="student-action-tag">Explore</span><h3>Find your first opportunity</h3><p>Discover internships and junior roles.</p></a>
+    <a class="student-action-card" href="/Student/Internships"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><span class="student-action-tag">Explore</span><h3>Find your first opportunity</h3><p>Discover internships.</p></a>
 </div></section>
 <section class="student-development student-card"><div class="student-section-heading"><h2 class="student-section-title">Your development areas</h2><button class="student-text-button" type="button" data-open-student-dialog="ssiDetails">Read more <partial name="_StudentIcon" model='"arrow"' /></button></div>
     <div class="student-metric-row"><span><partial name="_StudentIcon" model='"cap"' /> Education</span><div class="student-progress"><span style="width:@(Model.Education.HasEducation ? 100 : 0)%" data-st-bar="@(Model.Education.HasEducation ? 100 : 0)"></span></div><strong>@(Model.Education.Success ? Model.Education.HasEducation ? "Complete" : "Add details" : "Unavailable")</strong></div>
     <div class="student-metric-row"><span><partial name="_StudentIcon" model='"verified"' /> Skills</span><div class="student-progress"><span style="width:@Model.Ssi%" data-st-bar="@Model.Ssi"></span></div><strong>@Model.SsiText</strong></div>
-    <div class="student-metric-row"><span><partial name="_StudentIcon" model='"briefcase"' /> Internships</span><div class="student-metric-caption"><a href="/Student/Internships#internshipApplications">View your application progress</a></div><strong>@Model.ApplicationCountText</strong></div>
+    <div class="student-metric-row"><span><partial name="_StudentIcon" model='"briefcase"' /> Internships</span><div class="student-metric-caption"><a href="/Applications">View your application progress</a></div><strong>@Model.ApplicationCountText</strong></div>
     <div class="student-metric-row"><span><partial name="_StudentIcon" model='"folder"' /> Projects</span><div class="student-progress pending"></div><strong class="student-muted">Not available yet</strong></div>
     <div class="student-metric-row"><span><partial name="_StudentIcon" model='"people"' /> Community</span><div class="student-progress pending"></div><strong class="student-muted">Not available yet</strong></div>
     <p class="student-metric-note">SSI currently reflects your saved skill signals. Education and internship activity are shown separately.</p>
@@ -34,7 +34,7 @@
 <div class="student-stats-grid">
     <a class="student-stat" href="/Student/Academy"><span class="student-icon-tile"><partial name="_StudentIcon" model='"cap"' /></span><span><strong>0</strong><small>Academy courses</small></span></a>
     <a class="student-stat" href="/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"verified"' /></span><span><strong>@Model.SkillCountText</strong><small>Skills in your profile</small></span></a>
-    <a class="student-stat" href="/Student/Internships#internshipApplications"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><span><strong>@Model.ApplicationCountText</strong><small>Internship applications</small></span></a>
+    <a class="student-stat" href="/Applications"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><span><strong>@Model.ApplicationCountText</strong><small>Internship applications</small></span></a>
     <a class="student-stat" href="/Student/Events"><span class="student-icon-tile"><partial name="_StudentIcon" model='"calendar"' /></span><span><strong>0</strong><small>Upcoming events</small></span></a>
 </div>
 <section class="student-section"><div class="student-section-heading"><h2 class="student-section-title"><partial name="_StudentIcon" model='"medal"' /> Achievements</h2><small>@Model.Achievements.Count(a => a.Earned) of @Model.Achievements.Count earned</small></div>

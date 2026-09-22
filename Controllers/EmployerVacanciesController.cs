@@ -1127,6 +1127,7 @@ public sealed class EmployerVacanciesController : Controller
             PositionName = source.PositionName,
             RoleTitle = source.RoleTitle,
             EmploymentType = source.EmploymentType,
+            VacancyType = source.VacancyType,
             JobDescription = source.JobDescription,
             Visibility = source.Visibility,
             Status = source.Status,

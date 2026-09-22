@@ -2,7 +2,7 @@
 @model GloryLikeWebApp.Models.Student.StudentDashboardViewModel
 @if (Model.Opportunities.Count == 0)
 {
-    <div class="student-empty"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><h3>@(Model.OpportunitiesAvailable ? "No matching opportunities yet" : "Opportunities are temporarily unavailable")</h3><p>@(Model.OpportunitiesAvailable ? "Choose your career path and add skills to see relevant internships and junior roles as employers publish them." : "Refresh this page to try again.")</p><a href="/Skills">Review your career path and skills →</a></div>
+    <div class="student-empty"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><h3>@(Model.OpportunitiesAvailable ? "No matching opportunities yet" : "Opportunities are temporarily unavailable")</h3><p>@(Model.OpportunitiesAvailable ? "Choose your career path and add skills to see relevant internships as employers publish them." : "Refresh this page to try again.")</p><a href="/Skills">Review your career path and skills →</a></div>
 }
 else
 {
@@ -10,8 +10,8 @@ else
         @foreach (var role in (Model.Page == "Internships" ? Model.Opportunities : Model.Opportunities.Take(3)))
         {
             var title = string.IsNullOrWhiteSpace(role.RoleTitle) ? role.PositionName : role.RoleTitle;
-            var link = role.HasApplied ? $"/Applications/{role.VacancyId}" : $"/Opportunities?vacancyId={role.VacancyId}";
-            <a class="student-opportunity" href="@link"><span class="student-opportunity-type"><partial name="_StudentIcon" model='"briefcase"' /> @(StudentDashboardBuilder.IsInternship(role.EmploymentType) ? "INTERNSHIP" : "JUNIOR ROLE")</span><h3>@title</h3><p>@role.EmployerName</p><small>@(string.IsNullOrWhiteSpace(role.LocationName) ? role.EmploymentType : role.LocationName + " · " + role.EmploymentType)</small><span class="student-opportunity-bottom"><span>@Math.Clamp(role.MatchScore, 0, 100)% match</span><strong>@(role.HasApplied ? "View application" : "View role") →</strong></span></a>
+            var link = role.HasApplied ? $"/Applications/{role.VacancyId}" : $"/Student/Internships?vacancyId={role.VacancyId}";
+            <a class="student-opportunity" href="@link"><span class="student-opportunity-type"><partial name="_StudentIcon" model='"briefcase"' /> INTERNSHIP</span><h3>@title</h3><p>@role.EmployerName</p><small>@(string.IsNullOrWhiteSpace(role.LocationName) ? role.EmploymentType : role.LocationName + " · " + role.EmploymentType)</small><span class="student-opportunity-bottom"><span>@Math.Clamp(role.MatchScore, 0, 100)% match</span><strong>@(role.HasApplied ? "View application" : "View role") →</strong></span></a>
         }
     </div>
 }

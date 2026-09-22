@@ -182,12 +182,16 @@
         button.addEventListener(
             "click",
             () => {
-                scoreButtons.forEach(
-                    item => item.classList
-                        .remove("active"));
+                scoreButtons.forEach(item => {
+                    item.classList.remove("active");
+                    if (item.hasAttribute("aria-pressed"))
+                        item.setAttribute("aria-pressed", "false");
+                });
 
                 button.classList.add(
                     "active");
+                if (button.hasAttribute("aria-pressed"))
+                    button.setAttribute("aria-pressed", "true");
 
                 const rawValue =
                     button.dataset.scoreFilter;

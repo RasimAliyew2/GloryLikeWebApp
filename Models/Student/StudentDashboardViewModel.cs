@@ -25,6 +25,18 @@ public sealed class StudentDashboardViewModel
 {
     public string DisplayName { get; set; } = "Student";
     public string Page { get; set; } = "Overview";
+    public OpportunitiesPageViewModel InternshipListings { get; set; } = new();
+    public string InternshipFilter { get; set; } = "all";
+    public static IReadOnlyList<(string Key, string Label)> InternshipFilters { get; } =
+    [
+        ("all", "All"), ("internships", "Internships"), ("junior", "Junior"),
+        ("business-english", "Business English"), ("digital-marketing", "Digital Marketing"),
+        ("etl", "ETL"), ("excel", "Excel"), ("figma", "Figma"),
+        ("financial-analysis", "Financial Analysis"), ("git", "Git"), ("hr-analytics", "HR Analytics"),
+        ("power-bi", "Power BI"), ("project-management", "Project Management"),
+        ("python", "Python"), ("sql", "SQL"), ("ux-research", "UX Research"),
+        ("copywriting", "Copywriting"), ("prototyping", "Prototyping")
+    ];
     public string EventsTab { get; set; } = "upcoming";
     public string AcademyCategory { get; set; } = "all";
     public static IReadOnlyList<(string Key, string Label)> AcademyFilters { get; } =

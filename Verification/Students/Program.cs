@@ -54,18 +54,18 @@ StudentDashboardBuilder.Populate(model,
     new() { SkillId = 3, SkillName = "Excel", Status = "absent", CredibilityScore = 90 }
 ],
 [
-    new() { VacancyId = 1, EmploymentType = "Internship", MatchScore = 75 },
+    new() { VacancyId = 1, VacancyType = "Internship", EmploymentType = "Full-time", MatchScore = 75 },
     new() { VacancyId = 2, SeniorityName = "Junior", MatchScore = 95 },
     new() { VacancyId = 3, SeniorityName = "Senior", MatchScore = 100 },
-    new() { VacancyId = 1, EmploymentType = "Internship", MatchScore = 75 }
+    new() { VacancyId = 1, VacancyType = "Internship", EmploymentType = "Full-time", MatchScore = 75 }
 ],
 [
-    new() { VacancyId = 1, EmploymentType = "Internship", HiredAtUtc = DateTime.UtcNow },
+    new() { VacancyId = 1, VacancyType = "Internship", EmploymentType = "Full-time", HiredAtUtc = DateTime.UtcNow },
     new() { VacancyId = 4, EmploymentType = "Full-time", HiredAtUtc = DateTime.UtcNow }
 ]);
 Check(model.Ssi == 40 && model.Skills.Count == 3, "SSI must average distinct skill signals: (80 + 40 + 0) / 3");
 Check(model.VerifiedSkills == 1, "Self-declared skills must not count as verified");
-Check(model.Opportunities.Select(v => v.VacancyId).SequenceEqual(new[] { 2, 1 }), "Recommend unique junior/intern roles ordered by match");
+Check(model.Opportunities.Select(v => v.VacancyId).SequenceEqual(new[] { 1 }), "Only explicitly categorized internships belong in the Student feed; junior Employee roles stay out");
 Check(model.InternshipApplications.Count == 1 && model.Achievements.Single(a => a.Name == "First internship").Earned, "Internship achievement requires hired internship");
 foreach (var (score, level) in new[] { (0, "Getting started"), (41, "Building momentum"), (61, "Job-Ready"), (81, "Standout") })
 { model.Ssi = score; Check(model.Level == level, "Incorrect SSI milestone"); }

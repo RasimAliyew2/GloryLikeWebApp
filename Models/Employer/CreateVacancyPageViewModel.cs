@@ -107,6 +107,10 @@ public sealed class CreateVacancyInput
     [Required]
     public string EmploymentType { get; set; } = "Full-time";
 
+    [Required(ErrorMessage = "Select Internship or Employee.")]
+    [RegularExpression("^(Employee|Internship)$", ErrorMessage = "Select Internship or Employee.")]
+    public string VacancyType { get; set; } = "Employee";
+
     [Required]
     public string ExperienceRequired { get; set; } = "1-3 years";
 

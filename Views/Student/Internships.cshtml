@@ -1,13 +1,55 @@
-@model GloryLikeWebApp.Models.Student.StudentDashboardViewModel
-@{ Layout = "_StudentLayout"; }
-<header class="student-greeting"><div><h1>Your first opportunities</h1><p>Internships and junior roles matched to your saved career path and skills.</p></div><a class="student-text-button" href="/Student">← Back to overview</a></header>
-<partial name="_StudentOpportunities" model="Model" />
-<section class="student-section" id="internshipApplications"><div class="student-section-heading"><h2 class="student-section-title">Your internship applications</h2><a class="student-text-button" href="/Applications">All applications →</a></div>
-@if (Model.InternshipApplications.Count == 0)
-{ <div class="student-empty"><h3>@(Model.ApplicationsAvailable ? "Your internship journey starts here" : "Applications are temporarily unavailable")</h3><p>@(Model.ApplicationsAvailable ? "After you apply for an internship, its current funnel stage will appear here." : "Refresh this page to try again.")</p></div> }
-else
-{
-    <div class="student-application-list">@foreach (var application in Model.InternshipApplications)
-    { <a href="/Applications/@application.VacancyId" class="student-application"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><div><strong>@application.RoleTitle</strong><p>@application.CompanyName · Applied @application.AppliedAtUtc.ToString("dd MMM yyyy")</p></div><span class="student-level">@application.FunnelStageName</span><partial name="_StudentIcon" model='"arrow"' /></a> }</div>
+@using GloryLikeWebApp.Models.Student
+@model StudentDashboardViewModel
+@{ Layout = "_StudentLayout"; var listings = Model.InternshipListings; }
+@section Styles {
+    <link rel="stylesheet" href="~/css/opportunities-page.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/student-internships.css" asp-append-version="true" />
 }
+<section class="student-internships" aria-labelledby="internshipsHeading">
+    <header class="student-greeting">
+        <div><h1 id="internshipsHeading">Internships</h1><p>First roles for students. Opportunities matched to your career path and skills.</p></div>
+        <span class="student-ssi-chip">✧ Your SSI @Model.SsiText · @Model.Level</span>
+    </header>
+    <nav class="student-academy-filters" aria-label="Internship filters">
+        @foreach (var filter in StudentDashboardViewModel.InternshipFilters)
+        {
+            <a class="student-academy-filter @(Model.InternshipFilter == filter.Key ? "active" : "")" asp-controller="Student" asp-action="Internships" asp-route-filter="@filter.Key" asp-route-search="@listings.SearchText" aria-current="@(Model.InternshipFilter == filter.Key ? "page" : null)">@filter.Label</a>
+        }
+    </nav>
+    <section class="opportunity-toolbar" aria-label="Search and match score">
+        <form class="opportunity-search" method="get" action="/Student/Internships">
+            <input type="hidden" name="filter" value="@Model.InternshipFilter" />
+            <input type="search" name="search" value="@listings.SearchText" placeholder="Search internships, companies or skills" aria-label="Search internships" />
+            @if (!string.IsNullOrWhiteSpace(listings.SearchText)) { <a asp-action="Internships" asp-route-filter="@Model.InternshipFilter">Clear</a> }
+            <button type="submit">Search</button>
+        </form>
+        <div class="score-filters" aria-label="Minimum match score">
+            <button type="button" class="score-filter active" data-score-filter="all" aria-pressed="true">All scores</button>
+            <button type="button" class="score-filter" data-score-filter="85" aria-pressed="false">85%+</button>
+            <button type="button" class="score-filter" data-score-filter="70" aria-pressed="false">70%+</button>
+            <button type="button" class="score-filter" data-score-filter="50" aria-pressed="false">50%+</button>
+        </div>
+    </section>
+    @if (!string.IsNullOrWhiteSpace(listings.SuccessMessage))
+    { <div class="opportunity-state success" role="status">@listings.SuccessMessage <a href="/Applications">View your applications</a></div> }
+    @if (!string.IsNullOrWhiteSpace(listings.ErrorMessage))
+    { <div class="opportunity-state error" role="alert"><h2>Internships are temporarily unavailable</h2><p>@listings.ErrorMessage</p><a href="/Student/Internships">Try again</a></div> }
+    else if (listings.Opportunities.Count == 0)
+    {
+        <div class="student-academy-empty student-card">
+            <span class="student-academy-empty-icon"><partial name="_StudentIcon" model='"briefcase"' /></span>
+            <h2>@(string.IsNullOrWhiteSpace(listings.SearchText) && Model.InternshipFilter == "all" ? "No internships yet" : "No matching internships")</h2>
+            <p>@listings.EmptyMessage</p>
+            <a class="student-text-button" href="/Skills">Review your career path and skills →</a>
+        </div>
+    }
+    else
+    {
+        <div class="student-section-heading"><h2 class="student-section-title">@listings.RolesCountText</h2><a class="student-text-button" href="/Applications">Your applications →</a></div>
+        <div class="opportunities-list" id="opportunitiesList">
+            @foreach (var opportunity in listings.Opportunities) { <partial name="_OpportunityCard" model="opportunity" /> }
+        </div>
+        <section class="client-filter-empty" id="clientFilterEmpty" hidden><h2>No internships in this score range</h2><p>Choose a lower match score to see more internships.</p></section>
+    }
 </section>
+@section Scripts { <script src="~/js/opportunities-page.js" asp-append-version="true"></script> }

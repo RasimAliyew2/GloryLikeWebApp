@@ -42,6 +42,7 @@ public sealed class EmployerVacancyDetailViewModel
     public string PositionName { get; set; } = string.Empty;
     public string RoleTitle { get; set; } = string.Empty;
     public string EmploymentType { get; set; } = string.Empty;
+    public string VacancyType { get; set; } = "Employee";
     public string JobDescription { get; set; } = string.Empty;
     public string Visibility { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
