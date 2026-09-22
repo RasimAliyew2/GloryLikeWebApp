@@ -239,6 +239,26 @@
     .student-events-empty p{font-size:13px}
 }
 
+/* Student Academy */
+.student-academy{max-width:1280px}
+.student-academy-filters{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 32px}
+.student-academy-filter{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 16px;border-radius:99px;background:#f0f0f4;color:#686f80!important;font-size:14px;transition:background .15s,color .15s}
+.student-academy-filter:hover{background:#eae5ff;color:var(--st-violet)!important}
+.student-academy-filter.active{background:var(--st-violet);color:#fff!important;font-weight:600}
+.student-academy-empty{display:flex;min-height:330px;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;box-shadow:0 2px 4px #23203504}
+.student-academy-empty-icon{display:grid;place-items:center;width:72px;height:72px;border-radius:22px;background:#efecff;color:var(--st-violet);margin-bottom:22px}
+.student-academy-empty-icon>.st-icon{width:32px;height:32px}
+.student-academy-empty h2{font-size:21px;font-weight:650;letter-spacing:-.4px;line-height:1.4}
+.student-academy-empty p{max-width:450px;margin-top:10px;color:var(--st-muted);font-size:14px;line-height:1.8}
+.student-academy-empty>.student-text-button{margin-top:22px;font-size:14px}
+@media(max-width:650px){
+    .student-academy-filters{gap:8px;margin-bottom:24px}
+    .student-academy-filter{min-height:44px;padding:10px 14px;font-size:12px}
+    .student-academy-empty{min-height:310px;padding:38px 20px}
+    .student-academy-empty h2{font-size:19px}
+    .student-academy-empty p{font-size:13px}
+}
+
 /* Shared candidate notification behavior in the Student header. */
 .candidate-notifications {
     position: relative;

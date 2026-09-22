@@ -26,6 +26,15 @@ public sealed class StudentDashboardViewModel
     public string DisplayName { get; set; } = "Student";
     public string Page { get; set; } = "Overview";
     public string EventsTab { get; set; } = "upcoming";
+    public string AcademyCategory { get; set; } = "all";
+    public static IReadOnlyList<(string Key, string Label)> AcademyFilters { get; } =
+    [
+        ("all", "All"), ("bothfind", "BothFind"), ("affiliate", "Affiliate"),
+        ("business-english", "Business English"), ("digital-marketing", "Digital Marketing"),
+        ("excel", "Excel"), ("financial-analysis", "Financial Analysis"), ("hr-analytics", "HR Analytics"),
+        ("power-bi", "Power BI"), ("project-management", "Project Management"),
+        ("python", "Python"), ("sql", "SQL"), ("ux-research", "UX Research")
+    ];
     public StudentProfileResponse Education { get; set; } = new();
     public bool SkillsAvailable { get; set; }
     public bool ApplicationsAvailable { get; set; }

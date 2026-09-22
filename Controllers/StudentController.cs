@@ -36,24 +36,25 @@ public sealed class StudentController(StudentProfileApiService students, IUserPr
     {
         if (UserId <= 0) return Challenge();
 
-        // The empty Events page only needs the saved skills for the shared SSI header.
-        var skills = await profiles.GetAsync(UserId, ct);
-        var model = new StudentDashboardViewModel
+        var model = await BuildSkillsHeaderAsync("Events", ct);
+        model.EventsTab = tab?.Trim().ToLowerInvariant() switch
         {
-            Page = "Events",
-            EventsTab = tab?.Trim().ToLowerInvariant() switch
-            {
-                "past" => "past",
-                "my" => "my",
-                _ => "upcoming"
-            },
-            DisplayName = User.FindFirstValue(ClaimTypes.Name) ?? "Student",
-            SkillsAvailable = skills.Success && skills.Data is not null
+            "past" => "past",
+            "my" => "my",
+            _ => "upcoming"
         };
-        if (!model.SkillsAvailable)
-            model.Errors.Add("Your skills and SSI could not be loaded. Please refresh to try again.");
+        return View(model);
+    }
 
-        StudentDashboardBuilder.Populate(model, skills.Success ? skills.Data?.Skills ?? [] : [], [], []);
+    [HttpGet("/Student/Academy")]
+    public async Task<IActionResult> Academy(string? category, CancellationToken ct)
+    {
+        if (UserId <= 0) return Challenge();
+
+        var model = await BuildSkillsHeaderAsync("Academy", ct);
+        var normalizedCategory = category?.Trim().ToLowerInvariant() ?? "all";
+        model.AcademyCategory = StudentDashboardViewModel.AcademyFilters.Any(filter => filter.Key == normalizedCategory)
+            ? normalizedCategory : "all";
         return View(model);
     }
 
@@ -65,6 +66,23 @@ public sealed class StudentController(StudentProfileApiService students, IUserPr
         if (!ModelState.IsValid) return BadRequest(new { success = false, message = "Enter your university, specialty and study year (1–5)." });
         var result = await students.SaveAsync(UserId, input, ct);
         return StatusCode(result.Success ? 200 : 400, new { success = result.Success, message = result.Message });
+    }
+
+    private async Task<StudentDashboardViewModel> BuildSkillsHeaderAsync(string page, CancellationToken ct)
+    {
+        // Empty catalogue pages only need saved skills for the shared SSI header.
+        var skills = await profiles.GetAsync(UserId, ct);
+        var model = new StudentDashboardViewModel
+        {
+            Page = page,
+            DisplayName = User.FindFirstValue(ClaimTypes.Name) ?? "Student",
+            SkillsAvailable = skills.Success && skills.Data is not null
+        };
+        if (!model.SkillsAvailable)
+            model.Errors.Add("Your skills and SSI could not be loaded. Please refresh to try again.");
+
+        StudentDashboardBuilder.Populate(model, skills.Success ? skills.Data?.Skills ?? [] : [], [], []);
+        return model;
     }
 
     private async Task<StudentDashboardViewModel> BuildAsync(CancellationToken ct)

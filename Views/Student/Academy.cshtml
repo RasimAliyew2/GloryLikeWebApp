@@ -1,0 +1,43 @@
+@using GloryLikeWebApp.Models.Student
+@model StudentDashboardViewModel
+@{
+    Layout = "_StudentLayout";
+    var isAll = Model.AcademyCategory == "all";
+    var categoryLabel = StudentDashboardViewModel.AcademyFilters.First(filter => filter.Key == Model.AcademyCategory).Label;
+    var heading = Model.AcademyCategory switch
+    {
+        "all" => "No courses yet",
+        "bothfind" => "No BothFind courses yet",
+        "affiliate" => "No affiliate courses yet",
+        _ => $"No {categoryLabel} courses yet"
+    };
+}
+
+<section class="student-academy" aria-labelledby="academyHeading">
+    <header class="student-greeting">
+        <div>
+            <h1 id="academyHeading">Academy</h1>
+            <p>Courses from BothFind and partners, designed for students.</p>
+        </div>
+    </header>
+
+    <nav class="student-academy-filters" aria-label="Course filters">
+        @foreach (var filter in StudentDashboardViewModel.AcademyFilters)
+        {
+            var selected = Model.AcademyCategory == filter.Key;
+            <a class="student-academy-filter @(selected ? "active" : "")"
+               href="/Student/Academy?category=@filter.Key"
+               aria-current="@(selected ? "page" : null)">@filter.Label</a>
+        }
+    </nav>
+
+    <div class="student-academy-empty student-card" aria-labelledby="academyEmptyHeading">
+        <span class="student-academy-empty-icon"><partial name="_StudentIcon" model='"book"' /></span>
+        <h2 id="academyEmptyHeading">@heading</h2>
+        <p>@(isAll ? "New learning opportunities will appear here once courses are published. Check back soon!" : "There are no published courses in this category yet. Check back soon for new learning opportunities.")</p>
+        @if (!isAll)
+        {
+            <a class="student-text-button" href="/Student/Academy">Browse all courses <partial name="_StudentIcon" model='"arrow"' /></a>
+        }
+    </div>
+</section>

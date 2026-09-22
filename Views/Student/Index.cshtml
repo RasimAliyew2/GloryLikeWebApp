@@ -32,7 +32,7 @@
     <p class="student-metric-note">SSI currently reflects your saved skill signals. Education and internship activity are shown separately.</p>
 </section>
 <div class="student-stats-grid">
-    <a class="student-stat" href="#academy"><span class="student-icon-tile"><partial name="_StudentIcon" model='"cap"' /></span><span><strong>—</strong><small>Courses · coming later</small></span></a>
+    <a class="student-stat" href="/Student/Academy"><span class="student-icon-tile"><partial name="_StudentIcon" model='"cap"' /></span><span><strong>0</strong><small>Academy courses</small></span></a>
     <a class="student-stat" href="/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"verified"' /></span><span><strong>@Model.SkillCountText</strong><small>Skills in your profile</small></span></a>
     <a class="student-stat" href="/Student/Internships#internshipApplications"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><span><strong>@Model.ApplicationCountText</strong><small>Internship applications</small></span></a>
     <a class="student-stat" href="/Student/Events"><span class="student-icon-tile"><partial name="_StudentIcon" model='"calendar"' /></span><span><strong>0</strong><small>Upcoming events</small></span></a>
@@ -49,7 +49,7 @@
     <partial name="_StudentOpportunities" model="Model" />
 </section>
 <div class="student-future-grid">
-    <section class="student-card student-future" id="academy"><span class="student-icon-tile"><partial name="_StudentIcon" model='"book"' /></span><div><h2>Academy</h2><p>Courses haven't been published yet. Start by exploring and verifying your skills.</p><a href="/Skills">Open your skills <span aria-hidden="true">→</span></a></div></section>
+    <section class="student-card student-future" id="academy"><span class="student-icon-tile"><partial name="_StudentIcon" model='"book"' /></span><div><h2>Academy</h2><p>Courses from BothFind and partners, designed for students. No courses have been published yet.</p><a href="/Student/Academy">Explore academy <span aria-hidden="true">→</span></a></div></section>
     <section class="student-card student-future" id="events"><span class="student-icon-tile"><partial name="_StudentIcon" model='"calendar"' /></span><div><h2>Events</h2><p>Workshops, webinars and networking for students. No events have been published yet.</p><a href="/Student/Events">Explore events <span aria-hidden="true">→</span></a></div></section>
 </div>
 <section class="student-education-footer" id="education"><partial name="_StudentIcon" model='"user"' /><div><strong>@(Model.Education.HasEducation ? Model.Education.University : "Tell us where you're studying")</strong><span>@(Model.Education.HasEducation ? $"{Model.Education.Specialty} · Year {Model.Education.StudyYear}" : "Add your university, specialty and study year to complete your student profile.")</span></div><button type="button" class="student-text-button" data-open-student-dialog="educationEditor">@(Model.Education.HasEducation ? "Edit education" : "Add education") <partial name="_StudentIcon" model='"arrow"' /></button></section>
