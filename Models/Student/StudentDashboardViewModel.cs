@@ -25,6 +25,7 @@ public sealed class StudentDashboardViewModel
 {
     public string DisplayName { get; set; } = "Student";
     public string Page { get; set; } = "Overview";
+    public string EventsTab { get; set; } = "upcoming";
     public StudentProfileResponse Education { get; set; } = new();
     public bool SkillsAvailable { get; set; }
     public bool ApplicationsAvailable { get; set; }

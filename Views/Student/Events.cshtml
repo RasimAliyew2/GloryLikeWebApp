@@ -1,0 +1,45 @@
+@model GloryLikeWebApp.Models.Student.StudentDashboardViewModel
+@{
+    Layout = "_StudentLayout";
+    var filters = new[] { (Key: "upcoming", Label: "Upcoming"), (Key: "past", Label: "Past"), (Key: "my", Label: "My") };
+    var (heading, description) = Model.EventsTab switch
+    {
+        "past" => ("No past events yet", "Once student events have taken place, you'll find them here."),
+        "my" => ("No events on your calendar yet", "Events you sign up for will appear here. Check Upcoming for new opportunities."),
+        _ => ("No upcoming events yet", "New workshops, webinars and networking opportunities will appear here. Check back soon!")
+    };
+}
+
+<section class="student-events" aria-labelledby="eventsHeading">
+    <header class="student-greeting">
+        <div>
+            <h1 id="eventsHeading">Events</h1>
+            <p>Workshops, webinars and networking for students.</p>
+        </div>
+    </header>
+
+    <div class="student-events-note">
+        <svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7h.01" /></svg>
+        <p>Your student events, all in one place. <span>Events attended: <strong>0</strong>.</span></p>
+    </div>
+
+    <nav class="student-event-filters" aria-label="Event filters">
+        @foreach (var filter in filters)
+        {
+            var selected = Model.EventsTab == filter.Key;
+            <a class="student-event-filter @(selected ? "active" : "")"
+               href="/Student/Events?tab=@filter.Key"
+               aria-current="@(selected ? "page" : null)">@filter.Label</a>
+        }
+    </nav>
+
+    <div class="student-events-empty student-card" aria-labelledby="eventsEmptyHeading">
+        <span class="student-events-empty-icon"><partial name="_StudentIcon" model='"calendar"' /></span>
+        <h2 id="eventsEmptyHeading">@heading</h2>
+        <p>@description</p>
+        @if (Model.EventsTab == "my")
+        {
+            <a class="student-text-button" href="/Student/Events">Browse upcoming events <partial name="_StudentIcon" model='"arrow"' /></a>
+        }
+    </div>
+</section>

@@ -31,6 +31,32 @@ public sealed class StudentController(StudentProfileApiService students, IUserPr
         return View(model);
     }
 
+    [HttpGet("/Student/Events")]
+    public async Task<IActionResult> Events(string? tab, CancellationToken ct)
+    {
+        if (UserId <= 0) return Challenge();
+
+        // The empty Events page only needs the saved skills for the shared SSI header.
+        var skills = await profiles.GetAsync(UserId, ct);
+        var model = new StudentDashboardViewModel
+        {
+            Page = "Events",
+            EventsTab = tab?.Trim().ToLowerInvariant() switch
+            {
+                "past" => "past",
+                "my" => "my",
+                _ => "upcoming"
+            },
+            DisplayName = User.FindFirstValue(ClaimTypes.Name) ?? "Student",
+            SkillsAvailable = skills.Success && skills.Data is not null
+        };
+        if (!model.SkillsAvailable)
+            model.Errors.Add("Your skills and SSI could not be loaded. Please refresh to try again.");
+
+        StudentDashboardBuilder.Populate(model, skills.Success ? skills.Data?.Skills ?? [] : [], [], []);
+        return View(model);
+    }
+
     [HttpPost("/Student/Education")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SaveEducation(StudentEducationInput input, CancellationToken ct)

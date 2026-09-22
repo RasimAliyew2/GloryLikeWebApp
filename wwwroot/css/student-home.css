@@ -213,6 +213,32 @@
 .student-application>.st-icon{margin-left:auto}}
 @media(prefers-reduced-motion:reduce){.student-body *{scroll-behavior:auto!important;transition:none!important}}
 
+/* Student Events */
+.student-events{max-width:1280px}
+.student-events-note{display:flex;align-items:center;gap:13px;padding:16px 20px;border:1px solid var(--st-line);border-radius:20px;background:#ffffffb3;color:var(--st-muted);font-size:14px}
+.student-events-note>.st-icon{color:var(--st-violet);width:20px;height:20px}
+.student-events-note p span{display:inline-block}
+.student-events-note strong{color:var(--st-ink);font-weight:600}
+.student-event-filters{display:flex;flex-wrap:wrap;gap:10px;margin:30px 0}
+.student-event-filter{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:11px 21px;border-radius:99px;background:#f0f0f4;color:#686f80!important;font-size:14px;font-weight:600;transition:background .15s,color .15s}
+.student-event-filter:hover{background:#eae5ff;color:var(--st-violet)!important}
+.student-event-filter.active{background:var(--st-violet);color:#fff!important}
+.student-events-empty{display:flex;min-height:330px;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;box-shadow:0 2px 4px #23203504}
+.student-events-empty-icon{display:grid;place-items:center;width:72px;height:72px;border-radius:22px;background:#efecff;color:var(--st-violet);margin-bottom:22px}
+.student-events-empty-icon>.st-icon{width:32px;height:32px}
+.student-events-empty h2{font-size:21px;font-weight:650;letter-spacing:-.4px;line-height:1.4}
+.student-events-empty p{max-width:450px;margin-top:10px;color:var(--st-muted);font-size:14px;line-height:1.8}
+.student-events-empty>.student-text-button{margin-top:22px;font-size:14px}
+@media(max-width:650px){
+    .student-events-note{align-items:flex-start;padding:15px 16px;font-size:12px;border-radius:16px}
+    .student-events-note>.st-icon{margin-top:1px}
+    .student-event-filters{gap:8px;margin:24px 0}
+    .student-event-filter{padding:10px 19px;font-size:13px}
+    .student-events-empty{min-height:310px;padding:38px 20px}
+    .student-events-empty h2{font-size:19px}
+    .student-events-empty p{font-size:13px}
+}
+
 /* Shared candidate notification behavior in the Student header. */
 .candidate-notifications {
     position: relative;
