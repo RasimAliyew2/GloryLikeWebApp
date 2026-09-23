@@ -7,7 +7,7 @@
 }
 <section class="student-internships" aria-labelledby="internshipsHeading">
     <header class="student-greeting">
-        <div><h1 id="internshipsHeading">Internships</h1><p>First roles for students. Opportunities matched to your career path and skills.</p></div>
+        <div><h1 id="internshipsHeading">Internships</h1><p>Explore internships for students and see how your skills match each role.</p></div>
         <span class="student-ssi-chip">✧ Your SSI @Model.SsiText · @Model.Level</span>
     </header>
     <nav class="student-academy-filters" aria-label="Internship filters">
@@ -40,7 +40,8 @@
             <span class="student-academy-empty-icon"><partial name="_StudentIcon" model='"briefcase"' /></span>
             <h2>@(string.IsNullOrWhiteSpace(listings.SearchText) && Model.InternshipFilter == "all" ? "No internships yet" : "No matching internships")</h2>
             <p>@listings.EmptyMessage</p>
-            <a class="student-text-button" href="/Skills">Review your career path and skills →</a>
+            @if (listings.SearchText.Length > 0 || Model.InternshipFilter != "all" || Context.Request.Query.ContainsKey("vacancyId"))
+            { <a class="student-text-button" href="/Student/Internships">View all internships →</a> }
         </div>
     }
     else

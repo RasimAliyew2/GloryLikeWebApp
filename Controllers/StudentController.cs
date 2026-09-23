@@ -57,9 +57,9 @@ public sealed class StudentController(StudentProfileApiService students, IUserPr
         if (vacancyId.HasValue)
             cards = cards.Where(item => item.Id == vacancyId.Value).ToList();
         listings.Opportunities = cards;
-        listings.EmptyMessage = result.Data.CandidateJobFamilyIds.Count == 0
-            ? "Choose your career path and add skills to see matching internships as employers publish them."
-            : "Internships matching your career path will appear here when employers publish them. Try another filter or check back soon.";
+        listings.EmptyMessage = listings.SearchText.Length > 0 || selectedFilter != "all" || vacancyId.HasValue
+            ? "No published internships match your selection. Try another filter or search."
+            : "Internships will appear here when employers publish them. Check back soon.";
         return View(model);
     }
 

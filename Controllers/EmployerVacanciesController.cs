@@ -86,6 +86,7 @@ public sealed class EmployerVacanciesController : Controller
                 VacancyId = vacancy.VacancyId,
                 PlatformVacancyId = vacancy.PlatformVacancyId,
                 RoleTitle = vacancy.RoleTitle,
+                VacancyType = vacancy.VacancyType,
                 JobFamilyName = vacancy.JobFamilyName,
                 PositionName = vacancy.PositionName,
                 Status = vacancy.Status,

@@ -49,6 +49,7 @@ public sealed class EmployerVacancyListApiItem
     public int VacancyId { get; set; }
     public string PlatformVacancyId { get; set; } = string.Empty;
     public string RoleTitle { get; set; } = string.Empty;
+    public string VacancyType { get; set; } = "Employee";
     public int? CompanyLocationId { get; set; }
     public string LocationName { get; set; } = string.Empty;
     public string JobFamilyName { get; set; } = string.Empty;

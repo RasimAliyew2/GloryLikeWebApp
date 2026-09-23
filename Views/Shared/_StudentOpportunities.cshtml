@@ -2,7 +2,7 @@
 @model GloryLikeWebApp.Models.Student.StudentDashboardViewModel
 @if (Model.Opportunities.Count == 0)
 {
-    <div class="student-empty"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><h3>@(Model.OpportunitiesAvailable ? "No matching opportunities yet" : "Opportunities are temporarily unavailable")</h3><p>@(Model.OpportunitiesAvailable ? "Choose your career path and add skills to see relevant internships as employers publish them." : "Refresh this page to try again.")</p><a href="/Skills">Review your career path and skills →</a></div>
+    <div class="student-empty"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><h3>@(Model.OpportunitiesAvailable ? "No internships yet" : "Opportunities are temporarily unavailable")</h3><p>@(Model.OpportunitiesAvailable ? "Internships will appear here when employers publish them. Add skills to see how you match each role." : "Refresh this page to try again.")</p><a href="/Student/Internships">Explore internships →</a></div>
 }
 else
 {

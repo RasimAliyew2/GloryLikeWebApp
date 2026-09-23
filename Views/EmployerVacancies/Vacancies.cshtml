@@ -223,7 +223,7 @@
                                         data-search-value="@vacancy.SearchValue"
                                         tabindex="0"
                                         role="link"
-                                        aria-label="Open @vacancy.VacancyName">
+                                        aria-label="Open @vacancy.VacancyName (@vacancy.VacancyTypeLabel)">
                                         <td>
                                             <div class="vacancy-name-cell">
                                                 <strong>
@@ -235,7 +235,10 @@
                                                         @vacancy.VacancyName
                                                     </a>
                                                 </strong>
-                                                <small>@vacancy.PlatformVacancyId</small>
+                                                <div class="vacancy-name-meta">
+                                                    <span class="vacancy-type-badge @vacancy.VacancyTypeCssClass" aria-label="Vacancy type: @vacancy.VacancyTypeLabel">@vacancy.VacancyTypeLabel</span>
+                                                    <small>@vacancy.PlatformVacancyId</small>
+                                                </div>
                                             </div>
                                         </td>
                                         <td>

@@ -267,6 +267,38 @@
     font-size: 9px;
 }
 
+.vacancy-name-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px 8px;
+}
+
+.vacancy-type-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 23px;
+    padding: 3px 8px;
+    border: 1px solid;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.vacancy-type-internship {
+    color: #4934ad;
+    border-color: #dcd4fa;
+    background: #f2edff;
+}
+
+.vacancy-type-employee {
+    color: #405c7e;
+    border-color: #d8e3ee;
+    background: #f0f5fa;
+}
+
 .vacancy-direction,
 .vacancies-table-card time,
 .vacancy-team-empty {

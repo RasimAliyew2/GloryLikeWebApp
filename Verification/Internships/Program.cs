@@ -58,6 +58,12 @@ foreach (var (role, status) in new[] { ("student", 200), ("candidate", 403), ("e
 var empty = await client.GetStringAsync("/Student/Internships");
 Check((await client.GetAsync("/css/student-home.css")).IsSuccessStatusCode && (await client.GetAsync("/js/opportunities-page.js")).IsSuccessStatusCode, "Preview must serve production CSS and JavaScript");
 Check(empty.Contains("No internships yet") && !empty.Contains("data-opportunity-card"), "Fresh Student page must have no demo vacancies");
+FixtureHandler.Mode = "empty-without-career-path";
+var emptyWithoutCareerPath = await client.GetStringAsync("/Student/Internships");
+Check(emptyWithoutCareerPath.Contains("No internships yet") && !emptyWithoutCareerPath.Contains("Choose your career path"), "Empty internship feed must not require a career path");
+FixtureHandler.Mode = "filled-without-career-path";
+var withoutCareerPath = await client.GetStringAsync("/Student/Internships");
+Check(withoutCareerPath.Contains("Data Analyst Intern") && withoutCareerPath.Contains("Design Intern") && !withoutCareerPath.Contains("Employee Analyst"), "Students without a career path must still see published internships");
 FixtureHandler.Mode = "failed";
 var error = await client.GetStringAsync("/Student/Internships");
 Check(error.Contains("role=\"alert\"") && !error.Contains("No internships yet"), "API outage must not look like empty data");
@@ -105,6 +111,7 @@ foreach (var type in new[] { "Employee", "Internship" }) {
 }
 Console.WriteLine("PASS: Student-only route, empty/error states, category isolation, filters/search, shared controls, screening access and employer form rendering/binding.");
 Console.WriteLine("PASS: Every employer creation entrypoint renders the choice dialog; Employee/Internship query binding preserves the hiring plan.");
+await EmployerVacancyListChecks.RunAsync(client);
 FixtureHandler.Mode = "empty";
 if (args.Contains("--preview")) { Console.WriteLine("Preview: http://127.0.0.1:5267/Student/Internships"); await app.WaitForShutdownAsync(); }
 else await app.StopAsync();
@@ -132,9 +139,11 @@ sealed class TestControllers : IApplicationFeatureProvider<ControllerFeature> {
 sealed class FixtureHandler : HttpMessageHandler {
     public static string Mode = "empty";
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct) {
+        if (request.RequestUri!.AbsolutePath.Equals("/api/Vacancies/employer/42", StringComparison.OrdinalIgnoreCase))
+            return Task.FromResult(EmployerVacancyListChecks.Response());
         if (Mode == "failed") return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
         return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = JsonContent.Create(new CandidateVacancyListApiResponse {
-            Success = true, CandidateJobFamilyIds = [10], CandidateJobFamilyNames = ["Data"], Vacancies = Mode == "empty" ? [] : [
+            Success = true, CandidateJobFamilyIds = Mode.EndsWith("without-career-path") ? [] : [10], CandidateJobFamilyNames = Mode.EndsWith("without-career-path") ? [] : ["Data"], Vacancies = Mode.StartsWith("empty") ? [] : [
                 new() { VacancyId = 11, VacancyType = "Internship", RoleTitle = "Data Analyst Intern", EmployerName = "Example Academy", JobFamilyName = "Data", SeniorityName = "Junior", EmploymentType = "Full-time", LocationName = "Baku", MatchScore = 75, MinSalary = 600, Currency = "AZN", JobDescription = "Build reporting skills with a team of analysts.", Skills = [new() { SkillId = 1, SkillName = "SQL", Weight = 100, IsMatched = true }] },
                 new() { VacancyId = 12, VacancyType = "Internship", RoleTitle = "Design Intern", EmployerName = "Example Studio", JobFamilyName = "Design", SeniorityName = "Entry", EmploymentType = "Part-time", LocationName = "Remote", MatchScore = 90, HasApplied = true, ApplicationStatus = "ScreeningPassed", Skills = [new() { SkillId = 2, SkillName = "Figma", Weight = 100 }] },
                 new() { VacancyId = 13, VacancyType = "Employee", RoleTitle = "Employee Analyst", SeniorityName = "Junior", MatchScore = 95 }

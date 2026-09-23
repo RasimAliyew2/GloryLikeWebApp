@@ -39,6 +39,7 @@ public sealed class EmployerVacancyListItemViewModel
     public int VacancyId { get; set; }
     public string PlatformVacancyId { get; set; } = string.Empty;
     public string RoleTitle { get; set; } = string.Empty;
+    public string VacancyType { get; set; } = "Employee";
     public string JobFamilyName { get; set; } = string.Empty;
     public string PositionName { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
@@ -55,6 +56,10 @@ public sealed class EmployerVacancyListItemViewModel
     public string Direction => string.IsNullOrWhiteSpace(JobFamilyName)
         ? PositionName
         : JobFamilyName;
+
+    public bool IsInternship => string.Equals(VacancyType, "Internship", StringComparison.OrdinalIgnoreCase);
+    public string VacancyTypeLabel => IsInternship ? "Internship" : "Employee";
+    public string VacancyTypeCssClass => IsInternship ? "vacancy-type-internship" : "vacancy-type-employee";
 
     public string StatusKey
     {
@@ -99,6 +104,7 @@ public sealed class EmployerVacancyListItemViewModel
             Direction,
             PositionName,
             PlatformVacancyId,
+            VacancyTypeLabel,
             StatusLabel
         }).ToLowerInvariant();
 }
