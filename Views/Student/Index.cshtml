@@ -19,8 +19,8 @@
     </div>
 </section>
 <section class="student-section"><h2 class="student-section-title">Your next steps</h2><div class="student-action-grid">
-    <a class="student-action-card" href="/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"cap"' /></span><span class="student-action-tag">Build</span><h3>Choose your career path</h3><p>Add the skills you want to be known for.</p></a>
-    <a class="student-action-card" href="/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"verified"' /></span><span class="student-action-tag">Verify</span><h3>@(Model.VerifiedSkills == 0 ? "Verify your first skill" : "Keep building your skill evidence")</h3><p>Turn what you know into a stronger profile.</p></a>
+    <a class="student-action-card" href="/Student/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"cap"' /></span><span class="student-action-tag">Build</span><h3>Build your skills</h3><p>Add the skills you want to be known for.</p></a>
+    <a class="student-action-card" href="/Student/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"verified"' /></span><span class="student-action-tag">Verify</span><h3>@(Model.VerifiedSkills == 0 ? "Verify your first skill" : "Keep building your skill evidence")</h3><p>Turn what you know into a stronger profile.</p></a>
     <a class="student-action-card" href="/Student/Internships"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><span class="student-action-tag">Explore</span><h3>Find your first opportunity</h3><p>Discover internships.</p></a>
 </div></section>
 <section class="student-development student-card"><div class="student-section-heading"><h2 class="student-section-title">Your development areas</h2><button class="student-text-button" type="button" data-open-student-dialog="ssiDetails">Read more <partial name="_StudentIcon" model='"arrow"' /></button></div>
@@ -33,7 +33,7 @@
 </section>
 <div class="student-stats-grid">
     <a class="student-stat" href="/Student/Academy"><span class="student-icon-tile"><partial name="_StudentIcon" model='"cap"' /></span><span><strong>0</strong><small>Academy courses</small></span></a>
-    <a class="student-stat" href="/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"verified"' /></span><span><strong>@Model.SkillCountText</strong><small>Skills in your profile</small></span></a>
+    <a class="student-stat" href="/Student/Skills"><span class="student-icon-tile"><partial name="_StudentIcon" model='"verified"' /></span><span><strong>@Model.SkillCountText</strong><small>Skills in your profile</small></span></a>
     <a class="student-stat" href="/Applications"><span class="student-icon-tile"><partial name="_StudentIcon" model='"briefcase"' /></span><span><strong>@Model.ApplicationCountText</strong><small>Internship applications</small></span></a>
     <a class="student-stat" href="/Student/Events"><span class="student-icon-tile"><partial name="_StudentIcon" model='"calendar"' /></span><span><strong>0</strong><small>Upcoming events</small></span></a>
 </div>
@@ -59,7 +59,7 @@
     <p>Job-Ready starts at 61; Standout starts at 81. SSI is separate from a vacancy's match score.</p>
     @if (Model.SkillsAvailable && Model.Skills.Count > 0) { <div class="student-skill-breakdown">@foreach (var skill in Model.Skills) { <div><span>@skill.SkillName<small>@skill.StatusText</small></span><strong>@StudentDashboardBuilder.RoundSignal(skill.Signal)</strong></div> }</div><p class="student-formula">Current SSI: @Model.Ssi / 100</p> }
     else { <p class="student-empty-note">@(Model.SkillsAvailable ? "Add your first skill to start building your SSI." : "Skills could not be loaded. Please try again.")</p> }
-    <p>Courses, projects and community activity are not included until those features have recorded data.</p><a class="student-primary-button" href="/Skills">Open my skills</a>
+    <p>Courses, projects and community activity are not included until those features have recorded data.</p><a class="student-primary-button" href="/Student/Skills">Open my skills</a>
 </dialog>
 <dialog class="student-dialog" id="educationEditor" aria-labelledby="educationEditorTitle"><div class="student-dialog-heading"><h2 id="educationEditorTitle">Your education</h2><button type="button" data-close-student-dialog aria-label="Close education editor">×</button></div>
     <form method="post" action="/Student/Education" id="studentEducationForm">@Html.AntiForgeryToken()<p class="student-alert" id="studentEducationError" role="alert" hidden></p>

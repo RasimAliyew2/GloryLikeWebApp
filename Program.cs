@@ -253,6 +253,15 @@ builder.Services.AddHttpClient<
 });
 
 
+builder.Services.AddHttpClient<StudentSkillsApiService>((sp, client) =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    client.BaseAddress = new Uri(configuration["Backend:BaseUrl"] ?? throw new InvalidOperationException("Backend:BaseUrl is required."));
+    var secret = configuration["SocialAuth:BackendSharedSecret"];
+    if (!string.IsNullOrWhiteSpace(secret)) client.DefaultRequestHeaders.Add("X-BothFind-Backend-Secret", secret);
+    client.Timeout = TimeSpan.FromSeconds(120);
+});
+
 builder.Services.AddHttpClient<StudentProfileApiService>((sp, client) =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();

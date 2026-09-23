@@ -1,0 +1,135 @@
+@using GloryLikeWebApp.Models.Student
+@using System.Text.Json
+@model StudentDashboardViewModel
+@{
+    Layout = "_StudentLayout";
+    var management = Model.SkillManagement;
+    var verified = Model.Skills.Where(s => s.IsVerified || string.Equals(s.Status, "verified", StringComparison.OrdinalIgnoreCase)).ToList();
+    var pending = Model.Skills.Except(verified).ToList();
+    var averageKnowledge = verified.Count == 0 ? 0 : (int)Math.Floor(verified.Average(s => Math.Clamp(s.KnowledgeScore, 0, 100)) + .5);
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/student-skills.css" asp-append-version="true" />
+}
+<section class="student-skills" aria-labelledby="studentSkillsHeading">
+    <header class="student-skills-heading">
+        <h1 id="studentSkillsHeading"><partial name="_StudentIcon" model='"verified"' /> Skills</h1>
+        <p>Validate your knowledge with student quizzes and build your SSI.</p>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(management.ErrorMessage))
+    {
+        <p class="student-skills-notice error" role="alert">@management.ErrorMessage</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(management.SuccessMessage))
+    {
+        <p class="student-skills-notice success" role="status">@management.SuccessMessage</p>
+    }
+
+    <div class="student-skills-stats" aria-label="Your skill statistics">
+        <article class="student-skill-stat"><span><partial name="_StudentIcon" model='"spark"' /> Total Skills</span><strong>@(Model.SkillsAvailable ? Model.Skills.Count.ToString() : "—")</strong></article>
+        <article class="student-skill-stat"><span><partial name="_StudentIcon" model='"verified"' /> Verified</span><strong>@(Model.SkillsAvailable ? verified.Count.ToString() : "—")</strong></article>
+        <article class="student-skill-stat"><span><svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 6-6 4 4 7-9M14 6h6v6" /></svg> Average Knowledge Score</span><strong>@(Model.SkillsAvailable ? averageKnowledge.ToString() : "—")</strong><small>Across verified skills</small></article>
+    </div>
+
+    <section class="student-skills-card student-skill-add" aria-labelledby="studentAddSkillHeading">
+        <h2 id="studentAddSkillHeading"><span aria-hidden="true">＋</span> Add a skill</h2>
+        @if (management.TaxonomyAvailable && Model.SkillsAvailable)
+        {
+            @if (management.AvailableSkills.Count > 0)
+            {
+                <form method="post" action="/Student/Skills/Add" data-student-add-skill>
+                    @Html.AntiForgeryToken()
+                    <div class="student-skill-search" data-skill-search-enhancement hidden>
+                        <svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5" /><path d="m15 15 5 5" /></svg>
+                        <input type="search" id="studentSkillSearch" placeholder="Search by Taxonomy of Skills…" aria-label="Search the skill taxonomy" aria-describedby="studentSkillSearchHelp" autocomplete="off" data-student-skill-search />
+                    </div>
+                    <div class="student-skill-search-fallback" data-skill-search-fallback>
+                        <label for="studentSkillSelect">Choose a skill</label>
+                        <select id="studentSkillSelect" name="SkillId" required>
+                            <option value="">Choose a skill</option>
+                            @foreach (var skill in management.AvailableSkills)
+                            {
+                                <option value="@skill.Id">@skill.SkillName</option>
+                            }
+                        </select>
+                        <button class="student-skill-primary" type="submit">Add skill and take quiz</button>
+                    </div>
+                    <div class="student-skill-search-results" data-skill-results hidden></div>
+                    <p id="studentSkillSearchHelp" class="student-skills-help">Choose a skill to start a quiz based on concepts, coursework and student projects.</p>
+                    <p class="student-skills-search-status" role="status" aria-live="polite" data-skill-search-status></p>
+                </form>
+                <script id="studentSkillCatalogue" type="application/json">@Html.Raw(JsonSerializer.Serialize(management.AvailableSkills.Select(s => new { id = s.Id, name = s.SkillName })))</script>
+            }
+            else
+            {
+                <p class="student-skills-help">You have added all available skills. Take a quiz below to verify your knowledge.</p>
+            }
+        }
+        else
+        {
+            <p class="student-skills-help">The skill catalogue is temporarily unavailable. <a href="/Student/Skills">Reload this page</a> to try again.</p>
+        }
+    </section>
+
+    <section class="student-skills-card student-skill-list" aria-labelledby="studentMySkillsHeading">
+        <h2 id="studentMySkillsHeading"><partial name="_StudentIcon" model='"verified"' /> My Skills</h2>
+        @if (!Model.SkillsAvailable)
+        {
+            <div class="student-skills-empty"><partial name="_StudentIcon" model='"verified"' /><h3>Skills are temporarily unavailable</h3><p>Reload this page to see your saved skills.</p><a href="/Student/Skills">Try again</a></div>
+        }
+        else if (Model.Skills.Count == 0)
+        {
+            <div class="student-skills-empty"><partial name="_StudentIcon" model='"spark"' /><h3>Your skills start here</h3><p>Add something you have studied or practised, then take a short quiz to verify your knowledge.</p></div>
+        }
+        else
+        {
+            @foreach (var group in new[] { (Label: "Verified", Skills: verified, IsVerified: true), (Label: "Not verified", Skills: pending, IsVerified: false) })
+            {
+                @if (group.Skills.Count > 0)
+                {
+                    <section class="student-skills-group @(group.IsVerified ? "verified" : "pending")" aria-label="@group.Label skills">
+                        <h3><partial name="_StudentIcon" model='"verified"' /> @group.Label · @group.Skills.Count</h3>
+                        @foreach (var skill in group.Skills)
+                        {
+                            <article class="student-skill-row" data-student-skill-id="@skill.SkillId">
+                                <div class="student-skill-copy">
+                                    <h4>@skill.SkillName
+                                        @if (management.AssessmentTypes.TryGetValue(skill.SkillId, out var assessmentType) && !string.IsNullOrWhiteSpace(assessmentType))
+                                        {
+                                            <span class="student-skill-kind" title="@(assessmentType == "T" ? "Theory" : assessmentType == "P" ? "Practice" : "Theory and practice")">@assessmentType</span>
+                                        }
+                                    </h4>
+                                    <p>@(group.IsVerified ? $"✓ Verified · Knowledge Score {skill.KnowledgeDisplay} · contributes to SSI" : "Take a student quiz to verify your knowledge.")</p>
+                                </div>
+                                <div class="student-skill-actions">
+                                    @if (group.IsVerified) { <span class="student-skill-score" aria-label="Knowledge score @skill.KnowledgeDisplay out of 100">@skill.KnowledgeDisplay</span> }
+                                    <button class="student-skill-quiz @(group.IsVerified ? "retake" : "")" type="button" data-student-assess-skill data-skill-id="@skill.SkillId" data-skill-name="@skill.SkillName">@(group.IsVerified ? "Retake quiz" : "Take quiz")</button>
+                                    <form method="post" action="/Student/Skills/Remove" data-student-remove-skill>
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="SkillId" value="@skill.SkillId" />
+                                        <button class="student-skill-remove" type="submit" aria-label="Remove @skill.SkillName" title="Remove @skill.SkillName"><svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7" /></svg></button>
+                                    </form>
+                                </div>
+                            </article>
+                        }
+                    </section>
+                }
+            }
+        }
+    </section>
+</section>
+
+<dialog class="student-skill-dialog" id="studentSkillAssessment" aria-labelledby="studentAssessmentTitle" aria-describedby="studentAssessmentDescription">
+    <div class="student-quiz-header"><div><span class="student-quiz-eyebrow">STUDENT KNOWLEDGE QUIZ</span><h2 id="studentAssessmentTitle"><span data-student-quiz-skill-name>Skill</span> quiz</h2><p id="studentAssessmentDescription">Show what you know through concepts and practical student scenarios. No work experience needed.</p></div><button class="student-quiz-close" type="button" data-student-close-quiz aria-label="Close quiz">×</button></div>
+    <div class="student-quiz-toolbar"><label for="studentQuizLanguage">Question language</label><select id="studentQuizLanguage" data-student-quiz-language><option value="az">Azərbaycanca</option><option value="en">English</option><option value="ru">Русский</option></select><span data-student-quiz-progress aria-live="polite">0/0 answered</span></div>
+    <div class="student-quiz-loading" data-student-quiz-loading hidden role="status"><span class="student-quiz-spinner" aria-hidden="true"></span><strong>Your quiz is being prepared…</strong><p>This may take a few moments.</p></div>
+    <div class="student-quiz-error" data-student-quiz-error hidden role="alert"><p data-student-quiz-error-copy></p><button type="button" data-student-retry-quiz>Try again</button></div>
+    <div class="student-quiz-questions" data-student-quiz-questions></div>
+    <div class="student-quiz-result" data-student-quiz-result hidden role="status"><partial name="_StudentIcon" model='"verified"' /><span>KNOWLEDGE SCORE</span><strong><span data-student-quiz-score>0</span><small>/100</small></strong><p data-student-quiz-result-copy></p></div>
+    <footer class="student-quiz-footer"><button class="student-quiz-secondary" type="button" data-student-close-quiz>Close</button><button class="student-skill-primary" type="button" data-student-submit-quiz disabled>Finish and save score</button></footer>
+</dialog>
+<div id="studentSkillAssessmentConfig" hidden data-generate-url="/Student/Skills/Assessment/Generate" data-submit-url="/Student/Skills/Assessment/Submit" data-auto-skill-id="@management.AutoAssessmentSkillId" data-auto-skill-name="@management.AutoAssessmentSkillName">@Html.AntiForgeryToken()</div>
+@section Scripts {
+    <script src="~/js/student-skills.js" asp-append-version="true"></script>
+}

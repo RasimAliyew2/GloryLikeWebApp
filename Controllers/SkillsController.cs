@@ -4,6 +4,7 @@ using GloryLikeWebApp.Security;
 using GloryLikeWebApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace GloryLikeWebApp.Controllers;
 
@@ -13,6 +14,17 @@ public sealed class SkillsController : Controller
     private readonly IUserProfileDataApiService _userProfileDataApiService;
     private readonly ISkillAndJobApiService _skillAndJobApiService;
     private readonly ISkillAssessmentApiService _skillAssessmentApiService;
+
+    public override void OnActionExecuting(ActionExecutingContext context)
+    {
+        if (AccountRouting.Normalize(User.FindFirstValue("accountType")) == "student")
+        {
+            context.Result = HttpMethods.IsGet(Request.Method)
+                ? RedirectToAction("Index", "StudentSkills")
+                : Forbid();
+        }
+        base.OnActionExecuting(context);
+    }
 
     public SkillsController(
         IUserProfileDataApiService userProfileDataApiService,

@@ -25,6 +25,7 @@ public sealed class StudentDashboardViewModel
 {
     public string DisplayName { get; set; } = "Student";
     public string Page { get; set; } = "Overview";
+    public StudentSkillsPageViewModel SkillManagement { get; set; } = new();
     public OpportunitiesPageViewModel InternshipListings { get; set; } = new();
     public string InternshipFilter { get; set; } = "all";
     public static IReadOnlyList<(string Key, string Label)> InternshipFilters { get; } =

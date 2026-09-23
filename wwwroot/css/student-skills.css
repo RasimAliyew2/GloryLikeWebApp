@@ -1,0 +1,101 @@
+.student-skills{max-width:1120px;margin:0 auto;display:grid;gap:24px}
+.student-skills-heading h1{display:flex;align-items:center;gap:12px;font-size:29px;letter-spacing:-.8px;line-height:1.25}
+.student-skills-heading h1 .st-icon{width:25px;height:25px;color:var(--st-violet)}
+.student-skills-heading>p{color:var(--st-muted);margin-top:6px;font-size:14px}
+.student-skills-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.student-skill-stat,.student-skills-card{background:#fff;border:1px solid var(--st-line);border-radius:20px;box-shadow:0 2px 3px #19122b04}
+.student-skill-stat{padding:20px;position:relative}
+.student-skill-stat>span{display:flex;align-items:center;gap:10px;color:var(--st-muted);font-size:14px}
+.student-skill-stat .st-icon{width:18px;height:18px;color:var(--st-violet)}
+.student-skill-stat:nth-child(2) .st-icon{color:#00a677}
+.student-skill-stat>strong{display:block;font-size:30px;line-height:1.3;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.student-skill-stat small{font-size:10px;color:var(--st-muted);position:absolute;bottom:20px;right:20px;max-width:120px;text-align:right}
+.student-skills-card{padding:24px}
+.student-skills-card h2{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:650;letter-spacing:-.2px;margin-bottom:16px}
+.student-skills-card h2 .st-icon,.student-skills-card h2>span{color:var(--st-violet)}
+.student-skills-card h2>span{font-size:24px;line-height:1}
+.student-skill-search{display:flex;align-items:center;gap:12px;padding:0 15px;border:1px solid #e2e2e9;border-radius:12px;background:var(--st-bg)}
+.student-skill-search .st-icon{width:20px;color:#777a8a}
+.student-skill-search:focus-within{outline:2px solid #b5aaff;outline-offset:2px}
+.student-skill-search input{height:48px;width:100%;min-width:0;border:0;background:none;color:var(--st-ink);outline:none!important;font-size:15px}
+.student-skill-search input::placeholder{color:#747b8d;opacity:1}
+.student-skills-help{font-size:13px;color:var(--st-muted);margin-top:12px!important;line-height:1.6}
+.student-skills-help a,.student-skills-empty a{color:var(--st-violet);text-decoration:underline;text-underline-offset:3px}
+.student-skills-search-status{font-size:12px;color:var(--st-muted);margin-top:8px!important}
+.student-skills-search-status:empty{display:none}
+.student-skill-search-results{margin-top:8px;border:1px solid var(--st-line);border-radius:12px;overflow:hidden}
+.student-skill-search-result{display:flex;width:100%;align-items:center;justify-content:space-between;gap:16px;text-align:left;padding:12px 14px;color:var(--st-ink);background:#fff;border:0;border-bottom:1px solid #f0eff4;line-height:1.4}
+.student-skill-search-result:last-child{border-bottom:0}
+.student-skill-search-result:hover,.student-skill-search-result:focus-visible{background:#f5f2ff}
+.student-skill-search-result>span{min-width:0;overflow-wrap:anywhere}
+.student-skill-search-result small{flex-shrink:0;font-weight:600;color:var(--st-violet)}
+.student-skill-search-result:disabled{opacity:.6;cursor:wait}
+.student-skill-search-fallback{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.student-skill-search-fallback select{min-height:44px;flex:1;min-width:0;border:1px solid var(--st-line);border-radius:10px;padding:8px}
+.student-skills-group{margin-top:26px}
+.student-skills-group h3{display:flex;gap:8px;align-items:center;font-size:14px;color:#71798b;font-weight:550;margin-bottom:12px}
+.student-skills-group h3 .st-icon{width:17px;height:17px;color:#00a677}
+.student-skills-group.pending h3 .st-icon{color:var(--st-violet)}
+.student-skill-row{display:flex;align-items:center;justify-content:space-between;gap:16px;border:1px solid var(--st-line);border-radius:15px;padding:17px 19px;margin-top:10px}
+.student-skill-copy{min-width:0}
+.student-skill-copy h4{font-size:16px;font-weight:600;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;overflow-wrap:anywhere}
+.student-skill-kind{background:#f4f4f6;font-size:11px;font-weight:500;border-radius:30px;padding:4px 11px;color:#383b48}
+.student-skill-copy p{font-size:13px;color:#00a677;margin-top:4px;line-height:1.5}
+.pending .student-skill-copy p{color:var(--st-muted)}
+.student-skill-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.student-skill-score{color:#009e73;background:#e3f4ef;border-radius:50px;padding:4px 13px;font-weight:600;font-size:13px;font-variant-numeric:tabular-nums}
+.student-skill-quiz,.student-skill-primary{border:1px solid var(--st-violet);border-radius:10px;background:var(--st-violet);color:#fff;padding:9px 15px;font-size:13px;font-weight:600;line-height:1.4}
+.student-skill-quiz:hover,.student-skill-primary:hover{background:#4e34dc}
+.student-skill-quiz.retake{border-color:transparent;background:transparent;color:var(--st-violet);padding:8px 4px;font-size:12px}
+.student-skill-quiz.retake:hover{text-decoration:underline}
+.student-skill-remove{border:0;background:transparent;color:#858393;width:34px;height:38px;display:grid;place-items:center;border-radius:8px}
+.student-skill-remove .st-icon{width:17px;height:17px}
+.student-skill-remove:hover{color:#c53f59;background:#fff2f4}
+.student-skills-empty{text-align:center;padding:35px 20px 44px}
+.student-skills-empty>.st-icon{color:var(--st-violet);width:35px;height:35px;margin-bottom:12px}
+.student-skills-empty h3{font-size:18px;margin-bottom:8px}
+.student-skills-empty p{font-size:14px;color:var(--st-muted);max-width:460px;margin:0 auto;line-height:1.7}
+.student-skills-empty a{display:inline-block;margin-top:12px;font-size:14px}
+.student-skills-notice{padding:14px 18px;border-radius:12px;font-size:14px;overflow-wrap:anywhere}
+.student-skills-notice.error{background:#fff1f3;color:#a42d45;border:1px solid #f4c9d2}
+.student-skills-notice.success{background:#eaf9f4;color:#058160;border:1px solid #c6ebde}
+.student-skill-dialog{width:min(740px,calc(100% - 32px));max-height:90dvh;padding:26px;border:1px solid var(--st-line);border-radius:24px;color:var(--st-ink);background:#fff;box-shadow:0 24px 90px #18113840;overscroll-behavior:contain}
+.student-skill-dialog::backdrop{background:#21194466;backdrop-filter:blur(3px)}
+.student-quiz-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;border-bottom:1px solid var(--st-line);padding-bottom:20px}
+.student-quiz-eyebrow{font-size:10px;font-weight:650;letter-spacing:1.4px;color:var(--st-violet)}
+.student-quiz-header h2{margin:6px 0!important;font-size:24px;line-height:1.3;overflow-wrap:anywhere}
+.student-quiz-header p{color:var(--st-muted);font-size:13px;line-height:1.6}
+.student-quiz-close{flex:0 0 34px;height:34px;border:0;border-radius:8px;background:#f5f4f8;color:#656277;font-size:25px!important;line-height:1}
+.student-quiz-toolbar{display:flex;align-items:center;gap:12px;margin:18px 0;flex-wrap:wrap}
+.student-quiz-toolbar label{font-size:13px;font-weight:550;color:#63697c}
+.student-quiz-toolbar select{padding:9px 10px;border:1px solid var(--st-line);border-radius:9px;background:#fafafd;color:var(--st-ink);font-size:13px}
+.student-quiz-toolbar>span{margin-left:auto;font-size:12px;color:var(--st-muted)}
+.student-quiz-loading{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center}
+.student-quiz-loading strong{font-size:15px;font-weight:600}
+.student-quiz-loading p{font-size:13px;color:var(--st-muted)}
+.student-quiz-spinner{width:32px;height:32px;border:3px solid #e6e1fb;border-top-color:var(--st-violet);border-radius:50%;animation:student-quiz-spin 1s linear infinite;margin-bottom:8px}
+@keyframes student-quiz-spin{to{transform:rotate(360deg)}}
+.student-quiz-error{border:1px solid #f1c6d0;background:#fff3f5;color:#9f2744;border-radius:12px;padding:15px;margin:14px 0;font-size:14px;line-height:1.6}
+.student-quiz-error button{border:1px solid #edb7c5;background:#fff;border-radius:8px;padding:6px 12px;color:inherit;font-size:13px;margin-top:10px}
+.student-quiz-questions{display:grid;gap:16px}
+.student-quiz-question{margin:0;padding:18px;border:1px solid var(--st-line);border-radius:14px;min-width:0;background:#fdfdff}
+.student-quiz-question legend{float:left;width:100%;margin-bottom:14px;font-weight:600;font-size:15px;line-height:1.6}
+.student-quiz-question legend>span{color:var(--st-violet);margin-right:5px}
+.student-quiz-options{display:grid;gap:8px;clear:both}
+.student-quiz-option{display:flex;align-items:flex-start;gap:11px;padding:12px;border:1px solid #e3e3ed;border-radius:10px;background:#fff;color:#5b6073;font-size:14px;line-height:1.5;cursor:pointer}
+.student-quiz-option:has(input:checked){border-color:#9d8bf6;background:#f3f0ff;color:#4733a8}
+.student-quiz-option:hover{border-color:#bcb0f2}
+.student-quiz-option input{accent-color:var(--st-violet);width:17px;height:17px;flex:0 0 17px;margin:2px 0}
+.student-quiz-option span{overflow-wrap:anywhere}
+.student-quiz-result{min-height:260px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;border:1px solid #ceecdf;background:#f1fcf7;border-radius:18px;padding:30px 20px;text-align:center}
+.student-quiz-result>.st-icon{width:38px;height:38px;color:#00a677}
+.student-quiz-result>span{font-size:11px;letter-spacing:1.5px;color:#718677;font-weight:600}
+.student-quiz-result>strong{font-size:54px;line-height:1.2;color:#0b8f6b;font-variant-numeric:tabular-nums}
+.student-quiz-result small{font-size:18px;margin-left:4px;color:#729085;font-weight:500}
+.student-quiz-result p{font-size:14px;color:#5a786c;line-height:1.6;max-width:450px}
+.student-quiz-footer{display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:-26px;background:#fffffffa;border-top:1px solid var(--st-line);margin:22px -26px -26px;padding:17px 26px;backdrop-filter:blur(8px)}
+.student-quiz-secondary{border:1px solid #dedce7;background:#fff;color:#686779;border-radius:10px;padding:9px 18px;font-size:13px}
+.student-skill-primary:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:1050px){.student-skill-stat{padding:18px 16px}.student-skill-stat>span{font-size:12px;gap:7px}.student-skill-stat small{position:static;display:block;text-align:left;max-width:none;margin-top:3px}.student-skill-row{align-items:flex-start;flex-direction:column;gap:12px}.student-skill-actions{width:100%;justify-content:flex-end}}
+@media(max-width:600px){.student-skills{gap:18px}.student-skills-heading h1{font-size:25px}.student-skills-stats{gap:9px;grid-template-columns:1fr 1fr}.student-skill-stat:last-child{grid-column:1/-1}.student-skill-stat:last-child small{position:absolute;bottom:20px;right:16px}.student-skill-stat>strong{font-size:27px}.student-skill-stat>span{font-size:12px}.student-skills-card{padding:19px 16px}.student-skills-card h2{font-size:17px}.student-skill-row{padding:15px}.student-skill-copy h4{font-size:15px}.student-skill-copy p{font-size:12px}.student-skill-actions{gap:10px}.student-skill-dialog{padding:20px 18px;width:calc(100% - 20px);max-height:92dvh;border-radius:20px}.student-quiz-header h2{font-size:22px}.student-quiz-toolbar{gap:9px}.student-quiz-toolbar>span{width:100%;margin-left:0}.student-quiz-footer{bottom:-20px;margin:20px -18px -20px;padding:15px 18px}.student-quiz-question{padding:14px}.student-quiz-question legend{font-size:14px}.student-quiz-option{font-size:13px}.student-skill-search-results{max-height:320px;overflow-y:auto}}
+@media(prefers-reduced-motion:reduce){.student-quiz-spinner{animation-duration:2s}}
