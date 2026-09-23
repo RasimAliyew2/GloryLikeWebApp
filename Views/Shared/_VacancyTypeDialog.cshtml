@@ -1,0 +1,19 @@
+<dialog id="vacancyTypeDialog" class="vacancy-type-dialog" aria-labelledby="vacancyTypeTitle" aria-describedby="vacancyTypeDescription">
+    <button type="button" class="vacancy-type-close" data-close-vacancy-type aria-label="Close vacancy type selection">×</button>
+    <span class="vacancy-type-eyebrow">NEW VACANCY</span>
+    <h2 id="vacancyTypeTitle">Who are you hiring?</h2>
+    <p id="vacancyTypeDescription">Choose a vacancy type to get started.</p>
+    <div class="vacancy-type-options">
+        <a asp-controller="EmployerVacancies" asp-action="CreateVacancy" asp-route-vacancyType="Employee" data-vacancy-type="Employee">
+            <span class="vacancy-type-icon" aria-hidden="true">▣</span>
+            <span><strong>Employee</strong><small>Hire for an employee role. Shown in Employee Opportunities.</small></span>
+            <span aria-hidden="true">→</span>
+        </a>
+        <a asp-controller="EmployerVacancies" asp-action="CreateVacancy" asp-route-vacancyType="Internship" data-vacancy-type="Internship">
+            <span class="vacancy-type-icon" aria-hidden="true">◇</span>
+            <span><strong>Internship</strong><small>Offer students their next step. Shown in Student Internships.</small></span>
+            <span aria-hidden="true">→</span>
+        </a>
+    </div>
+    <button type="button" class="vacancy-type-cancel" data-close-vacancy-type>Cancel</button>
+</dialog>

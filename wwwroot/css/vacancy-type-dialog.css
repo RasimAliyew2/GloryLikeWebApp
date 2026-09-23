@@ -1,0 +1,33 @@
+.vacancy-type-dialog {
+    width: min(480px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    margin: auto;
+    padding: 32px;
+    box-sizing: border-box;
+    border: 1px solid #e5e5ef;
+    border-radius: 24px;
+    background: #fff;
+    color: #17172b;
+    font-family: inherit;
+    box-shadow: 0 24px 80px #17172b33;
+}
+
+.vacancy-type-dialog::backdrop { background: #17172b73; }
+.vacancy-type-dialog h2 { margin: 10px 28px 10px 0; font-size: 25px; line-height: 1.25; }
+.vacancy-type-dialog p { margin: 0 0 24px; color: #72758a; font-size: 14px; line-height: 1.5; }
+.vacancy-type-eyebrow { color: #5145ef; font-size: 11px; font-weight: 800; letter-spacing: .1em; }
+.vacancy-type-close { position: absolute; top: 14px; right: 16px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: #f5f5fa; color: #72758a; font-size: 25px; cursor: pointer; }
+.vacancy-type-options { display: grid; gap: 12px; }
+.vacancy-type-options a { display: grid; grid-template-columns: 42px minmax(0, 1fr) 18px; gap: 12px; align-items: center; border: 1px solid #e3e1f0; border-radius: 16px; padding: 18px 16px; text-decoration: none; color: #17172b; }
+.vacancy-type-options a:hover { background: #f7f6ff; border-color: #5145ef; }
+.vacancy-type-options a:focus-visible, .vacancy-type-dialog button:focus-visible { outline: 3px solid #a49cff; outline-offset: 3px; }
+.vacancy-type-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: #eeecff; color: #5145ef; font-size: 24px; }
+.vacancy-type-options strong { display: block; font-size: 16px; }
+.vacancy-type-options small { display: block; margin-top: 5px; color: #72758a; font-size: 12px; line-height: 1.5; }
+.vacancy-type-options a > span:last-child { color: #5145ef; font-size: 21px; }
+.vacancy-type-cancel { display: block; margin: 22px auto 0; padding: 8px 18px; border: 0; border-radius: 8px; background: transparent; color: #72758a; font: inherit; font-size: 14px; cursor: pointer; }
+.vacancy-type-cancel:hover { background: #f5f5fa; }
+@media (max-width: 520px) {
+    .vacancy-type-dialog { padding: 26px 20px; border-radius: 20px; }
+    .vacancy-type-options a { padding: 16px 12px; gap: 10px; }
+}

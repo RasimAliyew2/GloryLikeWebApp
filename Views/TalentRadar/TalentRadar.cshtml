@@ -22,6 +22,7 @@
         rel="stylesheet"
         href="~/css/talent-radar.css"
         asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/vacancy-type-dialog.css" asp-append-version="true" />
 </head>
 
 <body>
@@ -179,7 +180,7 @@
 
                     <a
                         asp-controller="EmployerVacancies"
-                        asp-action="CreateVacancy">
+                        asp-action="CreateVacancy" data-create-vacancy aria-haspopup="dialog" aria-controls="vacancyTypeDialog">
                         Create a vacancy
                     </a>
                 </section>
@@ -306,5 +307,7 @@
         src="~/js/talent-radar.js"
         asp-append-version="true">
     </script>
+    <partial name="_VacancyTypeDialog" />
+    <script src="~/js/vacancy-type-dialog.js" asp-append-version="true"></script>
 </body>
 </html>

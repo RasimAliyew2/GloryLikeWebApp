@@ -302,10 +302,12 @@ public sealed class EmployerVacanciesController : Controller
     [HttpGet("/Employer/Vacancies/Create")]
     public async Task<IActionResult> CreateVacancy(
         int? hiringPlanId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string? vacancyType = null)
     {
         var input = new CreateVacancyInput
         {
+            VacancyType = vacancyType is "Internship" ? "Internship" : "Employee",
             PlatformVacancyId = GenerateVacancyId(),
             ContactEmail = User.FindFirstValue(ClaimTypes.Email) ?? string.Empty,
             PublishDate = DateTime.Today,

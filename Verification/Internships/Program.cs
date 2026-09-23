@@ -32,11 +32,13 @@ builder.Services.AddControllersWithViews().AddApplicationPart(typeof(StudentCont
 var api = new VacancyApiService(new HttpClient(new FixtureHandler()) { BaseAddress = new Uri("https://fixture.invalid/") }, NullLogger<VacancyApiService>.Instance);
 builder.Services.AddSingleton<IVacancyApiService>(api);
 builder.Services.AddTransient<StudentController>(_ => new StudentController(null!, new EmptyProfiles(), api));
+builder.Services.AddTransient<EmployerVacanciesController>(_ => EmployerCreationFixtures.Create(api));
 builder.Services.AddAuthentication("Preview").AddScheme<AuthenticationSchemeOptions, PreviewAuthentication>("Preview", _ => { });
 builder.Services.AddAuthorization(options => {
     options.AddPolicy(PortalClaimTypes.StudentPolicy, policy => policy.RequireAuthenticatedUser()
         .RequireClaim(PortalClaimTypes.ClaimName, PortalClaimTypes.Student).RequireClaim("accountType", "student"));
     options.AddPolicy(PortalClaimTypes.EmployeePolicy, policy => policy.RequireAuthenticatedUser().RequireClaim("accountType", "student", "candidate"));
+    options.AddPolicy(PortalClaimTypes.EmployerPolicy, policy => policy.RequireAuthenticatedUser().RequireClaim("accountType", "employer"));
 });
 var app = builder.Build();
 app.UseStaticFiles(); app.UseRouting(); app.UseAuthentication(); app.UseAuthorization();
@@ -86,13 +88,37 @@ foreach (var type in new[] { "Employee", "Internship" }) {
 }
 using (var invalid = await client.PostAsync("/preview/bind", new FormUrlEncodedContent(new Dictionary<string, string> { ["Input.VacancyType"] = "Other" })))
     Check(invalid.StatusCode == HttpStatusCode.BadRequest, "Invalid employer category must fail validation");
+foreach (var page in new[] { "dashboard", "vacancies", "radar", "hiring-plan" }) {
+    var entry = await client.GetStringAsync("/preview/employer-entry/" + page);
+    Check(entry.Contains("data-create-vacancy") && entry.Contains("<dialog id=\"vacancyTypeDialog\"")
+        && entry.Contains("data-vacancy-type=\"Employee\"") && entry.Contains("data-vacancy-type=\"Internship\"")
+        && entry.Contains("/js/vacancy-type-dialog.js"), "Creation choice missing on " + page);
+}
+foreach (var type in new[] { "Employee", "Internship" }) {
+    using var request = new HttpRequestMessage(HttpMethod.Get, "/Employer/Vacancies/Create?hiringPlanId=37&vacancyType=" + type);
+    request.Headers.Add("X-Preview-Role", "employer");
+    using var response = await client.SendAsync(request);
+    var form = await response.Content.ReadAsStringAsync();
+    Check(response.IsSuccessStatusCode && form.Contains("value=\"" + type + "\" selected=\"selected\""), "Create route must preselect " + type);
+    Check(System.Text.RegularExpressions.Regex.IsMatch(form, "<input[^>]*name=\"Input.HiringPlanId\"[^>]*value=\"37\"")
+        && form.Contains("Planned Analyst") && form.Contains("<option selected=\"selected\">Part-time</option>"), "Category selection must retain hiring-plan defaults");
+}
 Console.WriteLine("PASS: Student-only route, empty/error states, category isolation, filters/search, shared controls, screening access and employer form rendering/binding.");
+Console.WriteLine("PASS: Every employer creation entrypoint renders the choice dialog; Employee/Internship query binding preserves the hiring plan.");
 FixtureHandler.Mode = "empty";
 if (args.Contains("--preview")) { Console.WriteLine("Preview: http://127.0.0.1:5267/Student/Internships"); await app.WaitForShutdownAsync(); }
 else await app.StopAsync();
 static void Check(bool condition, string message) { if (!condition) throw new Exception(message); }
 
 public sealed class FormPreviewController : Controller {
+    [HttpGet("/preview/employer-entry/{page}")]
+    public IActionResult Entry(string page) => page switch {
+        "dashboard" => View("~/Views/EmployerHome/EmployerHome.cshtml", new EmployerHomeViewModel()),
+        "vacancies" => View("~/Views/EmployerVacancies/Vacancies.cshtml", new EmployerVacanciesPageViewModel()),
+        "radar" => View("~/Views/TalentRadar/TalentRadar.cshtml", new TalentRadarPageViewModel()),
+        "hiring-plan" => View("~/Views/EmployerCompany/HiringPlan.cshtml", new CompanyHiringPlanPageViewModel { Plans = [new() { Id = 37, CanCreateVacancy = true, PositionName = "Planned Analyst" }] }),
+        _ => NotFound()
+    };
     [HttpGet("/preview/employer")]
     public IActionResult Form(string type = "Employee") => View("~/Views/EmployerVacancies/CreateVacancy.cshtml", new CreateVacancyPageViewModel { Input = new() { VacancyType = type, EditingVacancyId = type == "Internship" ? 11 : null } });
     [HttpPost("/preview/bind")]
@@ -100,7 +126,7 @@ public sealed class FormPreviewController : Controller {
 }
 sealed class TestControllers : IApplicationFeatureProvider<ControllerFeature> {
     public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {
-        foreach (var c in feature.Controllers.Where(c => c.AsType() != typeof(StudentController) && c.AsType() != typeof(OpportunitiesController) && c.AsType() != typeof(FormPreviewController)).ToArray()) feature.Controllers.Remove(c);
+        foreach (var c in feature.Controllers.Where(c => c.AsType() != typeof(StudentController) && c.AsType() != typeof(OpportunitiesController) && c.AsType() != typeof(EmployerVacanciesController) && c.AsType() != typeof(FormPreviewController)).ToArray()) feature.Controllers.Remove(c);
     }
 }
 sealed class FixtureHandler : HttpMessageHandler {
@@ -121,7 +147,7 @@ sealed class EmptyProfiles : IUserProfileDataApiService {
 }
 sealed class PreviewAuthentication(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder) {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync() {
-        var role = Request.Headers["X-Preview-Role"].FirstOrDefault() ?? "student";
+        var role = Request.Headers["X-Preview-Role"].FirstOrDefault() ?? (Request.Path.StartsWithSegments("/Employer") ? "employer" : "student");
         if (role == "anonymous") return Task.FromResult(AuthenticateResult.NoResult());
         var principal = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.NameIdentifier, "42"), new Claim(ClaimTypes.Name, "Student Preview"), new Claim("accountType", role), new Claim(PortalClaimTypes.ClaimName, AccountRouting.Portal(role)) }, "Preview"));
         return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principal, "Preview")));

@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="~/css/company-hiring-plan.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/company-hiring-plan-wide.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/company-hiring-plan-excel.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/vacancy-type-dialog.css" asp-append-version="true" />
 </head>
 <body>
 <div class="employer-shell company-shell">
@@ -126,7 +127,7 @@
                                             <button type="button" data-edit-plan="@plan.Id">Edit</button>
                                             @if (plan.CanCreateVacancy)
                                             {
-                                                <a asp-controller="EmployerVacancies" asp-action="CreateVacancy" asp-route-hiringPlanId="@plan.Id">Create vacancy</a>
+                                                <a asp-controller="EmployerVacancies" asp-action="CreateVacancy" data-create-vacancy aria-haspopup="dialog" aria-controls="vacancyTypeDialog" asp-route-hiringPlanId="@plan.Id">Create vacancy</a>
                                             }
                                             else
                                             {
@@ -176,5 +177,7 @@
 <input id="hiringPlanExcelInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden />
 <script src="~/js/employer-home.js" asp-append-version="true"></script>
 <script src="~/js/company-hiring-plan.js" asp-append-version="true"></script>
+    <partial name="_VacancyTypeDialog" />
+    <script src="~/js/vacancy-type-dialog.js" asp-append-version="true"></script>
 </body>
 </html>

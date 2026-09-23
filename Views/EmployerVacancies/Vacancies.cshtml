@@ -22,6 +22,7 @@
         rel="stylesheet"
         href="~/css/employer-vacancies-list.css"
         asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/vacancy-type-dialog.css" asp-append-version="true" />
 </head>
 
 <body>
@@ -133,7 +134,7 @@
                 <a
                     class="vacancies-create-button"
                     asp-controller="EmployerVacancies"
-                    asp-action="CreateVacancy">
+                    asp-action="CreateVacancy" data-create-vacancy aria-haspopup="dialog" aria-controls="vacancyTypeDialog">
                     <span>＋</span>
                     Create a vacancy
                 </a>
@@ -191,7 +192,7 @@
                     <p>Create your first vacancy and it will appear here with its current status.</p>
                     <a
                         asp-controller="EmployerVacancies"
-                        asp-action="CreateVacancy">
+                        asp-action="CreateVacancy" data-create-vacancy aria-haspopup="dialog" aria-controls="vacancyTypeDialog">
                         ＋ Create a vacancy
                     </a>
                 </section>
@@ -314,5 +315,7 @@
         src="~/js/employer-vacancies-list.js"
         asp-append-version="true">
     </script>
+    <partial name="_VacancyTypeDialog" />
+    <script src="~/js/vacancy-type-dialog.js" asp-append-version="true"></script>
 </body>
 </html>

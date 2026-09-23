@@ -18,6 +18,7 @@
         rel="stylesheet"
         href="~/css/employer-home.css"
         asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/vacancy-type-dialog.css" asp-append-version="true" />
 </head>
 
 <body>
@@ -135,7 +136,7 @@
                 <a
                     class="create-vacancy-button"
                     asp-controller="EmployerVacancies"
-                    asp-action="CreateVacancy">
+                    asp-action="CreateVacancy" data-create-vacancy aria-haspopup="dialog" aria-controls="vacancyTypeDialog">
                     <span>＋</span>
                     Create a vacancy
                 </a>
@@ -277,5 +278,7 @@
         src="~/js/employer-home.js"
         asp-append-version="true">
     </script>
+    <partial name="_VacancyTypeDialog" />
+    <script src="~/js/vacancy-type-dialog.js" asp-append-version="true"></script>
 </body>
 </html>
