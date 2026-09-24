@@ -10,7 +10,7 @@ else
         @foreach (var role in (Model.Page == "Internships" ? Model.Opportunities : Model.Opportunities.Take(3)))
         {
             var title = string.IsNullOrWhiteSpace(role.RoleTitle) ? role.PositionName : role.RoleTitle;
-            var link = role.HasApplied ? $"/Applications/{role.VacancyId}" : $"/Student/Internships?vacancyId={role.VacancyId}";
+            var link = role.HasApplied ? $"/Student/Applications/{role.VacancyId}" : $"/Student/Internships?vacancyId={role.VacancyId}";
             <a class="student-opportunity" href="@link"><span class="student-opportunity-type"><partial name="_StudentIcon" model='"briefcase"' /> INTERNSHIP</span><h3>@title</h3><p>@role.EmployerName</p><small>@(string.IsNullOrWhiteSpace(role.LocationName) ? role.EmploymentType : role.LocationName + " · " + role.EmploymentType)</small><span class="student-opportunity-bottom"><span>@Math.Clamp(role.MatchScore, 0, 100)% match</span><strong>@(role.HasApplied ? "View application" : "View role") →</strong></span></a>
         }
     </div>

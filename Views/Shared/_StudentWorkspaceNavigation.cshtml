@@ -6,7 +6,7 @@
         ("/Student/Academy", "◇", "Academy"),
         ("/Student/Skills", "✦", "Skills"),
         ("/Student/Internships", "▣", "Internships"),
-        ("/Applications", "▤", "Applications"),
+        ("/Student/Applications", "▤", "Applications"),
         ("/Student/Events", "▦", "Events"),
         ("/Profile", "○", "Profile")
     };
@@ -15,7 +15,7 @@
     @foreach (var (url, icon, label) in links)
     {
         var active = path.Equals(url, StringComparison.OrdinalIgnoreCase)
-            || (url == "/Applications" && path.StartsWith("/Applications/", StringComparison.OrdinalIgnoreCase));
+            || (url == "/Student/Applications" && path.StartsWith("/Student/Applications/", StringComparison.OrdinalIgnoreCase));
         <a class="nav-link @(active ? "active" : "")" href="@url" aria-current="@(active ? "page" : null)"><span class="nav-icon" aria-hidden="true">@icon</span><span>@label</span></a>
     }
 </nav>

@@ -70,7 +70,7 @@ Check(error.Contains("role=\"alert\"") && !error.Contains("No internships yet"),
 FixtureHandler.Mode = "filled";
 var html = await client.GetStringAsync("/Student/Internships");
 Check(html.Contains("Data Analyst Intern") && html.Contains("Design Intern") && !html.Contains("Employee Analyst"), "Student category separation failed");
-Check(html.Contains("/Opportunities/11/Apply") && html.Contains("/Applications/12"), "Shared application links missing");
+Check(html.Contains("/Opportunities/11/Apply") && html.Contains("/Student/Applications/12"), "Student application links missing");
 Check(html.Contains("data-bookmark") && html.Contains("data-toggle-opportunity") && html.Contains("data-score-filter"), "Shared opportunity controls missing");
 var sql = await client.GetStringAsync("/Student/Internships?filter=sql");
 Check(sql.Contains("Data Analyst Intern") && !sql.Contains("Design Intern"), "Skill filtering failed");

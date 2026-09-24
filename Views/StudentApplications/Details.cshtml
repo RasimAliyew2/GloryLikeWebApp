@@ -1,0 +1,91 @@
+@using GloryLikeWebApp.Models.Student
+@model StudentDashboardViewModel
+@{
+    Layout = "_StudentLayout";
+    var history = Model.ApplicationHistory;
+    var item = history.SelectedApplication;
+    var application = item?.Details;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/student-applications.css" asp-append-version="true" />
+}
+<section class="student-applications student-application-details" aria-labelledby="applicationHeading">
+    <a class="student-application-back" href="/Student/Applications"><span aria-hidden="true">←</span> Back to applications</a>
+    @if (!string.IsNullOrWhiteSpace(history.ErrorMessage) || application is null || item is null)
+    {
+        <section class="student-application-state error" role="alert">
+            <span class="student-application-state-icon"><partial name="_StudentIcon" model='"folder"' /></span>
+            <h1 id="applicationHeading">Application unavailable</h1>
+            <p>@(string.IsNullOrWhiteSpace(history.ErrorMessage) ? "This application could not be found in your history." : history.ErrorMessage)</p>
+            <a class="student-applications-primary" href="/Student/Applications">View your applications</a>
+        </section>
+    }
+    else
+    {
+        <header class="student-application-detail-header">
+            <span class="student-application-logo" aria-hidden="true">@(string.IsNullOrWhiteSpace(application.CompanyInitials) ? "BF" : application.CompanyInitials)</span>
+            <div>
+                <div class="student-application-tags"><span class="student-application-type">@item.VacancyType</span><span class="student-application-vacancy-status">Vacancy: @application.VacancyStatus</span></div>
+                <h1 id="applicationHeading">@application.RoleTitle</h1>
+                <p>@application.CompanyName</p>
+                <div class="student-application-meta">
+                    @if (!string.IsNullOrWhiteSpace(application.LocationName))
+                    { <span>@application.LocationName</span> }
+                    @if (!string.IsNullOrWhiteSpace(application.EmploymentType))
+                    { <span>@application.EmploymentType</span> }
+                    @if (!string.IsNullOrWhiteSpace(application.JobFamilyName))
+                    { <span>@application.JobFamilyName</span> }
+                </div>
+            </div>
+        </header>
+        <div class="student-application-detail-grid">
+            <aside class="student-application-detail-status student-application-panel" aria-labelledby="applicationStatusHeading">
+                <h2 id="applicationStatusHeading">Application status</h2>
+                <span class="student-application-status @item.StatusKey">@item.StatusLabel</span>
+                <dl class="student-application-status-facts">
+                    <div><dt>Current employer stage</dt><dd>@(string.IsNullOrWhiteSpace(application.FunnelStageName) ? "Awaiting review" : application.FunnelStageName)</dd></div>
+                    @if (application.FunnelStageIndex > 0 && application.FunnelStageCount > 0 && item.StatusKey is "in-progress" or "hired")
+                    { <div><dt>Stage</dt><dd>@application.FunnelStageIndex of @application.FunnelStageCount</dd></div> }
+                    <div><dt>Applied</dt><dd><time datetime="@application.AppliedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@application.AppliedAtUtc.ToString("dd MMM yyyy, HH:mm") UTC</time></dd></div>
+                    @if (application.FunnelStageUpdatedAtUtc.HasValue)
+                    { <div><dt>Stage updated</dt><dd><time datetime="@application.FunnelStageUpdatedAtUtc.Value.ToString("yyyy-MM-ddTHH:mm:ssZ")">@application.FunnelStageUpdatedAtUtc.Value.ToString("dd MMM yyyy, HH:mm") UTC</time></dd></div> }
+                    @if (application.HiredAtUtc.HasValue)
+                    { <div><dt>Hired</dt><dd><time datetime="@application.HiredAtUtc.Value.ToString("yyyy-MM-ddTHH:mm:ssZ")">@application.HiredAtUtc.Value.ToString("dd MMM yyyy")</time></dd></div> }
+                </dl>
+                <p class="student-application-status-note">This status reflects the employer’s latest update to your application.</p>
+            </aside>
+            <div class="student-application-detail-body">
+                <section class="student-application-panel" aria-labelledby="roleHeading">
+                    <h2 id="roleHeading">About the role</h2>
+                    <p class="student-application-description">@(string.IsNullOrWhiteSpace(application.JobDescription) ? "No description was provided for this role." : application.JobDescription)</p>
+                    <dl class="student-application-role-facts">
+                        <div><dt>Employment</dt><dd>@(string.IsNullOrWhiteSpace(application.EmploymentType) ? "Not specified" : application.EmploymentType)</dd></div>
+                        <div><dt>Salary</dt><dd>@application.SalaryText</dd></div>
+                        <div><dt>Vacancy status</dt><dd>@application.VacancyStatus</dd></div>
+                        @if (!string.IsNullOrWhiteSpace(application.PlatformVacancyId))
+                        { <div><dt>Vacancy ID</dt><dd>@application.PlatformVacancyId</dd></div> }
+                        @if (application.ApplicationDeadline.HasValue)
+                        { <div><dt>Application deadline</dt><dd><time datetime="@application.ApplicationDeadline.Value.ToString("yyyy-MM-dd")">@application.ApplicationDeadline.Value.ToString("dd MMM yyyy")</time></dd></div> }
+                    </dl>
+                </section>
+                <section class="student-application-panel" aria-labelledby="skillsHeading">
+                    <h2 id="skillsHeading"><partial name="_StudentIcon" model='"verified"' /> Skills for this role</h2>
+                    @if (application.Skills.Count == 0)
+                    { <p class="student-application-description">No specific skills were listed for this role.</p> }
+                    else
+                    {
+                        <ul class="student-application-skills">
+                            @foreach (var skill in application.Skills)
+                            { <li><strong>@skill.SkillName</strong>@if (!string.IsNullOrWhiteSpace(skill.RequirementType)) { <span>@skill.RequirementType</span> }</li> }
+                        </ul>
+                    }
+                </section>
+                <div class="student-application-detail-links">
+                    @if (application.CompanyOwnerUserId > 0)
+                    { <a asp-controller="CompanyPages" asp-action="About" asp-route-companyOwnerUserId="@application.CompanyOwnerUserId">View company <partial name="_StudentIcon" model='"arrow"' /></a> }
+                    <a href="/Student/Internships">Explore more internships <partial name="_StudentIcon" model='"arrow"' /></a>
+                </div>
+            </div>
+        </div>
+    }
+</section>

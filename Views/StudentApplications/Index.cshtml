@@ -1,0 +1,105 @@
+@using GloryLikeWebApp.Models.Student
+@model StudentDashboardViewModel
+@{
+    Layout = "_StudentLayout";
+    var history = Model.ApplicationHistory;
+    var filters = new[] { (Key: "all", Label: "All applications"), (Key: "in-progress", Label: "In progress"), (Key: "hired", Label: "Hired"), (Key: "not-selected", Label: "Not selected"), (Key: "withdrawn", Label: "Withdrawn") };
+    var hasFilters = !string.IsNullOrWhiteSpace(history.SearchText) || history.StatusFilter != "all";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/student-applications.css" asp-append-version="true" />
+}
+<section class="student-applications" aria-labelledby="applicationsHeading">
+    <header class="student-applications-heading">
+        <div>
+            <h1 id="applicationsHeading"><partial name="_StudentIcon" model='"folder"' /> Applications</h1>
+            <p>Follow the roles you have applied for and see the latest status from each employer.</p>
+        </div>
+        <a class="student-applications-primary" href="/Student/Internships">Explore internships <partial name="_StudentIcon" model='"arrow"' /></a>
+    </header>
+
+    <dl class="student-application-stats" aria-label="Application summary">
+        <div><dt><partial name="_StudentIcon" model='"folder"' /> Total applications</dt><dd>@(Model.ApplicationsAvailable ? history.TotalCount.ToString() : "—")</dd></div>
+        <div><dt><partial name="_StudentIcon" model='"rocket"' /> In progress</dt><dd>@(Model.ApplicationsAvailable ? history.InProgressCount.ToString() : "—")</dd></div>
+        <div class="success"><dt><partial name="_StudentIcon" model='"verified"' /> Hired</dt><dd>@(Model.ApplicationsAvailable ? history.HiredCount.ToString() : "—")</dd></div>
+        <div class="muted"><dt><partial name="_StudentIcon" model='"briefcase"' /> Not selected</dt><dd>@(Model.ApplicationsAvailable ? history.NotSelectedCount.ToString() : "—")</dd></div>
+    </dl>
+    @if (string.IsNullOrWhiteSpace(history.ErrorMessage))
+    {
+        <section class="student-application-tools" aria-label="Filter applications">
+            <nav class="student-application-filters" aria-label="Application status">
+                @foreach (var filter in filters)
+                {
+                    <a class="@(history.StatusFilter == filter.Key ? "active" : string.Empty)" asp-controller="StudentApplications" asp-action="Index" asp-route-status="@filter.Key" asp-route-search="@history.SearchText" aria-current="@(history.StatusFilter == filter.Key ? "page" : null)">@filter.Label</a>
+                }
+            </nav>
+            <form class="student-application-search" method="get" action="/Student/Applications" role="search">
+                <input type="hidden" name="status" value="@history.StatusFilter" />
+                <label for="applicationSearch" class="student-applications-sr-only">Search applications by role or company</label>
+                <input id="applicationSearch" type="search" name="search" value="@history.SearchText" placeholder="Search by role or company" />
+                <button type="submit">Search</button>
+            </form>
+        </section>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(history.ErrorMessage))
+    {
+        <section class="student-application-state error" role="alert">
+            <span class="student-application-state-icon"><partial name="_StudentIcon" model='"folder"' /></span>
+            <h2>Applications could not be loaded</h2>
+            <p>@history.ErrorMessage</p>
+            <a class="student-applications-primary" href="/Student/Applications">Try again</a>
+        </section>
+    }
+    else if (history.Applications.Count == 0)
+    {
+        <section class="student-application-state">
+            <span class="student-application-state-icon"><partial name="_StudentIcon" model='"folder"' /></span>
+            <h2>@(hasFilters ? "No matching applications" : "No applications yet")</h2>
+            <p>@(hasFilters ? "Try another status or search term to find an application." : "Your applications will appear here after you apply to an internship. You can follow their status as employers review them.")</p>
+            @if (hasFilters)
+            { <a class="student-applications-primary" href="/Student/Applications">Clear filters</a> }
+            else
+            { <a class="student-applications-primary" href="/Student/Internships">Explore internships <partial name="_StudentIcon" model='"arrow"' /></a> }
+        </section>
+    }
+    else
+    {
+        <div class="student-application-list-heading">
+            <h2>@(hasFilters ? "Matching applications" : "Your applications") <span>@history.Applications.Count</span></h2>
+            @if (hasFilters)
+            { <a href="/Student/Applications">Clear filters</a> }
+            else
+            { <span>Most recent first</span> }
+        </div>
+        <div class="student-application-list">
+            @foreach (var item in history.Applications)
+            {
+                var application = item.Details;
+                var highlighted = history.HighlightVacancyId == application.VacancyId;
+                <a id="application-@application.VacancyId" class="student-application-card @(highlighted ? "highlighted" : string.Empty)" href="/Student/Applications/@application.VacancyId" data-vacancy-id="@application.VacancyId" data-status="@item.StatusKey">
+                    <div class="student-application-role">
+                        <span class="student-application-logo" aria-hidden="true">@(string.IsNullOrWhiteSpace(application.CompanyInitials) ? "BF" : application.CompanyInitials)</span>
+                        <div class="student-application-role-copy">
+                            <div class="student-application-tags"><span class="student-application-type">@item.VacancyType</span><span class="student-application-vacancy-status">Vacancy: @application.VacancyStatus</span></div>
+                            <h3>@application.RoleTitle</h3>
+                            <p>@application.CompanyName</p>
+                            <div class="student-application-meta">
+                                @if (!string.IsNullOrWhiteSpace(application.LocationName))
+                                { <span>@application.LocationName</span> }
+                                @if (!string.IsNullOrWhiteSpace(application.EmploymentType))
+                                { <span>@application.EmploymentType</span> }
+                                <span>Applied <time datetime="@application.AppliedAtUtc.ToString("yyyy-MM-ddTHH:mm:ssZ")">@application.AppliedAtUtc.ToString("dd MMM yyyy")</time></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="student-application-current">
+                        <span class="student-application-status @item.StatusKey">@item.StatusLabel</span>
+                        <dl><dt>Employer stage</dt><dd>@(string.IsNullOrWhiteSpace(application.FunnelStageName) ? "Awaiting review" : application.FunnelStageName)</dd></dl>
+                        <span class="student-application-view">View application <partial name="_StudentIcon" model='"arrow"' /></span>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</section>

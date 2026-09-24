@@ -31,7 +31,7 @@
         </div>
     </section>
     @if (!string.IsNullOrWhiteSpace(listings.SuccessMessage))
-    { <div class="opportunity-state success" role="status">@listings.SuccessMessage <a href="/Applications">View your applications</a></div> }
+    { <div class="opportunity-state success" role="status">@listings.SuccessMessage <a href="/Student/Applications">View your applications</a></div> }
     @if (!string.IsNullOrWhiteSpace(listings.ErrorMessage))
     { <div class="opportunity-state error" role="alert"><h2>Internships are temporarily unavailable</h2><p>@listings.ErrorMessage</p><a href="/Student/Internships">Try again</a></div> }
     else if (listings.Opportunities.Count == 0)
@@ -46,7 +46,7 @@
     }
     else
     {
-        <div class="student-section-heading"><h2 class="student-section-title">@listings.RolesCountText</h2><a class="student-text-button" href="/Applications">Your applications →</a></div>
+        <div class="student-section-heading"><h2 class="student-section-title">@listings.RolesCountText</h2><a class="student-text-button" href="/Student/Applications">Your applications →</a></div>
         <div class="opportunities-list" id="opportunitiesList">
             @foreach (var opportunity in listings.Opportunities) { <partial name="_OpportunityCard" model="opportunity" /> }
         </div>
