@@ -25,7 +25,7 @@
                 <a class="@(Model.Page == "Internships" ? "active" : "")" href="/Student/Internships" aria-current="@(Model.Page == "Internships" ? "page" : null)"><partial name="_StudentIcon" model='"briefcase"' /> Internships</a>
                 <a class="@(Model.Page == "Applications" ? "active" : "")" href="/Student/Applications" aria-current="@(Model.Page == "Applications" ? "page" : null)"><partial name="_StudentIcon" model='"folder"' /> Applications</a>
                 <a class="@(Model.Page == "Events" ? "active" : "")" href="/Student/Events" aria-current="@(Model.Page == "Events" ? "page" : null)"><partial name="_StudentIcon" model='"calendar"' /> Events</a>
-                <a href="/Profile"><partial name="_StudentIcon" model='"user"' /> Profile</a>
+                <a class="@(Model.Page == "Profile" ? "active" : "")" href="/Student/Profile" aria-current="@(Model.Page == "Profile" ? "page" : null)"><partial name="_StudentIcon" model='"user"' /> Profile</a>
             </nav>
             <div class="student-sidebar-bottom"><a class="student-brand" href="/Student">BothFind<span>STUDENT SPACE</span></a>
                 <form method="post" action="/SignOut">@Html.AntiForgeryToken()<button type="submit"><partial name="_StudentIcon" model='"signout"' /> Sign out</button></form>

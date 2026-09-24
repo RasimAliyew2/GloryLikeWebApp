@@ -43,6 +43,14 @@ public sealed class EmployerCandidateProfileApiResponse
 
 public sealed class EmployerCandidateProfileApiItem
 {
+    public string AccountType { get; set; } = "candidate";
+    public string University { get; set; } = string.Empty;
+    public string Specialty { get; set; } = string.Empty;
+    public int? StudyYear { get; set; }
+    public int? GraduationYear { get; set; }
+    public string Goal { get; set; } = string.Empty;
+    public bool OpenToInternships { get; set; } = true;
+    public bool IsStudent => string.Equals(AccountType, "student", StringComparison.OrdinalIgnoreCase);
     public int UserId { get; set; }
     public string DisplayName { get; set; } = string.Empty;
     public string UserName { get; set; } = string.Empty;
@@ -62,6 +70,7 @@ public sealed class EmployerCandidateProfileApiItem
 
 public sealed class EmployerCandidateSkillApiItem
 {
+    public int KnowledgeScore { get; set; }
     public int SkillId { get; set; }
     public string SkillName { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;

@@ -1,0 +1,138 @@
+@using GloryLikeWebApp.Models.Student
+@model StudentDashboardViewModel
+@{
+    Layout = "_StudentLayout";
+    var profile = Model.StudentProfile;
+    var Input = profile.Input;
+    var photo = Input.ProfileImageDataUrl ?? string.Empty;
+    var safePhoto = photo.Length <= 2_796_230 && System.Text.RegularExpressions.Regex.IsMatch(photo, @"\Adata:image/(jpeg|png);base64,[A-Za-z0-9+/]*={0,2}\z") ? photo : string.Empty;
+    var verifiedSkills = Model.Skills.Where(s => s.IsVerified || string.Equals(s.Status, "verified", StringComparison.OrdinalIgnoreCase)).OrderBy(s => s.SkillName).ToList();
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/student-profile.css" asp-append-version="true" />
+}
+<section class="student-profile" aria-labelledby="studentProfileHeading">
+    <form method="post" action="/Student/Profile" id="studentProfileForm" data-student-profile>
+        @Html.AntiForgeryToken()
+        <header class="student-profile-heading">
+            <div>
+                <h1 id="studentProfileHeading"><partial name="_StudentIcon" model='"user"' /> Profile</h1>
+                <p>What employers see — and what you can improve.</p>
+            </div>
+            <div class="student-profile-actions">
+                <button type="button" class="student-profile-secondary" data-profile-preview-open disabled="@(!profile.IsAvailable)" hidden>
+                    <svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+                    Preview as an employer
+                </button>
+                <button type="submit" class="student-profile-primary" data-profile-save disabled="@(!profile.IsAvailable)">
+                    <svg class="st-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h13l4 4v14H3V3h1ZM7 3v6h9V3M7 21v-8h10v8" /></svg>
+                    <span>Save</span>
+                </button>
+            </div>
+        </header>
+
+        @if (profile.Saved)
+        {
+            <p class="student-profile-notice success" role="status">Your profile has been saved.</p>
+        }
+        <div asp-validation-summary="All" class="student-profile-notice error" role="alert"></div>
+
+        @if (!profile.IsAvailable)
+        {
+            <section class="student-profile-card student-profile-unavailable" aria-labelledby="profileUnavailableHeading">
+                <span class="student-profile-empty-icon"><partial name="_StudentIcon" model='"user"' /></span>
+                <h2 id="profileUnavailableHeading">Your profile is temporarily unavailable</h2>
+                <p>We couldn't load your saved details. Reload the page to try again.</p>
+                <a href="/Student/Profile" class="student-profile-primary">Reload profile</a>
+            </section>
+        }
+        else
+        {
+            <section class="student-profile-card student-profile-completion" aria-label="Profile completeness">
+                <div><strong data-profile-completion-label>@profile.CompletionPercent% complete</strong><span>Complete your details to help employers get to know you.</span></div>
+                <div class="student-profile-progress" role="progressbar" aria-label="Profile completeness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@profile.CompletionPercent" data-profile-completion><span style="width: @(profile.CompletionPercent)%"></span></div>
+            </section>
+
+            <section class="student-profile-card" aria-labelledby="studentIdentificationHeading">
+                <h2 id="studentIdentificationHeading"><partial name="_StudentIcon" model='"user"' /> Identification</h2>
+                <div class="student-profile-identification">
+                    <div class="student-profile-photo-column">
+                        <div class="student-profile-photo">
+                            <img src="@(safePhoto.Length > 0 ? safePhoto : null)" alt="Your profile photo" data-profile-photo-image hidden="@(safePhoto.Length == 0)" />
+                            <span data-profile-photo-placeholder hidden="@(safePhoto.Length > 0)"><partial name="_StudentIcon" model='"user"' /></span>
+                        </div>
+                        <input asp-for="@Input.ProfileImageDataUrl" type="hidden" data-profile-photo-value />
+                        <div data-profile-photo-controls hidden>
+                            <label class="student-profile-upload" for="studentProfilePhoto">Upload photo</label>
+                            <input id="studentProfilePhoto" class="student-profile-file" type="file" accept="image/jpeg,image/png" aria-describedby="studentProfilePhotoHelp studentProfilePhotoError" data-profile-photo-input />
+                            <p id="studentProfilePhotoHelp">JPG/PNG, up to 2 MB</p>
+                            <button type="button" class="student-profile-photo-remove" data-profile-photo-remove hidden="@(string.IsNullOrWhiteSpace(Input.ProfileImageDataUrl))">Remove photo</button>
+                        </div>
+                        <p id="studentProfilePhotoError" class="student-profile-photo-error" role="alert" data-profile-photo-error></p>
+                        <noscript><p>Enable JavaScript to change your photo.</p></noscript>
+                    </div>
+                    <div class="student-profile-fields">
+                        <div class="student-profile-field"><label asp-for="@Input.FirstName"></label><input asp-for="@Input.FirstName" autocomplete="given-name" maxlength="80" required data-profile-complete /><span asp-validation-for="@Input.FirstName"></span></div>
+                        <div class="student-profile-field"><label asp-for="@Input.LastName"></label><input asp-for="@Input.LastName" autocomplete="family-name" maxlength="80" required data-profile-complete /><span asp-validation-for="@Input.LastName"></span></div>
+                        <div class="student-profile-field"><label asp-for="@Input.University"></label><input asp-for="@Input.University" maxlength="200" required data-profile-complete /><span asp-validation-for="@Input.University"></span></div>
+                        <div class="student-profile-field"><label asp-for="@Input.Specialty"></label><input asp-for="@Input.Specialty" maxlength="200" required data-profile-complete /><span asp-validation-for="@Input.Specialty"></span></div>
+                        <div class="student-profile-field"><label asp-for="@Input.StudyYear"></label><select asp-for="@Input.StudyYear" required data-profile-complete>@for (var year = 1; year <= 5; year++) { <option value="@year">Year @year</option> }</select><span asp-validation-for="@Input.StudyYear"></span></div>
+                        <div class="student-profile-field"><label asp-for="@Input.GraduationYear"></label><input asp-for="@Input.GraduationYear" type="number" min="1900" max="2200" placeholder="e.g. @(DateTime.UtcNow.Year + 2)" data-profile-complete /><span asp-validation-for="@Input.GraduationYear"></span></div>
+                        <div class="student-profile-ssi"><span class="student-ssi-chip"><partial name="_StudentIcon" model='"spark"' /> SSI @Model.SsiText · @Model.Level</span><span>Calculated automatically from your skills</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="student-profile-card" aria-labelledby="studentAboutHeading">
+                <h2 id="studentAboutHeading"><partial name="_StudentIcon" model='"spark"' /> About me</h2>
+                <div class="student-profile-field student-profile-bio"><label asp-for="@Input.About"></label><textarea asp-for="@Input.About" rows="4" maxlength="2000" placeholder="Tell employers about your studies, interests and projects." data-profile-complete></textarea><span asp-validation-for="@Input.About"></span></div>
+                <div class="student-profile-field"><label asp-for="@Input.Goal"></label><input asp-for="@Input.Goal" maxlength="500" placeholder="What would you like to learn or work on?" data-profile-complete /><span asp-validation-for="@Input.Goal"></span></div>
+                <label class="student-profile-availability" for="Input_OpenToInternships">
+                    <span><strong>Open to internships</strong><small>Let employers discover your profile for internship opportunities.</small></span>
+                    <span class="student-profile-toggle"><input asp-for="@Input.OpenToInternships" role="switch" /><span aria-hidden="true"></span></span>
+                </label>
+            </section>
+
+            <section class="student-profile-card" aria-labelledby="studentProfileSkillsHeading">
+                <div class="student-profile-section-heading"><h2 id="studentProfileSkillsHeading"><partial name="_StudentIcon" model='"verified"' /> Skills</h2><a href="/Student/Skills">Manage skills <span aria-hidden="true">→</span></a></div>
+                <p class="student-profile-muted">Skills are verified by quizzes in the Skills section. Your knowledge scores appear here automatically.</p>
+                @if (!Model.SkillsAvailable)
+                {
+                    <p class="student-profile-skills-empty">Your skills are temporarily unavailable. <a href="/Student/Profile">Reload this page</a> to try again.</p>
+                }
+                else if (verifiedSkills.Count == 0)
+                {
+                    <p class="student-profile-skills-empty">No verified skills yet. <a href="/Student/Skills">Add a skill and take a quiz</a> to show what you know.</p>
+                }
+                else
+                {
+                    <ul class="student-profile-skills" aria-label="Verified skills and knowledge scores">
+                        @foreach (var skill in verifiedSkills) { <li>@skill.SkillName <span aria-label="Knowledge score @skill.KnowledgeDisplay out of 100">· @skill.KnowledgeDisplay</span></li> }
+                    </ul>
+                }
+            </section>
+        }
+    </form>
+
+    @if (profile.IsAvailable)
+    {
+        <dialog class="student-profile-preview" data-profile-preview aria-labelledby="studentProfilePreviewHeading">
+            <div class="student-profile-preview-header"><div><h2 id="studentProfilePreviewHeading">Employer preview</h2><p>A preview of your profile. Save to publish your changes.</p></div><button type="button" aria-label="Close employer preview" data-profile-preview-close>×</button></div>
+            <div class="student-profile-preview-body">
+                <div class="student-profile-preview-identity"><div class="student-profile-photo"><img alt="Your profile photo" data-preview-photo hidden /><span data-preview-photo-placeholder><partial name="_StudentIcon" model='"user"' /></span></div><div><span class="student-type-chip">Student</span><h3 data-preview-name></h3><p data-preview-education></p><p data-preview-study></p><span class="student-ssi-chip"><partial name="_StudentIcon" model='"spark"' /> SSI @Model.SsiText · @Model.Level</span></div></div>
+                <p class="student-profile-preview-availability" data-preview-availability></p>
+                <section><h3>About me</h3><p class="student-profile-preview-copy" data-preview-about></p></section>
+                <section><h3>Internship goal</h3><p class="student-profile-preview-copy" data-preview-goal></p></section>
+                <section><h3>Verified skills</h3>
+                    @if (!Model.SkillsAvailable) { <p class="student-profile-muted">Skills are temporarily unavailable.</p> }
+                    else if (verifiedSkills.Count == 0) { <p class="student-profile-muted">No verified skills yet.</p> }
+                    else { <ul class="student-profile-skills">@foreach (var skill in verifiedSkills) { <li>@skill.SkillName · @skill.KnowledgeDisplay</li> }</ul> }
+                </section>
+            </div>
+            <div class="student-profile-preview-footer"><button type="button" class="student-profile-primary" data-profile-preview-close>Back to editing</button></div>
+        </dialog>
+    }
+</section>
+@section Scripts {
+    <script src="~/js/student-profile.js" asp-append-version="true"></script>
+}

@@ -29,6 +29,8 @@ public sealed class ProfileController : Controller
         [FromQuery] bool saved,
         CancellationToken cancellationToken)
     {
+        if (User.FindFirstValue("accountType") == "student")
+            return Redirect("/Student/Profile");
         var userId = GetRequiredUserId();
 
         if (userId is null)
@@ -48,6 +50,7 @@ public sealed class ProfileController : Controller
         [Bind(Prefix = "Personal")] UserPersonalProfileInput input,
         CancellationToken cancellationToken)
     {
+        if (User.FindFirstValue("accountType") == "student") return Forbid();
         var userId = GetRequiredUserId();
         if (userId is null)
             return Challenge();

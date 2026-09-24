@@ -12,6 +12,13 @@ public sealed class StudentProfileResponse
     public bool Success { get; set; }
     public string Message { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public int? GraduationYear { get; set; }
+    public string? About { get; set; }
+    public string? Goal { get; set; }
+    public bool OpenToInternships { get; set; } = true;
+    public string? ProfileImageDataUrl { get; set; }
     public string University { get; set; } = string.Empty;
     public string Specialty { get; set; } = string.Empty;
     public int? StudyYear { get; set; }
@@ -25,6 +32,7 @@ public sealed class StudentDashboardViewModel
 {
     public string DisplayName { get; set; } = "Student";
     public string Page { get; set; } = "Overview";
+    public StudentProfilePageViewModel StudentProfile { get; set; } = new();
     public StudentSkillsPageViewModel SkillManagement { get; set; } = new();
     public StudentApplicationsPageViewModel ApplicationHistory { get; set; } = new();
     public OpportunitiesPageViewModel InternshipListings { get; set; } = new();
